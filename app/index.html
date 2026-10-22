@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AgentTab — pay AI agents in USDC on Arc</title>
+<style>
+  body { font-family: system-ui, sans-serif; margin: 2rem auto; max-width: 640px; padding: 0 1rem; color: #14213d; }
+  h1 { font-size: 1.6rem; margin-bottom: 0.25rem; }
+  p.sub { color: #555; margin-top: 0; }
+  section { border: 1px solid #ddd; border-radius: 10px; padding: 1rem; margin: 1rem 0; }
+  label { display: block; margin: 0.5rem 0 0.25rem; font-size: 0.9rem; }
+  input { width: 100%; padding: 0.5rem; box-sizing: border-box; }
+  button { margin-top: 0.75rem; padding: 0.55rem 1rem; border: 0; border-radius: 8px; background: #2775ca; color: #fff; cursor: pointer; }
+  button.secondary { background: #e8e8e8; color: #14213d; }
+  table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+  td, th { border-bottom: 1px solid #eee; padding: 0.4rem; text-align: left; }
+  #status { white-space: pre-wrap; font-size: 0.9rem; color: #333; }
+  .mono { font-family: ui-monospace, monospace; font-size: 0.8rem; word-break: break-all; }
+</style>
+</head>
+<body>
+<h1>AgentTab</h1>
+<p class="sub">A minimal on chain tab for paying AI agents in USDC on Arc. Open a tab, release it when the work is done, or refund it after its expiry.</p>
+
+<section>
+  <button id="connectBtn">Connect wallet</button>
+  <div id="account" class="mono"></div>
+  <div id="status"></div>
+</section>
+
+<section>
+  <h2>Open a tab</h2>
+  <label>Agent wallet address</label>
+  <input id="agent" placeholder="0x...">
+  <label>Amount (USDC)</label>
+  <input id="amount" type="number" min="0" step="0.01" placeholder="5.00">
+  <label>Expiry (hours from now)</label>
+  <input id="hours" type="number" min="1" step="1" value="72">
+  <button id="openBtn">Approve and open tab</button>
+</section>
+
+<section>
+  <h2>Your tabs as payer</h2>
+  <button id="refreshBtn" class="secondary">Refresh tabs</button>
+  <table>
+    <thead><tr><th>Id</th><th>Agent</th><th>Amount</th><th>Status</th><th>Expires</th><th></th></tr></thead>
+    <tbody id="tabsBody"></tbody>
+  </table>
+</section>
+
+<script src="https://cdn.jsdelivr.net/npm/ethers@6.13.4/dist/ethers.umd.min.js"></script>
+<script>
+"use strict";
+/* ================= CONFIG: deployment day edits happen only here ================= */
+const CONFIG = {
+  CHAIN_ID: 5042,                                   // Arc mainnet (verified, see FACTS.md)
+  CHAIN_ID_HEX: "0x13b2",
+  RPC_URL: "https://rpc.mainnet.arc.io",            // Arc public RPC (verified)
+  EXPLORER: "https://explorer.arc.io",              // Arc explorer (verified)
+  USDC_ADDRESS: "0x3600000000000000000000000000000000000000", // USDC ERC-20 view on Arc, 6 decimals (verified)
+  AGENTTAB_ADDRESS: "PASTE_DEPLOYED_AGENTTAB_ADDRESS_HERE",   // <-- set after deployment
+  USDC_DECIMALS: 6
+};
+/* ================= end of CONFIG ================= */
+
+const ERC20_ABI = [
+  "function approve(address spender, uint256 amount) returns (bool)",
+  "function allowance(address owner, address spender) view returns (uint256)",
+  "function balanceOf(address owner) view returns (uint256)"
+];
+const AGENTTAB_ABI = [
+  "function openTab(address agent, uint256 amount, uint64 durationSeconds) returns (uint256)",
+  "function release(uint256 tabId)",
+  "function refund(uint256 tabId)",
+  "function nextTabId() view returns (uint256)",
+  "function getTab(uint256 tabId) view returns (address payer, address agent, uint256 amount, uint64 expiresAt, uint8 status)"
+];
+const STATUS_NAMES = ["Open", "Released", "Refunded"];
+
+let provider, signer, account;
+
+const $ = (id) => document.getElementById(id);
+function say(msg) { $("status").textContent = msg; }
+
+async function ensureArcNetwork() {
+  const current = await window.ethereum.request({ method: "eth_chainId" });
+  if (current !== CONFIG.CHAIN_ID_HEX) {
+    try {
+      await window.ethereum.request({ method: "wallet_switchEthereumChain", params: [{ chainId: CONFIG.CHAIN_ID_HEX }] });
+    } catch (e) {
+      await window.ethereum.request({
+        method: "wallet_addEthereumChain",
+        params: [{
+          chainId: CONFIG.CHAIN_ID_HEX,
+          chainName: "Arc",
+          rpcUrls: [CONFIG.RPC_URL],
+          nativeCurrency: { name: "USDC", symbol: "USDC", decimals: 18 },
+          blockExplorerUrls: [CONFIG.EXPLORER]
+        }]
+      });
+    }
+  }
+}
+
+async function connect() {
+  if (!window.ethereum) { say("No EVM wallet found. Install MetaMask or another EVM wallet."); return; }
+  await ensureArcNetwork();
+  provider = new ethers.BrowserProvider(window.ethereum);
+  signer = await provider.getSigner();
+  account = await signer.getAddress();
+  $("account").textContent = "Connected: " + account;
+  say("Wallet connected on Arc mainnet.");
+  await refreshTabs();
+}
+
+function tabContract(withSigner) {
+  return new ethers.Contract(CONFIG.AGENTTAB_ADDRESS, AGENTTAB_ABI, withSigner ? signer : provider);
+}
+
+async function openTab() {
+  if (!signer) { say("Connect your wallet first."); return; }
+  const agent = $("agent").value.trim();
+  const amountStr = $("amount").value;
+  const hours = parseInt($("hours").value, 10);
+  if (!ethers.isAddress(agent)) { say("That agent address does not look valid."); return; }
+  if (!amountStr || Number(amountStr) <= 0) { say("Enter an amount above zero."); return; }
+  if (!hours || hours < 1) { say("Expiry must be at least 1 hour."); return; }
+
+  const amount = ethers.parseUnits(amountStr, CONFIG.USDC_DECIMALS);
+  const duration = BigInt(hours) * 3600n;
+  const usdc = new ethers.Contract(CONFIG.USDC_ADDRESS, ERC20_ABI, signer);
+  const tabs = tabContract(true);
+  try {
+    say("Step 1 of 2: approving USDC for the AgentTab contract...");
+    const approveTx = await usdc.approve(CONFIG.AGENTTAB_ADDRESS, amount);
+    await approveTx.wait();
+    say("Step 2 of 2: opening the tab...");
+    const tx = await tabs.openTab(agent, amount, duration);
+    const receipt = await tx.wait();
+    say("Tab opened. Transaction: " + CONFIG.EXPLORER + "/tx/" + receipt.hash);
+    await refreshTabs();
+  } catch (e) {
+    say("Open tab failed: " + (e.shortMessage || e.message));
+  }
+}
+
+async function actOnTab(tabId, action) {
+  if (!signer) { say("Connect your wallet first."); return; }
+  const tabs = tabContract(true);
+  try {
+    say("Sending " + action + " for tab " + tabId + "...");
+    const tx = action === "release" ? await tabs.release(tabId) : await tabs.refund(tabId);
+    const receipt = await tx.wait();
+    say("Done. Transaction: " + CONFIG.EXPLORER + "/tx/" + receipt.hash);
+    await refreshTabs();
+  } catch (e) {
+    say(action + " failed: " + (e.shortMessage || e.message));
+  }
+}
+
+async function refreshTabs() {
+  if (!provider) return;
+  if (CONFIG.AGENTTAB_ADDRESS.startsWith("PASTE")) { say("AgentTab contract address is not set in CONFIG yet."); return; }
+  const readProvider = provider || new ethers.JsonRpcProvider(CONFIG.RPC_URL);
+  const tabs = new ethers.Contract(CONFIG.AGENTTAB_ADDRESS, AGENTTAB_ABI, readProvider);
+  const count = Number(await tabs.nextTabId());
+  const body = $("tabsBody");
+  body.innerHTML = "";
+  const now = Math.floor(Date.now() / 1000);
+  for (let i = count - 1; i >= 0; i--) {
+    const t = await tabs.getTab(i);
+    if (account && t.payer.toLowerCase() !== account.toLowerCase()) continue;
+    const status = STATUS_NAMES[Number(t.status)];
+    const expires = new Date(Number(t.expiresAt) * 1000).toLocaleString();
+    const tr = document.createElement("tr");
+    let actions = "";
+    if (status === "Open") {
+      actions = '<button data-act="release" data-id="' + i + '">Release</button>';
+      if (now >= Number(t.expiresAt)) actions += ' <button data-act="refund" data-id="' + i + '">Refund</button>';
+    }
+    tr.innerHTML = "<td>" + i + "</td><td class='mono'>" + t.agent + "</td><td>" +
+      ethers.formatUnits(t.amount, CONFIG.USDC_DECIMALS) + " USDC</td><td>" + status +
+      "</td><td>" + expires + "</td><td>" + actions + "</td>";
+    body.appendChild(tr);
+  }
+  body.querySelectorAll("button[data-act]").forEach((b) => {
+    b.addEventListener("click", () => actOnTab(Number(b.dataset.id), b.dataset.act));
+  });
+}
+
+$("connectBtn").addEventListener("click", connect);
+$("openBtn").addEventListener("click", openTab);
+$("refreshBtn").addEventListener("click", refreshTabs);
+</script>
+</body>
+</html>

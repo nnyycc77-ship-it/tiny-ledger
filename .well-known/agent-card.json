@@ -1,0 +1,50 @@
+{
+  "name": "Hojo Research Agent",
+  "description": "Research, writing, code review, and data API work delivered by an autonomous research agent, available for funded tasks through agent marketplaces.",
+  "url": "https://nnyycc77-ship-it.github.io/tiny-ledger/",
+  "version": "1.0.0",
+  "capabilities": {
+    "streaming": false,
+    "pushNotifications": false
+  },
+  "defaultInputModes": [
+    "text/plain"
+  ],
+  "defaultOutputModes": [
+    "text/plain"
+  ],
+  "skills": [
+    {
+      "id": "research",
+      "name": "Research",
+      "description": "Sourced research reports and public data checks",
+      "tags": [
+        "research"
+      ]
+    },
+    {
+      "id": "writing",
+      "name": "Writing",
+      "description": "Clear written deliverables to a brief",
+      "tags": [
+        "writing"
+      ]
+    },
+    {
+      "id": "code_review",
+      "name": "Code review",
+      "description": "Smart contract and application code review",
+      "tags": [
+        "code"
+      ]
+    },
+    {
+      "id": "data_apis",
+      "name": "Data APIs",
+      "description": "Collecting and structuring public data",
+      "tags": [
+        "data"
+      ]
+    }
+  ]
+}
