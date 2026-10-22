@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>AgentTab — pay AI agents in USDC on Arc</title>
 <style>
-  body { font-family: system-ui, sans-serif; margin: 2rem auto; max-width: 640px; padding: 0 1rem; color: #14213d; }
+  body { font-family: system-ui, sans-serif; margin: 2rem auto; max-width: 680px; padding: 0 1rem; color: #14213d; }
   h1 { font-size: 1.6rem; margin-bottom: 0.25rem; }
   p.sub { color: #555; margin-top: 0; }
   section { border: 1px solid #ddd; border-radius: 10px; padding: 1rem; margin: 1rem 0; }
@@ -13,19 +13,24 @@
   input { width: 100%; padding: 0.5rem; box-sizing: border-box; }
   button { margin-top: 0.75rem; padding: 0.55rem 1rem; border: 0; border-radius: 8px; background: #2775ca; color: #fff; cursor: pointer; }
   button.secondary { background: #e8e8e8; color: #14213d; }
+  button:disabled { background: #b9c6d4; cursor: not-allowed; }
   table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
   td, th { border-bottom: 1px solid #eee; padding: 0.4rem; text-align: left; }
   #status { white-space: pre-wrap; font-size: 0.9rem; color: #333; }
+  #configBanner { display: none; border: 1px solid #c0392b; background: #fdecea; color: #7b241c; border-radius: 10px; padding: 1rem; margin: 1rem 0; font-size: 0.95rem; }
   .mono { font-family: ui-monospace, monospace; font-size: 0.8rem; word-break: break-all; }
 </style>
 </head>
 <body>
 <h1>AgentTab</h1>
-<p class="sub">A minimal on chain tab for paying AI agents in USDC on Arc. Open a tab, release it when the work is done, or refund it after its expiry.</p>
+<p class="sub">A minimal on chain tab for paying AI agents in USDC on Arc. Open a tab, release it when the work is done, refund it inside the grace window after expiry, or let the agent claim it once the window has passed.</p>
+
+<div id="configBanner"></div>
 
 <section>
   <button id="connectBtn">Connect wallet</button>
   <div id="account" class="mono"></div>
+  <div id="network" class="mono"></div>
   <div id="status"></div>
 </section>
 
@@ -37,15 +42,25 @@
   <input id="amount" type="number" min="0" step="0.01" placeholder="5.00">
   <label>Expiry (hours from now)</label>
   <input id="hours" type="number" min="1" step="1" value="72">
-  <button id="openBtn">Approve and open tab</button>
+  <label>Task reference (optional)</label>
+  <input id="taskRef" placeholder="e.g. marketplace job 479">
+  <button id="openBtn" class="txBtn">Approve and open tab</button>
 </section>
 
 <section>
   <h2>Your tabs as payer</h2>
   <button id="refreshBtn" class="secondary">Refresh tabs</button>
   <table>
-    <thead><tr><th>Id</th><th>Agent</th><th>Amount</th><th>Status</th><th>Expires</th><th></th></tr></thead>
+    <thead><tr><th>Id</th><th>Agent</th><th>Amount</th><th>Task ref</th><th>Status</th><th>Expires</th><th></th></tr></thead>
     <tbody id="tabsBody"></tbody>
+  </table>
+</section>
+
+<section>
+  <h2>Tabs paying you as agent</h2>
+  <table>
+    <thead><tr><th>Id</th><th>Payer</th><th>Amount</th><th>Task ref</th><th>Status</th><th>Expires</th><th></th></tr></thead>
+    <tbody id="agentTabsBody"></tbody>
   </table>
 </section>
 
@@ -54,13 +69,15 @@
 "use strict";
 /* ================= CONFIG: deployment day edits happen only here ================= */
 const CONFIG = {
-  CHAIN_ID: 5042,                                   // Arc mainnet (verified, see FACTS.md)
+  CHAIN_ID: 5042,                                   // Arc mainnet (see README, Deployment)
   CHAIN_ID_HEX: "0x13b2",
-  RPC_URL: "https://rpc.mainnet.arc.io",            // Arc public RPC (verified)
-  EXPLORER: "https://explorer.arc.io",              // Arc explorer (verified)
-  USDC_ADDRESS: "0x3600000000000000000000000000000000000000", // USDC ERC-20 view on Arc, 6 decimals (verified)
+  RPC_URL: "https://rpc.mainnet.arc.io",            // Arc public RPC
+  EXPLORER: "https://explorer.arc.io",              // Arc explorer
+  USDC_ADDRESS: "0x3600000000000000000000000000000000000000", // USDC ERC-20 view on Arc, 6 decimals
   AGENTTAB_ADDRESS: "PASTE_DEPLOYED_AGENTTAB_ADDRESS_HERE",   // <-- set after deployment
-  USDC_DECIMALS: 6
+  USDC_DECIMALS: 6,
+  GRACE_SECONDS: 48 * 3600,                          // refund grace window after expiry, matches the contract
+  MAX_TABS_LISTED: 50                                // cap on tabs listed per role
 };
 /* ================= end of CONFIG ================= */
 
@@ -70,18 +87,39 @@ const ERC20_ABI = [
   "function balanceOf(address owner) view returns (uint256)"
 ];
 const AGENTTAB_ABI = [
-  "function openTab(address agent, uint256 amount, uint64 durationSeconds) returns (uint256)",
+  "function openTab(address agent, uint256 amount, uint64 durationSeconds, string taskRef) returns (uint256)",
   "function release(uint256 tabId)",
   "function refund(uint256 tabId)",
-  "function nextTabId() view returns (uint256)",
-  "function getTab(uint256 tabId) view returns (address payer, address agent, uint256 amount, uint64 expiresAt, uint8 status)"
+  "function claim(uint256 tabId)",
+  "function getTab(uint256 tabId) view returns (address payer, address agent, uint256 amount, uint64 expiresAt, uint8 status, string taskRef)",
+  "event TabOpened(uint256 indexed tabId, address indexed payer, address indexed agent, uint256 amount, uint64 expiresAt, string taskRef)"
 ];
 const STATUS_NAMES = ["Open", "Released", "Refunded"];
+const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
 
 let provider, signer, account;
 
+/* The deployment address is validated before anything can transact. An
+   unset, placeholder, malformed, or zero address means the app is not
+   configured: it shows a banner and disables every transaction button. */
+function isConfigured() {
+  const a = CONFIG.AGENTTAB_ADDRESS;
+  return typeof a === "string" && ethers.isAddress(a) && a.toLowerCase() !== ZERO_ADDRESS && !a.startsWith("PASTE");
+}
+
 const $ = (id) => document.getElementById(id);
 function say(msg) { $("status").textContent = msg; }
+
+function applyConfigState() {
+  const ok = isConfigured();
+  if (!ok) {
+    $("configBanner").style.display = "block";
+    $("configBanner").textContent =
+      "AgentTab is not configured yet. The deployed contract address in the CONFIG block at the top of this page is missing or invalid, so transactions are disabled. Deploy the contract, paste its address into CONFIG, and reload.";
+  }
+  document.querySelectorAll(".txBtn").forEach((b) => { b.disabled = !ok; });
+  return ok;
+}
 
 async function ensureArcNetwork() {
   const current = await window.ethereum.request({ method: "eth_chainId" });
@@ -103,6 +141,32 @@ async function ensureArcNetwork() {
   }
 }
 
+/* Checked before every transaction: the wallet must sit on Arc mainnet,
+   because an account or network switch after connecting would otherwise
+   send the request from stale state. Offers the switch or add flow and
+   aborts if the wallet still is not on Arc afterwards. */
+async function requireArcNetwork() {
+  if (!window.ethereum) { say("No EVM wallet found. Install MetaMask or another EVM wallet."); return false; }
+  let current = await window.ethereum.request({ method: "eth_chainId" });
+  if (current !== CONFIG.CHAIN_ID_HEX) {
+    try { await ensureArcNetwork(); } catch (e) { /* handled by the recheck below */ }
+    current = await window.ethereum.request({ method: "eth_chainId" });
+  }
+  if (current !== CONFIG.CHAIN_ID_HEX) {
+    say("Wrong network. Switch the wallet to Arc mainnet (chain 5042) and try again.");
+    return false;
+  }
+  return true;
+}
+
+async function refreshNetworkLabel() {
+  if (!window.ethereum) return;
+  const current = await window.ethereum.request({ method: "eth_chainId" });
+  $("network").textContent = current === CONFIG.CHAIN_ID_HEX
+    ? "Network: Arc mainnet (5042)"
+    : "Network: not Arc (chain " + parseInt(current, 16) + "). Transactions will ask you to switch.";
+}
+
 async function connect() {
   if (!window.ethereum) { say("No EVM wallet found. Install MetaMask or another EVM wallet."); return; }
   await ensureArcNetwork();
@@ -110,8 +174,39 @@ async function connect() {
   signer = await provider.getSigner();
   account = await signer.getAddress();
   $("account").textContent = "Connected: " + account;
-  say("Wallet connected on Arc mainnet.");
+  await refreshNetworkLabel();
+  say("Wallet connected.");
   await refreshTabs();
+}
+
+/* Wallet changes refresh the page state instead of leaving the previously
+   connected account and network on screen. */
+if (window.ethereum && window.ethereum.on) {
+  window.ethereum.on("accountsChanged", async (accounts) => {
+    if (!accounts || accounts.length === 0) {
+      account = null; signer = null;
+      $("account").textContent = "Wallet disconnected.";
+      $("tabsBody").innerHTML = "";
+      $("agentTabsBody").innerHTML = "";
+      return;
+    }
+    provider = new ethers.BrowserProvider(window.ethereum);
+    signer = await provider.getSigner();
+    account = await signer.getAddress();
+    $("account").textContent = "Connected: " + account;
+    await refreshNetworkLabel();
+    await refreshTabs();
+  });
+  window.ethereum.on("chainChanged", async () => {
+    provider = new ethers.BrowserProvider(window.ethereum);
+    if (account) {
+      signer = await provider.getSigner();
+      account = await signer.getAddress();
+      $("account").textContent = "Connected: " + account;
+    }
+    await refreshNetworkLabel();
+    await refreshTabs();
+  });
 }
 
 function tabContract(withSigner) {
@@ -119,11 +214,15 @@ function tabContract(withSigner) {
 }
 
 async function openTab() {
+  if (!isConfigured()) { say("AgentTab is not configured yet."); return; }
   if (!signer) { say("Connect your wallet first."); return; }
+  if (!(await requireArcNetwork())) return;
   const agent = $("agent").value.trim();
   const amountStr = $("amount").value;
   const hours = parseInt($("hours").value, 10);
+  const taskRef = $("taskRef").value.trim();
   if (!ethers.isAddress(agent)) { say("That agent address does not look valid."); return; }
+  if (agent.toLowerCase() === account.toLowerCase()) { say("The agent cannot be your own wallet."); return; }
   if (!amountStr || Number(amountStr) <= 0) { say("Enter an amount above zero."); return; }
   if (!hours || hours < 1) { say("Expiry must be at least 1 hour."); return; }
 
@@ -136,7 +235,7 @@ async function openTab() {
     const approveTx = await usdc.approve(CONFIG.AGENTTAB_ADDRESS, amount);
     await approveTx.wait();
     say("Step 2 of 2: opening the tab...");
-    const tx = await tabs.openTab(agent, amount, duration);
+    const tx = await tabs.openTab(agent, amount, duration, taskRef);
     const receipt = await tx.wait();
     say("Tab opened. Transaction: " + CONFIG.EXPLORER + "/tx/" + receipt.hash);
     await refreshTabs();
@@ -146,11 +245,13 @@ async function openTab() {
 }
 
 async function actOnTab(tabId, action) {
+  if (!isConfigured()) { say("AgentTab is not configured yet."); return; }
   if (!signer) { say("Connect your wallet first."); return; }
+  if (!(await requireArcNetwork())) return;
   const tabs = tabContract(true);
   try {
     say("Sending " + action + " for tab " + tabId + "...");
-    const tx = action === "release" ? await tabs.release(tabId) : await tabs.refund(tabId);
+    const tx = await tabs[action](tabId);
     const receipt = await tx.wait();
     say("Done. Transaction: " + CONFIG.EXPLORER + "/tx/" + receipt.hash);
     await refreshTabs();
@@ -159,29 +260,58 @@ async function actOnTab(tabId, action) {
   }
 }
 
-async function refreshTabs() {
-  if (!provider) return;
-  if (CONFIG.AGENTTAB_ADDRESS.startsWith("PASTE")) { say("AgentTab contract address is not set in CONFIG yet."); return; }
-  const readProvider = provider || new ethers.JsonRpcProvider(CONFIG.RPC_URL);
+/* Tab discovery reads TabOpened logs filtered by the connected account,
+   once as payer (topic 2) and once as agent (topic 3), then loads only
+   those tabs. This replaces scanning every tab the contract has ever seen.
+   Note: public RPC endpoints can cap log ranges, so a long lived
+   deployment should narrow fromBlock towards its deployment block. */
+async function myTabIds(topicIndex) {
+  const iface = new ethers.Interface(AGENTTAB_ABI);
+  const topic0 = iface.getEvent("TabOpened").topicHash;
+  const me = ethers.zeroPadValue(account, 32);
+  const topics = [topic0, null, null, null];
+  topics[topicIndex] = me;
+  const readProvider = new ethers.JsonRpcProvider(CONFIG.RPC_URL);
+  const logs = await readProvider.getLogs({ address: CONFIG.AGENTTAB_ADDRESS, topics: topics, fromBlock: 0, toBlock: "latest" });
+  const ids = logs.map((l) => Number(BigInt(l.topics[1]))); // tabId is topic 1
+  return ids.slice(-CONFIG.MAX_TABS_LISTED).reverse();
+}
+
+function statusNote(t, now) {
+  const status = STATUS_NAMES[Number(t.status)];
+  if (status !== "Open") return status;
+  const exp = Number(t.expiresAt);
+  if (now < exp) return "Open";
+  if (now < exp + CONFIG.GRACE_SECONDS) return "Open, in refund grace";
+  return "Open, claimable by agent";
+}
+
+async function fillTable(bodyId, ids, asAgent) {
+  const readProvider = new ethers.JsonRpcProvider(CONFIG.RPC_URL);
   const tabs = new ethers.Contract(CONFIG.AGENTTAB_ADDRESS, AGENTTAB_ABI, readProvider);
-  const count = Number(await tabs.nextTabId());
-  const body = $("tabsBody");
+  const body = $(bodyId);
   body.innerHTML = "";
   const now = Math.floor(Date.now() / 1000);
-  for (let i = count - 1; i >= 0; i--) {
+  const configured = isConfigured();
+  for (const i of ids) {
     const t = await tabs.getTab(i);
-    if (account && t.payer.toLowerCase() !== account.toLowerCase()) continue;
     const status = STATUS_NAMES[Number(t.status)];
     const expires = new Date(Number(t.expiresAt) * 1000).toLocaleString();
+    const other = asAgent ? t.payer : t.agent;
     const tr = document.createElement("tr");
     let actions = "";
-    if (status === "Open") {
-      actions = '<button data-act="release" data-id="' + i + '">Release</button>';
-      if (now >= Number(t.expiresAt)) actions += ' <button data-act="refund" data-id="' + i + '">Refund</button>';
+    if (status === "Open" && !asAgent) {
+      actions = '<button class="txBtn" data-act="release" data-id="' + i + '"' + (configured ? "" : " disabled") + ">Release</button>";
+      if (now >= Number(t.expiresAt) && now < Number(t.expiresAt) + CONFIG.GRACE_SECONDS) {
+        actions += ' <button class="txBtn" data-act="refund" data-id="' + i + '"' + (configured ? "" : " disabled") + ">Refund</button>";
+      }
     }
-    tr.innerHTML = "<td>" + i + "</td><td class='mono'>" + t.agent + "</td><td>" +
-      ethers.formatUnits(t.amount, CONFIG.USDC_DECIMALS) + " USDC</td><td>" + status +
-      "</td><td>" + expires + "</td><td>" + actions + "</td>";
+    if (status === "Open" && asAgent && now >= Number(t.expiresAt) + CONFIG.GRACE_SECONDS) {
+      actions = '<button class="txBtn" data-act="claim" data-id="' + i + '"' + (configured ? "" : " disabled") + ">Claim</button>";
+    }
+    tr.innerHTML = "<td>" + i + "</td><td class='mono'>" + other + "</td><td>" +
+      ethers.formatUnits(t.amount, CONFIG.USDC_DECIMALS) + " USDC</td><td>" + (t.taskRef || "") +
+      "</td><td>" + statusNote(t, now) + "</td><td>" + expires + "</td><td>" + actions + "</td>";
     body.appendChild(tr);
   }
   body.querySelectorAll("button[data-act]").forEach((b) => {
@@ -189,9 +319,23 @@ async function refreshTabs() {
   });
 }
 
+async function refreshTabs() {
+  if (!account) { say("Connect your wallet to load your tabs."); return; }
+  if (!isConfigured()) { applyConfigState(); return; }
+  try {
+    const payerIds = await myTabIds(2);
+    await fillTable("tabsBody", payerIds, false);
+    const agentIds = await myTabIds(3);
+    await fillTable("agentTabsBody", agentIds, true);
+  } catch (e) {
+    say("Loading tabs failed: " + (e.shortMessage || e.message));
+  }
+}
+
 $("connectBtn").addEventListener("click", connect);
 $("openBtn").addEventListener("click", openTab);
 $("refreshBtn").addEventListener("click", refreshTabs);
+applyConfigState();
 </script>
 </body>
 </html>

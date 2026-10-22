@@ -12,10 +12,12 @@ interface IERC20 {
 /// @notice A minimal on chain tab for paying AI agents in USDC on Arc.
 /// A payer deposits USDC into a tab naming an agent wallet. When the work is
 /// done the payer releases the tab and the contract pays the agent. If the
-/// payer never releases, the payer can refund the tab after the expiry they
-/// set at opening. There are no admin keys, no owner, no upgrade path, and no
-/// way to move funds out of a tab except release to its agent or refund to
-/// its payer after expiry.
+/// payer never releases, the tab settles by time instead: once the expiry the
+/// payer set has passed, the payer has a grace window of 48 hours to refund
+/// the tab, and after that window the agent can claim the tab and be paid.
+/// There are no admin keys, no owner, no upgrade path, and no way to move
+/// funds out of a tab except release or claim to its agent, or refund to its
+/// payer inside the grace window.
 contract AgentTab {
     enum Status {
         Open,
@@ -29,7 +31,14 @@ contract AgentTab {
         uint256 amount;
         uint64 expiresAt;
         Status status;
+        string taskRef;
     }
+
+    /// @notice How long after expiry the payer keeps the refund right before
+    /// the agent claim opens. Refund is available from the expiry up to but
+    /// not including expiry plus this window; claim is available from expiry
+    /// plus this window onwards.
+    uint64 public constant REFUND_GRACE = 48 hours;
 
     IERC20 public immutable usdc;
 
@@ -38,8 +47,9 @@ contract AgentTab {
 
     bool private _locked;
 
-    event TabOpened(uint256 indexed tabId, address indexed payer, address indexed agent, uint256 amount, uint64 expiresAt);
+    event TabOpened(uint256 indexed tabId, address indexed payer, address indexed agent, uint256 amount, uint64 expiresAt, string taskRef);
     event TabReleased(uint256 indexed tabId, address indexed payer, address indexed agent, uint256 amount);
+    event TabClaimed(uint256 indexed tabId, address indexed payer, address indexed agent, uint256 amount);
     event TabRefunded(uint256 indexed tabId, address indexed payer, uint256 amount);
 
     modifier nonReentrant() {
@@ -56,26 +66,44 @@ contract AgentTab {
 
     /// @notice Open a tab. The caller is the payer and must have approved this
     /// contract to spend at least `amount` of USDC first.
-    /// @param agent The wallet that gets paid on release.
+    /// @param agent The wallet that gets paid on release or claim. It cannot
+    /// be the zero address, this contract, or the payer.
     /// @param amount USDC amount in ERC-20 units (6 decimals on Arc).
-    /// @param durationSeconds Seconds from now until the payer may refund.
+    /// @param durationSeconds Seconds from now until the tab expiry.
+    /// @param taskRef Optional reference linking the tab to a job, for example
+    /// a marketplace intent id. May be empty. It is stored on the tab and
+    /// emitted in TabOpened; the contract itself never acts on it.
     /// @return tabId The id of the new tab.
-    function openTab(address agent, uint256 amount, uint64 durationSeconds) external nonReentrant returns (uint256 tabId) {
+    function openTab(address agent, uint256 amount, uint64 durationSeconds, string calldata taskRef)
+        external
+        nonReentrant
+        returns (uint256 tabId)
+    {
         require(agent != address(0), "agent is zero address");
+        require(agent != address(this), "agent is this contract");
+        require(agent != msg.sender, "agent is the payer");
         require(amount > 0, "amount is zero");
         require(durationSeconds > 0, "duration is zero");
 
         tabId = nextTabId++;
         uint64 expiresAt = uint64(block.timestamp) + durationSeconds;
-        _tabs[tabId] = Tab({payer: msg.sender, agent: agent, amount: amount, expiresAt: expiresAt, status: Status.Open});
+        _tabs[tabId] = Tab({
+            payer: msg.sender,
+            agent: agent,
+            amount: amount,
+            expiresAt: expiresAt,
+            status: Status.Open,
+            taskRef: taskRef
+        });
 
-        emit TabOpened(tabId, msg.sender, agent, amount, expiresAt);
+        emit TabOpened(tabId, msg.sender, agent, amount, expiresAt, taskRef);
 
         require(usdc.transferFrom(msg.sender, address(this), amount), "deposit transfer failed");
     }
 
     /// @notice Release an open tab, paying its full amount to its agent.
-    /// Only the payer who opened the tab can release it.
+    /// Only the payer who opened the tab can release it, at any time while
+    /// the tab is open.
     function release(uint256 tabId) external nonReentrant {
         Tab storage tab = _tabs[tabId];
         require(tab.status == Status.Open, "tab is not open");
@@ -88,14 +116,34 @@ contract AgentTab {
         require(usdc.transfer(tab.agent, tab.amount), "release transfer failed");
     }
 
-    /// @notice Refund an open tab back to its payer after its expiry.
-    /// Only the payer who opened the tab can refund it, and only once the
-    /// expiry they set has passed.
+    /// @notice Claim an open tab after the refund grace window has ended,
+    /// paying its full amount to its agent. Only the agent named on the tab
+    /// can claim it. This is the settlement backstop: a payer who received
+    /// the work and then went silent cannot reclaim the deposit once the
+    /// grace window has passed.
+    function claim(uint256 tabId) external nonReentrant {
+        Tab storage tab = _tabs[tabId];
+        require(tab.status == Status.Open, "tab is not open");
+        require(msg.sender == tab.agent, "only the agent can claim");
+        require(block.timestamp >= uint256(tab.expiresAt) + REFUND_GRACE, "grace window has not ended");
+
+        tab.status = Status.Released;
+
+        emit TabClaimed(tabId, tab.payer, tab.agent, tab.amount);
+
+        require(usdc.transfer(tab.agent, tab.amount), "claim transfer failed");
+    }
+
+    /// @notice Refund an open tab back to its payer. Only the payer who opened
+    /// the tab can refund it, and only inside the grace window: from the
+    /// expiry they set until 48 hours after it. Once the window ends the
+    /// refund right is gone and the agent claim has priority.
     function refund(uint256 tabId) external nonReentrant {
         Tab storage tab = _tabs[tabId];
         require(tab.status == Status.Open, "tab is not open");
         require(msg.sender == tab.payer, "only the payer can refund");
         require(block.timestamp >= tab.expiresAt, "tab has not expired yet");
+        require(block.timestamp < uint256(tab.expiresAt) + REFUND_GRACE, "grace window has ended");
 
         tab.status = Status.Refunded;
 
@@ -108,9 +156,9 @@ contract AgentTab {
     function getTab(uint256 tabId)
         external
         view
-        returns (address payer, address agent, uint256 amount, uint64 expiresAt, Status status)
+        returns (address payer, address agent, uint256 amount, uint64 expiresAt, Status status, string memory taskRef)
     {
         Tab storage tab = _tabs[tabId];
-        return (tab.payer, tab.agent, tab.amount, tab.expiresAt, tab.status);
+        return (tab.payer, tab.agent, tab.amount, tab.expiresAt, tab.status, tab.taskRef);
     }
 }
