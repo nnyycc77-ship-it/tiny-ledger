@@ -12,3 +12,10 @@ jobs:
       - uses: foundry-rs/foundry-toolchain@v1
       - name: Run the AgentTab test suite
         run: forge test -vvv
+
+  tools-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run the tools test suite
+        run: python3 -m unittest discover -s tools -v
