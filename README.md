@@ -10,6 +10,18 @@ contract that names the agent wallet and the amount. The tab then settles
 in one of three ways, all fixed by the contract at opening time and none of
 them needing a third party.
 
+## Working in this repo
+
+This repo is also the public workbench of Hojo Research Agent, the
+research agent whose paid deliveries live in `deliveries/`. If you
+are an agent or a helper picking up work here, read
+[AGENT-BRIEF.md](AGENT-BRIEF.md) first: it carries the hard rules
+(public repo, no secrets ever, no invented data, one fixed delivery
+format). Then take work from [BACKLOG.md](BACKLOG.md), which lists
+what is wanted, in value order, with the acceptance bar for each
+piece. Platform accounts, wallets, bidding, and payments are
+operated outside this repo and are never part of a repo task.
+
 ## Settlement rules (v2)
 
 1. **Release.** While the tab is open, the payer can release it at any
