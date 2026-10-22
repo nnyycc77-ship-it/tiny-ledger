@@ -122,3 +122,115 @@ Create a `templates/` folder with:
   figure for figure.
 * A new delivery could be produced from the skeleton and the
   checklist alone, with no other instructions.
+
+## E. Sourcing
+
+**Why:** building capacity only pays when there is paid work in
+front of it. Sourcing keeps the pipeline full: new places to sell,
+the buyers who already pay for this kind of work, prices checked
+against the market, and a calendar of programs worth entering
+before their deadlines arrive.
+
+**Rules for all sourcing work:** research and drafting only. No
+outreach is sent, no accounts are created, and no messages are
+posted anywhere. Every claim carries its source link. A lead is a
+lead until the coordinating agent verifies it on the platform
+itself; search snippets alone are never evidence.
+
+### E1. Board scouting
+
+Continuously look for new agent paying boards, job marketplaces,
+grant and hackathon programs, and paid API registries that pass
+the program filters: payout arrives in a crypto wallet with no
+KYC; the work is something an agent can fully and honestly produce
+from public sources; no promotional posting, no vendor signups,
+and no faked human activity.
+
+File each lead as a GitHub issue in this repo with:
+
+* Platform name and link.
+* Evidence it is live: a dated page or a terms link, opened and
+  read.
+* The payout method and any KYC mention, quoted from the platform
+  itself.
+* What fitting work exists there now.
+* An estimated owner effort in minutes.
+
+**Acceptance:**
+
+* The platform page or terms were opened and read, and the
+  evidence is dated.
+* The payout and KYC wording is quoted from the platform, not
+  paraphrased from a search snippet.
+* Fitting work that exists now is named concretely.
+* Owner effort is estimated in minutes.
+
+### E2. Buyer segment research
+
+For each of the six services in `AGENT-BRIEF.md`, find the buyer
+segments who already pay for this work outside agent boards.
+Segments to test, not assume: ecommerce sellers needing recall
+and compliance checks; trucking and logistics firms needing
+carrier vetting; law and diligence firms needing litigation
+screens; real estate and deal sourcers using SEC Form D and
+contract award data; nonprofits and donors using Form 990
+diligence.
+
+File one issue per segment. Each segment note names where those
+buyers congregate or buy today, the going price for the human done
+version of the work with a source, and what a listing or offer in
+that venue would look like.
+
+**Acceptance:**
+
+* The segment is tied to one named service.
+* Where the buyers are is named concretely (a venue, a
+  marketplace, a community), with a source.
+* The going price for the human done version is stated with a
+  dated source.
+* The shape of an offer in that venue is sketched. No outreach
+  is sent.
+
+### E3. Pricing and competitor scans
+
+Once a month, scan what comparable research and verification
+services charge on freelance platforms and agent boards, and file
+the scan as an issue with dated sources. The scan ends with a
+recommended price for the 10 USD catalog rate: hold, raise, or
+lower, with the evidence behind the call.
+
+**Acceptance:**
+
+* Every price in the scan is dated and sourced.
+* The services compared are genuinely comparable (same deliverable
+  shape), not headline rates for different work.
+* The recommendation follows from the scan and says what would
+  change it.
+
+### E4. Program calendar
+
+Keep a dated list of upcoming grants, hackathons, and bounty
+programs an agent entry could enter cheaply. Each entry carries
+its deadline, its prize and payout terms verified on the organizer
+page, and its entry cost in owner minutes. The list lives in the
+Program calendar section below; anything closing within 30 days
+also gets its own issue.
+
+**Acceptance:**
+
+* Prize and payout terms are verified on the organizer page, not
+  on an aggregator or a snippet.
+* Every entry is dated, and expired entries are removed or marked
+  closed.
+* Anything closing within 30 days has a matching issue.
+
+### Program calendar
+
+Verified entries, soonest deadline first. An entry appears here
+only after its prize and payout terms have been read on the
+organizer page itself.
+
+* None verified yet. The first verified entries land here through
+  E4. The AgentTab grant already in preparation (deadline
+  Nov 1, 2026) is tracked in workstream C; it is an entry in
+  progress, not a sourcing lead, so it is not listed here.

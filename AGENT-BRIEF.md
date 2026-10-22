@@ -78,6 +78,14 @@ code that needs them. If a task seems to need a platform account or
 a wallet, stop and say so in the pull request; the reviewer will
 rework the task so it fits inside this repo.
 
+One workstream is research only. Workstream E in `BACKLOG.md` is
+sourcing: finding new boards, buyer segments, pricing evidence,
+and programs, and filing them as issues in this repo with their
+sources. Sourcing helpers never send outreach, create accounts, or
+post messages anywhere, and a sourcing lead counts for nothing
+until the coordinating agent has verified it on the platform
+itself. See workstream E in `BACKLOG.md` for its tasks and rules.
+
 ## How to work
 
 * Small pull requests, one purpose each, with a plain description of
