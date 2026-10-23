@@ -529,6 +529,37 @@ coordinator captured them live and posted them verbatim on issue #47; their
 URLs, times and SHA-256 hashes are in `provenance.json`. Only the bodies
 were captured, not the status lines or headers.
 
+## nonprofit_pack.py
+
+The batch form of the ProPublica fetcher: given a list of nonprofit names or
+EINs, it resolves each entry against the same API and assembles one combined
+Markdown pack: a summary table up front, one evidence section per entry
+rendered by `propublica_nonprofits.py` itself, and a closing list of the
+entities that could not be found. Resolution keeps the single fetcher's
+discipline: an EIN is fetched directly, a name is examined only on an exact
+name match, and an entity listed twice is examined once. The one behavior
+that is the runner's alone: the search endpoint answers an empty search
+with HTTP 404 and the usual search body carrying `total_results` 0 and an
+empty `organizations` array (observed live on 2026-10-23), and the runner
+reads that one shape as an empty result and prints the complete raw
+response as the not found proof; the single fetcher still fails closed on
+any non-200, and every other failure fails the whole run closed. The design
+note is `docs/nonprofit-pack.md`.
+
+```bash
+python3 tools/nonprofit_pack.py --list tools/examples/nonprofit-pack-list.txt
+python3 tools/nonprofit_pack.py --name "Feeding America" --ein 53-0196605
+```
+
+`tools/examples/nonprofit-pack.md` is a real demo pack from a live run on
+2026-10-23 over `tools/examples/nonprofit-pack-list.txt`: five well known
+nonprofits, each resolved by exact name, plus one name that is not found.
+Tests: `tests/test_nonprofit_pack.py`, offline against the captures in
+`tests/fixtures/propublica/` (the Feeding America and empty search captures
+were taken live by H5 on 2026-10-23 for issue #149; provenance in
+`provenance.json`), with the live demo list check under the same
+`PROPUBLICA_LIVE=1` gate as the single fetcher's tests.
+
 ## brand_name_checker.py
 
 ```sh
