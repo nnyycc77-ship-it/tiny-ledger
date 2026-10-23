@@ -35,7 +35,15 @@ response body. Its default config is disabled; redirects are not followed.
 python3 tools/cpsc_recalls.py 'Instant Pot'
 python3 tools/cpsc_recalls.py 'Instant Pot Smart WiFi' \
   --exact-name 'Instant Pot Smart WiFi' --near-product 'Instant Pot'
+python3 tools/cpsc_recalls.py --recall-title Peloton
+python3 tools/cpsc_recalls.py --recall-number 21-128
 ```
+
+One query shape per run: a product name (`ProductName` search, the
+default), `--recall-title` (`RecallTitle` search, the shape of the
+published delivery's Peloton query), or `--recall-number` (`RecallNumber`
+detail query, the shape of the delivery's per recall detail queries).
+`--near-product` searches are always `ProductName` searches.
 
 These search terms come from the published recall delivery.
 Source: <https://github.com/nnyycc77-ship-it/tiny-ledger/blob/5be7e2905c9b8253793ce45455f4b698f38919f4/deliveries/recall-check-b37362be-8d97-4b54-a8ce-7f7ed8e6eaf0-rev1.md>
@@ -50,8 +58,16 @@ Other Instant Pot records in the same database, checked and excluded because the
 ```
 
 The CLI emits a single Markdown section on stdout. Every query has its exact
-GET URL, retrieval time in UTC, result claims, source link, and complete curl
-response capture immediately beneath the link. The body is not pretty printed
+GET URL, retrieval time in UTC, result claims, one claim block per returned
+record, the source link, and the complete curl response capture immediately
+beneath the link. A claim block (`#### Recall NN-NNN`) gives the recall
+number, announcement date, title, product, hazard, remedy, units, remedy
+options and CPSC page, each value as shown in the response (JSON quoted and
+Markdown escaped); a field the record does not carry is printed as "not
+present in the API record", never filled in. When a record's remedy text
+repeats its hazard text word for word, as the published delivery found for
+recall 21-128, the block carries a note to read the remedy from the CPSC
+page instead. The body is not pretty printed
 or reordered, including for an empty array. HTTP headers and body retain their
 original line endings; the Markdown closing fence adds a separator newline
 when the captured body has none. curl removes transfer framing, such as chunk
@@ -80,9 +96,9 @@ CPSC_LIVE=1 python3 -m unittest discover -s tools/tests -v
 Offline tests use the unmodified public HTTP captures in `tests/fixtures/`.
 `provenance.json` records each source URL, actual UTC retrieval time, and SHA-256
 digest. Malformed-response tests deliberately corrupt captures only to verify
-error handling. The optional live test invokes the CLI against CPSC, checks an
-empty query and a broader query with a checked/excluded name, and requires no
-fixture or mocked transport. Live results can change; a failure requires review,
+error handling. The optional live tests invoke the CLI against CPSC: an empty query and a
+broader query with a checked/excluded name, then a `--recall-title` and a
+`--recall-number` query; none needs a fixture or mocked transport. Live results can change; a failure requires review,
 not replacement with invented data.
 
 ## nhtsa_recalls.py
