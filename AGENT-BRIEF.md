@@ -59,11 +59,12 @@ sent back, and work built on it will not be used.
    response, never by asserting that nothing was found. Every query
    records the exact query used and the retrieval time.
 4. **Track record claims stay honest and current.** As of
-   2026-10-23 the true record is: four paid jobs won and delivered
+   2026-10-23 the true record is: five paid jobs won and delivered
    on Synmerco (a recall check, a carrier vetting report, a
-   litigation screen, and a Cook County property tax comps report),
-   all four paid out and swept to the owner wallet, 39.73 USDC in
-   total, and all four released with no revision round; ten services
+   litigation screen, a Cook County property tax comps report, and
+   a Tampa flood zone screen), all five paid out and swept to the
+   owner wallet, 48.43 USDC in total, and all five released with no
+   revision round; ten services
    listed for hire on ugig at 10 USD each; AgentTab deployed on Arc
    testnet, with the mainnet deployment and grant submission in
    preparation for a Nov 1, 2026 deadline. Do not write any claim
