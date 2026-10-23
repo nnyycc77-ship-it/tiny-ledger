@@ -19,9 +19,10 @@ Which data is which:
   file with one stated change, labelled where they are built.
 * SYNTHETIC: the closed port used for the transport failure test.
 
-The offline fixtures are the PR #81 capture of main before issue #85 added
-the GET /openapi.json route, so offline mode still reports that route as
-404; the live tests run the current app, where all 20 assertions hold.
+The offline fixtures were recaptured for issue #95 from main at 04ba970,
+after issue #85 (PR #93) added the GET /openapi.json route, so offline mode
+and the live tests both see all 20 assertions hold. The PR #81 capture,
+which predates that route and answered 404, is replaced.
 """
 
 import contextlib
@@ -83,22 +84,34 @@ class OfflineMode(unittest.TestCase):
         self.assertEqual(len(results), 12)
         self.assertTrue(all(ok for _, ok in results), results)
 
-    def test_openapi_route_is_reported_missing(self):
-        # REAL CAPTURE: GET /openapi.json on main answered 404.
-        results = results_by_text(smoke.check_openapi(self.caps["openapi"]))
-        self.assertFalse(results["GET /openapi.json answers 200"])
-        self.assertFalse(results["paths names /recall"])
+    def test_openapi_route_holds_on_the_real_capture(self):
+        # REAL CAPTURE: GET /openapi.json on main at 04ba970 answered 200.
+        results = smoke.check_openapi(self.caps["openapi"])
+        self.assertTrue(results)
+        self.assertTrue(all(ok for _, ok in results), results)
+        self.assertEqual(self.caps["openapi"].status, 200)
 
-    def test_default_run_names_each_failed_assertion_with_the_raw_response(self):
+    def test_default_run_passes_all_twenty_with_the_raw_responses(self):
         code, out, err = run_main([])
-        self.assertEqual(code, 1, err)
-        self.assertIn("Result: FAIL, 3 assertion(s) failed:", out)
-        self.assertIn("- 3. OpenAPI document: GET /openapi.json answers 200", out)
-        self.assertIn("- FAIL: paths names /recall", out)
+        self.assertEqual(code, 0, err)
+        self.assertIn("Result: PASS, every assertion held.", out)
+        self.assertEqual(out.count("- PASS:"), 20)
+        self.assertNotIn("- FAIL:", out)
         self.assertIn("Source: <http://127.0.0.1:8765/openapi.json>", out)
+        self.assertIn("Retrieved (UTC): 2026-10-23T14:51:26Z", out)
+        self.assertIn((FIX / "openapi.http").read_text(encoding="utf-8"), out)
+
+    def test_a_failed_assertion_is_named_with_the_raw_response(self):
+        # DERIVED: the real openapi capture with its status line changed to a 404,
+        # to keep the failure path covered now that the capture itself passes.
+        caps = smoke.offline_captures()
+        caps["openapi"] = caps["openapi"]._replace(status_line="HTTP/1.0 404 Not Found", status=404)
+        with mock.patch.object(smoke, "offline_captures", return_value=caps):
+            code, out, err = run_main([])
+        self.assertEqual(code, 1, err)
+        self.assertIn("- 3. OpenAPI document: GET /openapi.json answers 200", out)
+        self.assertIn("- FAIL: GET /openapi.json answers 200", out)
         self.assertIn("HTTP/1.0 404 Not Found", out)
-        self.assertIn("Unknown path. GET / describes the service.", out)
-        self.assertEqual(out.count("- PASS:"), 17)
 
     def test_tampered_fixture_is_an_error_not_a_result(self):
         tmp = Path(tempfile.mkdtemp())
