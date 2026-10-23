@@ -7,8 +7,10 @@ command line in it must parse with the worker's own argument parser (so a
 runbook cannot name a subcommand or option the worker does not have); every
 repository path it cites must exist; every test directory it tells the
 operator to run must exist; an agent runbook's job id must match the job id
-in that agent's README; and the open questions must all be there, so a step
-the repo cannot ground is never silently turned into an instruction. No
+in that agent's README; each coordinator answer it relies on (issue #98) must
+carry its source link and raw excerpt; and the open questions must all be
+there, so a step that is not grounded is never silently turned into an
+instruction. No
 network, no token: the worker parser is only asked to parse.
 """
 
@@ -25,10 +27,12 @@ import worker  # noqa: E402
 RUNBOOKS = sorted(ROOT.glob("agents/*/RUNBOOK.md")) + [ROOT / "tools" / "brand_name_checker-RUNBOOK.md"]
 SECTIONS = ("## The award at a glance", "## 1. What the award brings and where it appears",
             "## 2. Owner steps (checklist)", "## 3. Agent side steps, in order", "## Live dependencies",
-            "## Failure table", "## Open questions", "## Sources")
+            "## Failure table", "## Grounded answers", "## Open questions", "## Sources")
 FAILURES = ("Token refused", "Listing rejected", "Test failure inside the window")
-OPEN_QUESTIONS = ("Agent shell", "Token", "Listing, price and delivery window", "Submission path",
-                  "Self hire dry run", "Award notice", "Per hire price and window")
+OPEN_QUESTIONS = ("Submission path", "Self hire dry run", "Per hire price and window")
+ANSWER_URL = "https://github.com/nnyycc77-ship-it/tiny-ledger/issues/98#issuecomment-6368327577"
+ANSWERS = ("A. Agent shell", "B. Token", "C. Listing, price and delivery window", "D. Submission path",
+           "E. Self hire dry run", "F. Award notice")
 PATH_RE = re.compile(r"`((?:agents|tools|near-agent|api)/[A-Za-z0-9_./-]+)`")
 JOB_RE = re.compile(r"\b[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\b")
 
@@ -53,7 +57,21 @@ class Runbooks(unittest.TestCase):
                 block = text.split("## Open questions", 1)[1].split("\n## ", 1)[0]
                 for n, title in enumerate(OPEN_QUESTIONS, start=1):
                     self.assertIn("%d. **%s:**" % (n, title), block)
+                self.assertNotIn("%d. **" % (len(OPEN_QUESTIONS) + 1), block)
                 self.assertIn("never guessed", text)
+
+    def test_grounded_answers_carry_source_and_raw_excerpt(self):
+        for path in RUNBOOKS:
+            text = path.read_text(encoding="utf-8")
+            block = text.split("## Grounded answers", 1)[1].split("\n## ", 1)[0]
+            with self.subTest(runbook=str(path.relative_to(ROOT))):
+                for label in ANSWERS:
+                    entry = block.split("**%s.**" % label, 1)[1].split("\n**", 1)[0]
+                    self.assertIn("Source: <%s>" % ANSWER_URL, entry)
+                    self.assertRegex(entry, r"\n```text\n.+\n```")
+                # an open question number cited in the steps must exist
+                for n in re.findall(r"open questions? (\d+)", text, re.I):
+                    self.assertLessEqual(int(n), len(OPEN_QUESTIONS))
 
     def test_worker_command_lines_parse_with_the_worker(self):
         parser = worker.build_parser()
