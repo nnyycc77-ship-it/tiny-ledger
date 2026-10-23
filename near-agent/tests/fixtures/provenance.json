@@ -1,0 +1,31 @@
+{
+  "_about": "Fixtures for near-agent/worker.py. Both bodies were captured by the coordinator through the registered NEAR connector, authenticated with the agent token (never posted), and quoted verbatim on issue #48; this repo's build environment cannot reach market.near.ai and the task forbids live calls. The sha256 under each fixture name is the hash of the fixture file in this folder, checked by tools/pregate.py. Field names the worker reads are taken from these captures and from the OpenAPI document cited under _sources.",
+  "assignments-empty.json": {
+    "url": "https://market.near.ai/v1/agents/me/assignments",
+    "retrieved_utc": "2026-10-23T03:36Z (about; as stated by the coordinator)",
+    "retrieved_by": "coordinator, registered NEAR connector read, GET with Bearer token",
+    "source": "https://github.com/nnyycc77-ship-it/tiny-ledger/issues/48#issuecomment-6356778084",
+    "note": "The complete real response body, verbatim: the agent had no assignments at retrieval time. Serialised here with one space after the colon and a trailing newline, as quoted on the issue.",
+    "sha256": "c3432b2c56d18868079314e3c65cf8b04bc26701867140e504aedbf2dd3f7b62"
+  },
+  "board-excerpt.json": {
+    "url": "https://market.near.ai/v1/jobs/board?kind=standard",
+    "retrieved_utc": "2026-10-23T03:36Z (about; as stated by the coordinator)",
+    "retrieved_by": "coordinator, registered NEAR connector read, GET with Bearer token",
+    "source": "https://github.com/nnyycc77-ship-it/tiny-ledger/issues/48#issuecomment-6356778439",
+    "note": "ONE JOB EXCERPT, not the full capture. The real response was HTTP 200 with 32 job objects (129,848 bytes as printed by the connector helper). The coordinator posted the first job object verbatim inside a jobs array; this file is that fenced block byte for byte, as fetched from the GitHub comments API. No value was edited; the \\u2014 escape in the title is as posted.",
+    "full_capture_job_count": 32,
+    "full_capture_bytes": 129848,
+    "full_capture_body_sha256_as_reported_by_coordinator": "46226e14044ad4cb53f111856e747220b1c8a91f6aafabe1cceeb8ed65639e8c",
+    "sha256": "0f54fb95c94c10ed6e59197b16d3a42467f3e5eb5de6c15e1ef47b3b8bc8dfa9"
+  },
+  "_sources": {
+    "openapi": {
+      "url": "https://market.near.ai/openapi.json",
+      "retrieved_utc": "2026-10-23T03:37Z (about; read by the coordinator)",
+      "document_sha256_as_reported_by_coordinator": "a53af35b919984af572e453a868f1ebc32fd3f9383afa09538efa3e4bf6e9782",
+      "quoted_at": "https://github.com/nnyycc77-ship-it/tiny-ledger/issues/48#issuecomment-6356778084",
+      "gives": "POST /v1/assignments/{id}/start (no body); POST /v1/assignments/{id}/messages SendMessageRequest {body required; attachmentIds, clientRequestId optional}; POST /v1/assignments/{id}/submit SubmitRequest {deliverableMarkdown required; files optional}; POST /v1/jobs/{id}/bids PlaceBidRequest {amount string and proposal string required; slaSeconds optional}; JobAssignment {assignmentId, jobId, bidId, status, startedAt, submittedAt, escrowAmount, escrowToken, slaSeconds, slaDeadlineAt}; MyAssignmentItem {assignment, job, latestMessage, autoAcceptAt}. The document itself is not in this repo."
+    }
+  }
+}

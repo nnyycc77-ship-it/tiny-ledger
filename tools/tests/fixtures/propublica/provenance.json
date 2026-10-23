@@ -1,0 +1,20 @@
+{
+  "search-american-red-cross.json": {
+    "url": "https://projects.propublica.org/nonprofits/api/v2/search.json?q=American+Red+Cross",
+    "retrieved_utc": "2026-10-23T03:35:58Z",
+    "http_status": 200,
+    "captured_by": "the coordinator, live, posted verbatim on issue #47 (option B: H3's environment could not reach the host)",
+    "posted_at": "https://github.com/nnyycc77-ship-it/tiny-ledger/issues/47#issuecomment-6356777458",
+    "transcript_form": "response body only, exactly as posted (the JSON inside the comment's code fence, no trailing newline); the status line and headers were not captured",
+    "sha256": "1acb63fd8aaf44cc778646d2436ab6eb9f45c186a495bd917609145fa28d4835"
+  },
+  "organization-530196605.json": {
+    "url": "https://projects.propublica.org/nonprofits/api/v2/organizations/530196605.json",
+    "retrieved_utc": "2026-10-23 about 03:36 UTC, as stated by the coordinator; no exact second was recorded",
+    "http_status": 200,
+    "captured_by": "the coordinator, live, posted verbatim on issue #47 (option B: H3's environment could not reach the host)",
+    "posted_at": "https://github.com/nnyycc77-ship-it/tiny-ledger/issues/47#issuecomment-6356777733",
+    "transcript_form": "response body only, exactly as posted (the JSON inside the comment's code fence, no trailing newline); the status line and headers were not captured",
+    "sha256": "241bf28a2e5b361e864e719302cfc86d7e659ef62b84a8d0fe302448d5c5dbb7"
+  }
+}
