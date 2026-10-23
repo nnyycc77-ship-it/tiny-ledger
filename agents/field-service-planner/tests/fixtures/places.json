@@ -88,6 +88,31 @@
       "lat": 39.965,
       "lon": -74.99,
       "confidence": "high"
+    },
+    "7 Shore Road, Sampletown": {
+      "lat": 39.955,
+      "lon": -75.01,
+      "confidence": "high"
+    },
+    "11 Beacon Street, Sampletown": {
+      "lat": 40.025,
+      "lon": -74.985,
+      "confidence": "high"
+    },
+    "5 Willow Way, Sampletown": {
+      "lat": 40.015,
+      "lon": -75.015,
+      "confidence": "high"
+    },
+    "2 Vague Street, Sampletown": {
+      "lat": 40.005,
+      "lon": -75.005,
+      "confidence": "high"
+    },
+    "9 Midway Avenue, Sampletown": {
+      "lat": 40.02,
+      "lon": -75.005,
+      "confidence": "high"
     }
   },
   "travel": {

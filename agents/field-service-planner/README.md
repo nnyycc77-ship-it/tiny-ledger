@@ -19,9 +19,33 @@ are mapped to the report in "How the acceptance criteria are met" below.
 The description leaves the spreadsheet columns to the listing ("The
 listing shows the expected columns"), so the column names, formats and
 defaults below are this build's choice, stated in the listing draft. The
-bid proposal's text was requested on the issue and is not in this
-repository; item 4 of issue #73 is the record of its backfill rules used
-here.
+bid proposal is quoted verbatim in comment 6365291836 (1891 characters,
+SHA-256 `26a4f1fa0b6932dc575294da88e457bc9f9aacce9f5e27c3edf094f26f1b7c53`,
+checked the same way); its messy data rules (similarity merge keeping the
+richest record, assumption based customers ranked below real due evidence,
+typical intervals by service type, do not contact and opted out as hard
+exclusions) are built in as described under "The rules, as built".
+
+### Reconciliation with the proposal (issue #87)
+
+The first build (PR #83) followed issue #73's paraphrase of the proposal in
+two places and the README wrongly said the proposal had not been supplied.
+Both are corrected here, forward only:
+
+- (a) Duplicates: the proposal merges on name and address similarity,
+  keeping the richest record and flagging the merge; the first build
+  deduped on exact normalized name plus address and kept the first row.
+  Now: similarity merge into the richest record, every merge flagged.
+- (b) Missing last service date: the proposal falls back on typical
+  intervals by service type and ranks such customers below real due
+  evidence; the first build used the customer's own `service_plan` interval
+  and scored the case as one full interval elapsed, which could rank it
+  first. Now: the plan interval when stated, else a typical interval by
+  `service_type`, and every assumption based suggestion ranks below every
+  evidence based one.
+- Also fixed: due and the lookahead window are judged per day, so a
+  customer due later in a multi day period is not suggested for an earlier
+  day (the reviewer's probe on PR #83).
 
 ## What the buyer provides
 
@@ -57,10 +81,12 @@ are exact; column order does not matter; extra columns are ignored.
 | `customer_id` | text | unique |
 | `name` | text | |
 | `address` | text | |
-| `last_service_date` | `YYYY-MM-DD` or blank | blank means the due date rests on the plan interval (assumption based) |
-| `service_plan` | `weekly`, `biweekly`, `monthly`, `bimonthly`, `quarterly`, `semiannual`, `annual`, `yearly`, or `every N days` | the interval between visits |
+| `last_service_date` | `YYYY-MM-DD` or blank | blank means the due date rests on the interval alone (assumption based) |
+| `service_plan` | `weekly`, `biweekly`, `monthly`, `bimonthly`, `quarterly`, `semiannual`, `annual`, `yearly`, `every N days`, or blank | the interval between visits; blank falls back on `service_type` |
 | `do_not_contact` | `yes` / `no` (also `true`/`false`, `1`/`0`; blank is no) | a `yes` is a hard exclusion |
 | `open_quote` | text, optional | a non blank value means the customer is due now (an open quote), with the text carried into the reason and the draft |
+| `service_type` | text, optional | used only when `service_plan` is blank: a typical interval by type (hvac 182 days, pest control 91, cleaning 30, landscaping 30, lawn care 30, plumbing 365, electrical 365, window cleaning 91, pool 30), a stated assumption; a customer with neither a plan nor a known type nor an open quote is excluded with that reason |
+| `opted_out` | `yes` / `no`, optional | a `yes` is a hard exclusion, the same as `do_not_contact` |
 
 A row with an unusable field is dropped from planning and listed under
 "Data problems" in the report with its row number and the field. A file
@@ -144,28 +170,45 @@ with light days is `tests/fixtures/jobs-week.csv` run with `--date-to`.
 - Sequencing: cheapest feasible insertion. Jobs are taken in order of
   window end; each goes to the eligible crew member and position that adds
   the least drive time while every window and shift stays feasible. Greedy,
-  so feasible rather than proven optimal; a solver can replace the
-  `Planner.sequence` method without changing the report.
-- Dedupe: customers are keyed on normalized name plus address (lower case,
-  punctuation removed, whitespace collapsed); later duplicates are excluded
-  and name the kept row.
-- Hard exclusions, in order, before ranking: duplicate; do not contact;
-  address not placed; already has a job in the period (name plus address
-  match against `jobs.csv`); not due (within the lookahead window when one
-  is set).
-- Due: last service date plus the plan interval is on or before the day,
-  or an open quote is on record. Due strength: (day minus next due date)
-  divided by the interval. No last service date and no quote: treated as
-  one full interval elapsed, labelled assumption based, certainty `low`.
-- Ranking: `due_strength - added_drive_hours * 0.5 + confidence bonus`
-  (high 0.2, medium 0.1, low 0), scored for every gap in the period the
-  customer fits with the assumed visit; the pairs are taken best first
-  (ties by less added drive time, then customer id, then the earlier gap),
-  each customer once in the whole period and at most the configured number
-  per gap, so light days with nearby due customers get filled.
+  so feasible rather than proven optimal. The bid proposal names a vehicle
+  routing solver; `Day.sequence` is the swap point, and the report shape
+  does not change when one replaces the heuristic.
+- Duplicates: customers at the same normalized address (lower case,
+  punctuation removed, whitespace collapsed) whose normalized names are
+  equal or similar (sequence ratio at least 0.80) are merged into the
+  record with the most filled fields; blanks are filled from the merged
+  row, a do not contact or opted out flag on either row carries over, and
+  every merge is flagged in the excluded list and in the kept customer's
+  reason.
+- Hard exclusions, in order, before ranking: duplicate (merged); do not
+  contact or opted out; address not placed; no plan, known type or open
+  quote; already has a job in the period (name plus address match against
+  `jobs.csv`); not due (within the lookahead window when one is set).
+- Due: last service date plus the interval is on or before the day, or an
+  open quote is on record. The interval is the stated plan or, when blank,
+  the typical interval for the service type (a stated assumption). Due
+  strength: (day minus next due date) divided by the interval. No last
+  service date and no quote: treated as one full interval elapsed.
+  Anything resting on an assumed interval or an assumed last service is
+  labelled assumption based, certainty `low`, and ranks below every
+  suggestion with real due evidence, in every gap.
+- Ranking, two tiers: every suggestion with real due evidence (a recorded
+  last service date with a stated plan, or an open quote) ranks before any
+  assumption based one, in every gap, whatever the scores; the order, not
+  a score penalty, enforces this, because a penalty mixed with drive time
+  could not guarantee it. Within a tier:
+  `due_strength - added_drive_hours * 0.5 + confidence bonus` (high 0.2,
+  medium 0.1, low 0), scored for every gap in the period the customer fits
+  with the assumed visit; the pairs are taken best first (ties by less
+  added drive time, then customer id, then the earlier gap), each customer
+  once in the whole period and at most the configured number per gap, so
+  light days with nearby due customers get filled.
 - Fit: the drive to the customer, the visit and the drive on to the next
   job must fit before that job's planned start (or the shift end), so no
   later job moves.
+- Per day: due and the lookahead window are judged against each gap's own
+  day; a customer due later in the period is suggested only from the day
+  it is due.
 - Certainty: `high` with a recorded last service date and a high confidence
   placement; `medium` with a recorded date and medium or low placement;
   `low` when assumption based.
@@ -219,9 +262,13 @@ formats above, and the date.
   in the excluded list with that reason.
 - *What if an address cannot be found?* It is reported as a data problem
   and left out. The agent never guesses a location.
-- *What if a customer has no last service date?* They can still be
-  suggested, marked assumption based with low certainty, using the plan
-  interval alone.
+- *What if a customer has no last service date or no plan?* They can
+  still be suggested, marked assumption based with low certainty, using the
+  plan interval alone or a typical interval for their service type, and
+  they always rank below customers whose due date comes from real data.
+- *What about duplicate customers?* Rows at the same address with the same
+  or a similar name are merged into the richest record and the merge is
+  flagged in the report.
 - *Is the route optimal?* It is feasible and built to add the least drive
   time at each step; it is not a proven optimum. The method is printed in
   every report, with the drive time of the given order for comparison.
@@ -253,5 +300,9 @@ itself; no buyer, geocoder or routing data was used.
   <https://github.com/nnyycc77-ship-it/tiny-ledger/issues/73#issuecomment-6365291384>
   (8847 characters, SHA-256
   `0f588e9fef17a40b36f450b4884b6979146e6a5ee424f39fe5cc7a14dfc95b99`).
+- Bid proposal as placed (bid a8676c65, 450 USDC), quoted verbatim by the
+  coordinator from the agent's own bids on 2026-10-23:
+  <https://github.com/nnyycc77-ship-it/tiny-ledger/issues/73#issuecomment-6365291836>
+  (1891 characters, SHA-256
+  `26a4f1fa0b6932dc575294da88e457bc9f9aacce9f5e27c3edf094f26f1b7c53`).
 - Marketplace loop: `near-agent/README.md` and its sources on issue #48.
-- The bid proposal text: requested on issue #73; not in this repository.

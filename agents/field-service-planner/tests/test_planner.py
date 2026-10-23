@@ -85,6 +85,23 @@ class ParsingTests(unittest.TestCase):
         self.assertNotIn("J8", [j.id for j in p.jobs])
         self.assertNotIn("K9", [c.id for c in p.customers])
         self.assertEqual(next(c for c in p.customers if c.id == "K11").open_quote, "Q-77 compressor replacement")
+        k18 = next(c for c in p.customers if c.id == "K18")
+        self.assertEqual((k18.interval, k18.interval_assumed, k18.plan_label), (91, True, "typical pest control interval"))
+        self.assertTrue(next(c for c in p.customers if c.id == "K19").opted_out)
+        self.assertIsNone(next(c for c in p.customers if c.id == "K20").interval)
+
+    def test_similarity_rule(self):
+        row = {"customer_id": "x", "name": "", "address": "", "last_service_date": "", "service_plan": "", "do_not_contact": ""}
+        def cust(name, address, cid="x"):
+            r = dict(row, customer_id=cid, name=name, address=address)
+            return planner.Customer(r, 2)
+        a = cust("Maple Court Apartments", "15 Maple Court, Sampletown")
+        self.assertEqual(planner.similar_customers(a, cust("maple court apartments", "15 MAPLE COURT, Sampletown")), 1.0)
+        self.assertGreaterEqual(planner.similar_customers(a, cust("Maple Court Apts", "15 Maple Court, Sampletown")), planner.NAME_SIMILARITY)
+        self.assertIsNone(planner.similar_customers(a, cust("Maple Court Apartments", "16 Maple Court, Sampletown")))
+        self.assertIsNone(planner.similar_customers(a, cust("Riverbend Bakery", "15 Maple Court, Sampletown")))
+        with self.assertRaises(ValueError):
+            cust("Z", "1 Street", "z").__class__(dict(row, customer_id="z", name="Z", address="1 Street", service_type="juggling"), 3)
 
 
 # ---------------------------------------------------------------- fail closed
@@ -263,18 +280,24 @@ class BackfillTests(unittest.TestCase):
 
     def test_hard_exclusions_in_order_and_never_suggested(self):
         self.assertEqual(self.excluded["K5"], "do not contact flag is set")
+        self.assertEqual(self.excluded["K19"], "opted out flag is set")
         self.assertEqual(self.excluded["K1"], "already has a job in the planning period")
-        self.assertEqual(self.excluded["K6"], "duplicate of customer K2 on normalized name plus address")
+        self.assertEqual(self.excluded["K6"], "duplicate of customer K2 (same address, name similarity 1.00): merged into K2")
+        self.assertTrue(self.excluded["K15"].startswith("duplicate of customer K2 (same address, name similarity 0.8"))
+        self.assertEqual(self.excluded["K16"], "duplicate of customer K17 (same address, name similarity 0.89): merged into K17, which has more filled fields")
+        self.assertEqual(self.excluded["K20"], "no service plan, no known service type and no open quote: due date cannot be judged")
         self.assertEqual(self.excluded["K8"], "address could not be placed")
         self.assertTrue(self.excluded["K7"].startswith("not yet due: due on 2027-01-01"))
+        # K21 is due on 2026-11-04, after the single plan day: excluded, never scored
+        self.assertTrue(self.excluded["K21"].startswith("not yet due: due on 2026-11-04"))
         # K4 is due on 2026-11-19, after the day: not due according to the data, so not suggested by default
         self.assertEqual(self.excluded["K4"], "not yet due: due on 2026-11-19 (monthly plan, last service 2026-10-20), 16 day(s) after 2026-11-03")
-        for cid in ("K1", "K4", "K5", "K6", "K7", "K8", "K9"):
+        for cid in ("K1", "K4", "K5", "K6", "K7", "K8", "K9", "K15", "K16", "K19", "K20", "K21"):
             self.assertNotIn(cid, self.suggested)
 
     def test_each_customer_suggested_once_with_reason_and_certainty(self):
         self.assertEqual(len(self.suggested), len(set(self.suggested)))
-        self.assertEqual(set(self.suggested), {"K2", "K3", "K10", "K11", "K12", "K13", "K14"})
+        self.assertEqual(set(self.suggested), {"K2", "K3", "K10", "K11", "K12", "K13", "K14", "K17", "K18"})
         for s in self.p.suggestions:
             self.assertIn(s.certainty, ("high", "medium", "low"))
             self.assertIn("adds", s.reason)
@@ -293,6 +316,12 @@ class BackfillTests(unittest.TestCase):
         self.assertEqual(by_id["K2"].certainty, "high")
         self.assertIn("due since 2026-09-14 (quarterly plan, last service 2026-06-15), 50 day(s) overdue", by_id["K2"].reason)
         self.assertEqual(by_id["K10"].certainty, "medium")  # placed with medium confidence in the fixture
+        self.assertTrue(by_id["K18"].assumed)
+        self.assertEqual(by_id["K18"].certainty, "low")
+        self.assertIn("assumption based: no service plan stated, the typical pest control interval of 91 days is applied; due since 2026-08-31", by_id["K18"].reason)
+        self.assertIn("ranked below every customer with real due evidence", by_id["K18"].reason)
+        self.assertIn("; merged duplicate row(s): K6 (name similarity 1.00), K15 (name similarity 0.8", by_id["K2"].reason)
+        self.assertEqual(by_id["K17"].customer.merged_from[0][0].id, "K16")
         self.assertFalse(by_id["K11"].assumed)  # an open quote is due according to the data, not an assumption
         self.assertEqual(by_id["K11"].certainty, "high")
         self.assertTrue(by_id["K11"].reason.startswith("open quote on record (Q-77 compressor replacement); treated as due"))
@@ -300,11 +329,25 @@ class BackfillTests(unittest.TestCase):
     def test_ranking_in_the_first_gap(self):
         first = self.day.gaps[0]
         ranked = [s for s in self.p.suggestions if s.gap is first]
-        self.assertEqual([s.customer.id for s in ranked], ["K3", "K2", "K12"])
+        self.assertEqual([s.customer.id for s in ranked], ["K2", "K12", "K10"])
         self.assertEqual([s.rank for s in ranked], [1, 2, 3])
         scores = [s.score for s in ranked]
         self.assertEqual(scores, sorted(scores, reverse=True))
         self.assertLessEqual(len(ranked), planner.DEFAULT_PER_GAP)
+
+    def test_assumption_based_suggestions_rank_below_evidence_in_every_gap(self):
+        # K3 (no last service date) has the highest raw score in the fixture, yet
+        # it must never outrank a customer with real due evidence.
+        by_gap = {}
+        for sg in self.p.suggestions:
+            by_gap.setdefault(id(sg.gap), []).append(sg)
+        for seq in by_gap.values():
+            tiers = [1 if sg.assumed else 0 for sg in sorted(seq, key=lambda sg: sg.rank)]
+            self.assertEqual(tiers, sorted(tiers))
+        k3 = next(sg for sg in self.p.suggestions if sg.customer.id == "K3")
+        evidence = [sg for sg in self.p.suggestions if not sg.assumed]
+        self.assertGreater(k3.score, min(sg.score for sg in evidence))  # a higher raw score than some evidence, still ranked after all of it
+        self.assertTrue(all(sg.rank < k3.rank for sg in evidence if sg.gap is k3.gap))
 
     def test_suggestion_fits_the_gap(self):
         for s in self.p.suggestions:
@@ -333,7 +376,7 @@ class BackfillTests(unittest.TestCase):
         k4 = [s for s in p.suggestions if s.customer.id == "K4"]
         self.assertEqual(len(k4), 1)
         self.assertTrue(k4[0].not_yet_due)
-        self.assertIn("included only because the buyer set the lookahead to 30 day(s)", k4[0].reason)
+        self.assertIn("not yet due on 2026-11-03 and included only because the buyer set the lookahead to 30 day(s)", k4[0].reason)
 
 
 class PeriodTests(unittest.TestCase):
@@ -369,6 +412,29 @@ class PeriodTests(unittest.TestCase):
             for seq in ranks.values():
                 self.assertEqual(seq, list(range(1, len(seq) + 1)))
                 self.assertLessEqual(len(seq), planner.DEFAULT_PER_GAP)
+
+    def test_customer_due_mid_period_is_not_suggested_before_its_due_day(self):
+        # Regression for issue #87 item 3: K21 is due on 2026-11-04. Exclusion is
+        # judged on the last day (so K21 is a candidate), but scoring must judge
+        # due per day: never on 2026-11-03, and never with a lookahead reason.
+        self.assertIn("K21", [c.id for c in self.p.candidates])
+        k21 = [s for s in self.p.suggestions if s.customer.id == "K21"]
+        self.assertEqual(len(k21), 1, "K21 fits a gap on a due day in this fixture")
+        self.assertGreaterEqual(k21[0].gap.day.date.isoformat(), "2026-11-04")
+        self.assertFalse(k21[0].not_yet_due)
+        self.assertNotIn("lookahead", k21[0].reason)
+        self.assertIn("due since 2026-11-04", k21[0].reason)
+        first_day = self.p.days[0]
+        for gap in first_day.gaps:
+            self.assertIsNone(first_day.score(gap, k21[0].customer))
+        # with a lookahead of 1 day the first day may take K21, and the reason says so plainly
+        argv = list(self.argv) + ["--lookahead-days", "1"]
+        p, _ = planner.load(planner.build_parser().parse_args(argv), env={})
+        p.run()
+        scored = p.days[0].score(p.days[0].gaps[0], next(c for c in p.candidates if c.id == "K21"))
+        self.assertIsNotNone(scored)
+        self.assertTrue(scored["not_yet_due"])
+        self.assertIn("not yet due on 2026-11-03 and included only because the buyer set the lookahead to 1 day(s)", scored["reason"])
 
     def test_report_has_one_block_per_day(self):
         code, text, err = run(self.argv)
@@ -411,13 +477,18 @@ class ReportTests(unittest.TestCase):
         drafts = re.findall(r"^### Draft for .* \((K\d+)\)", self.text, re.M)
         suggestions = re.findall(r"^\d+\. \*\*.*\*\* \((K\d+)\)", self.text, re.M)
         self.assertEqual(drafts, suggestions)
-        self.assertEqual(len(drafts), 7)
+        self.assertEqual(len(drafts), 9)
         self.assertNotIn("Quiet Inn", self.text.split("## Checked and excluded customers")[0].split("### Gaps")[1])
         self.assertNotIn("K5", self.text.split("## Outreach drafts")[1].split("## Method")[0])
         self.assertIn("Certainty: **low** (assumption based)", self.text)
         self.assertIn("> Hello Cedar Diner, this is a message from [buyer's company name]", self.text)
         self.assertIn("Our technician Lee Okafor is scheduled near 8 Cedar Street, Sampletown on 2026-11-03", self.text)
         self.assertIn("You have an open quote with us (Q-77 compressor replacement)", self.text)
+        self.assertIn("about your pest control service. Your last service was on 2026-06-01.", self.text)
+        self.assertIn("merged into K17, which has more filled fields", self.text)
+        self.assertIn("- Duplicates: customers at the same normalized address", self.text)
+        self.assertIn("- Ranking: two tiers. Every pair with real due evidence", self.text)
+        self.assertIn("- Per day: due and the lookahead window are judged against each gap's own day", self.text)
         self.assertIn("; area: from start (1 Depot Road, Sampletown) to job J3 (5 Summit Avenue, Sampletown)", self.text)
         self.assertIn("Drafts only. Nothing here was sent", self.text)
 
