@@ -89,7 +89,10 @@ are exact; column order does not matter; extra columns are ignored.
 | `opted_out` | `yes` / `no`, optional | a `yes` is a hard exclusion, the same as `do_not_contact` |
 
 A row with an unusable field is dropped from planning and listed under
-"Data problems" in the report with its row number and the field. A file
+"Data problems" in the report with its row number and the field. A dropped
+jobs row (unusable field, blank date, or a date outside the period) is also
+listed under "Unassigned jobs", on its own day when its date reads and is in
+the period and otherwise on the first day, with the same reason. A file
 with a missing column, a missing file, or a provider failure stops the run
 (exit 2, reason on stderr, nothing written).
 
@@ -134,7 +137,8 @@ report.
      all crew against the drive time of visiting the same jobs in the order
      the file gave them, with the difference or the reason it is not lower.
    - **Unassigned jobs**, each with the reason (unplaced address, no crew
-     member with the skills, no feasible slot).
+     member with the skills, no feasible slot, or a jobs row that was dropped
+     as a data problem).
    - **Gaps**: idle stretches of at least the minimum, with the crew
      member, the time and the area (where they are before and after).
    - **Ranked backfill suggestions** per gap, each with its reason (due
@@ -151,7 +155,7 @@ report.
 
 | Job description criterion | Where |
 | --- | --- |
-| 1. Every job assigned or listed as unassigned with the reason | schedule tables plus "Unassigned jobs" per day; the tests assert the two sets cover every job row |
+| 1. Every job assigned or listed as unassigned with the reason | schedule tables plus "Unassigned jobs" per day, dropped rows included; the tests assert that together they list every job row of the file once |
 | 2. No work outside hours, windows or skills | the insertion only accepts feasible timelines; asserted stop by stop in the tests |
 | 3. Drive times from a routing service, named | "Brief and inputs" names the provider and the time of geocoding; offline runs name the fixture file |
 | 4. Total drive time lower than the given order, or explained | the total line per day compares with the file order and explains when not lower |

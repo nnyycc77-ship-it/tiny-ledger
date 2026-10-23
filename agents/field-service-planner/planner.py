@@ -34,7 +34,9 @@ Fail closed: a missing file, a missing column, or a provider failure
 stops the run with the reason on stderr and exit 2; no partial report is
 written. A row with an unusable field (a bad time, a bad date, a bad
 duration) is dropped from planning and listed under data problems in the
-report, with the row and the field named.
+report, with the row and the field named; a dropped jobs row is also listed
+under a day's unassigned jobs with that reason, so no job is missing from
+both the schedule and the unassigned list.
 
 Standard library only. Run from the repository root:
 
@@ -323,7 +325,7 @@ class Customer(object):
         self.merged_from.append((other, ratio))
 
 
-def load_records(rows, cls, label, problems):
+def load_records(rows, cls, label, problems, dropped=None):
     out = []
     for number, row in rows:
         try:
@@ -331,7 +333,27 @@ def load_records(rows, cls, label, problems):
         except ValueError as exc:
             ident = row.get("job_id") or row.get("crew_id") or row.get("customer_id") or "(no id)"
             problems.append("%s row %d (%s) dropped: %s" % (label, number, ident, exc))
+            if dropped is not None:
+                dropped.append(DroppedJob(number, ident, row.get("customer", ""), row.get("address", ""),
+                                          row.get(JOB_DATE_COLUMN, ""), str(exc)))
     return out
+
+
+class DroppedJob(object):
+    """A jobs row that was not planned: it could not be read, or its date
+    is blank or outside the period. It is listed under the unassigned jobs
+    of a day as well as under data problems (job posting acceptance 1)."""
+
+    def __init__(self, row, job_id, customer, address, raw_date, reason):
+        self.row = row
+        self.id = job_id
+        self.customer = customer
+        self.address = address
+        self.reason = reason
+        try:
+            self.date = parse_date(raw_date, JOB_DATE_COLUMN) if (raw_date or "").strip() else None
+        except ValueError:
+            self.date = None
 
 
 # ---------------------------------------------------------------- settings
@@ -369,6 +391,7 @@ class Period(object):
         self.candidates = []
         self.used = set()
         self.days = []
+        self.dropped_jobs = []
 
     # ---- geocoding and the drive time matrix
 
@@ -524,7 +547,12 @@ class Period(object):
         self.exclude_customers()
         for date in self.dates:
             jobs = [j for j in self.jobs if j.date is None or j.date == date]
-            self.days.append(Day(self, date, jobs).run())
+            day = Day(self, date, jobs)
+            # A dropped row goes on its own day when its date is readable and
+            # in the period, otherwise on the first day, so each is listed once.
+            day.dropped = [d for d in self.dropped_jobs
+                           if d.date == date or (date == self.dates[0] and d.date not in self.dates)]
+            self.days.append(day.run())
         self.rank()
         return self
 
@@ -581,6 +609,7 @@ class Day(object):
         self.settings = period.settings
         self.routes = {}
         self.unassigned = []
+        self.dropped = []
         self.gaps = []
         self.suggestions = []
         self.baseline = None
@@ -788,11 +817,14 @@ def render_day(day):
     L.append("")
     L.append("### Unassigned jobs")
     L.append("")
-    if day.unassigned:
+    if day.unassigned or day.dropped:
         for job, reason in day.unassigned:
             L.append("- Job %s (%s, %s, window %s to %s, %d min, skills: %s): %s" % (
                 job.id, job.customer, job.address, fmt_hhmm(job.window[0]), fmt_hhmm(job.window[1]), job.duration,
                 ", ".join(sorted(job.skills)) or "none", reason))
+        for d in day.dropped:
+            L.append("- Job %s (jobs row %d, %s, %s): not planned, %s (see data problems)" % (
+                d.id, d.row, d.customer or "no customer given", d.address or "no address given", d.reason))
     else:
         L.append("- None: every job of this day that parsed and was placed is scheduled.")
     L.append("")
@@ -964,21 +996,29 @@ def load(args, env=None, provider=None):
         raise InputError("jobs file %s needs a %r column when --date-to is given" % (args.jobs, JOB_DATE_COLUMN))
     if not crew_rows:
         raise InputError("crew file %s has no data rows; nothing can be scheduled" % args.crew)
-    jobs = load_records(jobs_rows, Job, "jobs", problems)
+    dropped_jobs = []
+    jobs = load_records(jobs_rows, Job, "jobs", problems, dropped_jobs)
     crew = load_records(crew_rows, Crew, "crew", problems)
     customers = load_records(cust_rows, Customer, "customers", problems)
     kept = []
     for job in jobs:
         if JOB_DATE_COLUMN in job_optional and job.date is None:
-            problems.append("jobs row %d (%s) dropped: date is blank but the file has a date column" % (job.row, job.id))
+            reason = "date is blank but the file has a date column"
         elif job.date is not None and job.date not in dates:
-            problems.append("jobs row %d (%s) dropped: date %s is outside the planning period" % (job.row, job.id, job.date.isoformat()))
+            reason = "date %s is outside the planning period" % job.date.isoformat()
+        else:
+            reason = None
+        if reason:
+            problems.append("jobs row %d (%s) dropped: %s" % (job.row, job.id, reason))
+            dropped_jobs.append(DroppedJob(job.row, job.id, job.customer, job.address,
+                                           job.date.isoformat() if job.date else "", reason))
         else:
             kept.append(job)
     if provider is None:
         provider = routing.FixtureProvider(args.places) if args.places else routing.LiveProvider.from_env(env)
     period = Period(dates, kept, crew, customers, provider, settings)
     period.problems.extend(problems)
+    period.dropped_jobs = sorted(dropped_jobs, key=lambda d: d.row)
     inputs = [("Jobs", args.jobs, len(jobs_rows), sha256_file(args.jobs)),
               ("Crew", args.crew, len(crew_rows), sha256_file(args.crew)),
               ("Customers", args.customers, len(cust_rows), sha256_file(args.customers))]
