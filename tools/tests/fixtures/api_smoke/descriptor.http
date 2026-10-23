@@ -1,0 +1,144 @@
+HTTP/1.0 200 OK
+Date: Fri, 23 Oct 2026 12:48:42 GMT
+Server: WSGIServer/0.2 CPython/3.13.16
+Content-Type: application/json; charset=utf-8
+Content-Length: 4691
+Cache-Control: no-store
+X-Payout-Wallet: 0x1111111111111111111111111111111111111111
+
+{
+  "service": "Hojo Research Agent recall check",
+  "endpoint": "/recall",
+  "method": "GET",
+  "forms": {
+    "product": {
+      "params": [
+        "product",
+        "exact_name (optional)",
+        "near (optional, repeatable; needs exact_name)"
+      ],
+      "source": "https://www.saferproducts.gov/RestWebServices/Recall"
+    },
+    "vehicle": {
+      "params": [
+        "make",
+        "model",
+        "year",
+        "exclude (optional, repeatable, CAMPAIGN=reason)"
+      ],
+      "source": "https://api.nhtsa.gov/recalls/recallsByVehicle"
+    }
+  },
+  "response": "text/markdown in the delivery format: claims, exact query, UTC retrieval time, source link, raw response beneath the link",
+  "payout_wallet": "0x1111111111111111111111111111111111111111",
+  "payment": "USDC to payout_wallet; collected by the registry that lists this service, not by this endpoint",
+  "endpoints": {
+    "/recall": {
+      "method": "GET",
+      "tool": "tools/cpsc_recalls.py and tools/nhtsa_recalls.py",
+      "params": [
+        "product",
+        "exact_name (optional)",
+        "near (optional, repeatable; needs exact_name)",
+        "make",
+        "model",
+        "year",
+        "exclude (optional, repeatable, CAMPAIGN=reason)"
+      ],
+      "sources": [
+        "https://www.saferproducts.gov/RestWebServices/Recall",
+        "https://api.nhtsa.gov/recalls/recallsByVehicle"
+      ]
+    },
+    "/carrier": {
+      "tool": "tools/fmcsa_carrier.py",
+      "params": [
+        "usdot (or name, not both)",
+        "name (Census File name search)",
+        "subject (optional heading)",
+        "source (optional, repeatable, with usdot: census, safer, li)",
+        "limit (optional, with name, default 50)",
+        "exclude (optional, repeatable, with name, USDOT=reason)"
+      ],
+      "sources": [
+        "https://data.transportation.gov/resource/az4n-8mr2.json",
+        "https://safer.fmcsa.dot.gov/query.asp",
+        "https://li-public.fmcsa.dot.gov/LIVIEW/pkg_carrquery.prc_carrlist"
+      ],
+      "method": "GET"
+    },
+    "/litigation": {
+      "tool": "tools/courtlistener_recap.py",
+      "params": [
+        "party (repeatable; the first is the exact name whose results are listed)",
+        "subject (optional heading)",
+        "filed_after (optional, YYYY-MM-DD; default five years before today)",
+        "order_by (optional, default dateFiled desc)",
+        "list (optional, default 10)",
+        "docket_details (optional, 1 to fetch each listed docket record)",
+        "exclude (optional, repeatable, DOCKET_ID=reason)"
+      ],
+      "sources": [
+        "https://www.courtlistener.com/api/rest/v4/search/"
+      ],
+      "method": "GET"
+    },
+    "/awards": {
+      "tool": "tools/usaspending_awards.py",
+      "params": [
+        "recipient (or naics, or both)",
+        "naics (repeatable, 2 to 6 digit prefix)",
+        "start and end (optional, together, YYYY-MM-DD)",
+        "page (optional, default 1)",
+        "limit (optional, default 10, maximum 100)",
+        "exclude (optional, repeatable, GENERATED_ID=reason)"
+      ],
+      "sources": [
+        "https://api.usaspending.gov/api/v2/search/spending_by_award/"
+      ],
+      "method": "GET"
+    },
+    "/nonprofit": {
+      "tool": "tools/propublica_nonprofits.py",
+      "params": [
+        "name (or ein, or both)",
+        "ein (repeatable)",
+        "subject (optional heading)",
+        "exclude (optional, repeatable, with name, EIN=reason)"
+      ],
+      "sources": [
+        "https://projects.propublica.org/nonprofits/api/v2"
+      ],
+      "method": "GET"
+    },
+    "/formd": {
+      "tool": "tools/edgar_formd.py",
+      "params": [
+        "cik (or issuer, not both)",
+        "issuer (EDGAR company search by name)",
+        "max_filings (optional, default 10)",
+        "exclude (optional, repeatable, ACCESSION=reason)"
+      ],
+      "sources": [
+        "https://data.sec.gov/submissions/CIK{cik10}.json",
+        "https://www.sec.gov/cgi-bin/browse-edgar"
+      ],
+      "note": "Needs EDGAR_CONTACT set on the server (EDGAR fair access); answers 503 without it.",
+      "method": "GET"
+    },
+    "/pagespeed": {
+      "tool": "tools/pagespeed_snapshot.py",
+      "params": [
+        "url (repeatable, up to 5)",
+        "subject (optional heading)",
+        "strategy (optional: mobile or desktop, default mobile)",
+        "exclude (optional, repeatable, URL=reason)"
+      ],
+      "sources": [
+        "https://www.googleapis.com/pagespeedonline/v5/runPagespeed"
+      ],
+      "note": "Uses PAGESPEED_API_KEY from the server environment when set; without it the API answers 429 with quota 0 and that transcript is the report.",
+      "method": "GET"
+    }
+  }
+}

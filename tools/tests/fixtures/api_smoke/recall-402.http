@@ -1,0 +1,81 @@
+HTTP/1.0 402 Payment Required
+Date: Fri, 23 Oct 2026 12:48:42 GMT
+Server: WSGIServer/0.2 CPython/3.13.16
+Content-Type: application/json; charset=utf-8
+Content-Length: 2268
+
+{
+  "x402Version": 1,
+  "error": "X-PAYMENT header is required",
+  "accepts": [
+    {
+      "scheme": "exact",
+      "network": "base",
+      "maxAmountRequired": "50000",
+      "resource": "http://127.0.0.1:8765/recall?product=Instant+Pot",
+      "description": "Sourced recall check from public United States recall records (CPSC products, NHTSA vehicles)",
+      "mimeType": "text/markdown",
+      "payTo": "0x1111111111111111111111111111111111111111",
+      "maxTimeoutSeconds": 60,
+      "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+      "extra": {
+        "name": "USD Coin",
+        "version": "2"
+      }
+    }
+  ],
+  "extensions": {
+    "bazaar": {
+      "info": {
+        "input": {
+          "type": "http",
+          "method": "GET",
+          "queryParams": {
+            "product": "Instant Pot",
+            "make": "Hyundai",
+            "model": "Elantra",
+            "year": "2021"
+          }
+        },
+        "output": {
+          "type": "text/markdown",
+          "example": "# Recall check: ..."
+        }
+      },
+      "schema": {
+        "type": "object",
+        "properties": {
+          "product": {
+            "type": "string",
+            "description": "Product name for a CPSC SaferProducts check. Give this form, or make+model+year."
+          },
+          "exact_name": {
+            "type": "string",
+            "description": "Optional: exact product name near matches are checked against; required with near."
+          },
+          "near": {
+            "type": "string",
+            "description": "Optional, repeatable: a near-match product name to check and exclude with a reason; needs exact_name."
+          },
+          "make": {
+            "type": "string",
+            "description": "Vehicle make (NHTSA form)."
+          },
+          "model": {
+            "type": "string",
+            "description": "Vehicle model (NHTSA form)."
+          },
+          "year": {
+            "type": "string",
+            "description": "Vehicle model year (NHTSA form)."
+          },
+          "exclude": {
+            "type": "string",
+            "description": "Optional, repeatable: CAMPAIGN=reason exclusion for the vehicle form."
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  }
+}
