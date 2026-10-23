@@ -17,9 +17,11 @@ Which data is which:
   contacted.
 * DERIVED: test inputs built from a real capture or the real api/openapi.json
   file with one stated change, labelled where they are built.
-* SYNTHETIC: the extra /openapi.json route a test wrapper adds (it serves
-  the real api/openapi.json file), and the closed port used for the
-  transport failure test.
+* SYNTHETIC: the closed port used for the transport failure test.
+
+The offline fixtures are the PR #81 capture of main before issue #85 added
+the GET /openapi.json route, so offline mode still reports that route as
+404; the live tests run the current app, where all 20 assertions hold.
 """
 
 import contextlib
@@ -171,45 +173,28 @@ class LiveMode(unittest.TestCase):
         # from os.environ in a real deployment (server.py), so set it there.
         cls.env = mock.patch.dict(os.environ, {"PAYOUT_WALLET_ADDRESS": SYNTHETIC_WALLET})
         cls.env.start()
-        gated = payment_gate.build_app()
-
-        def with_openapi(environ, start_response):
-            # SYNTHETIC route: serves the real api/openapi.json file.
-            if environ.get("PATH_INFO") == "/openapi.json":
-                body = OPENAPI_FILE.encode("utf-8")
-                start_response("200 OK", [("Content-Type", "application/json"), ("Content-Length", str(len(body)))])
-                return [body]
-            return gated(environ, start_response)
-
-        cls.as_on_main = serve(gated)
-        cls.with_route = serve(with_openapi)
+        cls.gated = serve(payment_gate.build_app())
 
     @classmethod
     def tearDownClass(cls):
-        for s in (cls.as_on_main, cls.with_route):
-            s.shutdown()
-            s.server_close()
+        cls.gated.shutdown()
+        cls.gated.server_close()
         cls.env.stop()
 
     def base(self, server):
         return "http://127.0.0.1:%d" % server.server_port
 
-    def test_live_against_the_gated_app_as_on_main(self):
+    def test_live_against_the_gated_app_all_pass(self):
+        # The real gated app serves GET /openapi.json since issue #85, so all 20 hold.
         Recorder.seen = []
-        code, out, err = run_main(["--live", self.base(self.as_on_main)])
-        self.assertEqual(code, 1, err)
-        self.assertIn("Result: FAIL, 3 assertion(s) failed:", out)
-        self.assertEqual(out.count("- PASS:"), 17)
-        self.assertEqual(len(Recorder.seen), 3)
-        for headers in Recorder.seen:
-            self.assertNotIn("HTTP_X_PAYMENT", headers)
-
-    def test_live_all_pass_once_openapi_is_served(self):
-        code, out, err = run_main(["--live", self.base(self.with_route), "--product", "Instant Pot"])
+        code, out, err = run_main(["--live", self.base(self.gated), "--product", "Instant Pot"])
         self.assertEqual(code, 0, err)
         self.assertIn("Result: PASS, every assertion held.", out)
         self.assertEqual(out.count("- PASS:"), 20)
         self.assertNotIn("- FAIL:", out)
+        self.assertEqual(len(Recorder.seen), 3)
+        for headers in Recorder.seen:
+            self.assertNotIn("HTTP_X_PAYMENT", headers)
 
     def test_transport_failure_fails_closed(self):
         code, out, err = run_main(["--live", "http://127.0.0.1:9"])
