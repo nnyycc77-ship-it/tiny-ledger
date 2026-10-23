@@ -1,0 +1,73 @@
+{
+  "undeclared-403.http": {
+    "url": "https://data.sec.gov/submissions/CIK0002156237.json",
+    "retrieved_utc": "2026-10-23T03:45:19Z",
+    "sha256": "c7a3ba065bef60b53a16edfd02385cb344e19dcf2b10b60806fe20fe7368071f",
+    "status_line": "HTTP/1.1 403 Forbidden",
+    "bytes": 5113,
+    "note": "Deliberate capture of EDGAR's 403 answer to a User-Agent whose contact carried a URL in parentheses; kept as the real fail-closed case. The same URL with a plain contact is submissions-2156237.http."
+  },
+  "lookup-many.http": {
+    "url": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&company=8VC+DSS&type=D&output=",
+    "retrieved_utc": "2026-10-23T03:45:19Z",
+    "sha256": "9c670c79a6a9db389c54080cb932e2aa4c9414b878e10e4970d65609ff5fa3b8",
+    "status_line": "HTTP/1.1 200 OK",
+    "bytes": 7106
+  },
+  "lookup-one.http": {
+    "url": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&company=8VC+DSS+III&type=D&output=",
+    "retrieved_utc": "2026-10-23T03:45:19Z",
+    "sha256": "e4e708d3e879f9cc9c40991cc90823e91640e8beae40272993a5a2380e425bb3",
+    "status_line": "HTTP/1.1 200 OK",
+    "bytes": 10188
+  },
+  "lookup-none.http": {
+    "url": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&company=zzqx+nonexistent+issuer+name&type=D&output=",
+    "retrieved_utc": "2026-10-23T03:45:20Z",
+    "sha256": "a2fa1feac504df2ae0e256ba047621c8951172aee9165c024399f1b14e62a685",
+    "status_line": "HTTP/1.1 200 OK",
+    "bytes": 5291
+  },
+  "submissions-2156237.http": {
+    "url": "https://data.sec.gov/submissions/CIK0002156237.json",
+    "retrieved_utc": "2026-10-23T03:45:20Z",
+    "sha256": "694bb0ed30c5a32cc40232f0fefd8932b4bb69b67607567b9a8102df3315e81e",
+    "status_line": "HTTP/1.1 200 OK",
+    "bytes": 1762
+  },
+  "formd-0002156237-26-000001.http": {
+    "url": "https://www.sec.gov/Archives/edgar/data/2156237/000215623726000001/primary_doc.xml",
+    "retrieved_utc": "2026-10-23T03:45:20Z",
+    "sha256": "dc2b1dcbfcd6e37b07c8108347590e24d04d9d62548e6ff56ba172e2b016c9d1",
+    "status_line": "HTTP/1.1 200 OK",
+    "bytes": 7049
+  },
+  "submissions-1801756.http": {
+    "url": "https://data.sec.gov/submissions/CIK0001801756.json",
+    "retrieved_utc": "2026-10-23T03:45:21Z",
+    "sha256": "af0c6830a1d3af2401dbd154ebd7fe75a9df5511354d7f2eb0d4c8e145364e72",
+    "status_line": "HTTP/1.1 200 OK",
+    "bytes": 2572
+  },
+  "formd-0000929638-26-003990.http": {
+    "url": "https://www.sec.gov/Archives/edgar/data/1801756/000092963826003990/primary_doc.xml",
+    "retrieved_utc": "2026-10-23T03:45:22Z",
+    "sha256": "08b9b99a5c1f0963b69a339048b77a534dc967836e1b22d1ae87446aaf6dc363",
+    "status_line": "HTTP/1.1 200 OK",
+    "bytes": 9752
+  },
+  "formd-0001801756-23-000001.http": {
+    "url": "https://www.sec.gov/Archives/edgar/data/1801756/000180175623000001/primary_doc.xml",
+    "retrieved_utc": "2026-10-23T03:45:22Z",
+    "sha256": "a356fff85b21c70c507d0148f2db0fe1f630d910e5a5ea6b6cf943231779335f",
+    "status_line": "HTTP/1.1 200 OK",
+    "bytes": 12579
+  },
+  "submissions-320193.http": {
+    "url": "https://data.sec.gov/submissions/CIK0000320193.json",
+    "retrieved_utc": "2026-10-23T03:45:23Z",
+    "sha256": "d8ee491d037c03fdb1f07e6b828a31a97c999f1d09d2745b22fd387d0fc30859",
+    "status_line": "HTTP/1.1 200 OK",
+    "bytes": 164329
+  }
+}

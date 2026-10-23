@@ -1,0 +1,153 @@
+HTTP/1.1 200 OK
+Content-Type: text/xml
+Referrer-Policy: strict-origin-when-cross-origin
+Permissions-Policy: geolocation=(), microphone=(), camera=()
+Content-Security-Policy: frame-ancestors 'self'
+X-Frame-Options: SAMEORIGIN
+x-amz-id-2: dOFKLZlP5NMsuueXDHPvkG08DQr/NTBe/flNm2r4uRSKBuTpbmEOD7N+yvSALhg10DLLkpX42K0=
+x-amz-request-id: TEZTKZDY2JJEFQ41
+x-amz-replication-status: PENDING
+Last-Modified: Thu, 22 Oct 2026 21:27:37 GMT
+ETag: "6c1bee463f5f3e7c888823129cb6958d-gzip"
+x-amz-server-side-encryption: AES256
+x-amz-meta-mode: 33188
+x-amz-version-id: F61xU45hwzqjfkiktrOdniRdmVYE5ogc
+X-Content-Type-Options: nosniff
+X-XSS-Protection: 1; mode=block
+Pragma: no-cache
+Vary: Accept-Encoding
+Cache-Control: no-cache, no-store, no-transform, proxy-revalidate
+Date: Fri, 23 Oct 2026 03:45:21 GMT
+Content-Length: 4968
+Connection: close
+Strict-Transport-Security: max-age=31536000 ; includeSubDomains ; preload
+Set-Cookie: _abck=B9EA20DB0C8166D3E7714F7F467B4946~-1~YAAQZxjQFwq7i0ihAQAA6P7cZhCi0RiqC9qxCSQJNwXM5FOzOSa6j45/H62NGv12+PSybfpCHTxnoH3qHBqlbBcExGYgmtryLX8S3zZ8GnHvVRXkepYWhYW7rkCOnMOjSv4TOsD4z4Ss+FhIAxetnhn7UTzjp8O9dFmankMSvKoq+1s/nuEtvZ1BQjT7CD6a8NqhFl0P4FNaBuH3IIXnhkhEj++HqxGn9dY18PyuEDIZYJJcHpkC7PPLr3MwC/4QW6075HUmXdZf5RlJDgwPDIqfyo35U7lyn9yHJjCgddNu4M84R5S+v1zEVYxDVFWnqjTpAvnnzS/Gg+uNRHq64CAf1/ntkADWwoOOGs9jwIcUhbl4BgITLn+SUiXtHKfxtksWbjA30OivUMINIPNZrM2tyvbOA4e6cs/1Blc2NhUOLb/+uDuppRRBZqeTE6rr5+F6mKdL6JnIyQ==~-1~-1~-1~-1~-1; Domain=.sec.gov; Path=/; Expires=Sat, 23 Oct 2027 03:45:21 GMT; Max-Age=31536000; SameSite=None; Secure
+Set-Cookie: bm_sz=BB2FA5607101E24C7A1241AEB58129D7~YAAQZxjQFwy7i0ihAQAA6P7cZgF/jYAwaX+7kEUWykv8+US+Klx3vmsyG9F362CTjiWgpxvHGVeGqWkTVjPbV7PfSdXZGoydGH3vv+2mZN3SDC08+T0mHKL8F2kY+WmxPyQJzr5caSbJD0poNUSyK+PiDYW4QIzr5YKhPWqwBxiRREKOHQlsbmwhoCL9dbTbFgqLU/A5z+B5T5MwVmKVq+8WvOF2qzDXbaWfFYkR3cjcT8ZFMFeYYLWay3i40A0JcSkjoB3v0KVPWK1Sg/Rce/UEL7QgIBLN/l6Dt6PI9ojlbmrzrBTr7OX82ciZiN0HSVSvhHnLWRxFWjJ4kFLycGYaeFIxPTf2OjU+dCHUfs5DQmgl~4604997~4605237; Domain=.sec.gov; Path=/; Expires=Fri, 23 Oct 2026 07:45:21 GMT; Max-Age=14400; SameSite=None; Secure
+
+<?xml version="1.0"?>
+<edgarSubmission>
+
+    <schemaVersion>X0708</schemaVersion>
+
+    <submissionType>D</submissionType>
+
+    <testOrLive>LIVE</testOrLive>
+
+    <primaryIssuer>
+        <cik>0002156237</cik>
+        <entityName>8VC DSS III, L.P.</entityName>
+        <issuerAddress>
+            <street1>907 SOUTH CONGRESS AVENUE</street1>
+            <city>AUSTIN</city>
+            <stateOrCountry>TX</stateOrCountry>
+            <stateOrCountryDescription>TEXAS</stateOrCountryDescription>
+            <zipCode>78704</zipCode>
+        </issuerAddress>
+        <issuerPhoneNumber>512-370-2276</issuerPhoneNumber>
+        <jurisdictionOfInc>DELAWARE</jurisdictionOfInc>
+        <issuerPreviousNameList>
+            <value>None</value>
+        </issuerPreviousNameList>
+        <edgarPreviousNameList>
+            <value>None</value>
+        </edgarPreviousNameList>
+        <entityType>Limited Partnership</entityType>
+        <yearOfInc>
+            <withinFiveYears>true</withinFiveYears>
+            <value>2026</value>
+        </yearOfInc>
+    </primaryIssuer>
+
+    <relatedPersonsList>
+        <relatedPersonInfo>
+            <relatedPersonName>
+                <firstName>Joseph</firstName>
+                <lastName>Lonsdale</lastName>
+            </relatedPersonName>
+            <relatedPersonAddress>
+                <street1>907 South Congress Avenue</street1>
+                <city>Austin</city>
+                <stateOrCountry>TX</stateOrCountry>
+                <stateOrCountryDescription>TEXAS</stateOrCountryDescription>
+                <zipCode>78704</zipCode>
+            </relatedPersonAddress>
+            <relatedPersonRelationshipList>
+                <relationship>Executive Officer</relationship>
+            </relatedPersonRelationshipList>
+            <relationshipClarification>Managing Member of the General Partner</relationshipClarification>
+        </relatedPersonInfo>
+    </relatedPersonsList>
+
+    <offeringData>
+        <industryGroup>
+            <industryGroupType>Pooled Investment Fund</industryGroupType>
+            <investmentFundInfo>
+                <investmentFundType>Venture Capital Fund</investmentFundType>
+                <is40Act>false</is40Act>
+            </investmentFundInfo>
+        </industryGroup>
+        <issuerSize>
+            <revenueRange>Not Applicable</revenueRange>
+        </issuerSize>
+        <federalExemptionsExclusions>
+            <item>06b</item>
+            <item>3C</item>
+            <item>3C.7</item>
+        </federalExemptionsExclusions>
+        <typeOfFiling>
+            <newOrAmendment>
+                <isAmendment>false</isAmendment>
+            </newOrAmendment>
+            <dateOfFirstSale>
+                <yetToOccur>true</yetToOccur>
+            </dateOfFirstSale>
+        </typeOfFiling>
+        <durationOfOffering>
+            <moreThanOneYear>false</moreThanOneYear>
+        </durationOfOffering>
+        <typesOfSecuritiesOffered>
+            <isPooledInvestmentFundType>true</isPooledInvestmentFundType>
+        </typesOfSecuritiesOffered>
+        <businessCombinationTransaction>
+            <isBusinessCombinationTransaction>false</isBusinessCombinationTransaction>
+            <clarificationOfResponse></clarificationOfResponse>
+        </businessCombinationTransaction>
+        <minimumInvestmentAccepted>0</minimumInvestmentAccepted>
+        <salesCompensationList></salesCompensationList>
+        <offeringSalesAmounts>
+            <totalOfferingAmount>400000000</totalOfferingAmount>
+            <totalAmountSold>0</totalAmountSold>
+            <totalRemaining>400000000</totalRemaining>
+            <clarificationOfResponse></clarificationOfResponse>
+        </offeringSalesAmounts>
+        <investors>
+            <hasNonAccreditedInvestors>false</hasNonAccreditedInvestors>
+            <totalNumberAlreadyInvested>0</totalNumberAlreadyInvested>
+        </investors>
+        <salesCommissionsFindersFees>
+            <salesCommissions>
+                <dollarAmount>0</dollarAmount>
+            </salesCommissions>
+            <findersFees>
+                <dollarAmount>0</dollarAmount>
+            </findersFees>
+            <clarificationOfResponse></clarificationOfResponse>
+        </salesCommissionsFindersFees>
+        <useOfProceeds>
+            <grossProceedsUsed>
+                <dollarAmount>0</dollarAmount>
+            </grossProceedsUsed>
+            <clarificationOfResponse></clarificationOfResponse>
+        </useOfProceeds>
+        <signatureBlock>
+            <authorizedRepresentative>false</authorizedRepresentative>
+            <signature>
+                <issuerName>8VC DSS III, L.P.</issuerName>
+                <signatureName>/s/ Ian Shannon</signatureName>
+                <nameOfSigner>Ian Shannon</nameOfSigner>
+                <signatureTitle>Authorized Signatory</signatureTitle>
+                <signatureDate>2026-10-22</signatureDate>
+            </signature>
+        </signatureBlock>
+    </offeringData>
+</edgarSubmission>

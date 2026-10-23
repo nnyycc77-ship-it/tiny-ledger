@@ -1,0 +1,13 @@
+HTTP/1.1 200 OK
+x-amzn-RequestId: 79d19c96-1d14-44a5-aa38-eb4c458bca6d
+Access-Control-Allow-Origin: *
+x-amz-apigw-id: Fra85FMzIAMErdg=
+X-Amzn-Trace-Id: Root=1-6adad852-c08b35d0887ad2db7c67cc1e
+Content-Type: application/json
+Vary: Accept-Encoding
+Date: Fri, 23 Oct 2026 03:45:22 GMT
+Content-Length: 2196
+Connection: close
+Strict-Transport-Security: max-age=31536000 ; preload
+
+{"cik":"0001801756","entityType":"other","sic":"","sicDescription":"","ownerOrg":"","insiderTransactionForOwnerExists":0,"insiderTransactionForIssuerExists":0,"name":"Argentem Opportunities Fund LP","tickers":[],"exchanges":[],"ein":"000000000","lei":null,"description":"","website":"","investorWebsite":"","category":"","fiscalYearEnd":"1231","stateOfIncorporation":"E9","stateOfIncorporationDescription":"Cayman Islands","addresses":{"mailing":{"street1":"P.O. BOX 309","street2":"UGLAND HOUSE","city":"GRAND CAYMAN","stateOrCountry":null,"zipCode":null,"stateOrCountryDescription":null,"isForeignLocation":1,"foreignStateTerritory":null,"country":"Cayman Islands","countryCode":"E9"},"business":{"street1":"12800 WHITEWATER DR.","street2":"SUITE 210","city":"MINNETONKA","stateOrCountry":"MN","zipCode":"55343","stateOrCountryDescription":"MN","isForeignLocation":null,"foreignStateTerritory":null,"country":null,"countryCode":null}},"phone":"877-235-4500","flags":"","formerNames":[{"name":"ACP Fund II LP","from":"2020-02-04T00:00:00.000Z","to":"2023-01-31T00:00:00.000Z"}],"filings":{"recent":{"accessionNumber":["0000929638-26-003990","0001801756-23-000001","0001801756-22-000001","0001801756-21-000001","0001801756-20-000001"],"filingDate":["2026-10-22","2023-01-31","2022-02-03","2021-02-03","2020-02-04"],"reportDate":["","","","",""],"acceptanceDateTime":["2026-10-22T21:26:21.000Z","2023-01-31T20:47:46.000Z","2022-02-03T00:45:18.000Z","2021-02-03T02:49:39.000Z","2020-02-04T15:16:58.000Z"],"act":["33","33","33","33","33"],"form":["D/A","D/A","D/A","D/A","D"],"fileNumber":["021-359681","021-359681","021-359681","021-359681","021-359681"],"filmNumber":["261479522","23572409","22585906","21584017","20570951"],"items":["06b,3C,3C.7","06b,3C,3C.7","06b,3C,3C.7","06b,3C,3C.7","06b,3C,3C.7"],"core_type":["D/A","D/A","D/A","D/A","D"],"size":[9039,11628,12406,11553,11458],"isXBRL":[0,0,0,0,0],"isInlineXBRL":[0,0,0,0,0],"isXBRLNumeric":[0,null,null,null,null],"primaryDocument":["xslFormDX01/primary_doc.xml","xslFormDX01/primary_doc.xml","xslFormDX01/primary_doc.xml","xslFormDX01/primary_doc.xml","xslFormDX01/primary_doc.xml"],"primaryDocDescription":["","","","",""]},"files":[]}}

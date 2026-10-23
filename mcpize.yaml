@@ -18,3 +18,13 @@ start:
 
 bridge:
   mode: stdio
+
+pricing:
+  protocol: x402
+  network: base
+  recipient: "0xA7bc0f1B812081c691Ac17828C96f81C1FC6cbfF"
+  asset: usdc
+  tools:
+    - name: recall_check
+      price: "0.05"
+      description: Sourced recall check from public United States recall records (CPSC products, NHTSA vehicles)

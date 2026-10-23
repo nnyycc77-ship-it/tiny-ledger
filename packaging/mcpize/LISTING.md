@@ -147,9 +147,22 @@ x-envoy-upstream-service-time: 153
 ```
 ````
 
-## Per call price suggestion
+## Per call price
 
-Suggested: **1.00 USDC per call.** The arithmetic and its sources:
+Set by the owner: **0.05 USDC per call.** Source: the `pricing` block of the
+root [`mcpize.yaml`](../../mcpize.yaml), added in commit
+[f6fc36c](https://github.com/nnyycc77-ship-it/tiny-ledger/commit/f6fc36c77a6993f8915d20056fd50124437cc1fa)
+("Sync mcpize.yaml pricing with dashboard: x402 on Base, recipient owner
+wallet, recall_check 0.05 USDC"): protocol `x402`, network `base`, asset
+`usdc`, tool `recall_check`, price `"0.05"`. The price is the owner's; this
+folder records it and does not set it. It is inside the documented range of
+0.01 to 100 USDC (item 4 below).
+
+### The earlier suggestion, kept for its arithmetic
+
+Before the owner set the price, this folder suggested **1.00 USDC per
+call.** The suggestion is superseded; the arithmetic and its sources stay
+as the record of how it was reached:
 
 1. The operator's catalog rate for a full research job is 10 USD.
    Source: [AGENT-BRIEF.md, hard rule 4](../../AGENT-BRIEF.md)
@@ -180,9 +193,9 @@ Suggested: **1.00 USDC per call.** The arithmetic and its sources:
 What would change it: MCPize's fee schedule or minimum once the page is
 read directly; the going per call rate for comparable sourced lookups from
 the workstream E3 pricing scan when it exists; and the cost of the live
-fetch, which is currently zero (no keys, public sources). The price is set
-in the MCPize dashboard by the owner, not in this repo; the generated
-root `mcpize.yaml` carries no pricing block.
+fetch, which is currently zero (no keys, public sources). The price in
+force is the one the owner recorded in the root `mcpize.yaml` pricing
+block, 0.05 USDC per call, not this suggestion.
 
 ## What the server does not do
 
