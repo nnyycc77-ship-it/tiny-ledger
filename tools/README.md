@@ -27,6 +27,15 @@ Not a fetcher: `pregate.py` is the offline review pre gate (secrets scan,
 honesty lint, fixture provenance check) from `REVIEW.md`. See
 [`pregate-README.md`](pregate-README.md).
 
+Also not a fetcher: `standing_watch.py` rechecks a buyer watchlist
+through the FMCSA and CPSC fetchers, stores a dated snapshot of the
+fields that matter per entry, diffs it against the previous snapshot,
+and prints a baseline or change report. See
+[`../docs/standing-watch.md`](../docs/standing-watch.md) for the
+watchlist format and report shapes, and
+[`examples/standing-watch/`](examples/standing-watch/) for a live
+demo run.
+
 ## cpsc_recalls.py
 
 Run from the repository root with Python and curl installed. No API key,
