@@ -180,6 +180,37 @@ What that means for the deployment, stated plainly:
   in this repo). Whether the MCPize runtime reaches those hosts is not
   known from this repo and is a check for the go-live step.
 
+## Tools added to the core after deployment (issue #97)
+
+The core on `main` now lists seven tools: the three above, and from issue
+#97 `formd_check` (SEC EDGAR Form D filings via `tools/edgar_formd.py`),
+`nonprofit_check` (ProPublica Nonprofit Explorer via
+`tools/propublica_nonprofits.py`), `awards_search` (USAspending prime
+contract awards via `tools/usaspending_awards.py`) and `pagespeed_snapshot`
+(PageSpeed Insights via `tools/pagespeed_snapshot.py`). Arguments and
+sources: `mcp_server/README.md`.
+
+The same plain statements hold for these four as for the #67 pair:
+
+- **Auto deploy stays off.** Merging them changes this repository and
+  nothing on MCPize. Putting any new tool live on MCPize is a deliberate
+  later step by the owner from the MCPize side, not part of issue #97 and
+  not part of any merge.
+- **No pricing change.** `mcpize.yaml` is not touched; `recall_check` stays
+  the one priced tool, and the four new tools carry no price and no payout
+  sentence in their descriptions.
+- **Listing copy unchanged.** `LISTING.md` stays as it is until new tools
+  are deployed.
+- **Prerequisites the new tools add**, for the day they go live: outbound
+  HTTPS to `data.sec.gov` and `www.sec.gov` (Form D),
+  `projects.propublica.org` (nonprofits), `api.usaspending.gov` (awards)
+  and `www.googleapis.com` (PageSpeed); `EDGAR_CONTACT` in the host
+  environment for `formd_check`, which refuses to fetch without it; and
+  optionally `PAGESPEED_API_KEY`, without which PageSpeed answers 429 with
+  quota 0. Both are read at call time, never printed, and never in a file
+  in this repo. Whether the MCPize runtime reaches those hosts is not
+  known from this repo and is a check for the go-live step.
+
 ## MCPize facts, as read by the coordinator
 
 Source: [coordinator review on pull request #44](https://github.com/nnyycc77-ship-it/tiny-ledger/pull/44#issuecomment-6356274881), citing the publish page https://mcpize.com/developers/publish-mcp-server and the monetization page https://mcpize.com/docs/monetization, both read 2026-10-23.

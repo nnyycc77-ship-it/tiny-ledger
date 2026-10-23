@@ -78,7 +78,9 @@ class ListingTests(unittest.TestCase):
     def test_three_tools_listed_recall_check_first_and_unchanged(self):
         responses, _ = rpc([{"jsonrpc": "2.0", "id": 1, "method": "tools/list"}], wallet=WALLET)
         tools = responses[0]["result"]["tools"]
-        self.assertEqual([t["name"] for t in tools], ["recall_check", "carrier_check", "litigation_screen"])
+        # The first three stay as issue #67 built them; issue #97 appends four more,
+        # asserted in full in test_mcp_remaining_fetchers.py.
+        self.assertEqual([t["name"] for t in tools][:3], ["recall_check", "carrier_check", "litigation_screen"])
         self.assertEqual(tools[0], recall_mcp.tool_definition(WALLET))
         for tool in tools:
             self.assertFalse(tool["inputSchema"]["additionalProperties"])

@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """Recall check MCP server core (B1 of issue #33), plus the carrier
-vetting and litigation screen tools (issue #67).
+vetting and litigation screen tools (issue #67) and the Form D,
+nonprofit, awards and PageSpeed tools (issue #97).
 
-A Model Context Protocol server, stdio transport, that exposes three
+A Model Context Protocol server, stdio transport, that exposes seven
 tools wrapping merged fetchers in tools/ through the same host-free
 dispatchers the pay per call API uses (api/recall_api.py and
 api/endpoints.py):
@@ -14,6 +15,16 @@ api/endpoints.py):
     litigation_screen  CourtListener RECAP docket search via
                        tools/courtlistener_recap.py (party variants);
                        the GET /litigation dispatcher
+    formd_check        SEC EDGAR Form D filings via tools/edgar_formd.py
+                       (cik or issuer); the GET /formd dispatcher
+    nonprofit_check    ProPublica Nonprofit Explorer via
+                       tools/propublica_nonprofits.py (name and/or ein);
+                       the GET /nonprofit dispatcher
+    awards_search      USAspending prime contract awards via
+                       tools/usaspending_awards.py (recipient or naics);
+                       the GET /awards dispatcher
+    pagespeed_snapshot PageSpeed Insights via tools/pagespeed_snapshot.py
+                       (url, up to 5); the GET /pagespeed dispatcher
 
 Each call returns the check as Markdown in the fixed delivery format
 from AGENT-BRIEF.md: the claim lines, the exact query, the UTC
@@ -47,6 +58,16 @@ hosting platform is assumed:
     COURTLISTENER_TOKEN     optional; read by tools/courtlistener_recap.py
                             at call time for litigation_screen and sent
                             as the Authorization header. Never printed.
+    EDGAR_CONTACT           required for formd_check by SEC EDGAR fair
+                            access: the operator's "Name address" contact
+                            for the User-Agent. While it is unset,
+                            formd_check answers a tool error and fetches
+                            nothing. Never printed.
+    PAGESPEED_API_KEY       optional; read at call time for
+                            pagespeed_snapshot. Without it the API answers
+                            429 with quota 0 and that transcript is the
+                            report. The key is never printed; the recorded
+                            request URL shows a redaction marker.
 
 Run:
 
@@ -70,10 +91,14 @@ if str(ROOT) not in sys.path:
 from api import endpoints, recall_api  # noqa: E402
 from tools import courtlistener_recap as cl  # noqa: E402
 from tools import cpsc_recalls  # noqa: E402
+from tools import edgar_formd as ef  # noqa: E402
 from tools import fmcsa_carrier as fc  # noqa: E402
+from tools import pagespeed_snapshot as ps  # noqa: E402
+from tools import propublica_nonprofits as pp  # noqa: E402
+from tools import usaspending_awards as ua  # noqa: E402
 
 SERVER_NAME = "hojo-recall-check"
-SERVER_VERSION = "0.2.0"
+SERVER_VERSION = "0.3.0"
 # Protocol revisions this server knows. The client's requested version is
 # echoed when it is one of these; otherwise the newest known is offered,
 # as the MCP version negotiation rule says.
@@ -81,7 +106,11 @@ PROTOCOL_VERSIONS = ("2025-06-18", "2025-03-26", "2024-11-05")
 TOOL_NAME = "recall_check"
 CARRIER_TOOL = "carrier_check"
 LITIGATION_TOOL = "litigation_screen"
-TOOL_NAMES = (TOOL_NAME, CARRIER_TOOL, LITIGATION_TOOL)
+FORMD_TOOL = "formd_check"
+NONPROFIT_TOOL = "nonprofit_check"
+AWARDS_TOOL = "awards_search"
+PAGESPEED_TOOL = "pagespeed_snapshot"
+TOOL_NAMES = (TOOL_NAME, CARRIER_TOOL, LITIGATION_TOOL, FORMD_TOOL, NONPROFIT_TOOL, AWARDS_TOOL, PAGESPEED_TOOL)
 
 JSONRPC_PARSE_ERROR = -32700
 JSONRPC_INVALID_REQUEST = -32600
@@ -223,9 +252,139 @@ def litigation_tool_definition():
     }
 
 
+FORMAT_SENTENCE = ("in the fixed evidence format: each claim with its source link and the raw response "
+                   "directly beneath it, the exact query and UTC retrieval time recorded, and an empty "
+                   "result proven by the complete raw response")
+SAME_TEXT = ("The response is the fetcher's own Markdown, the same text %s of the pay per call API "
+             "returns for the same query; nothing is summarised, estimated, or added.")
+FAIL_SENTENCE = "A failed fetch is an error, never an empty result."
+
+
+def formd_tool_definition():
+    """formd_check: tools/edgar_formd.py through api.endpoints.formd."""
+    return {
+        "name": FORMD_TOOL,
+        "description": (
+            "Sourced SEC EDGAR Form D filing listing for a company, %s. Give `cik` (the company's "
+            "Central Index Key, fetched from the EDGAR submissions API, %s) or `issuer` (an EDGAR "
+            "company name search, %s), not both. Optional `max_filings` (default 10) limits how "
+            "many Form D filings are read; optional `exclude` entries of the form ACCESSION=reason "
+            "list a filing as checked and excluded with the operator's reason, and an exclusion "
+            "naming a filing the response does not contain is refused. The server must have %s "
+            "set (EDGAR fair access needs the operator's contact in the User-Agent); while it is "
+            "unset the tool answers an error and fetches nothing. A listing of filings as indexed, "
+            "not an analysis of any offering. %s %s"
+            % (FORMAT_SENTENCE, ef.SUBMISSIONS_URL, ef.COMPANY_SEARCH_URL, ef.CONTACT_ENV,
+               SAME_TEXT % "GET /formd", FAIL_SENTENCE)
+        ),
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "cik": {"type": "string", "description": "Central Index Key, digits (cik form)."},
+                "issuer": {"type": "string", "description": "Company name for the EDGAR company search (issuer form)."},
+                "max_filings": {"type": "integer", "minimum": 0, "description": "Optional: how many Form D filings to read; default 10."},
+                "exclude": {"type": "array", "items": {"type": "string"},
+                            "description": "Optional: ACCESSION=reason entries listing a returned filing as checked and excluded, with the operator's reason."},
+            },
+            "additionalProperties": False,
+        },
+    }
+
+
+def nonprofit_tool_definition():
+    """nonprofit_check: tools/propublica_nonprofits.py through api.endpoints.nonprofit."""
+    return {
+        "name": NONPROFIT_TOOL,
+        "description": (
+            "Sourced nonprofit diligence from the ProPublica Nonprofit Explorer API (%s), %s. Give "
+            "`name` (an organization search), `ein` (one or more EINs, each organization's record "
+            "and Form 990 figures as the API extracts them), or both. Optional `subject` is the "
+            "heading; optional `exclude` entries of the form EIN=reason (with `name`) list a "
+            "search result as checked and excluded with the operator's reason, and an exclusion "
+            "naming an organization the search did not return is refused. The figures are the "
+            "API's extracted Form 990 values as shown, not an audit. %s %s"
+            % (pp.API, FORMAT_SENTENCE, SAME_TEXT % "GET /nonprofit", FAIL_SENTENCE)
+        ),
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "name": {"type": "string", "description": "Organization name to search."},
+                "ein": {"type": "array", "items": {"type": "string"}, "description": "EINs to look up, with or without the dash."},
+                "subject": {"type": "string", "description": "Optional heading; defaults to the name or the EINs."},
+                "exclude": {"type": "array", "items": {"type": "string"},
+                            "description": "Optional, with name: EIN=reason entries listing a search result as checked and excluded, with the operator's reason."},
+            },
+            "additionalProperties": False,
+        },
+    }
+
+
+def awards_tool_definition():
+    """awards_search: tools/usaspending_awards.py through api.endpoints.awards."""
+    return {
+        "name": AWARDS_TOOL,
+        "description": (
+            "Sourced federal prime contract award search from the USAspending API (%s), %s. Give "
+            "`recipient` (a recipient name) or `naics` (one or more NAICS codes). Optional `start` "
+            "and `end` (YYYY-MM-DD, given together) set the action date window; `page` and "
+            "`limit` page through the results; `exclude` entries of the form GENERATED_ID=reason "
+            "list an award on the page as checked and excluded with the operator's reason, and an "
+            "exclusion naming an award not on the page is refused. One page of results as "
+            "returned; Award Amount is the API field as returned, not a payment or revenue "
+            "estimate. %s %s"
+            % (ua.ENDPOINT, FORMAT_SENTENCE, SAME_TEXT % "GET /awards", FAIL_SENTENCE)
+        ),
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "recipient": {"type": "string", "description": "Recipient name to search (recipient form)."},
+                "naics": {"type": "array", "items": {"type": "string"}, "description": "NAICS codes to search (naics form)."},
+                "start": {"type": "string", "description": "Optional YYYY-MM-DD start of the action date window; needs end."},
+                "end": {"type": "string", "description": "Optional YYYY-MM-DD end of the action date window; needs start."},
+                "page": {"type": "integer", "minimum": 1, "description": "Optional result page; default 1."},
+                "limit": {"type": "integer", "minimum": 1, "description": "Optional results per page; default 10."},
+                "exclude": {"type": "array", "items": {"type": "string"},
+                            "description": "Optional: GENERATED_ID=reason entries listing an award on the page as checked and excluded, with the operator's reason."},
+            },
+            "additionalProperties": False,
+        },
+    }
+
+
+def pagespeed_tool_definition():
+    """pagespeed_snapshot: tools/pagespeed_snapshot.py through api.endpoints.pagespeed."""
+    return {
+        "name": PAGESPEED_TOOL,
+        "description": (
+            "Sourced PageSpeed Insights snapshot from the public API (%s), %s. `url` lists the pages "
+            "to measure (up to %d); optional `strategy` is mobile (default) or desktop; optional "
+            "`subject` is the heading; optional `exclude` entries of the form URL=reason list a "
+            "page as checked and excluded with the operator's reason. The server uses %s when set; "
+            "without it the API answers 429 with quota 0 and that transcript is the report. The key "
+            "is never printed. A measurement of that moment, not a permanent grade. %s %s"
+            % (ps.API_URL, FORMAT_SENTENCE, ps.MAX_PAGES, ps.KEY_ENV, SAME_TEXT % "GET /pagespeed", FAIL_SENTENCE)
+        ),
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "url": {"type": "array", "items": {"type": "string"}, "minItems": 1, "maxItems": ps.MAX_PAGES,
+                        "description": "Page URLs to measure, http or https."},
+                "strategy": {"type": "string", "enum": list(ps.STRATEGIES), "description": "Optional: mobile (default) or desktop."},
+                "subject": {"type": "string", "description": "Optional heading; defaults to the first page's host."},
+                "exclude": {"type": "array", "items": {"type": "string"},
+                            "description": "Optional: URL=reason entries listing a page as checked and excluded, with the operator's reason."},
+            },
+            "required": ["url"],
+            "additionalProperties": False,
+        },
+    }
+
+
 def tool_definitions(wallet):
     """The tools/list entries, recall_check first."""
-    return [tool_definition(wallet), carrier_tool_definition(), litigation_tool_definition()]
+    return [tool_definition(wallet), carrier_tool_definition(), litigation_tool_definition(),
+            formd_tool_definition(), nonprofit_tool_definition(), awards_tool_definition(),
+            pagespeed_tool_definition()]
 
 
 # Argument kinds per tool: how each JSON argument becomes the dict-of-lists
@@ -238,6 +397,11 @@ CARRIER_ARGUMENTS = {"usdot": "string", "name": "string", "subject": "string",
 LITIGATION_ARGUMENTS = {"party": "array", "subject": "string", "filed_after": "string",
                         "order_by": "string", "list": "integer", "docket_details": "boolean",
                         "exclude": "array"}
+FORMD_ARGUMENTS = {"cik": "string", "issuer": "string", "max_filings": "integer", "exclude": "array"}
+NONPROFIT_ARGUMENTS = {"name": "string", "ein": "array", "subject": "string", "exclude": "array"}
+AWARDS_ARGUMENTS = {"recipient": "string", "naics": "array", "start": "string", "end": "string",
+                    "page": "integer", "limit": "integer", "exclude": "array"}
+PAGESPEED_ARGUMENTS = {"url": "array", "strategy": "string", "subject": "string", "exclude": "array"}
 
 
 def coerce_arguments(arguments, kinds, error):
@@ -285,6 +449,14 @@ def call_tool(name, arguments):
         return call_endpoint(endpoints.carrier, CARRIER_ARGUMENTS, arguments)
     if name == LITIGATION_TOOL:
         return call_endpoint(endpoints.litigation, LITIGATION_ARGUMENTS, arguments)
+    if name == FORMD_TOOL:
+        return call_endpoint(endpoints.formd, FORMD_ARGUMENTS, arguments)
+    if name == NONPROFIT_TOOL:
+        return call_endpoint(endpoints.nonprofit, NONPROFIT_ARGUMENTS, arguments)
+    if name == AWARDS_TOOL:
+        return call_endpoint(endpoints.awards, AWARDS_ARGUMENTS, arguments)
+    if name == PAGESPEED_TOOL:
+        return call_endpoint(endpoints.pagespeed, PAGESPEED_ARGUMENTS, arguments)
     raise ToolNotFound(name)
 
 
@@ -304,8 +476,8 @@ def call_recall(arguments):
 
 
 def call_endpoint(dispatcher, kinds, arguments):
-    """carrier_check and litigation_screen, through the api.endpoints
-    dispatcher the API's GET path uses. The outcomes map as the API maps
+    """Every tool but recall_check, through the api.endpoints dispatcher
+    the API's GET path uses. The outcomes map as the API maps
     them: a bad request or an exclusion the response does not contain is an
     error with no report and (for the former) no fetch; a failed fetch or an
     unreadable response is an error with no report, never an empty result."""
@@ -337,13 +509,17 @@ class ToolNotFound(Exception):
 # ----------------------------------------------------------------------
 
 def instructions(wallet):
-    text = ("Three tools, each answering in the fixed evidence format: claims, exact query, "
+    text = ("Seven tools, each answering in the fixed evidence format: claims, exact query, "
             "UTC retrieval time, source link, and the complete raw response beneath the "
             "link. recall_check answers a product name or a vehicle (make, model, year) "
             "with a sourced recall check; carrier_check answers a USDOT number or a carrier "
             "name with the public FMCSA records; litigation_screen answers party name "
-            "variants with a CourtListener RECAP docket index screen. Results are the "
-            "public sources' records as returned; an empty result is not a clearance.")
+            "variants with a CourtListener RECAP docket index screen; formd_check answers a "
+            "CIK or issuer name with its SEC EDGAR Form D filings; nonprofit_check answers a "
+            "name or EIN with ProPublica Nonprofit Explorer records; awards_search answers a "
+            "recipient or NAICS codes with USAspending prime contract awards; "
+            "pagespeed_snapshot answers page URLs with a PageSpeed Insights snapshot. Results "
+            "are the public sources' records as returned; an empty result is not a clearance.")
     if wallet:
         text += " Payment: USDC per call to %s, collected by the listing platform." % wallet
     return text
