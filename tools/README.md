@@ -406,6 +406,8 @@ local server on 127.0.0.1.
 
 ## edgar_formd.py
 
+Usage examples; the contact shown is a placeholder, give your own name and address:
+
 ```sh
 python3 tools/edgar_formd.py --contact "Your Name you@example.com" --cik 2156237
 python3 tools/edgar_formd.py --contact "Your Name you@example.com" --issuer "8VC DSS III"
@@ -448,7 +450,8 @@ Source: <https://www.sec.gov/search-filings/edgar-search-assistance/accessing-ed
 The tool sends `User-Agent: tiny-ledger edgar_formd.py <contact>` and
 refuses to run without a contact that contains an email address. It
 paces requests to at most one every 0.2 seconds (5 per second). The
-contact must be the plain "Name you@example.com" form: on 2026-10-23
+contact must be the plain "Name you@example.com" form (a placeholder; use
+your own address): on 2026-10-23
 EDGAR answered 403 "Your Request Originates from an Undeclared
 Automated Tool" to a contact carrying a URL in parentheses (captured as
 `tests/fixtures/edgar/undeclared-403.http`), so URLs, parentheses and
@@ -458,6 +461,8 @@ Any non-200 answer, non-JSON index, or malformed XML stops the run with
 a diagnostic on stderr and no report on stdout.
 
 ### Verification
+
+The second command runs the opt-in live test; the contact shown is a placeholder, give your own.
 
 ```sh
 python3 -m unittest discover -s tools/tests -v

@@ -19,7 +19,8 @@ Standard library only. No key is needed. EDGAR fair access is enforced:
 * Requests are paced to at most one every MIN_INTERVAL_SECONDS, inside
   the SEC's published "Current max request rate: 10 requests/second"
   (same page).
-* The contact must be the plain "Name you@example.com" form. During
+* The contact (placeholder shown: "Name you@example.com") must be that plain
+  "Name address" form, with your own address. During
   development EDGAR answered 403 ("Your Request Originates from an
   Undeclared Automated Tool") to a contact carrying a URL in
   parentheses, so the tool refuses URLs, parentheses and brackets.
@@ -109,14 +110,16 @@ def contact_from(value, env=None):
     if not text or "@" not in text or text.startswith("@") or text.endswith("@"):
         raise ValueError(
             "an operator contact with an email address is required for EDGAR "
-            "fair access: give --contact \"Name you@example.com\" or set %s" % CONTACT_ENV
+            "fair access: for example --contact \"Name you@example.com\" (a placeholder; "
+            "use your own address), or set %s" % CONTACT_ENV
         )
     if re.search(r"[()<>/:\\\[\]{}]", text):
         # Observed 2026-10-23: EDGAR answered 403 "Your Request Originates from an
         # Undeclared Automated Tool" to a contact that carried a URL in parentheses,
         # and 200 to the plain "Name email" form the SEC documents.
         raise ValueError(
-            "the contact must be the plain form the SEC documents, \"Name you@example.com\": "
+            "the contact must be the plain form the SEC documents, for example "
+            "\"Name you@example.com\" (a placeholder): "
             "no URLs, parentheses or brackets"
         )
     return text
