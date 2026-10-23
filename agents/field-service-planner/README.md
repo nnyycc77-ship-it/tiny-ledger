@@ -192,12 +192,17 @@ with light days is `tests/fixtures/jobs-week.csv` run with `--date-to`.
   Anything resting on an assumed interval or an assumed last service is
   labelled assumption based, certainty `low`, and ranks below every
   suggestion with real due evidence, in every gap.
-- Ranking: `due_strength - added_drive_hours * 0.5 + confidence bonus`
-  (high 0.2, medium 0.1, low 0), scored for every gap in the period the
-  customer fits with the assumed visit; the pairs are taken best first
-  (ties by less added drive time, then customer id, then the earlier gap),
-  each customer once in the whole period and at most the configured number
-  per gap, so light days with nearby due customers get filled.
+- Ranking, two tiers: every suggestion with real due evidence (a recorded
+  last service date with a stated plan, or an open quote) ranks before any
+  assumption based one, in every gap, whatever the scores; the order, not
+  a score penalty, enforces this, because a penalty mixed with drive time
+  could not guarantee it. Within a tier:
+  `due_strength - added_drive_hours * 0.5 + confidence bonus` (high 0.2,
+  medium 0.1, low 0), scored for every gap in the period the customer fits
+  with the assumed visit; the pairs are taken best first (ties by less
+  added drive time, then customer id, then the earlier gap), each customer
+  once in the whole period and at most the configured number per gap, so
+  light days with nearby due customers get filled.
 - Fit: the drive to the customer, the visit and the drive on to the next
   job must fit before that job's planned start (or the shift end), so no
   later job moves.

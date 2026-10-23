@@ -96,11 +96,13 @@ DEFAULT_LOOKAHEAD = 0         # days: only customers due on or before the day ar
 DEFAULT_PER_GAP = 3
 CONFIDENCE_BONUS = {"high": 0.2, "medium": 0.1, "low": 0.0}
 DRIVE_WEIGHT_PER_HOUR = 0.5   # score lost per hour of added drive time
-RANK_NOTE = ("Ranking: score = due_strength - added_drive_hours * %.1f + confidence bonus (high %.1f, medium %.1f, "
-             "low %.1f), computed for every gap in the period a customer fits; the pairs are taken best first (ties by "
-             "less added drive time, then customer id, then the earlier gap), each customer once in the whole period "
-             "and at most the configured number of suggestions per gap, so a customer lands in the gap where it scores "
-             "best rather than the first gap of the period."
+RANK_NOTE = ("Ranking: two tiers. Every pair with real due evidence (a recorded last service date with a stated plan, "
+             "or an open quote) is taken before any assumption based pair, whatever the scores. Within a tier, score = "
+             "due_strength - added_drive_hours * %.1f + confidence bonus (high %.1f, medium %.1f, low %.1f), computed "
+             "for every gap in the period a customer fits; the pairs are taken best first (ties by less added drive "
+             "time, then customer id, then the earlier gap), each customer once in the whole period and at most the "
+             "configured number of suggestions per gap, so a customer lands in the gap where it scores best rather "
+             "than the first gap of the period."
              % (DRIVE_WEIGHT_PER_HOUR, CONFIDENCE_BONUS["high"], CONFIDENCE_BONUS["medium"], CONFIDENCE_BONUS["low"]))
 SEQUENCE_NOTE = ("Cheapest feasible insertion: jobs in order of window end (then window start, then longer first); each "
                  "is inserted at the position, on the eligible crew member, that adds the least drive time while every "

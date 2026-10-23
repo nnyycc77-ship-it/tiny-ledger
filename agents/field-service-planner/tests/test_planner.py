@@ -487,6 +487,8 @@ class ReportTests(unittest.TestCase):
         self.assertIn("about your pest control service. Your last service was on 2026-06-01.", self.text)
         self.assertIn("merged into K17, which has more filled fields", self.text)
         self.assertIn("- Duplicates: customers at the same normalized address", self.text)
+        self.assertIn("- Ranking: two tiers. Every pair with real due evidence", self.text)
+        self.assertIn("- Per day: due and the lookahead window are judged against each gap's own day", self.text)
         self.assertIn("; area: from start (1 Depot Road, Sampletown) to job J3 (5 Summit Avenue, Sampletown)", self.text)
         self.assertIn("Drafts only. Nothing here was sent", self.text)
 
