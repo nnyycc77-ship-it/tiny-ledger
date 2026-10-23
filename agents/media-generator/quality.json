@@ -1,0 +1,30 @@
+{
+  "label": "Recorded by `mediagen.py calibrate` from a local run of the calibration briefs in mediagen.py against every provider configured at that time. In this build only the offline stub providers are configured, so the table measures placeholder media against the brief check and says nothing about any live provider.",
+  "source": "quality.json recorded 2026-10-23T13:58:38Z by mediagen.py calibrate",
+  "providers": {
+    "stub-image": {
+      "briefs": 3,
+      "passed": 3,
+      "pass_rate": 1.0,
+      "recorded_utc": "2026-10-23T13:58:38Z"
+    },
+    "stub-image-refs": {
+      "briefs": 4,
+      "passed": 4,
+      "pass_rate": 1.0,
+      "recorded_utc": "2026-10-23T13:58:38Z"
+    },
+    "stub-video": {
+      "briefs": 2,
+      "passed": 2,
+      "pass_rate": 1.0,
+      "recorded_utc": "2026-10-23T13:58:38Z"
+    },
+    "stub-voice": {
+      "briefs": 2,
+      "passed": 2,
+      "pass_rate": 1.0,
+      "recorded_utc": "2026-10-23T13:58:38Z"
+    }
+  }
+}
