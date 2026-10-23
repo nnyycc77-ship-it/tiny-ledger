@@ -1,0 +1,6 @@
+dub-out/
+out/
+*.mp4
+*.wav
+*.srt
+__pycache__/
