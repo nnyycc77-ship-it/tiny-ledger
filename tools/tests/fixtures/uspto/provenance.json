@@ -1,0 +1,13 @@
+{
+  "_about": "Fixtures for tools/uspto_trademarks.py (issue #125). Neither file is a USPTO response: no USPTO host was contacted and no key was used. Both are outputs of this repo's own code with every network request replaced by a SYNTHETIC transport failure, so the reports are deterministic. The trademark section is the part under test.",
+  "no-key-report.md": {
+    "what": "The full Brand Name Checker report printed by main at d46c1c1 (before issue #125), for: Nike zqxflorp --trademark-countries US,EU --variations 2, with every fetch answering the SYNTHETIC transport failure 'SYNTHETIC failure' and the check time 2026-10-23T00:00:00Z. The no key report on this branch, and the report with a placeholder key set, must equal it byte for byte.",
+    "generated_by": "H3, 2026-10-23, from a clean worktree of d46c1c1",
+    "sha256": "cab78831ef8531b7c5318c4ba4ca0f2d92ceb3fd6f4e6d749e32a19b15e4558f"
+  },
+  "refusal-stderr.txt": {
+    "what": "The stderr this branch prints for the same run with USPTO_API_KEY set to the placeholder string placeholder-not-a-real-uspto-key: one NOT DOCUMENTED refusal note per name, never the key.",
+    "generated_by": "H3, 2026-10-23, from branch h3-brand-trademark-leg",
+    "sha256": "b5f509e0966339b4273cbafa0982809c6b4085c647b5be750b7d199262b72f9b"
+  }
+}
