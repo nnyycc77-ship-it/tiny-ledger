@@ -8,5 +8,5 @@ code:
 - a synthetic word timing transcript about home batteries.
 
 No third party media and no real person are used. The fixture has no
-retention or "most replayed" data, because the clipper has no input for
-it (see the acceptance output, criterion 3).
+retention or "most replayed" data. The clipper's `--retention` input (issue
+#130) is exercised on a SYNTHETIC curve in `../../tests/test_clipper.py`.
