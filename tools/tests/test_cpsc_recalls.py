@@ -155,6 +155,134 @@ class ReportTests(unittest.TestCase):
             cpsc.main(["Instant Pot Smart WiFi", "--near-product", "Instant Pot"])
         self.assertEqual(exit_info.exception.code, 2)
 
+    # --- claim blocks and the two added query shapes (task #26) ---
+
+    def test_query_url_supports_three_fields_and_rejects_others(self):
+        self.assertEqual(parse_qs(urlsplit(cpsc.query_url("Peloton", "RecallTitle")).query),
+                         {"format": ["json"], "RecallTitle": ["Peloton"]})
+        self.assertEqual(parse_qs(urlsplit(cpsc.query_url("21-128", "RecallNumber")).query),
+                         {"format": ["json"], "RecallNumber": ["21-128"]})
+        self.assertEqual(cpsc.query_url("Instant Pot"), cpsc.query_url("Instant Pot", "ProductName"))
+        with self.assertRaises(ValueError):
+            cpsc.query_url("Peloton", "Title")
+        with self.assertRaises(ValueError):
+            cpsc.query_url(" ", "RecallNumber")
+        for field in cpsc.FIELDS:
+            self.assertEqual(cpsc.query_field(cpsc.query_url("x", field)), field)
+        with self.assertRaises(cpsc.FetchError):
+            cpsc.query_field(cpsc.ENDPOINT + "?format=json")
+
+    def test_claim_block_values_are_from_the_captured_record(self):
+        capture = captured("instant-pot.http")
+        row = cpsc.records(capture)[0]
+        output = cpsc.render_query(capture)
+        self.assertIn("#### Recall 15-741", output)
+        self.assertIn(f"- Recall number as shown: {cpsc.inline(row['RecallNumber'])}", output)
+        self.assertIn(f"- Announcement date as shown: {cpsc.inline(row['RecallDate'])} (July 15, 2015)", output)
+        self.assertIn(f"- Title as shown: {cpsc.inline(row['Title'])}", output)
+        self.assertIn(f"- Product as shown: {cpsc.inline(row['Products'][0]['Name'])}", output)
+        self.assertIn(f"- Hazard as shown: {cpsc.inline(row['Hazards'][0]['Name'])}", output)
+        self.assertIn(f"- Remedy as shown: {cpsc.inline(row['Remedies'][0]['Name'])}", output)
+        self.assertIn(f"- Units as shown: {cpsc.inline(row['Products'][0]['NumberOfUnits'])}", output)
+        self.assertIn(f"- Remedy options as shown: {cpsc.inline(row['RemedyOptions'][0]['Option'])}", output)
+        self.assertIn(f"- CPSC recall page as shown: {cpsc.inline(row['URL'])}", output)
+        self.assertIn("- Listed above as: Returned candidate", output)
+        self.assertNotIn("- Note: the remedy text", output)
+        # The block sits above the source link, and the raw capture still follows it.
+        self.assertLess(output.index("#### Recall 15-741"), output.index(f"Source: <{capture.url}>"))
+        self.assertIn(f"Source: <{capture.url}>\n```\n{capture.raw}\n```", output)
+
+    def test_excluded_record_block_is_labelled(self):
+        target = parse_qs(urlsplit(captured("smart-wifi.http").url).query)["ProductName"][0]
+        output = cpsc.render_query(captured("instant-pot.http"), exact_name=target, near=True)
+        self.assertIn("#### Recall 15-741", output)
+        self.assertIn("- Listed above as: Checked and excluded", output)
+
+    def test_missing_block_fields_are_marked_not_invented(self):
+        capture = captured("instant-pot.http")
+        rows = cpsc.records(capture)
+        # Deliberate schema variation of the captured record, not a factual fixture:
+        # the optional fields are removed to check that nothing is filled in for them.
+        for key in ("RecallDate", "Title", "Hazards", "Remedies", "RemedyOptions", "URL"):
+            rows[0].pop(key, None)
+        rows[0]["Products"][0]["NumberOfUnits"] = ""
+        headers = capture.raw.partition("\r\n\r\n")[0]
+        output = cpsc.render_query(cpsc.Capture(capture.url, capture.retrieved,
+                                                headers + "\r\n\r\n" + json.dumps(rows)))
+        for label in ("Announcement date", "Title", "Hazard", "Remedy", "Units",
+                      "Remedy options", "CPSC recall page"):
+            self.assertIn(f"- {label}: {cpsc.NOT_PRESENT}", output)
+        self.assertIn("#### Recall 15-741", output)
+
+    def test_remedy_repeating_hazard_is_noted(self):
+        capture = captured("instant-pot.http")
+        rows = cpsc.records(capture)
+        # Deliberate variation of the captured record, not a factual fixture: the
+        # remedy text is set equal to the hazard text to exercise the note, which the
+        # published delivery needed for recall 21-128.
+        rows[0]["Remedies"] = [{"Name": rows[0]["Hazards"][0]["Name"]}]
+        headers = capture.raw.partition("\r\n\r\n")[0]
+        output = cpsc.render_query(cpsc.Capture(capture.url, capture.retrieved,
+                                                headers + "\r\n\r\n" + json.dumps(rows)))
+        self.assertIn("- Note: the remedy text in this API record repeats the hazard text", output)
+
+    def test_dashed_and_long_date_keep_unparseable_values_as_shown(self):
+        self.assertEqual(cpsc.dashed("15741"), "15-741")
+        self.assertEqual(cpsc.dashed(" 21128 "), "21-128")
+        self.assertEqual(cpsc.dashed("abc"), "abc")
+        self.assertEqual(cpsc.long_date("2015-07-15T00:00:00"), "July 15, 2015")
+        self.assertIsNone(cpsc.long_date("not a date"))
+        self.assertIsNone(cpsc.long_date(None))
+
+    def test_title_and_number_query_headings_and_links(self):
+        # Reconstructed captures, labelled as such: the URL is the RecallTitle or
+        # RecallNumber query shape, while the body is the verbatim instant-pot.http
+        # capture reused only to exercise the heading and the source link. This does
+        # not claim that CPSC returned that body for those queries.
+        real = captured("instant-pot.http")
+        for value, field, heading in (("Instant Pot", "RecallTitle", "### Recall title query"),
+                                      ("15-741", "RecallNumber", "### Recall number query")):
+            with self.subTest(field=field):
+                url = cpsc.query_url(value, field)
+                output = cpsc.render_query(cpsc.Capture(url, real.retrieved, real.raw))
+                self.assertTrue(output.startswith(heading + "\n"))
+                self.assertIn(f"Exact query: GET {url}", output)
+                self.assertIn(f"Source: <{url}>\n```\n{real.raw}\n```", output)
+                self.assertIn("#### Recall 15-741", output)
+        near = cpsc.render_query(cpsc.Capture(cpsc.query_url("Instant Pot", "RecallTitle"),
+                                              real.retrieved, real.raw), exact_name="x", near=True)
+        self.assertTrue(near.startswith("### Checked near-match query\n"))
+
+    def test_cli_sends_the_chosen_query_shape(self):
+        calls = []
+
+        def fake_fetch(value, field="ProductName"):
+            calls.append((value, field))
+            return captured("instant-pot.http")
+
+        for argv, expected in ((["--recall-title", "Peloton"], ("Peloton", "RecallTitle")),
+                               (["--recall-number", "21-128"], ("21-128", "RecallNumber")),
+                               (["Instant Pot"], ("Instant Pot", "ProductName"))):
+            with self.subTest(argv=argv):
+                calls.clear()
+                with patch.object(cpsc, "fetch", side_effect=fake_fetch), \
+                        patch.object(sys, "stdout", new=io.TextIOWrapper(io.BytesIO(), encoding="utf-8")) as out:
+                    status = cpsc.main(argv)
+                    out.flush()
+                    text = out.buffer.getvalue().decode("utf-8")
+                self.assertEqual(status, 0)
+                self.assertEqual(calls, [expected])
+                self.assertIn("## CPSC recall search", text)
+                self.assertIn("#### Recall 15-741", text)
+
+    def test_cli_requires_exactly_one_query_shape(self):
+        for argv in ([], ["Instant Pot", "--recall-title", "Peloton"],
+                     ["--recall-title", "Peloton", "--recall-number", "21-128"]):
+            with self.subTest(argv=argv), redirect_stderr(io.StringIO()), \
+                    self.assertRaises(SystemExit) as exit_info:
+                cpsc.main(argv)
+            self.assertEqual(exit_info.exception.code, 2)
+
 
 @unittest.skipUnless(os.environ.get("CPSC_LIVE") == "1", "set CPSC_LIVE=1 for public API checks")
 class LiveTests(unittest.TestCase):
@@ -172,6 +300,26 @@ class LiveTests(unittest.TestCase):
         self.assertIn("Reason:", output)
         self.assertEqual(output.count("Retrieved (UTC):"), 2)
         self.assertEqual(output.count("Source: <"), 2)
+
+    def test_cli_title_and_number_query_shapes(self):
+        # The delivery's Peloton query was RecallTitle = Peloton, and its detail
+        # queries were RecallNumber = NN-NNN; both shapes are run live here.
+        title = subprocess.run([sys.executable, "tools/cpsc_recalls.py", "--recall-title", "Peloton"],
+                               cwd=ROOT, capture_output=True, timeout=80)
+        self.assertEqual(title.returncode, 0, title.stderr.decode())
+        title_out = title.stdout.decode()
+        self.assertIn("### Recall title query", title_out)
+        self.assertIn("RecallTitle=Peloton", title_out)
+        self.assertIn("#### Recall ", title_out)
+        self.assertIn("- Announcement date as shown:", title_out)
+        number = subprocess.run([sys.executable, "tools/cpsc_recalls.py", "--recall-number", "21-128"],
+                                cwd=ROOT, capture_output=True, timeout=80)
+        self.assertEqual(number.returncode, 0, number.stderr.decode())
+        number_out = number.stdout.decode()
+        self.assertIn("### Recall number query", number_out)
+        self.assertIn("RecallNumber=21-128", number_out)
+        self.assertIn("#### Recall 21-128", number_out)
+        self.assertIn("- Hazard as shown:", number_out)
 
 
 if __name__ == "__main__":
