@@ -1,0 +1,14 @@
+services:
+  - type: web
+    name: recall-api
+    env: python
+    plan: free
+    buildCommand: "true"
+    startCommand: "python3 server.py"
+    envVars:
+      - key: PAYOUT_WALLET_ADDRESS
+        value: "0xA7bc0f1B812081c691Ac17828C96f81C1FC6cbfF"
+      - key: FACILITATOR_URL
+        value: https://facilitator.payai.network
+      - key: PYTHON_VERSION
+        value: 3.12.4
