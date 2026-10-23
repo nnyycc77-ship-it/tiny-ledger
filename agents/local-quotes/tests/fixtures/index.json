@@ -1,0 +1,43 @@
+{
+  "source": {
+    "description": "SYNTHETIC candidate list written by hand for the tests of issue #76; no directory was searched and none of these businesses exists",
+    "label": "SYNTHETIC"
+  },
+  "providers": [
+    {
+      "id": "barton-creek",
+      "name": "Barton Creek Plumbing",
+      "url": "https://barton-creek-plumbing.invalid/"
+    },
+    {
+      "id": "riverside-rooter",
+      "name": "Riverside Rooter",
+      "url": "https://riverside-rooter.invalid/"
+    },
+    {
+      "id": "south-congress",
+      "name": "South Congress Plumbing",
+      "url": "https://south-congress-plumbing.invalid/"
+    },
+    {
+      "id": "mueller-pipe",
+      "name": "Mueller Pipe Pros",
+      "url": "https://mueller-pipe-pros.invalid/"
+    },
+    {
+      "id": "round-rock",
+      "name": "Round Rock Plumbing Co",
+      "url": "https://round-rock-plumbing.invalid/"
+    },
+    {
+      "id": "hyde-park-electric",
+      "name": "Hyde Park Electric",
+      "url": "https://hyde-park-electric.invalid/"
+    },
+    {
+      "id": "eastside",
+      "name": "Eastside Plumbing",
+      "url": "https://eastside-plumbing.invalid/"
+    }
+  ]
+}

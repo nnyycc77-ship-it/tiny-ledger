@@ -1,0 +1,44 @@
+{
+  "providers/barton-creek.html": {
+    "url": "https://barton-creek-plumbing.invalid/",
+    "retrieved_utc": "none (SYNTHETIC page written by hand)",
+    "label": "SYNTHETIC",
+    "sha256": "a4167d3754bf6d5788e2239aa5bf828d2cd6f3cc57ea287face1167bb9c14092"
+  },
+  "providers/riverside-rooter.html": {
+    "url": "https://riverside-rooter.invalid/",
+    "retrieved_utc": "none (SYNTHETIC page written by hand)",
+    "label": "SYNTHETIC",
+    "sha256": "c32cdcf8577ca2937909979b55361d0da7907167f5048be1b69626cf09c6e4ba"
+  },
+  "providers/south-congress.html": {
+    "url": "https://south-congress-plumbing.invalid/",
+    "retrieved_utc": "none (SYNTHETIC page written by hand)",
+    "label": "SYNTHETIC",
+    "sha256": "92e64a238ce3b942a6f0e931c9f1cffbf414b6cc6d91004ae068c1c87f5397cb"
+  },
+  "providers/mueller-pipe.html": {
+    "url": "https://mueller-pipe-pros.invalid/",
+    "retrieved_utc": "none (SYNTHETIC page written by hand)",
+    "label": "SYNTHETIC",
+    "sha256": "dc30d1f8096f1953ef6ee44ef37293234f28720ff3e33338568e664f69206b60"
+  },
+  "providers/round-rock.html": {
+    "url": "https://round-rock-plumbing.invalid/",
+    "retrieved_utc": "none (SYNTHETIC page written by hand)",
+    "label": "SYNTHETIC",
+    "sha256": "4b375fcca9bb5901365cb6dfb392252ad69c83c4af6c174b025d4485e2b4bfbf"
+  },
+  "providers/hyde-park-electric.html": {
+    "url": "https://hyde-park-electric.invalid/",
+    "retrieved_utc": "none (SYNTHETIC page written by hand)",
+    "label": "SYNTHETIC",
+    "sha256": "6a5cd82c37cb2237a8095a2ae5d169f25a6877c04a1763bbfa6a0c73f7ec6c38"
+  },
+  "providers/eastside.html": {
+    "url": "https://eastside-plumbing.invalid/",
+    "retrieved_utc": "none (SYNTHETIC page written by hand)",
+    "label": "SYNTHETIC",
+    "sha256": "5e12567c94af585879f354e06b4e6217e02dae586fe7986d165477e002b9c37f"
+  }
+}
