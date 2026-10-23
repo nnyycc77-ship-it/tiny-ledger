@@ -206,5 +206,143 @@ class FixtureRunTests(unittest.TestCase):
         self.assertEqual(code, 2)
 
 
+
+# SYNTHETIC retention curve for the fixture video (issue #130): flat at 0.2
+# except a plateau at 1.0 over 32 to 40 s, inside the sentence that starts at
+# 29 s with "And", which content analysis alone penalises. Example data built
+# for this test, not any platform's export.
+RETENTION_PEAK = {"kind": "most_replayed", "source": "SYNTHETIC test curve built in test_clipper.py",
+                  "points": [{"t": 0, "value": 0.2}, {"t": 28, "value": 0.2}, {"t": 32, "value": 1.0},
+                             {"t": 40, "value": 1.0}, {"t": 43, "value": 0.2}, {"t": 60, "value": 0.2}]}
+
+
+class RetentionLogicTests(unittest.TestCase):
+    def curve(self, **change):
+        return scoring.Retention.from_json(dict(RETENTION_PEAK, **change))
+
+    def test_the_stated_shape_is_enforced(self):
+        good = self.curve()
+        self.assertEqual((good.kind, len(good.points)), ("most_replayed", 6))
+        bad = [[], {"kind": "views", "source": "x", "points": RETENTION_PEAK["points"]},
+               dict(RETENTION_PEAK, source=" "), dict(RETENTION_PEAK, points=[{"t": 0, "value": 1}]),
+               dict(RETENTION_PEAK, points=[{"t": 0, "value": 1}, {"t": 0, "value": 2}]),
+               dict(RETENTION_PEAK, points=[{"t": 0, "value": 1}, {"t": 5, "value": -1}]),
+               dict(RETENTION_PEAK, points=[{"t": 0, "value": 1}, {"t": 5, "value": True}]),
+               dict(RETENTION_PEAK, points=[{"t": 0, "value": 1}, {"t": 5, "value": float("nan")}]),
+               dict(RETENTION_PEAK, points=[{"t": 0, "value": 0}, {"t": 5, "value": 0}])]
+        for data in bad:
+            with self.assertRaises(scoring.RetentionError, msg=data):
+                scoring.Retention.from_json(data)
+
+    def test_curve_is_linear_between_points_and_flat_outside(self):
+        r = self.curve()
+        self.assertAlmostEqual(r.at(30), 0.6)
+        self.assertAlmostEqual(r.at(-5), 0.2)
+        self.assertAlmostEqual(r.at(99), 0.2)
+        self.assertAlmostEqual(r.mean(33, 39), 1.0)
+        self.assertAlmostEqual(r.median(60), 0.2)
+
+    def test_one_peak_per_stretch_above_the_median(self):
+        r = scoring.Retention.from_json(dict(RETENTION_PEAK, points=[
+            {"t": 0, "value": 0.2}, {"t": 10, "value": 0.6}, {"t": 12, "value": 0.2},
+            {"t": 30, "value": 0.2}, {"t": 34, "value": 0.9}, {"t": 40, "value": 0.9}, {"t": 42, "value": 0.2},
+            {"t": 60, "value": 0.2}]))
+        peaks, median = r.peaks(60, 5)
+        self.assertAlmostEqual(median, 0.2)
+        self.assertEqual(len(peaks), 2)
+        self.assertGreater(peaks[0][1], peaks[1][1])
+        self.assertTrue(34 <= peaks[0][0] <= 40)
+        self.assertTrue(9 <= peaks[1][0] <= 11)
+        self.assertEqual(r.peaks(60, 1)[0][0], peaks[0])
+
+    def test_lift_outranks_content_and_is_named_in_the_reason(self):
+        words = [transcribe.Word(w, i * 0.5, i * 0.5 + 0.4) for i, w in
+                 enumerate("What is it? It is this. and then more words here. Later on we talk.".split())]
+        energy = [1.0] * 40
+        flat = scoring.score_candidates(words, energy, 0.25, 1.0, 3.0)
+        r = scoring.Retention.from_json({"kind": "audience_retention", "source": "SYNTHETIC", "points": [
+            {"t": 0, "value": 0.1}, {"t": 4.9, "value": 0.1}, {"t": 5.0, "value": 1.0}, {"t": 7.4, "value": 1.0},
+            {"t": 7.5, "value": 0.1}, {"t": 10, "value": 0.1}]})
+        ranked = scoring.score_candidates(words, energy, 0.25, 1.0, 3.0, r, 10.0)
+        top_flat = max(flat, key=lambda c: c.score)
+        top = max(ranked, key=lambda c: c.score)
+        self.assertNotEqual((top_flat.start, top_flat.end), (top.start, top.end))
+        self.assertGreaterEqual(top.start, 4.9)
+        self.assertTrue(top.reasons[0].startswith("high retention: "))
+        self.assertIn("audience retention data", top.reasons[0])
+        self.assertGreater(top.retention_lift, 1.0)
+        self.assertTrue(all(c.retention_lift is None for c in flat))
+
+
+@unittest.skipUnless(HAVE_FFMPEG, "ffmpeg and ffprobe are needed for the media tests")
+class RetentionRunTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.tmp = tempfile.TemporaryDirectory()
+        cls.folder = Path(cls.tmp.name)
+        cls.video, cls.transcript = make_fixture(cls.folder)
+        cls.retention = cls.folder / "retention.json"
+        cls.retention.write_text(json.dumps(RETENTION_PEAK), encoding="utf-8")
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.tmp.cleanup()
+
+    def run_clipper(self, name, min_seconds, retention=True, extra=()):
+        out = self.folder / name
+        argv = ["run", "--video", str(self.video), "--transcript", str(self.transcript), "--clips", "2",
+                "--platforms", "square", "--min-seconds", str(min_seconds), "--max-seconds", "15",
+                "--out", str(out), "--preset", "ultrafast"] + list(extra)
+        if retention:
+            argv += ["--retention", str(self.retention)]
+        stderr = io.StringIO()
+        code = clipper.main(argv, stdout=io.StringIO(), stderr=stderr)
+        return code, out, stderr.getvalue()
+
+    def test_clip_comes_from_the_retention_peak_and_says_so(self):
+        code, out, err = self.run_clipper("peak", 6)
+        self.assertEqual(code, 0, err)
+        manifest = json.loads((out / "manifest.json").read_text(encoding="utf-8"))
+        report = (out / "report.md").read_text(encoding="utf-8")
+        peak = [m for m in manifest["moments"] if m["start"] <= 32.12 <= m["end"]]
+        self.assertEqual(len(peak), 1, manifest["moments"])
+        self.assertTrue(peak[0]["text"].startswith("And that is also the reason"))
+        self.assertTrue(peak[0]["reason"].startswith("high retention: "))
+        self.assertGreater(peak[0]["retention_lift"], 1.0)
+        self.assertIn("ranked first by the most replayed data supplied (6 points; source as given: SYNTHETIC "
+                      "test curve built in test_clipper.py)", report)
+        self.assertIn(": covered by clip %d" % peak[0]["clip"], report)
+        self.assertNotIn("no retention data", report)
+        self.assertEqual(manifest["retention"]["kind"], "most_replayed")
+
+    def test_a_peak_no_clip_can_hold_is_explained(self):
+        code, out, err = self.run_clipper("short", 8)
+        self.assertEqual(code, 0, err)
+        report = (out / "report.md").read_text(encoding="utf-8")
+        self.assertIn("## Retention data", report)
+        self.assertIn("not covered: no run of whole sentences 8 to 15 seconds long contains it", report)
+
+    def test_without_the_file_the_report_says_content_analysis(self):
+        code, out, err = self.run_clipper("none", 8, retention=False)
+        self.assertEqual(code, 0, err)
+        report = (out / "report.md").read_text(encoding="utf-8")
+        self.assertIn("Moments are chosen from the transcript and the audio, with no retention data.", report)
+        self.assertNotIn("## Retention data", report)
+        self.assertIsNone(json.loads((out / "manifest.json").read_text(encoding="utf-8"))["retention"])
+
+    def test_bad_or_mismatched_retention_file_fails_closed(self):
+        for name, body in (("broken", "{not json"),
+                           ("long", json.dumps(dict(RETENTION_PEAK, points=RETENTION_PEAK["points"] + [
+                               {"t": 600, "value": 0.2}])))):
+            self.retention.write_text(body, encoding="utf-8")
+            try:
+                code, out, err = self.run_clipper(name, 8)
+            finally:
+                self.retention.write_text(json.dumps(RETENTION_PEAK), encoding="utf-8")
+            self.assertEqual(code, 2, name)
+            self.assertIn("retention file", err)
+            self.assertFalse(out.exists(), name)
+
+
 if __name__ == "__main__":
     unittest.main()

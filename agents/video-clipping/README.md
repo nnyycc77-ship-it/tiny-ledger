@@ -18,7 +18,7 @@ The core path needs no account and no key.
 | --- | --- |
 | `clipper.py` | The CLI and pipeline: brief, transcribe, score, choose, cut, write outputs. |
 | `transcribe.py` | The transcription engines, behind one interface. A hosted engine is one new class here. |
-| `scoring.py` | Moment scoring with no retention data. |
+| `scoring.py` | Moment scoring from the source's own signals, and from retention data when supplied. |
 | `media.py` | The ffmpeg and ffprobe wrappers: probe, audio energy, speaker tracking, crop, captions, cut. |
 | `tests/test_clipper.py` | Offline tests on a fixture video the test generates itself. |
 
@@ -73,8 +73,8 @@ any of these:
 
 ## How moments are chosen
 
-There is no retention data. Each candidate is a run of whole sentences that
-fits the length range. It scores on these signals:
+Each candidate is a run of whole sentences that fits the length range. It
+scores on these signals:
 
 | Signal | What scores it |
 | --- | --- |
@@ -88,6 +88,42 @@ fits the length range. It scores on these signals:
 
 The best non overlapping candidates win. Each one's reason line names the
 signals that scored it.
+
+**Retention or "most replayed" data** (issue #130). When the buyer has this
+data for the video, pass it with `--retention FILE`. The file is a JSON
+object in this repo's own stated shape:
+
+```json
+{"kind": "most_replayed",
+ "source": "where the data came from, in the operator's words",
+ "points": [{"t": 0, "value": 0.2}, {"t": 32, "value": 1.0}]}
+```
+
+- **Shape.** `kind` is `most_replayed` or `audience_retention`. `t` is
+  seconds into this video. `value` is any non-negative number. At least two
+  points are needed, with strictly increasing times.
+- **Converting.** This is not any platform's export format. The operator
+  converts what the buyer supplies, such as an analytics export, into
+  these pairs. The agent fetches nothing.
+- **Fails closed.** A malformed file, or one that runs past the video's
+  end, stops the run with exit 2.
+- **Scoring.** The curve is linear between points. Each candidate scores
+  8 points per unit of its mean retention above the video's median, which
+  outranks every content signal together. The clips therefore come from the
+  high retention parts wherever a run of whole sentences fits there. Each
+  reason line opens with the lift, such as "high retention: 1.80x the
+  video's median in the most replayed data".
+- **Report.** The report's opening line says the moments were ranked first
+  by the data, and quotes its `source`. A "Retention data" section then
+  lists the data's top moments, one per stretch above the median and as
+  many as clips asked for. Each entry names the clip that covers it, or
+  says why none does:
+  - no run of whole sentences of the requested length contains it;
+  - it overlaps a clip that scored higher;
+  - it scored below the chosen clips.
+
+**Without the file**, the report says "Moments are chosen from the
+transcript and the audio, with no retention data."
 
 The vertical reframe tracks motion. It samples small grey frames across
 the clip and centres the crop on where the frame changes most. With no
@@ -125,7 +161,10 @@ picked.
 - how many clips you want;
 - which shapes (vertical 9:16, square 1:1, landscape 16:9);
 - whether you want captions burned in;
-- optionally, a clip length range.
+- optionally, a clip length range;
+- optionally, your video's retention or "most replayed" data, if you have
+  it. Clips are then picked from the most watched moments, and the report
+  says which.
 
 **What you get:**
 - the clips as MP4 (H.264 video, AAC audio) in each shape you asked for;

@@ -1,4 +1,5 @@
-"""Moment scoring without retention data.
+"""Moment scoring, from the source's own signals and, when supplied, its
+retention or "most replayed" data.
 
 The transcript is split into sentences: a sentence ends at terminal
 punctuation (. ? !) or at a pause of PAUSE_SPLIT seconds or more. Every run
@@ -20,10 +21,18 @@ Each candidate is scored on signals the source itself carries:
   needs context         penalised: the first word refers back to something
                         said before the cut ("and", "but", "it", ...)
 
+When retention data is supplied (issue #130), every candidate also gets
+the mean of that curve over its span, as a multiple of the curve's median
+over the whole video. A lift above the median adds RETENTION_WEIGHT per
+unit of lift, enough to outrank every content signal together, so the
+chosen moments come from the high retention parts wherever a sentence
+bounded span fits there, and each reason line says so with the number.
+
 The best non overlapping candidates are chosen in score order. Every chosen
 moment carries one reason line built from the signals that scored it.
 """
 
+import math
 import re
 import statistics
 
@@ -39,6 +48,9 @@ HOOK_CUES = ("what if", "here's", "here is", "stop", "imagine", "the secret", "d
 CONTEXT_WORDS = {"and", "but", "so", "because", "that", "this", "these", "those", "he",
                  "she", "they", "it", "which", "also", "then", "or", "plus", "anyway"}
 
+RETENTION_WEIGHT = 8.0    # score per unit of lift over the curve's median
+RETENTION_STEP = 0.25     # seconds between samples of the retention curve
+
 WEIGHTS = {
     "qa": 2.0, "claim": 1.5, "opening": 1.0, "energy": 1.5,
     "burst": 0.5, "boundary": 0.5, "context": -2.0,
@@ -52,6 +64,7 @@ class Moment:
         self.text = text
         self.score = score
         self.reasons = reasons
+        self.retention_lift = None
 
     @property
     def duration(self):
@@ -59,6 +72,88 @@ class Moment:
 
     def reason_line(self):
         return "; ".join(self.reasons) if self.reasons else "fits the requested length"
+
+
+class RetentionError(ValueError):
+    """The retention file is not in the stated shape."""
+
+
+class Retention:
+    """A retention or "most replayed" curve over the source video.
+
+    Points are (seconds, value) pairs, ascending in time; the curve is
+    linear between points and flat before the first and after the last.
+    `kind` and `source` are the operator's own description of the data
+    (for example a creator analytics export), printed as given.
+    """
+
+    def __init__(self, points, kind, source):
+        self.points = points
+        self.kind = kind
+        self.source = source
+
+    @classmethod
+    def from_json(cls, data):
+        if not isinstance(data, dict):
+            raise RetentionError("the retention file must be a JSON object")
+        kind, source, raw = data.get("kind"), data.get("source"), data.get("points")
+        if kind not in ("most_replayed", "audience_retention"):
+            raise RetentionError("kind must be \"most_replayed\" or \"audience_retention\", got %r" % (kind,))
+        if not isinstance(source, str) or not source.strip():
+            raise RetentionError("source must say where the data came from (a non empty string)")
+        if not isinstance(raw, list) or len(raw) < 2:
+            raise RetentionError("points must be a list of at least two {\"t\": seconds, \"value\": number} objects")
+        points = []
+        for n, item in enumerate(raw):
+            t = item.get("t") if isinstance(item, dict) else None
+            v = item.get("value") if isinstance(item, dict) else None
+            if not all(isinstance(x, (int, float)) and not isinstance(x, bool) and math.isfinite(x) for x in (t, v)):
+                raise RetentionError("point %d: t and value must be finite numbers" % n)
+            if t < 0 or v < 0:
+                raise RetentionError("point %d: t and value must not be negative" % n)
+            if points and t <= points[-1][0]:
+                raise RetentionError("point %d: times must strictly increase" % n)
+            points.append((float(t), float(v)))
+        if not any(v > 0 for _, v in points):
+            raise RetentionError("every value is zero; there is no retention signal to use")
+        return cls(points, kind, source.strip())
+
+    def at(self, t):
+        pts = self.points
+        if t <= pts[0][0]:
+            return pts[0][1]
+        if t >= pts[-1][0]:
+            return pts[-1][1]
+        for (t0, v0), (t1, v1) in zip(pts, pts[1:]):
+            if t0 <= t <= t1:
+                return v0 + (v1 - v0) * (t - t0) / (t1 - t0)
+        return pts[-1][1]
+
+    def mean(self, start, end):
+        n = max(1, int(round((end - start) / RETENTION_STEP)))
+        return sum(self.at(start + (k + 0.5) * (end - start) / n) for k in range(n)) / n
+
+    def median(self, duration):
+        n = max(1, int(duration / RETENTION_STEP))
+        return statistics.median(self.at((k + 0.5) * duration / n) for k in range(n))
+
+    def peaks(self, duration, count):
+        """Up to `count` high retention moments, highest first: the top of each
+        stretch where the curve stays above its median over the video."""
+        median = self.median(duration)
+        n = max(1, int(duration / RETENTION_STEP))
+        found, best = [], None
+        for k in range(n + 1):
+            t = (k + 0.5) * duration / n
+            v = self.at(t) if k < n else median
+            if v > median:
+                if best is None or v > best[1]:
+                    best = (t, v)
+            elif best is not None:
+                found.append(best)
+                best = None
+        found.sort(key=lambda p: (-p[1], p[0]))
+        return found[:count], median
 
 
 def _clean(word):
@@ -98,8 +193,10 @@ def _speech_frames(words, step, n_frames):
     return covered
 
 
-def score_candidates(words, energy, step, min_len, max_len):
+def score_candidates(words, energy, step, min_len, max_len, retention=None, duration=None):
     groups = sentences(words)
+    if retention is not None:
+        r_median = retention.median(duration if duration else words[-1].end)
     median = statistics.median(energy) if energy else 0.0
     speech = _speech_frames(words, step, len(energy))
     position = {id(w): n for n, w in enumerate(words)}
@@ -150,7 +247,20 @@ def score_candidates(words, energy, step, min_len, max_len):
                 score += WEIGHTS["context"]
                 reasons.append("penalised: opens on '%s', which needs earlier context"
                                % _clean(first[0].text))
-            candidates.append(Moment(start, end, " ".join(texts), score, reasons))
+            lift = None
+            if retention is not None:
+                level = retention.mean(start, end)
+                lift = level / r_median if r_median > 0 else None
+                if lift is not None and lift > 1.0:
+                    score += RETENTION_WEIGHT * (lift - 1.0)
+                    reasons.insert(0, "high retention: %.2fx the video's median in the %s data"
+                                   % (lift, retention.kind.replace("_", " ")))
+                else:
+                    reasons.append("retention at or below the video's median (%s)"
+                                   % ("%.2fx" % lift if lift is not None else "median is zero"))
+            moment = Moment(start, end, " ".join(texts), score, reasons)
+            moment.retention_lift = lift
+            candidates.append(moment)
     return candidates
 
 
