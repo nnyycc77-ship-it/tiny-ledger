@@ -1,0 +1,11 @@
+{
+  "_label": "SYNTHETIC request for the acceptance self test (issue #124): the job posting's sample scenario 'Rare service in a small town with few providers', run against the local quotes agent's committed synthetic provider store; not a real request",
+  "service": "drain cleaning",
+  "location": "Austin, TX",
+  "job_details": "Kitchen sink drain clogged; standing water after running the tap.",
+  "timing": "any weekday, week of 2026-11-09",
+  "budget_max_usd": 300,
+  "response_deadline_utc": "2026-11-04T17:00:00Z",
+  "follow_up_after_hours": 48,
+  "_buyer_contact": "owner@buyer-acceptance.invalid"
+}

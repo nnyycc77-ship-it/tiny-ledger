@@ -1,0 +1,8 @@
+{"requests": [
+  {"type": "image", "subject": "ceramic mug on a wooden table", "count": 3, "aspect": "1:1"},
+  {"type": "video", "subject": "coffee being poured into a cup", "length_seconds": 8, "aspect": "9:16"},
+  {"type": "voice", "subject": "warm product voiceover", "voice": "stock-warm-female", "length_seconds": 30,
+   "script": "Every morning starts better with a cup you love. Our stoneware mugs are shaped by hand, fired twice, and finished in four quiet colours. They keep your coffee warm a little longer, and they feel right in your hand. Pick yours today and make the first cup of the day the best one."},
+  {"type": "image", "subject": "a well-known celebrity holding the product"},
+  {"type": "image", "subject": "Pikachu drinking from the mug"}
+]}

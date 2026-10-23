@@ -1,0 +1,5 @@
+job_id,customer,address,duration_minutes,window_start,window_end,skills
+U1,Northside Dental,"10 Oak Street, Sampletown",60,06:00,06:30,hvac
+U2,Riverbend Bakery,"22 Mill Street, Sampletown",60,09:00,12:00,plumbing
+U3,Hilltop Library,"5 Summit Avenue, Sampletown",60,13:00,15:00,electrical
+U4,Harbor Hotel,"3 Pier Road, Sampletown",60,10:00,10:30,hvac
