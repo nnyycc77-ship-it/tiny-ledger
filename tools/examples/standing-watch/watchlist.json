@@ -1,0 +1,19 @@
+{
+  "version": 1,
+  "carriers": [
+    {"usdot": "90849", "label": "OLD DOMINION FREIGHT LINE INC"},
+    {"usdot": "264184", "label": "SCHNEIDER NATIONAL CARRIERS INC"},
+    {"usdot": "241829", "label": "XPO LOGISTICS FREIGHT INC"}
+  ],
+  "products": [
+    {"label": "Peloton Tread+",
+     "queries": [{"field": "RecallNumber", "value": "21-128"},
+                 {"field": "ProductName", "value": "Tread+"}]},
+    {"label": "Fisher-Price Rock 'n Play Sleeper",
+     "queries": [{"field": "RecallNumber", "value": "19-105"}]},
+    {"label": "Vornado VH101 Personal Vortex electric space heaters",
+     "queries": [{"field": "RecallNumber", "value": "18-136"}]},
+    {"label": "Instant Pot Smart WiFi 6 Qt",
+     "queries": [{"field": "ProductName", "value": "Instant Pot Smart WiFi"}]}
+  ]
+}
