@@ -14,6 +14,8 @@ jobs:
           python-version: '3.12'
       - name: Check delivery tooling without network access
         run: python3 -m unittest discover -s tools/tests -v
+      - name: Check the recall API without network access
+        run: python3 -m unittest discover -s api -v
 
   forge-test:
     runs-on: ubuntu-latest
