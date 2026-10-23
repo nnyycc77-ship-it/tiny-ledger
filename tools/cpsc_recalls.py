@@ -77,8 +77,21 @@ def curl_reason(stderr):
     return f": {text[:300]}" if text else ""
 
 
+def date_range_url(start, end):
+    """The recall date range query the dataset builder uses (issue #148):
+    RecallDateStart and RecallDateEnd, YYYY-MM-DD, on the same endpoint."""
+    for value in (start, end):
+        if not re.fullmatch(r"\d{4}-\d{2}-\d{2}", value or ""):
+            raise ValueError("Recall dates must be YYYY-MM-DD, got %r" % (value,))
+    return ENDPOINT + "?" + urlencode({"format": "json", "RecallDateStart": start, "RecallDateEnd": end})
+
+
 def fetch(value, field="ProductName"):
-    url = query_url(value, field)
+    return fetch_url(query_url(value, field))
+
+
+def fetch_url(url):
+    """Capture one query URL with curl, headers and body as returned."""
     try:
         result = subprocess.run(
             ["curl", "--disable", "--silent", "--show-error", "--http1.1",
