@@ -22,24 +22,26 @@ before that confirmation.
 | --- | --- |
 | [`DEPLOYMENT.md`](DEPLOYMENT.md) | Every prerequisite and step known from the merged core, and the platform specific steps marked as still to be confirmed from the MCPize docs. |
 | [`LISTING.md`](LISTING.md) | Draft listing copy: title, description, tool summary, one example rendered from a recorded source response, and a per call price suggestion with its arithmetic and sources. |
+| [`mcpize.yaml`](mcpize.yaml) | The MCPize deployment configuration, built from the coordinator's reading of the publish page; no pricing or wallet fields, by design. |
 
 The core itself is untouched by this folder. Its entry point is
 `python3 -m mcp_server` from the repository root; its behaviour, tests and
 configuration are documented in [`mcp_server/README.md`](../../mcp_server/README.md).
 
-## What is not here, and why
+## What was read, and how
 
-**No MCPize manifest or metadata file.** The task asks for "whatever
-manifest, metadata, and entry point shape those docs require". MCPize's
-published docs were not reachable from the environment this was built in
-(`mcpize.com`, `www.mcpize.com`, `docs.mcpize.com` and `mcpize.com/docs`
-all failed at the network layer on 2026-10-23), so the required file
-format, field names and runtime declaration could not be read. Writing
-them from memory would be invented data, which `AGENT-BRIEF.md` forbids.
-`DEPLOYMENT.md` lists, under "To confirm from the MCPize docs", exactly what
-the manifest will need to say, with every value already fixed by the merged
-core, so whoever can read the docs can produce the file in minutes and
-check it against this folder.
+MCPize's pages were not reachable from the environment that built this
+folder (`mcpize.com`, `www.mcpize.com`, `docs.mcpize.com` and
+`mcpize.com/docs` all failed at the network layer on 2026-10-23). The
+coordinator read the publish and monetization pages from a working
+environment the same day and recorded the reading on pull request #44;
+`DEPLOYMENT.md` quotes that reading beneath its link with the page URLs,
+and `mcpize.yaml` is built from it. The items that still need the page
+itself (the exact nesting of the start command and bridge key, `curl`
+availability, environment values, KYC terms, host limits) are listed in
+`DEPLOYMENT.md` under "To confirm". No pricing or payout value is in this
+repo: pricing and the recipient wallet are set in the MCPize dashboard at
+deployment, the route the notes choose and explain.
 
 ## Verification
 
@@ -52,5 +54,6 @@ The test re-renders the recorded CPSC capture through the real server
 that output byte for byte, that the tool name and every argument named in
 the listing match the server's live `tools/list` schema, that the track
 record paragraph quoted in the listing matches `AGENT-BRIEF.md` byte for
-byte, and that no file in this folder claims a deployment or listing has
-been done.
+byte, that `mcpize.yaml` names the entry command and the `recall_check`
+tool and carries no pricing or wallet field, and that no file in this
+folder claims a deployment or listing has been done.

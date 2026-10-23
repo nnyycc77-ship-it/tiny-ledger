@@ -167,15 +167,18 @@ Suggested: **1.00 USDC per call.** The arithmetic and its sources:
    Per subject that is 10 USD / 6 = 1.67 USD, rounded to two places.
 3. One tool call answers one subject with no revision round and no human
    arrangement, so a price below per subject parity fits: 1.00 USDC.
-4. The task text states MCPize pays an 80 percent creator share (source:
-   issue #33, quoted in [`README.md`](README.md); not yet verified on the
-   platform). If that holds, the seller receives 0.80 USDC per call.
+4. The coordinator's reading of MCPize's monetization page on 2026-10-23
+   (quoted in [`DEPLOYMENT.md`](DEPLOYMENT.md) beneath its link) gives a
+   per tool price range of 0.01 to 100 USDC, so 1.00 USDC is inside the
+   range, and a default revenue share of 80 percent, so the seller receives
+   0.80 USDC per call. The page itself was not read from the build
+   environment; the task text in issue #33 states the same share.
 
-What would change it: MCPize's own fee schedule, minimum price and payout
-terms once read on the platform; the going per call rate for comparable
-sourced lookups from the workstream E3 pricing scan when it exists; and
-the cost of the live fetch, which is currently zero (no keys, public
-sources).
+What would change it: MCPize's fee schedule or minimum once the page is
+read directly; the going per call rate for comparable sourced lookups from
+the workstream E3 pricing scan when it exists; and the cost of the live
+fetch, which is currently zero (no keys, public sources). The price is set
+in the MCPize dashboard at deployment, not in this repo.
 
 ## What the server does not do
 
