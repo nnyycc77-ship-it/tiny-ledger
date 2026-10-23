@@ -573,3 +573,39 @@ live captures on issue #51:
   against `provenance.json`.
 - `status-captures.json`, a transcription of the recorded statuses for the
   status-only checks.
+
+## api_smoke.py
+
+```sh
+python3 tools/api_smoke.py                                  # offline, captured fixtures
+python3 tools/api_smoke.py --live http://127.0.0.1:8000     # a running server
+```
+
+Read-only smoke checks for the public recall API (issue #68). They send
+GET requests and never an `X-PAYMENT` header, so nothing is ever paid. Three
+shapes are asserted:
+1. `GET /` is 200 JSON naming the service, `/recall`, and an EVM-shaped
+   `payout_wallet`.
+2. `GET /recall?product=...` without payment is a 402 x402 v1 document. Its
+   `accepts[0]` has scheme `exact`, network `base`, a numeric
+   `maxAmountRequired`, an asset address, a `payTo` equal to the descriptor
+   wallet, a `resource`, and a description of at most 500 characters.
+3. `GET /openapi.json` is 200 OpenAPI naming `/recall`.
+
+Output is one Markdown section in the delivery format: a PASS or FAIL claim
+line per assertion, the source link, the UTC time, and the complete raw
+transcript beneath. Exit codes:
+- 0: every assertion passes.
+- 1: any assertion fails. The failed ones are listed by name at the top.
+- 2: the checks cannot run, because of a transport failure, a fixture that
+  no longer matches its SHA-256, or bad input.
+
+Offline mode reads `tests/fixtures/api_smoke/`, which holds transcripts
+captured from the local gated server (`python3 server.py`) with a synthetic
+placeholder payout address. Their provenance and hashes are in
+`provenance.json`.
+
+```sh
+python3 -m unittest discover -s tools/tests -p 'test_api_smoke.py' -v
+```
+
