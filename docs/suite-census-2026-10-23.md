@@ -132,6 +132,36 @@ is set. The skip reasons below are copied from the suite 1 verbose log.
 | `test_usaspending_awards.LiveTests.test_live_queries_return_valid_evidence` | 1, 11 | `opt-in live public API check` |
 | `test_call_flow.DocsAndSourcesTests.test_captures_verify` | 1, 4 | `set CALL_FOR_ME_CAPTURES to a folder of fetched captures` |
 
+## CI skips 24 more tests than this census
+
+CI's `delivery-tool-tests` job runs suite 1 on python3.12 and gives a
+different skip count. The job on this census PR's head (job 120539711413)
+ends:
+
+```
+Ran 547 tests in 6.184s
+
+FAILED (failures=1, skipped=30)
+```
+
+That is the same 547 tests and the same one failure, but 30 skips instead
+of 6. The other 24 are media tests that need tools the CI runner does not
+have. This census environment has them (`/usr/bin/ffmpeg`,
+`/usr/bin/ffprobe`, and an ffmpeg build with the `flite` filter), so all
+24 ran here and passed.
+
+| Module | Tests skipped in CI | Skip reason as printed in the CI log |
+| --- | --- | --- |
+| `test_clipper` (video-clipping agent) | 10 | `ffmpeg and ffprobe are needed for the media tests` |
+| `test_dubber` (video-dubbing agent) | 12 | `ffmpeg with the flite filter is needed for the media tests` |
+| `test_agents_integration` (`VideoClipping` and `VideoDubbing`) | 2 | `ffmpeg and ffprobe are needed for the video agents` |
+
+So on every PR, CI never runs the video-clipping and video-dubbing fixture
+runs. They pass only where ffmpeg is installed, as here. This is a
+coverage gap, not a failure. The census files no issue for it, because
+#112 asks for failures. I have raised it on the suggestions issue
+instead.
+
 ## What could not run here
 
 **Suite 13, AgentTab contract (Foundry), did not run.** The `forge`
