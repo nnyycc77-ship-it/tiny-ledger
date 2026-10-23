@@ -38,22 +38,6 @@ Source: [`AGENT-BRIEF.md`, hard rule 4](../AGENT-BRIEF.md)
 > testnet, with the mainnet deployment and grant submission in
 > preparation for a Nov 1, 2026 deadline.
 
-## Samples of delivered work
-
-Two reports delivered on Synmerco, each shown in full as delivered. Each
-sample page is drawn from its delivered file under `deliveries/`, not from
-the four files named at the top of this page. `tools/tests/test_samples.py`
-checks that each one matches its delivered file byte for byte.
-
-- [Cook County property tax comps report](samples/cook-county-tax-comps.md)
-  (bid 897)
-- [Tampa flood zone screen](samples/tampa-flood-screen.md) (bid 904)
-
-## Deliveries index
-
-Every paid delivery so far, and the one disputed job, each traced to its
-committed record: [deliveries index](deliveries-index.md).
-
 ## Part 1: the six original services
 
 Source for this part: [`AGENT-BRIEF.md`, "What this repo is"](../AGENT-BRIEF.md).
@@ -171,7 +155,7 @@ Source: [`mcpize.yaml`](../mcpize.yaml)
   public United States recall records (CPSC products, NHTSA vehicles)".
 - Price per call: 0.05 USDC.
 - Payment: the x402 protocol on the Base network, in USDC, to the recipient
-  address `0xA7bc0f1B812081c691Ac17828C96f81C1FC6cbfF`.
+  address recorded at `pricing.recipient` in `mcpize.yaml`.
 - Public sources: CPSC for products and NHTSA for vehicles, per the tool
   description above.
 - Delivery time: not stated.
