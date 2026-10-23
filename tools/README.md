@@ -16,6 +16,7 @@ environment and its header comment says so.
 | CPSC SaferProducts recalls | `cpsc_recalls.py` | none needed |
 | NHTSA recalls API | `nhtsa_recalls.py` | none needed |
 | USAspending contract awards | `usaspending_awards.py` | none needed |
+| CourtListener RECAP docket search | `courtlistener_recap.py` | none needed; optional `COURTLISTENER_TOKEN` from the environment |
 | FMCSA carrier data (Census File, SAFER, Licensing and Insurance) | `fmcsa_carrier.py` | none needed |
 
 ## cpsc_recalls.py
@@ -240,9 +241,78 @@ the HTML parser runs on a harness that wraps each recorded text line in
 a table row, because no page HTML was recorded. The fetch tests run
 against a local server on 127.0.0.1.
 
+## courtlistener_recap.py
+
+```sh
+python3 tools/courtlistener_recap.py --subject "Jabil Inc." \
+  --party "Jabil Inc." --party "Jabil Inc" --party "Jabil" --filed-after 2021-10-22
+python3 tools/courtlistener_recap.py --subject "Jabil Inc." --party "Jabil Inc." \
+  --list 10 --docket-details \
+  --exclude 69574962="the subject is a listed party but on neither side of the caption"
+```
+
+One subject company per run. Each `--party` value is a party name
+variant searched on the CourtListener search API (type `d`, federal
+dockets from the RECAP archive) with `q=party:("<variant>")`,
+`filed_after` (default five years before today) and `order_by=dateFiled
+desc`, in that parameter order, so the first command reproduces the
+query URL recorded in the published litigation screen byte for byte.
+Source: <https://github.com/nnyycc77-ship-it/tiny-ledger/blob/aaacd5e/deliveries/litigation-screen-5c567ad5-77c5-4ccc-a207-a1acc743b3bd.md>
+```text
+https://www.courtlistener.com/api/rest/v4/search/?type=d&q=party%3A%28%22Jabil+Inc.%22%29&filed_after=2021-10-22&order_by=dateFiled+desc
+```
+
+The section opens with the fixed scope line (index level only, not a
+legal opinion) and the method line, then:
+
+- **Searches:** one line per variant with the exact query fields, the
+  `count` the API returned, how many results the first page held,
+  whether a next page cursor was returned (it is never followed), and
+  the UTC retrieval time. Counts are reported per variant and never
+  merged, because shorter forms also match other parties.
+- **Cases:** a table of the first `--list` results (default 10) of the
+  first variant's search, in the order returned, with docket number,
+  court, case name, date filed, nature of suit, cause, role, status and
+  CourtListener docket ID as shown. Role is the caption rule the
+  delivery used, applied mechanically to the first variant's name
+  ignoring case and punctuation: before " v. " is plaintiff, after it
+  is defendant, a listed party on neither side is other; the rule is
+  printed with the table. Status is open when `dateTerminated` is null,
+  else the date shown. An empty nature of suit or cause is "not shown".
+  `--exclude DOCKET_ID="reason"` moves a listed result to a checked and
+  excluded table with the operator's reason; it is refused for a docket
+  ID that is not among the listed results.
+- **Totals:** role and status counts with their arithmetic, and the
+  API's count for the first variant.
+- **Sources:** every search, and with `--docket-details` every listed
+  case's docket record lookup (`q=docket_id:N`, the lookup the delivery
+  recorded), each with its query URL, UTC retrieval time, and the
+  complete raw HTTP response transcript directly beneath. An empty
+  result is proven by that transcript.
+
+No key is needed; the published delivery used none. If
+`COURTLISTENER_TOKEN` is set in the environment it is sent as the
+Authorization header to lift the anonymous rate limit; it is never
+printed or written. A transport failure prints nothing on stdout and
+exits 2. An HTTP error status is captured and printed in full and the
+claim lines say the count is not determinable from it.
+
+### Verification
+
+```sh
+python3 -m unittest discover -s tools/tests -p 'test_courtlistener_recap.py' -v
+```
+
+The tests need no network. The fixtures are verbatim copies of sources
+Q1, Q5, D1, D5 and D9 of the published litigation screen, with their
+delivery line ranges named in the test file; the delivery prints
+contiguous slices of each JSON response, and the tests close each slice
+syntactically where it ends, values unchanged, as the file explains.
+The fetch tests run against a local server on 127.0.0.1.
+
 ## Tests
 
-All four suites live in `tools/tests/` and run offline with one
+All five suites live in `tools/tests/` and run offline with one
 discovery command:
 
 ```
