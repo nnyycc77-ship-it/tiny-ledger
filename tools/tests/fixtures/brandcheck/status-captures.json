@@ -1,0 +1,11 @@
+{
+  "_about": "Transcribed field for field from the coordinator's capture table on issue #51 (comment 6357378484), captured live 2026-10-23 about 04:26 to 04:27 UTC. Bodies for X, Instagram and TikTok are not in the repo because the tool does not read them; their byte counts and SHA-256 are kept as recorded so a recapture can be compared.",
+  "captures": [
+    {"leg": "rdap", "request": "https://rdap.org/domain/nike.com", "final_url": "https://rdap.verisign.com/com/v1/domain/nike.com", "status": 200, "content_type": "application/rdap+json", "body_bytes": 2803, "body_sha256_as_recorded": "1eb4e7060bc73c7434c1f01e06fd4da144d1c408afbdfc8a082f020484e085c4"},
+    {"leg": "rdap", "request": "https://rdap.org/domain/zqxflorp.com", "final_url": "https://rdap.verisign.com/com/v1/domain/zqxflorp.com", "status": 404, "content_type": "application/rdap+json", "date_header": "Fri, 23 Oct 2026 04:27:05 GMT", "body": "not read, per the task rule"},
+    {"leg": "x", "request": "https://x.com/nike", "status": 200, "body_bytes": 143746, "body_sha256_as_recorded": "f0375505b8bdedd0661c5cc5dbf13bf30a06666862d140b3e8ff1ff3f20a43aa"},
+    {"leg": "x", "request": "https://x.com/zqxflorp", "status": 404, "body_bytes": 36804, "body_sha256_as_recorded": "d2714ef52b732b52b836031ecdd35159ff67f7d9ae17eaffbf0c3f511557e47c"},
+    {"leg": "instagram", "request": "https://www.instagram.com/nike/", "status": 200, "note": "login wall", "body_bytes": 690457, "body_sha256_as_recorded": "44009459edbfda28a9136a4eb5090f4bfc140a42c60a3d950090629cab036d98"},
+    {"leg": "tiktok", "request": "https://www.tiktok.com/@nike", "status": 200, "note": "login wall", "body_bytes": 370642, "body_sha256_as_recorded": "afe4132792ce8f44f312b954288c4a65b8bcb0a0b79e91673dbe46a79d5dc92f"}
+  ]
+}

@@ -21,6 +21,7 @@ environment and its header comment says so.
 | Google PageSpeed Insights (Lighthouse) | `pagespeed_snapshot.py` | free key from `PAGESPEED_API_KEY`; keyless requests are answered 429 (quota 0) |
 | SEC EDGAR Form D filings | `edgar_formd.py` | none needed; an operator contact for the User-Agent is required (`--contact` or `EDGAR_CONTACT`) |
 | ProPublica Nonprofit Explorer (IRS Form 990 extracts) | `propublica_nonprofits.py` | none needed |
+| Brand name checks: RDAP domains, X / Instagram / TikTok handles, iTunes Search (trademarks not covered) | `brand_name_checker.py` | none needed |
 
 Not a fetcher: `pregate.py` is the offline review pre gate (secrets scan,
 honesty lint, fixture provenance check) from `REVIEW.md`. See
@@ -527,3 +528,48 @@ The fixtures in `tests/fixtures/propublica/` are real response bodies. The
 coordinator captured them live and posted them verbatim on issue #47; their
 URLs, times and SHA-256 hashes are in `provenance.json`. Only the bodies
 were captured, not the status lines or headers.
+
+## brand_name_checker.py
+
+```sh
+python3 tools/brand_name_checker.py Nike
+python3 tools/brand_name_checker.py zqxflorp --tlds com,io --platforms x,instagram,tiktok --variations 3
+```
+
+One report per candidate name, containing a domains table, a handles
+table, App Store matches and a trademark section. Every row carries its
+check time in UTC, and the evidence follows each table: claim, source link,
+then the status line and headers (Set-Cookie values withheld) and any body
+the verdict rests on.
+
+How each check is judged:
+- **Domains:** RDAP via rdap.org, following redirects. 200 means
+  registered, 404 means no registration found (the 404 body is never read),
+  and anything else means could not confirm.
+- **X:** 200 means taken, 404 means no account found.
+- **Instagram and TikTok:** a 200 is a login wall, so it means could not
+  confirm, never available. Only a hard 404 means no account found.
+- **App Store:** the iTunes Search API, filtered to exact name matches. The
+  exact-name comparison takes the title part before the first `:`, ` - ` or
+  ` | `, compared on letters and digits only.
+- **Google Play:** out of scope, because it has no official public search
+  API.
+- **Trademarks:** not covered. No working trademark source has been
+  captured, so the report names the USPTO database it would search and
+  states no mark.
+
+Variations appear only with `--variations` and are listed only after every
+requested domain and X answer 404. A failed request is "could not confirm",
+never available. The tool only sends GET requests; it never registers or
+reserves a name.
+
+```sh
+python3 -m unittest discover -s tools/tests -p 'test_brand_name_checker.py' -v
+```
+
+The fixtures in `tests/fixtures/brandcheck/` come from the coordinator's
+live captures on issue #51:
+- The RDAP 200 body for nike.com and two iTunes Search bodies, hash checked
+  against `provenance.json`.
+- `status-captures.json`, a transcription of the recorded statuses for the
+  status-only checks.
