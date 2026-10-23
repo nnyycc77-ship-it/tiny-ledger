@@ -1,0 +1,425 @@
+{
+  "record_count": 1049,
+  "fields": [
+    {
+      "path": "ConsumerContact",
+      "types": [
+        "string"
+      ],
+      "records_with_field": 1049
+    },
+    {
+      "path": "Description",
+      "types": [
+        "string"
+      ],
+      "records_with_field": 1049
+    },
+    {
+      "path": "Distributors",
+      "types": [
+        "array"
+      ],
+      "records_with_field": 1049
+    },
+    {
+      "path": "Distributors[]",
+      "types": [
+        "object"
+      ],
+      "records_with_field": 276
+    },
+    {
+      "path": "Distributors[].CompanyID",
+      "types": [
+        "string"
+      ],
+      "records_with_field": 276
+    },
+    {
+      "path": "Distributors[].Name",
+      "types": [
+        "string"
+      ],
+      "records_with_field": 276
+    },
+    {
+      "path": "Hazards",
+      "types": [
+        "array"
+      ],
+      "records_with_field": 1049
+    },
+    {
+      "path": "Hazards[]",
+      "types": [
+        "object"
+      ],
+      "records_with_field": 1047
+    },
+    {
+      "path": "Hazards[].HazardType",
+      "types": [
+        "string"
+      ],
+      "records_with_field": 1047
+    },
+    {
+      "path": "Hazards[].HazardTypeID",
+      "types": [
+        "string"
+      ],
+      "records_with_field": 1047
+    },
+    {
+      "path": "Hazards[].Name",
+      "types": [
+        "string"
+      ],
+      "records_with_field": 1047
+    },
+    {
+      "path": "Images",
+      "types": [
+        "array"
+      ],
+      "records_with_field": 1049
+    },
+    {
+      "path": "Images[]",
+      "types": [
+        "object"
+      ],
+      "records_with_field": 1049
+    },
+    {
+      "path": "Images[].Caption",
+      "types": [
+        "string"
+      ],
+      "records_with_field": 1049
+    },
+    {
+      "path": "Images[].URL",
+      "types": [
+        "string"
+      ],
+      "records_with_field": 1049
+    },
+    {
+      "path": "Importers",
+      "types": [
+        "array"
+      ],
+      "records_with_field": 1049
+    },
+    {
+      "path": "Importers[]",
+      "types": [
+        "object"
+      ],
+      "records_with_field": 615
+    },
+    {
+      "path": "Importers[].CompanyID",
+      "types": [
+        "string"
+      ],
+      "records_with_field": 615
+    },
+    {
+      "path": "Importers[].Name",
+      "types": [
+        "string"
+      ],
+      "records_with_field": 615
+    },
+    {
+      "path": "Inconjunctions",
+      "types": [
+        "array"
+      ],
+      "records_with_field": 1049
+    },
+    {
+      "path": "Inconjunctions[]",
+      "types": [
+        "object"
+      ],
+      "records_with_field": 279
+    },
+    {
+      "path": "Inconjunctions[].URL",
+      "types": [
+        "string"
+      ],
+      "records_with_field": 279
+    },
+    {
+      "path": "Injuries",
+      "types": [
+        "array"
+      ],
+      "records_with_field": 1049
+    },
+    {
+      "path": "Injuries[]",
+      "types": [
+        "object"
+      ],
+      "records_with_field": 1048
+    },
+    {
+      "path": "Injuries[].Name",
+      "types": [
+        "string"
+      ],
+      "records_with_field": 1048
+    },
+    {
+      "path": "LastPublishDate",
+      "types": [
+        "string"
+      ],
+      "records_with_field": 1049
+    },
+    {
+      "path": "ManufacturerCountries",
+      "types": [
+        "array"
+      ],
+      "records_with_field": 1049
+    },
+    {
+      "path": "ManufacturerCountries[]",
+      "types": [
+        "object"
+      ],
+      "records_with_field": 1045
+    },
+    {
+      "path": "ManufacturerCountries[].Country",
+      "types": [
+        "string"
+      ],
+      "records_with_field": 1045
+    },
+    {
+      "path": "Manufacturers",
+      "types": [
+        "array"
+      ],
+      "records_with_field": 1049
+    },
+    {
+      "path": "Manufacturers[]",
+      "types": [
+        "object"
+      ],
+      "records_with_field": 324
+    },
+    {
+      "path": "Manufacturers[].CompanyID",
+      "types": [
+        "string"
+      ],
+      "records_with_field": 324
+    },
+    {
+      "path": "Manufacturers[].Name",
+      "types": [
+        "string"
+      ],
+      "records_with_field": 324
+    },
+    {
+      "path": "ProductUPCs",
+      "types": [
+        "array"
+      ],
+      "records_with_field": 1049
+    },
+    {
+      "path": "ProductUPCs[]",
+      "types": [
+        "object"
+      ],
+      "records_with_field": 40
+    },
+    {
+      "path": "ProductUPCs[].UPC",
+      "types": [
+        "string"
+      ],
+      "records_with_field": 40
+    },
+    {
+      "path": "Products",
+      "types": [
+        "array"
+      ],
+      "records_with_field": 1049
+    },
+    {
+      "path": "Products[]",
+      "types": [
+        "object"
+      ],
+      "records_with_field": 1049
+    },
+    {
+      "path": "Products[].CategoryID",
+      "types": [
+        "string"
+      ],
+      "records_with_field": 1049
+    },
+    {
+      "path": "Products[].Description",
+      "types": [
+        "string"
+      ],
+      "records_with_field": 1049
+    },
+    {
+      "path": "Products[].Model",
+      "types": [
+        "string"
+      ],
+      "records_with_field": 1049
+    },
+    {
+      "path": "Products[].Name",
+      "types": [
+        "string"
+      ],
+      "records_with_field": 1049
+    },
+    {
+      "path": "Products[].NumberOfUnits",
+      "types": [
+        "string"
+      ],
+      "records_with_field": 1049
+    },
+    {
+      "path": "Products[].Type",
+      "types": [
+        "string"
+      ],
+      "records_with_field": 1049
+    },
+    {
+      "path": "RecallDate",
+      "types": [
+        "string"
+      ],
+      "records_with_field": 1049
+    },
+    {
+      "path": "RecallID",
+      "types": [
+        "number"
+      ],
+      "records_with_field": 1049
+    },
+    {
+      "path": "RecallNumber",
+      "types": [
+        "string"
+      ],
+      "records_with_field": 1049
+    },
+    {
+      "path": "Remedies",
+      "types": [
+        "array"
+      ],
+      "records_with_field": 1049
+    },
+    {
+      "path": "Remedies[]",
+      "types": [
+        "object"
+      ],
+      "records_with_field": 1049
+    },
+    {
+      "path": "Remedies[].Name",
+      "types": [
+        "string"
+      ],
+      "records_with_field": 1049
+    },
+    {
+      "path": "RemedyOptions",
+      "types": [
+        "array"
+      ],
+      "records_with_field": 1049
+    },
+    {
+      "path": "RemedyOptions[]",
+      "types": [
+        "object"
+      ],
+      "records_with_field": 1049
+    },
+    {
+      "path": "RemedyOptions[].Option",
+      "types": [
+        "string"
+      ],
+      "records_with_field": 1049
+    },
+    {
+      "path": "Retailers",
+      "types": [
+        "array"
+      ],
+      "records_with_field": 1049
+    },
+    {
+      "path": "Retailers[]",
+      "types": [
+        "object"
+      ],
+      "records_with_field": 1048
+    },
+    {
+      "path": "Retailers[].CompanyID",
+      "types": [
+        "string"
+      ],
+      "records_with_field": 1048
+    },
+    {
+      "path": "Retailers[].Name",
+      "types": [
+        "string"
+      ],
+      "records_with_field": 1048
+    },
+    {
+      "path": "SoldAtLabel",
+      "types": [
+        "null"
+      ],
+      "records_with_field": 1049
+    },
+    {
+      "path": "Title",
+      "types": [
+        "string"
+      ],
+      "records_with_field": 1049
+    },
+    {
+      "path": "URL",
+      "types": [
+        "string"
+      ],
+      "records_with_field": 1049
+    }
+  ]
+}
