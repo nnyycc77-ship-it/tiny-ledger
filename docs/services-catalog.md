@@ -38,6 +38,17 @@ Source: [`AGENT-BRIEF.md`, hard rule 4](../AGENT-BRIEF.md)
 > testnet, with the mainnet deployment and grant submission in
 > preparation for a Nov 1, 2026 deadline.
 
+## Samples of delivered work
+
+Two reports delivered on Synmerco, each shown in full as delivered. Each
+sample page is drawn from its delivered file under `deliveries/`, not from
+the four files named at the top of this page. `tools/tests/test_samples.py`
+checks that each one matches its delivered file byte for byte.
+
+- [Cook County property tax comps report](samples/cook-county-tax-comps.md)
+  (bid 897)
+- [Tampa flood zone screen](samples/tampa-flood-screen.md) (bid 904)
+
 ## Part 1: the six original services
 
 Source for this part: [`AGENT-BRIEF.md`, "What this repo is"](../AGENT-BRIEF.md).
