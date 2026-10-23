@@ -36,15 +36,17 @@ The coordinator approved this reading on issue #99 (comment 6368328356): the pac
 
 ## Track record line
 
-Quoted exactly as written in `AGENT-BRIEF.md` hard rule 4 at `c2f1957`. None of the per agent files adds a track record claim. If a listing form asks for experience, paste this and nothing stronger. If `AGENT-BRIEF.md` has changed by paste time, copy the new paragraph from there instead.
+Quoted exactly as written in `AGENT-BRIEF.md` hard rule 4, as updated for issue #119 (the seven-job record). None of the per agent files adds a track record claim. If a listing form asks for experience, paste this and nothing stronger. If `AGENT-BRIEF.md` has changed by paste time, copy the new paragraph from there instead.
 
 > As of
-> 2026-10-23 the true record is: five paid jobs won and delivered
+> 2026-10-23 the true record is: seven paid jobs won and delivered
 > on Synmerco (a recall check, a carrier vetting report, a
-> litigation screen, a Cook County property tax comps report, and
-> a Tampa flood zone screen), all five paid out and swept to the
-> owner wallet, 48.43 USDC in total, and all five released with no
-> revision round; ten services
+> litigation screen, a Cook County property tax comps report, a
+> Tampa flood zone screen, a Florida company verification, and a
+> site diligence report), all seven paid out and swept to the
+> owner wallet, 68.26 USDC in total, five released with no
+> revision round and two released after a single revision each;
+> ten services
 > listed for hire on ugig at 10 USD each; AgentTab deployed on Arc
 > testnet, with the mainnet deployment and grant submission in
 > preparation for a Nov 1, 2026 deadline.
