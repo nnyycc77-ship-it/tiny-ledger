@@ -1,0 +1,2 @@
+note: USPTO_API_KEY is set, but the keyed search did not run: search request: no documented USPTO trademark name search is on record (issue #125: the keyed route on record, TSDR, answers status by case number, not by name). The trademark leg stays not covered.
+note: USPTO_API_KEY is set, but the keyed search did not run: search request: no documented USPTO trademark name search is on record (issue #125: the keyed route on record, TSDR, answers status by case number, not by name). The trademark leg stays not covered.

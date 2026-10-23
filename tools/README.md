@@ -556,7 +556,10 @@ How each check is judged:
   API.
 - **Trademarks:** not covered. No working trademark source has been
   captured, so the report names the USPTO database it would search and
-  states no mark.
+  states no mark. The section comes from `uspto_trademarks.py`, which reads
+  an optional key from `USPTO_API_KEY` only and keeps this wording until a
+  documented name search and a live keyed run exist; see
+  `uspto_trademarks-README.md` (issue #125) for the owner step sheet.
 
 Variations appear only with `--variations` and are listed only after every
 requested domain and X answer 404. A failed request is "could not confirm",
