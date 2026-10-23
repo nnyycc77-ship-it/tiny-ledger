@@ -82,7 +82,9 @@ class ProtocolTests(unittest.TestCase):
         self.assertEqual(init["serverInfo"]["name"], recall_mcp.SERVER_NAME)
         self.assertIn("tools", init["capabilities"])
         tools = responses[1]["result"]["tools"]
-        self.assertEqual([t["name"] for t in tools], ["recall_check"])
+        # recall_check stays first; the tools added by issue #67 are covered in
+        # test_mcp_carrier_litigation.py.
+        self.assertEqual(tools[0]["name"], "recall_check")
         schema = tools[0]["inputSchema"]
         self.assertEqual(sorted(schema["properties"]), ["exact_name", "exclude", "make", "model", "near", "product", "year"])
         self.assertFalse(schema["additionalProperties"])
