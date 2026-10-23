@@ -1,0 +1,6 @@
+{
+  "source": "https://api.usaspending.gov/api/v2/search/spending_by_award/",
+  "method": "POST",
+  "retrieved_utc": "2026-10-23T00:17:52Z",
+  "request_body": "{\"filters\":{\"award_type_codes\":[\"A\",\"B\",\"C\",\"D\"],\"recipient_search_text\":[\"Boeing\"]},\"fields\":[\"Award ID\",\"Recipient Name\",\"Award Amount\",\"Awarding Agency\",\"Description\",\"Start Date\",\"End Date\",\"NAICS\",\"generated_internal_id\"],\"page\":1,\"limit\":2,\"sort\":\"Award Amount\",\"order\":\"desc\",\"subawards\":false}"
+}
