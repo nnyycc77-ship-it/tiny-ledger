@@ -55,10 +55,11 @@ def _ffmpeg(cmd):
 # ----------------------------------------------------------------------
 
 class Segment:
-    __slots__ = ("index", "start", "end", "text")
+    __slots__ = ("index", "start", "end", "text", "speaker")
 
-    def __init__(self, index, start, end, text):
+    def __init__(self, index, start, end, text, speaker="S1"):
         self.index, self.start, self.end, self.text = index, float(start), float(end), text
+        self.speaker = str(speaker)
 
     @property
     def slot(self):
@@ -66,8 +67,10 @@ class Segment:
 
 
 class SegmentsFileTranscriber:
-    """Timed segments another engine (or a hosted service) produced:
-    {"engine": "...", "segments": [{"start": 0.0, "end": 2.1, "text": "..."}]}"""
+    """Timed segments another engine (or a hosted service) produced, with the
+    speaker of each line when the engine identifies speakers:
+    {"engine": "...", "segments": [{"start": 0.0, "end": 2.1, "text": "...",
+    "speaker": "A"}]}. A segment without a speaker is speaker S1."""
 
     name = "segments-file"
 
@@ -81,7 +84,8 @@ class SegmentsFileTranscriber:
             with open(self.path, encoding="utf-8") as fh:
                 payload = json.load(fh)
             raw = payload["segments"]
-            segs = [Segment(i, s["start"], s["end"], str(s["text"]).strip())
+            segs = [Segment(i, s["start"], s["end"], str(s["text"]).strip(),
+                            s.get("speaker", "S1"))
                     for i, s in enumerate(raw)]
         except (OSError, ValueError, KeyError, TypeError) as err:
             raise ProviderError("cannot read segments %s: %s" % (self.path, err))
@@ -130,12 +134,15 @@ def check_protected(source, target, terms, where):
 
 class GlossaryTranslator:
     """Operator supplied translations, one entry per segment and language:
-    {"es": {"0": {"text": "...", "shorter": ["...", "..."]}, "1": "..."}}.
+    {"es": {"0": {"text": "...", "shorter": ["..."], "note": "..."}, "1": "..."}}.
     `shorter` lists tightened wordings with the same meaning, tried in order
-    when the full wording does not fit its slot. Protected terms are not
-    masked here (a person wrote the table) but are checked after."""
+    when the full wording does not fit its slot. `note` records why a line
+    was hard to translate (an idiom, wordplay); notes go in the report.
+    Protected terms are not masked here (a person wrote the table) but are
+    checked after."""
 
     name = "glossary"
+    last_note = ""
 
     def __init__(self, path):
         if not path:
@@ -153,11 +160,15 @@ class GlossaryTranslator:
                                 % (language, segment.index))
         if isinstance(entry, str):
             entry = {"text": entry}
-        full = str(entry.get("text", ""))
+        full = str(entry.get("text", "")).strip()
+        if not full:
+            raise ProviderError("glossary %s translation for segment %d is empty"
+                                % (language, segment.index))
         shorter = [str(s) for s in entry.get("shorter", [])]
         for wording in [full] + shorter:
             check_protected(segment.text, wording, terms,
                             "segment %d (%s)" % (segment.index, language))
+        self.last_note = str(entry.get("note", "")).strip()
         return full, shorter
 
 
@@ -167,6 +178,7 @@ class StubTranslator:
     real machine translator would take. Never use for a delivery."""
 
     name = "stub"
+    last_note = ""
 
     def translate(self, segment, language, terms):
         masked, mapping = mask(segment.text, terms)
@@ -231,59 +243,87 @@ def audio_seconds(path):
 
 class StubVoice:
     """OFFLINE TEST VOICE, not speech: a soft tone whose length follows the
-    text (SECONDS_PER_CHAR per character plus a short tail). Lets tests
-    exercise timing and sync without any speech engine."""
+    text (SECONDS_PER_CHAR per character plus a short tail), at a different
+    pitch per speaker. Lets tests exercise timing, speakers and sync without
+    any speech engine."""
 
     name = "stub"
     SECONDS_PER_CHAR = 0.06
     TAIL = 0.2
+    PITCHES = (330, 220, 440, 275)
 
-    def synthesize(self, text, language, out_path):
+    def __init__(self):
+        self.assigned = {}
+
+    def voice_for(self, speaker):
+        if speaker not in self.assigned:
+            self.assigned[speaker] = "tone %d Hz" % self.PITCHES[len(self.assigned) % len(self.PITCHES)]
+        return self.assigned[speaker]
+
+    def synthesize(self, text, language, out_path, speaker="S1"):
+        pitch = int(self.voice_for(speaker).split()[1])
         seconds = round(len(text) * self.SECONDS_PER_CHAR + self.TAIL, 3)
         _ffmpeg(["ffmpeg", "-nostdin", "-loglevel", "error", "-y", "-f", "lavfi",
-                 "-i", "sine=f=330:d=%s" % seconds, "-af", "volume=0.3",
+                 "-i", "sine=f=%d:d=%s" % (pitch, seconds), "-af", "volume=0.3",
                  "-ac", "2", "-ar", "44100", out_path])
         return out_path
 
 
 class FliteVoice:
-    """Local stock voices from libflite through ffmpeg's flite filter.
-    English only; any other language is refused rather than mispronounced."""
+    """Local stock voices from libflite through ffmpeg's flite filter. The
+    first speaker gets the chosen voice and each further speaker the next
+    distinct one. English only; any other language is refused rather than
+    mispronounced."""
 
     name = "flite"
-    VOICES = ("kal", "slt", "awb", "rms", "kal16")
+    VOICES = ("slt", "kal", "awb", "rms", "kal16")
 
     def __init__(self, voice="slt"):
         if voice not in self.VOICES:
             raise ProviderError("unknown flite voice %r; known: %s" % (voice, ", ".join(self.VOICES)))
-        self.voice = voice
+        self.order = [voice] + [v for v in self.VOICES if v != voice]
+        self.assigned = {}
 
-    def synthesize(self, text, language, out_path):
+    def voice_for(self, speaker):
+        if speaker not in self.assigned:
+            if len(self.assigned) >= len(self.order):
+                raise ProviderError("more speakers than distinct flite voices (%d)" % len(self.order))
+            self.assigned[speaker] = self.order[len(self.assigned)]
+        return self.assigned[speaker]
+
+    def synthesize(self, text, language, out_path, speaker="S1"):
         if not language.lower().startswith("en"):
             raise ProviderError("the flite voices speak English only, not %r" % language)
         text_file = out_path + ".txt"
         with open(text_file, "w", encoding="utf-8") as fh:
             fh.write(text)
         _ffmpeg(["ffmpeg", "-nostdin", "-loglevel", "error", "-y", "-f", "lavfi",
-                 "-i", "flite=textfile='%s':voice=%s" % (text_file.replace("'", ""), self.voice),
+                 "-i", "flite=textfile='%s':voice=%s" % (text_file.replace("'", ""),
+                                                         self.voice_for(speaker)),
                  "-ac", "2", "-ar", "44100", out_path])
         return out_path
 
 
-CONSENT_FIELDS = ("speaker_consent", "consent_record", "rights_confirmed", "confirmed_by")
+# The job's rule: "Only recreate a speaker's own voice when the buyer
+# confirms they are that speaker or have the speaker's consent." The buyer
+# also "confirms they have the rights to use" the video (job text, issue #77
+# comment 6365954974).
+CONSENT_FIELDS = ("basis", "consent_record", "rights_confirmed", "confirmed_by")
+CONSENT_BASES = ("buyer_is_speaker", "speaker_consent")
 
 
 def check_consent(consent):
     """Raise ConsentError unless the job inputs carry a recorded consent and a
-    rights confirmation: speaker_consent true, a non empty consent_record (a
-    reference to where the consent is kept), rights_confirmed true, and a
-    non empty confirmed_by."""
+    rights confirmation: basis is buyer_is_speaker or speaker_consent, a non
+    empty consent_record (where the confirmation is kept), rights_confirmed
+    true (the buyer has the rights to use the video), and a non empty
+    confirmed_by."""
     if not isinstance(consent, dict):
         raise ConsentError("the own-voice option needs a consent record in the job inputs "
                            "(%s); none was given" % ", ".join(CONSENT_FIELDS))
     problems = []
-    if consent.get("speaker_consent") is not True:
-        problems.append("speaker_consent is not true")
+    if consent.get("basis") not in CONSENT_BASES:
+        problems.append("basis is not one of %s" % ", ".join(CONSENT_BASES))
     if not str(consent.get("consent_record", "")).strip():
         problems.append("consent_record is empty")
     if consent.get("rights_confirmed") is not True:

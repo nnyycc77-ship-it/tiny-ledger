@@ -1,6 +1,6 @@
 """Sync handling: fit each dubbed line into the time the original line used.
 
-The order follows the proposal as the task issue states it:
+The order follows the bid proposal (issue #77, comment 6365955553):
 
   1. tighten   try the shorter wordings the translator offers (same meaning),
                shortest last, and keep the first that fits;
@@ -12,11 +12,12 @@ The order follows the proposal as the task issue states it:
 
 A line that still does not fit is not cut short: the run stops and names
 the segment, so a shorter wording can be supplied. Any line that was
-stretched is flagged in the delivery note. The subtitles always carry the
-full translation, whatever wording was spoken.
+stretched is flagged in the delivery note. Placement is at the original
+start time, so the job's "starts within one second" criterion holds by
+construction, and breathing never reaches the next line.
 
-The three limits are configurable defaults. They are not taken from the
-NEAR job text, which this build could not read; see README.md.
+The three limits are configurable defaults: neither the job text nor the
+proposal gives a number ("mild time stretching inside safe limits").
 """
 
 MAX_STRETCH = 1.15     # at most 15% faster than the synthesized line

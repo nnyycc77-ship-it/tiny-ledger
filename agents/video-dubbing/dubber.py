@@ -7,8 +7,9 @@ segments, translates each segment (protected terms are checked verbatim in
 every translation), keeps the music and sound under the new voice with a
 background separator, voices each line, fits it to the original timing
 (tighten, then stretch within a limit, then breathe into a genuine pause),
-and writes for every language a finished video and an SRT carrying the
-full translation. A delivery note lists every compressed line.
+and writes for every language a finished video and an SRT, one cue per
+dubbed line (the full translation by default, or the spoken wording with
+--subtitles spoken). A delivery note lists every compressed line.
 
 Two commands, run from the repository root:
 
@@ -116,34 +117,41 @@ def load_brief(args):
 
 
 class Measurer:
-    """Synthesizes a wording once and remembers its file and length."""
+    """Synthesizes a wording once, in its speaker's voice, and remembers the
+    file and its length."""
 
     def __init__(self, voice, language, work):
         self.voice, self.language, self.work = voice, language, work
         self.cache = {}
+        self.speaker = "S1"
 
     def path_for(self, text):
-        if text not in self.cache:
+        key = (text, self.speaker)
+        if key not in self.cache:
             path = os.path.join(self.work, "%s-line-%03d.wav" % (self.language, len(self.cache)))
-            self.voice.synthesize(text, self.language, path)
-            self.cache[text] = (path, providers.audio_seconds(path))
-        return self.cache[text][0]
+            self.voice.synthesize(text, self.language, path, self.speaker)
+            self.cache[key] = (path, providers.audio_seconds(path))
+        return self.cache[key][0]
 
     def __call__(self, text):
         self.path_for(text)
-        return self.cache[text][1]
+        return self.cache[(text, self.speaker)][1]
 
 
-def plan_language(segments, language, translator, voice, terms, work, max_stretch):
+def plan_language(segments, language, translator, voice, terms, work, max_stretch,
+                  subtitles_mode="full"):
     measure = Measurer(voice, language, work)
-    fits, subtitles = [], []
+    fits, subtitles, notes = [], [], []
     for n, seg in enumerate(segments):
         full, shorter = translator.translate(seg, language, terms)
+        if translator.last_note:
+            notes.append((seg, translator.last_note))
         following = segments[n + 1] if n + 1 < len(segments) else None
+        measure.speaker = seg.speaker
         fit = sync.fit_line(seg, following, [full] + shorter, measure, max_stretch)
         fits.append((fit, measure.path_for(fit.wording)))
-        subtitles.append((seg, full))
-    return fits, subtitles
+        subtitles.append((seg, full if subtitles_mode == "full" else fit.wording))
+    return fits, subtitles, notes
 
 
 def render_language(video, duration, background, fits, subtitles, out_video, out_srt, work):
@@ -184,6 +192,9 @@ def build_parser():
         p.add_argument("--dnt", help="comma separated do not translate terms")
         p.add_argument("--separator", default="duck", choices=("duck", "demucs"))
         p.add_argument("--max-stretch", type=float, default=sync.MAX_STRETCH)
+        p.add_argument("--subtitles", default="full", choices=("full", "spoken"),
+                       help="full: the full translation (default, per issue #77 and the "
+                            "proposal); spoken: exactly the wording that was voiced")
         p.add_argument("--out", default="dub-out")
     return parser
 
@@ -209,13 +220,13 @@ def main(argv=None, stdout=None, stderr=None):
         plans = {}
         for language in brief["languages"]:
             plans[language] = plan_language(segments, language, translator, voice, terms,
-                                            work, args.max_stretch)
+                                            work, args.max_stretch, args.subtitles)
     except (DubError, providers.ProviderError, sync.SyncError) as err:
         shutil.rmtree(work, ignore_errors=True)
         stderr.write("error: %s\n" % err)
         return 2
 
-    for language, (fits, _) in plans.items():
+    for language, (fits, _, _) in plans.items():
         for fit, _ in fits:
             stdout.write("%s seg %d  %6.2f-%6.2fs  %s%s\n" % (
                 language, fit.segment.index, fit.segment.start, fit.segment.end, fit.note(),
@@ -229,7 +240,7 @@ def main(argv=None, stdout=None, stderr=None):
     try:
         background = separator.background(args.video, os.path.join(work, "background.wav"))
         files = {}
-        for language, (fits, subtitles) in plans.items():
+        for language, (fits, subtitles, _) in plans.items():
             video_out = out_dir / ("%s.%s.mp4" % (stem, language))
             srt_out = out_dir / ("%s.%s.srt" % (stem, language))
             render_language(args.video, duration, background, fits, subtitles,
@@ -245,11 +256,16 @@ def main(argv=None, stdout=None, stderr=None):
         "source": os.path.basename(args.video), "duration": round(duration, 3),
         "transcriber": engine, "translator": translator.name, "voice": brief["voice"],
         "separator": separator.name, "max_stretch": args.max_stretch,
-        "protected_terms": terms, "files": files,
-        "lines": {lang: [{"segment": f.segment.index, "start": f.segment.start,
-                          "end": f.segment.end, "spoken": f.wording, "note": f.note(),
-                          "flagged": f.flagged} for f, _ in fits]
-                  for lang, (fits, _) in plans.items()},
+        "subtitles": args.subtitles, "protected_terms": terms, "files": files,
+        "speakers": dict(getattr(voice, "assigned", {})),
+        "source_lines": len(segments),
+        "lines": {lang: [{"segment": f.segment.index, "speaker": f.segment.speaker,
+                          "start": f.segment.start, "end": f.segment.end,
+                          "spoken": f.wording, "note": f.note(), "flagged": f.flagged}
+                         for f, _ in fits]
+                  for lang, (fits, _, _) in plans.items()},
+        "translation_notes": {lang: [{"segment": sg.index, "note": nt} for sg, nt in notes]
+                              for lang, (_, _, notes) in plans.items()},
     }
     (out_dir / "manifest.json").write_text(json.dumps(manifest, indent=2, ensure_ascii=False)
                                            + "\n", encoding="utf-8")
@@ -265,10 +281,17 @@ def write_report(path, manifest):
     sep_note = ("local ducking of the original mix (speech band cut and lowered), not true "
                 "source separation" if manifest["separator"] == "duck"
                 else "demucs source separation (no_vocals stem)")
-    lines += ["- Voice: %s" % manifest["voice"], "- Background: %s" % sep_note,
+    voices = ", ".join("%s: %s" % kv for kv in manifest["speakers"].items()) or "one voice"
+    subs = ("the full translation of every line" if manifest["subtitles"] == "full"
+            else "exactly the wording that was voiced, line by line")
+    lines += ["- Voice: %s (%s)" % (manifest["voice"], voices),
+              "- Background: %s" % sep_note,
               "- Protected terms kept as written: %s" % (", ".join(manifest["protected_terms"])
                                                          or "none given"),
-              "- Subtitles carry the full translation of every line.", ""]
+              "- Subtitles: %s." % subs,
+              "- Lines: %d spoken lines in the original, each with a dubbed line in every "
+              "language. Untranslated lines: none (a line that cannot be translated or "
+              "fitted stops the job instead of being dropped)." % manifest["source_lines"], ""]
     for lang, entries in manifest["lines"].items():
         f = manifest["files"][lang]
         flagged = [e for e in entries if e["flagged"]]
@@ -277,10 +300,14 @@ def write_report(path, manifest):
         for e in flagged:
             lines.append("  - segment %d (%s to %s): %s" % (
                 e["segment"], srt_time(e["start"]), srt_time(e["end"]), e["note"]))
+        for n in manifest["translation_notes"].get(lang, []):
+            lines.append("- Hard to translate, segment %d: %s" % (n["segment"], n["note"]))
         tightened = [e for e in entries if "tightened" in e["note"]]
         if tightened:
-            lines.append("- Tightened wording spoken on segments %s; the subtitles keep the "
-                         "full wording." % ", ".join(str(e["segment"]) for e in tightened))
+            lines.append("- Tightened wording spoken on segments %s%s." % (
+                ", ".join(str(e["segment"]) for e in tightened),
+                "; the subtitles keep the full wording" if manifest["subtitles"] == "full"
+                else ""))
         lines.append("")
     path.write_text("\n".join(lines), encoding="utf-8")
 

@@ -40,12 +40,13 @@ def _has_flite():
 HAVE_MEDIA = _has_flite()
 DURATION = 20.0
 
-# Example data: the source segments (what the generated speech says).
+# Example data: the source segments (what the generated speech says) and
+# their speakers; two speakers, as in an interview.
 SEGMENTS = [
-    (1.0, 4.0, "Welcome to the Hojo storage guide"),
-    (5.0, 7.0, "Keep the battery cool"),
-    (9.0, 11.0, "Charge it to eighty percent"),
-    (11.2, 14.0, "Then store it on NEAR shelf mode for winter"),
+    (1.0, 4.0, "Welcome to the Hojo storage guide", "A"),
+    (5.0, 7.0, "Keep the battery cool", "B"),
+    (9.0, 11.0, "Charge it to eighty percent", "A"),
+    (11.2, 14.0, "Then store it on NEAR shelf mode for winter", "B"),
 ]
 
 # Example data: test glossary. Lengths are chosen against the stub voice
@@ -54,7 +55,8 @@ SEGMENTS = [
 # compressed (no genuine pause follows); seg 3 needs its tightened wording.
 GLOSSARY = {
     "es": {
-        "0": "Bienvenidos a la guia de Hojo",
+        "0": {"text": "Bienvenidos a la guia de Hojo",
+              "note": "example note: greeting adapted to a plural audience"},
         "1": "Mantenga la bateria siempre fresca hoy",
         "2": "Carguela hasta ochenta por ciento",
         "3": {"text": "Despues guardela en el modo estante NEAR durante todo el invierno largo",
@@ -69,7 +71,7 @@ GLOSSARY = {
     },
 }
 TERMS = "Hojo,NEAR"
-FULL_CONSENT = {"speaker_consent": True, "consent_record": "example-consent-ref-001",
+FULL_CONSENT = {"basis": "speaker_consent", "consent_record": "example-consent-ref-001",
                 "rights_confirmed": True, "confirmed_by": "example rights holder"}
 
 
@@ -126,7 +128,7 @@ class ProtectionAndConsentTests(unittest.TestCase):
             providers.OwnVoice(None)
         for field in providers.CONSENT_FIELDS:
             partial = dict(FULL_CONSENT)
-            partial[field] = False if field in ("speaker_consent", "rights_confirmed") else ""
+            partial[field] = {"basis": "buyer_says_so", "rights_confirmed": False}.get(field, "")
             with self.assertRaises(providers.ConsentError, msg=field):
                 providers.OwnVoice(partial)
 
@@ -135,6 +137,17 @@ class ProtectionAndConsentTests(unittest.TestCase):
             providers.OwnVoice(FULL_CONSENT)
         self.assertNotIsInstance(ctx.exception, providers.ConsentError)
         self.assertIn("no voice cloning engine", str(ctx.exception))
+
+    def test_both_consent_bases_are_accepted_by_the_check(self):
+        for basis in providers.CONSENT_BASES:
+            providers.check_consent(dict(FULL_CONSENT, basis=basis))
+
+    def test_stock_voices_are_distinct_per_speaker(self):
+        flite = providers.FliteVoice("kal")
+        self.assertEqual(flite.voice_for("A"), "kal")
+        self.assertNotEqual(flite.voice_for("B"), "kal")
+        stub = providers.StubVoice()
+        self.assertNotEqual(stub.voice_for("A"), stub.voice_for("B"))
 
     def test_flite_refuses_other_languages(self):
         with self.assertRaises(providers.ProviderError):
@@ -152,7 +165,8 @@ class FixtureRunTests(unittest.TestCase):
         cls.segments = cls.dir / "segments.json"
         cls.segments.write_text(json.dumps({
             "engine": "example segments written for this test",
-            "segments": [{"start": a, "end": b, "text": t} for a, b, t in SEGMENTS]}),
+            "segments": [{"start": a, "end": b, "text": t, "speaker": sp}
+                         for a, b, t, sp in SEGMENTS]}),
             encoding="utf-8")
         cls.glossary = cls.dir / "glossary.json"
         cls.glossary.write_text(json.dumps(GLOSSARY), encoding="utf-8")
@@ -171,7 +185,7 @@ class FixtureRunTests(unittest.TestCase):
     @classmethod
     def _make_video(cls):
         inputs, labels = [], []
-        for k, (start, _, text) in enumerate(SEGMENTS):
+        for k, (start, _, text, _) in enumerate(SEGMENTS):
             txt = cls.dir / ("line%d.txt" % k)
             txt.write_text(text, encoding="utf-8")
             inputs += ["-f", "lavfi", "-i", "flite=textfile='%s':voice=slt" % txt]
@@ -226,6 +240,31 @@ class FixtureRunTests(unittest.TestCase):
         self.assertIn("segment 2", report)
         self.assertIn("compressed", report)
         self.assertIn("not true source separation", report)
+
+    def test_every_line_is_dubbed_in_every_language(self):
+        for lang in ("es", "fr"):
+            self.assertEqual(len(self.manifest["lines"][lang]), len(SEGMENTS))
+        self.assertIn("Untranslated lines: none",
+                      (self.out / "report.md").read_text(encoding="utf-8"))
+
+    def test_each_speaker_gets_a_distinct_voice(self):
+        voices = self.manifest["speakers"]
+        self.assertEqual(sorted(voices), ["A", "B"])
+        self.assertNotEqual(voices["A"], voices["B"])
+        self.assertEqual({l["speaker"] for l in self.manifest["lines"]["es"]}, {"A", "B"})
+
+    def test_translation_notes_reach_the_report(self):
+        report = (self.out / "report.md").read_text(encoding="utf-8")
+        self.assertIn("Hard to translate, segment 0", report)
+
+    def test_spoken_subtitle_mode_matches_the_voiced_wording(self):
+        out = self.dir / "spoken"
+        code = dubber.main(self.base("run", out) + ["--languages", "es", "--subtitles", "spoken"],
+                           stdout=io.StringIO(), stderr=io.StringIO())
+        self.assertEqual(code, 0)
+        srt = (out / "guide.es.srt").read_text(encoding="utf-8")
+        self.assertIn(GLOSSARY["es"]["3"]["shorter"][0], srt)
+        self.assertNotIn(GLOSSARY["es"]["3"]["text"], srt)
 
     def test_protected_terms_survive_in_outputs(self):
         for lang in ("es", "fr"):
