@@ -19,6 +19,7 @@ environment and its header comment says so.
 | CourtListener RECAP docket search | `courtlistener_recap.py` | none needed; optional `COURTLISTENER_TOKEN` from the environment |
 | FMCSA carrier data (Census File, SAFER, Licensing and Insurance) | `fmcsa_carrier.py` | none needed |
 | Google PageSpeed Insights (Lighthouse) | `pagespeed_snapshot.py` | free key from `PAGESPEED_API_KEY`; keyless requests are answered 429 (quota 0) |
+| SEC EDGAR Form D filings | `edgar_formd.py` | none needed; an operator contact for the User-Agent is required (`--contact` or `EDGAR_CONTACT`) |
 
 Not a fetcher: `pregate.py` is the offline review pre gate (secrets scan,
 honesty lint, fixture provenance check) from `REVIEW.md`. See
@@ -402,6 +403,71 @@ path parser runs on a hand built structure that is labelled synthetic at
 the place it appears and carries placeholder values, because no
 successful live response was available. The fetch tests run against a
 local server on 127.0.0.1.
+
+## edgar_formd.py
+
+```sh
+python3 tools/edgar_formd.py --contact "Your Name you@example.com" --cik 2156237
+python3 tools/edgar_formd.py --contact "Your Name you@example.com" --issuer "8VC DSS III"
+EDGAR_CONTACT="Your Name you@example.com" python3 tools/edgar_formd.py --cik 320193
+python3 tools/edgar_formd.py --cik 1801756 --max-filings 2 \
+  --exclude 0001801756-23-000001="older amendment superseded by the one listed above"
+```
+
+Given a CIK or an issuer name, the fetcher queries the public EDGAR
+APIs and prints one Markdown section: with `--issuer`, the EDGAR company
+search (exactly one match proceeds, several are listed with their CIKs
+for the operator to pick with `--cik`, none is proven by the raw
+response); then the submissions index for the CIK, where Form D filings
+are the entries whose form is `D` or `D/A`; then, for each Form D filing
+up to `--max-filings`, the filing's `primary_doc.xml` parsed into one
+claim block: issuer name and CIK, form type and filing date (from the
+index), date of first sale, total offering amount, total amount sold,
+total remaining, investors, industry group, federal exemptions, and the
+filing index page link, each value as shown. A value the XML does not
+carry prints as "not present in the filing XML". Every request prints
+its exact URL, UTC retrieval time, source link, and complete raw HTTP
+transcript directly beneath the link. Zero Form D filings is proven by
+the submissions transcript; when the index names older index files
+beyond its recent window, the section says they were not queried.
+
+Exclusions are operator supplied with `--exclude ACCESSION=reason`
+(repeatable), rendered as "Checked and excluded" on that filing's
+block; an accession not in the submissions response is refused. The tool
+never decides relevance or picks an issuer.
+
+Fair access is enforced, not optional. The SEC states the limit and the
+user agent it expects.
+Source: <https://www.sec.gov/search-filings/edgar-search-assistance/accessing-edgar-data> (retrieved 2026-10-23T03:41:45Z, HTTP 200)
+```html
+	<li><strong>Current max request rate: 10 requests/second.</strong></li>
+```
+```html
+			<p>Sample Company Name AdminContact@&lt;sample company domain&gt;.com</p>
+```
+The tool sends `User-Agent: tiny-ledger edgar_formd.py <contact>` and
+refuses to run without a contact that contains an email address. It
+paces requests to at most one every 0.2 seconds (5 per second). The
+contact must be the plain "Name you@example.com" form: on 2026-10-23
+EDGAR answered 403 "Your Request Originates from an Undeclared
+Automated Tool" to a contact carrying a URL in parentheses (captured as
+`tests/fixtures/edgar/undeclared-403.http`), so URLs, parentheses and
+brackets are refused up front.
+
+Any non-200 answer, non-JSON index, or malformed XML stops the run with
+a diagnostic on stderr and no report on stdout.
+
+### Verification
+
+```sh
+python3 -m unittest discover -s tools/tests -v
+EDGAR_LIVE=1 EDGAR_CONTACT="Your Name you@example.com" python3 -m unittest discover -s tools/tests -v
+```
+
+Offline tests use the unmodified captures in `tests/fixtures/edgar/`;
+`provenance.json` there records each URL, UTC retrieval time, status
+line and SHA-256 digest. The optional live test runs the CLI against
+EDGAR for one CIK and needs a real contact in `EDGAR_CONTACT`.
 
 ## Tests
 
