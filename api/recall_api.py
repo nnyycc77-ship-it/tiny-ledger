@@ -61,6 +61,7 @@ SERVICE_NAME = "Hojo Research Agent recall check"
 TEXT_MD = "text/markdown; charset=utf-8"
 TEXT_PLAIN = "text/plain; charset=utf-8"
 APP_JSON = "application/json; charset=utf-8"
+OPENAPI_FILE = ROOT / "api" / "openapi.json"
 
 
 class ConfigError(ValueError):
@@ -231,6 +232,17 @@ def handle(method, path, query_string, wallet):
         if method != "GET":
             return reply("405 Method Not Allowed", TEXT_PLAIN, "GET only.\n")
         return reply("200 OK", APP_JSON, json.dumps(descriptor(wallet), indent=2) + "\n")
+    if path == "/openapi.json":
+        # The shipped api/openapi.json, served byte for byte as it is on disk
+        # (issue #85). A public descriptor like GET /: the payment gate only
+        # intercepts /recall, so this route is never paid.
+        if method != "GET":
+            return reply("405 Method Not Allowed", TEXT_PLAIN, "GET only.\n")
+        try:
+            body = OPENAPI_FILE.read_bytes()
+        except OSError as err:
+            return reply("503 Service Unavailable", TEXT_PLAIN, "OpenAPI document unavailable: %s\n" % err)
+        return "200 OK", [("Content-Type", APP_JSON), ("Content-Length", str(len(body)))] + common, body
     if path in endpoints.ROUTES:
         if method != "GET":
             return reply("405 Method Not Allowed", TEXT_PLAIN, "GET only.\n")

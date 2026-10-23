@@ -192,6 +192,47 @@ class RoutingTests(unittest.TestCase):
         self.assertEqual(recall_api.handle("POST", "/recall", "product=x", None)[0], "405 Method Not Allowed")
 
 
+class OpenApiRouteTests(unittest.TestCase):
+    """GET /openapi.json serves the shipped api/openapi.json (issue #85)."""
+
+    SHIPPED = (ROOT / "api" / "openapi.json").read_bytes()
+
+    def test_serves_the_shipped_file_byte_for_byte(self):
+        status, headers, body = recall_api.handle("GET", "/openapi.json", "", WALLET)
+        self.assertEqual(status, "200 OK")
+        self.assertEqual(dict(headers)["Content-Type"], recall_api.APP_JSON)
+        self.assertEqual(dict(headers)["Content-Length"], str(len(self.SHIPPED)))
+        self.assertEqual(body, self.SHIPPED)
+
+    def test_body_parses_as_openapi_naming_recall(self):
+        doc = json.loads(recall_api.handle("GET", "/openapi.json", "", None)[2])
+        self.assertIsInstance(doc.get("openapi"), str)
+        self.assertIn("/recall", doc["paths"])
+        self.assertEqual(doc, json.loads(self.SHIPPED))
+
+    def test_get_only(self):
+        self.assertEqual(recall_api.handle("POST", "/openapi.json", "", None)[0], "405 Method Not Allowed")
+
+    def test_unreadable_file_is_503_not_an_empty_document(self):
+        with patch.object(recall_api, "OPENAPI_FILE", ROOT / "api" / "no-such-openapi.json"):
+            status, _, body = recall_api.handle("GET", "/openapi.json", "", None)
+        self.assertEqual(status, "503 Service Unavailable")
+        self.assertIn(b"OpenAPI document unavailable", body)
+
+    def test_not_payment_gated(self):
+        from api import payment_gate
+        gated = payment_gate.build_app({"PAYOUT_WALLET_ADDRESS": WALLET})
+        captured = {}
+
+        def start_response(status, headers, exc_info=None):
+            captured["status"] = status
+
+        body = b"".join(gated({"REQUEST_METHOD": "GET", "PATH_INFO": "/openapi.json", "QUERY_STRING": "",
+                               "wsgi.url_scheme": "http", "HTTP_HOST": "127.0.0.1"}, start_response))
+        self.assertEqual(captured["status"], "200 OK")
+        self.assertEqual(body, self.SHIPPED)
+
+
 class _Quiet(WSGIRequestHandler):
     def log_message(self, *args):
         pass
