@@ -22,9 +22,13 @@ This file is repo work only. Nothing here was done on the dashboard,
 deployed, or paid for. Every dashboard step is the owner's, taken when the
 owner chooses.
 
-**Items marked TO CONFIRM** are facts the repo record does not hold. They
-are asked on #123 (comment 6371817865) and are filled in here only from
-an answer on that issue, never guessed.
+**Where the facts come from.** Facts the repo record does not hold were
+asked on #123 (comment 6371817865). The coordinator answered them in
+[comment 6372123142](https://github.com/nnyycc77-ship-it/tiny-ledger/issues/123#issuecomment-6372123142),
+including a live probe of the gateway at about 18:36 UTC on 2026-10-23.
+The few that only the dashboard can show stay marked **TO CONFIRM AT THE
+DASHBOARD**, or are left as a blank the owner fills in. None of them is
+guessed.
 
 ## What this redeploy does not claim
 
@@ -87,9 +91,12 @@ Every box is checked before the owner acts.
   'litigation_screen', 'formd_check', 'nonprofit_check', 'awards_search',
   'pagespeed_snapshot']`.
 
-- [ ] **The live server lists one tool** before the redeploy:
-  `recall_check`, as issue #123 records. The outside verification below
-  starts by recording that count, so the difference is visible.
+- [ ] **The live server lists one tool** before the redeploy. The
+  coordinator's probe on 2026-10-23 at about 18:36 UTC (#123, comment
+  6372123142) showed `serverInfo` version `0.1.0` and one tool,
+  `recall_check`. Version 0.1.0 is the server version from PR #41, before
+  PRs #80 and #102 added tools. Running the outside verification below once
+  before the redeploy records this baseline, so the difference is visible.
 
 - [ ] **`mcpize.yaml` is unchanged** since the pricing commit `f6fc36c`.
   The redeploy changes code, not the price, network or recipient:
@@ -98,9 +105,9 @@ Every box is checked before the owner acts.
   git diff --stat f6fc36c77a6993f8915d20056fd50124437cc1fa origin/main -- mcpize.yaml   # expect no output
   ```
 
-- [ ] **The owner has decided what happens to the environment values the
-  new tools read.** Names only; values are never written in this repo.
-  TO CONFIRM (#123, question 4).
+- [ ] **The owner has the environment values the new tools read ready**
+  for step 3 of the owner steps. This runbook names them; their values
+  are never written in this repo.
   - `EDGAR_CONTACT`: without it, `formd_check` answers an error and
     fetches nothing.
   - `PAGESPEED_API_KEY`: without it, `pagespeed_snapshot` reports the
@@ -108,29 +115,40 @@ Every box is checked before the owner acts.
   - `COURTLISTENER_TOKEN`: optional; without it, CourtListener applies
     its anonymous rate limit.
 
-- [ ] **The owner has decided pricing for the six new tools.** The
-  manifest prices `recall_check` only, at 0.05 USDC per call, so the
-  six new tools go live unpriced unless the owner prices them as a
-  separate decision. TO CONFIRM (#123, question 5).
+- [ ] **Pricing stays as it is** (coordinator, #123). `mcpize.yaml` is
+  untouched, and `recall_check` stays the one priced tool at 0.05 USDC per
+  call. The six new tools go live unpriced unless the owner prices them as
+  a separate decision. Per tool prices live in the dashboard's Payments
+  tab, which is the runtime source of truth.
 
 ## Owner steps on the MCPize dashboard
 
-**These steps are TO CONFIRM (#123, question 1).** The repo record
-(`packaging/mcpize/DEPLOYMENT.md`) quotes the MCPize GitHub app's PR #45
-and the coordinator's reading of the publish and monetization pages. It
-does not describe the dashboard's screens, so no button label or screen
-result is written here until it is confirmed.
+The owner deployed this server from the MCPize dashboard, with auto deploy
+on push off. Neither the repo record nor the MCPize publish page names the
+dashboard's redeploy control or its progress screens for this server, so
+those labels stay **TO CONFIRM AT THE DASHBOARD**. The owner can write
+them in at the time.
 
-| # | Owner action | Expected result on screen |
+| # | Owner action | Expected result |
 | --- | --- | --- |
-| 1 | Open the server `recallcheck` (the slug in `mcpize.yaml`) in the MCPize dashboard. | TO CONFIRM |
-| 2 | Note the deployment shown as current (commit or deployment id) and copy it into the Rollback section below. | TO CONFIRM |
-| 3 | Start one redeploy from the deploy commit recorded in Preconditions. | TO CONFIRM |
-| 4 | Wait for the build to finish and confirm that the deployment now shown as current is the deploy commit. | TO CONFIRM |
-| 5 | Leave pricing as it is, unless the owner decided otherwise in Preconditions. | Price for `recall_check` still 0.05 USDC (dashboard and `mcpize.yaml` agree) |
+| 1 | Open the server `recallcheck` (the slug in `mcpize.yaml`) in the MCPize dashboard. | The server's page. |
+| 2 | Write down the deployment shown as current, in the Rollback section below: **date or id as shown: ______**. | The deployment live before this redeploy, which serves version 0.1.0 with one tool. Whether the dashboard lists earlier deployments is TO CONFIRM AT THE DASHBOARD. |
+| 3 | In the server's environment or secrets settings, set `EDGAR_CONTACT` and `PAGESPEED_API_KEY`. | Both names present. Their values are entered on the dashboard only, never in this repo or in any issue. |
+| 4 | Use the server's redeploy or deploy-latest control (**label: TO CONFIRM AT THE DASHBOARD**) to deploy from the deploy commit recorded in Preconditions. | A build that finishes with a healthy status. The screen wording is TO CONFIRM AT THE DASHBOARD. |
+| 5 | Leave the Payments tab as it is. | `recall_check` still priced at 0.05 USDC per call, matching `mcpize.yaml`. The six new tools unpriced. |
 
-The owner takes this action once, and the coordinator runs the outside
-verification below.
+This is one owner action, with the environment values set in the same
+sitting. The coordinator then runs the outside verification below.
+
+**The CLI route, for reference only.** This is not the recorded flow for
+this server. The MCPize publish page
+(https://mcpize.com/developers/publish-mcp-server, as the coordinator read
+it for PR #44 and rechecked on 2026-10-23) documents `mcpize deploy`. It
+prints Building server package, Uploading to MCPize cloud, Provisioning
+infrastructure, Configuring HTTPS endpoint, Running health checks, then
+"Deployment successful!" with the server URL and "Status: healthy".
+Version bumps are `mcpize version patch|minor|major` or
+`mcpize deploy --bump patch`.
 
 ## Outside verification (coordinator, from a network that reaches MCPize)
 
@@ -138,9 +156,10 @@ verification below.
 paid proof call is a separate owner spend decision, made on its own and
 never bundled into this verification.
 
-**Endpoint:** TO CONFIRM (#123, question 3). Issue #118 names
-`https://recallcheck.mcpize.run/mcp`; PR #45 names
-`https://mcpize.com/mcp/recallcheck`.
+**Endpoint:** `https://recallcheck.mcpize.run/mcp`, the client gateway
+pinned in the program record (coordinator, #123).
+`https://mcpize.com/mcp/recallcheck`, named in PR #45, is the
+marketplace listing page, not the client endpoint.
 
 The script below speaks MCP's streamable HTTP transport:
 - one JSON-RPC message per POST;
@@ -185,13 +204,18 @@ post({"jsonrpc": "2.0", "id": 3, "method": "tools/call",
       "params": {"name": "recall_check", "arguments": {"product": "VH101"}}})
 ```
 
-What each step must show:
+What each step must show. The "before" column is the coordinator's live
+probe on 2026-10-23 at about 18:36 UTC (#123, comment 6372123142):
 
-| Step | Expected | Fails when |
-| --- | --- | --- |
-| `initialize` (anonymous) | A JSON-RPC result whose `serverInfo` is `{"name": "hojo-recall-check", "version": "0.3.0"}` (the version on `main` since PR #102). | An error, or an older `serverInfo` version, which means the redeploy did not take. |
-| `tools/list` | The seven tool names, in the order listed under Preconditions. | Any other count. One tool means the old build is still live. |
-| `tools/call recall_check`, unpaid | A 402 payment demand for 0.05 USDC on Base to the manifest's recipient. The HTTP status and where the x402 requirements appear (HTTP body or JSON-RPC error) are TO CONFIRM (#123, question 3). | A report or a tool error with no payment demand, which means the price is not enforced. |
+| Step | Before the redeploy (observed) | After the redeploy (expected) | Fails when |
+| --- | --- | --- | --- |
+| `initialize` (anonymous) | HTTP 200; `serverInfo` name "hojo-recall-check via MCPize", version "0.1.0", title "Tiny Ledger"; instructions name one tool, `recall_check` | HTTP 200; `serverInfo` version "0.3.0", the server version on `main` since PR #102, under the gateway's name form | It is not 200, or the version is still 0.1.0, which means the old build is live. |
+| `tools/list` | One tool, `recall_check` | Seven tools, in the order listed under Preconditions | Any other count or order. |
+| `tools/call recall_check`, unpaid | HTTP 402 with a JSON body, not a JSON-RPC error: `x402Version` 1, one `accepts` entry with `scheme` "exact", `network` "base", `maxAmountRequired` "50000" (0.05 USDC at 6 decimals), and `payTo` equal to the `recipient` in `mcpize.yaml` | The same 402 with the same values | Any status other than 402, a different amount or network, or a `payTo` that differs from `mcpize.yaml`. |
+
+The observed 402 body is quoted verbatim in the coordinator's comment. It
+is not repeated here, because the payout address appears in one place in
+this repo, `mcpize.yaml`, and the check above compares against that file.
 
 Record the full output of the run on issue #123, and on issue #38 as
 DEPLOYMENT.md asks, with the time of the run and the deploy commit.
@@ -245,32 +269,38 @@ an error that names the source, never an empty result.
   to five pages, measured at that moment. Without `PAGESPEED_API_KEY` on
   the server, the API answers 429 and that answer is the report.
 
-The pricing of the six tools after `recall_check` is TO CONFIRM (#123,
-question 5). Until the owner prices them, the listing names no price for
-them.
+`recall_check` is the one priced tool. The other six are unpriced at this
+redeploy (coordinator, #123), and the listing names no price for them
+until the owner sets one in the Payments tab.
 
 ## Rollback
 
-**The deployment to return to** is the one live before this redeploy,
-with one tool, `recall_check`.
+**The deployment to return to** is the one live immediately before this
+redeploy. On 2026-10-23 at about 18:36 UTC it served `serverInfo` version
+0.1.0 with one tool, `recall_check` (coordinator probe, #123).
 
-- **Its exact commit or MCPize deployment id is TO CONFIRM** (#123,
-  question 2). The owner records it at step 2 above before redeploying.
-- **What the repo record narrows down:**
+- **Deployment date or id, as the dashboard shows it** (the owner fills
+  this in at step 2): **______**
+- **No MCPize deployment id or build commit is on record in this repo.**
+  The record narrows it down:
   - the manifest arrived with PR #45 (merged 2026-10-23T03:00:23Z, merge
     commit `7ee4fef648d50468cbe6f1f846a73959273883e5`);
   - the pricing commit is `f6fc36c77a6993f8915d20056fd50124437cc1fa`;
-  - the first added tools merged at `f6a3e0c` (PR #80).
+  - version 0.1.0 predates PR #80 (`f6a3e0c`).
 
-  So a one-tool live build is consistent with a commit from before
-  `f6a3e0c`. That is consistent, not proven.
+  So the live build is consistent with a commit between those points.
+  That is consistent, not proven.
+- **Whether the dashboard keeps earlier deployments and offers a
+  rollback control is TO CONFIRM AT THE DASHBOARD.** If it does not, the
+  way back is a redeploy of the last commit before `f6a3e0c` that carries
+  the pricing block, which is `f6fc36c` or a later commit from before
+  PR #80. That is the owner's choice at the time.
 
-**When to roll back:** if the outside verification fails in a way that
-leaves the paid tool worse than before, for example `initialize` fails
-or the unpaid call returns no 402. The owner then redeploys that recorded
-deployment by the dashboard's own rollback or redeploy control (TO
-CONFIRM, #123, question 2), and the coordinator reruns the outside
-verification, expecting one tool and the 402.
+**When to roll back:** the outside verification shows the paid tool worse
+than before. For example, `initialize` fails, or the unpaid call returns
+no 402, or a 402 with a different amount or `payTo`. The coordinator then
+reruns the outside verification, expecting version 0.1.0, one tool and
+the 402.
 
 **When not to roll back:** a `recall_check` fetch failure that names its
 cause is the expected evidence, not a reason to roll back. The old build
