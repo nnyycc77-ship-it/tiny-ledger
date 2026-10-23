@@ -1,0 +1,9 @@
+{
+ "service": "formd",
+ "subject": "8VC DSS III",
+ "buyer_ask": "Does this issuer have Form D filings on EDGAR? List them with the offering figures as filed.",
+ "inputs": {
+  "issuer": "8VC DSS III",
+  "max_filings": 10
+ }
+}

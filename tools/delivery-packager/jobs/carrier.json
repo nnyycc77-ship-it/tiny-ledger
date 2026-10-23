@@ -1,0 +1,8 @@
+{
+ "service": "carrier",
+ "subject": "OLD DOMINION FREIGHT LINE INC (USDOT 90849)",
+ "buyer_ask": "Vet this motor carrier by USDOT number: census record, SAFER snapshot, and licensing and insurance, each with its source.",
+ "inputs": {
+  "usdot": "90849"
+ }
+}

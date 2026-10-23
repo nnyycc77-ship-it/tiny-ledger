@@ -1,0 +1,18 @@
+{
+ "service": "recall",
+ "subject": "Peloton Tread+",
+ "buyer_ask": "Is there a CPSC recall on record for the Peloton Tread+? Show the recall and its source.",
+ "inputs": {
+  "queries": [
+   {
+    "field": "ProductName",
+    "value": "Tread+"
+   },
+   {
+    "field": "RecallNumber",
+    "value": "21-128"
+   }
+  ],
+  "exact_name": "Tread+"
+ }
+}

@@ -1,0 +1,9 @@
+{
+ "service": "awards",
+ "subject": "Boeing",
+ "buyer_ask": "Show the largest federal prime contract awards to this recipient on USAspending.",
+ "inputs": {
+  "recipient": "Boeing",
+  "limit": 2
+ }
+}

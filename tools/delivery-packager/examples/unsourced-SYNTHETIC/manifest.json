@@ -1,0 +1,69 @@
+{
+ "format": "tiny-ledger delivery package",
+ "version": 1,
+ "tool": "tools/delivery_packager.py",
+ "service": "recall",
+ "subject": "Peloton Tread+ (SYNTHETIC unsourced test input)",
+ "buyer_ask": "Is there a CPSC recall on record for the Peloton Tread+? Show the recall and its source.",
+ "inputs": {
+  "queries": [
+   {
+    "field": "ProductName",
+    "value": "Tread+"
+   },
+   {
+    "field": "RecallNumber",
+    "value": "21-128"
+   }
+  ],
+  "exact_name": "Tread+"
+ },
+ "mode": "replay",
+ "packaged_utc": "2026-10-23T23:52:48Z",
+ "report_file": "report.md",
+ "deliverable_sha256": "e474b98382e66ec3ebd714c42bb20bb5fe9c8ffc27a5924e1349058eaa871975",
+ "sections": [
+  {
+   "id": "S1",
+   "title": "CPSC ProductName query \"Tread+\"",
+   "captures": [
+    {
+     "url": "https://www.saferproducts.gov/RestWebServices/Recall?format=json&ProductName=Tread%2B",
+     "request": null,
+     "retrieved_utc": "2026-10-23T21:57:25Z",
+     "evidence_sha256": "4a9b73ccee6dc0e957bbafe310f41aaff91464bbe293e922c27ba72ffe63900c",
+     "origin": "replayed from tools/examples/standing-watch/snapshot-run1-2026-10-23.json, entry product:peloton-tread, response 1 (live run 2026-10-23T21:57:11Z; SHA-256 4a9b73ccee6dc0e957bbafe310f41aaff91464bbe293e922c27ba72ffe63900c as recorded)"
+    }
+   ],
+   "counts": [
+    {
+     "rule": "cpsc_records",
+     "capture_url": "https://www.saferproducts.gov/RestWebServices/Recall?format=json&ProductName=Tread%2B",
+     "label": "CPSC records returned for the ProductName query \"Tread+\"",
+     "value": "1"
+    }
+   ]
+  },
+  {
+   "id": "S2",
+   "title": "CPSC RecallNumber query \"21-128\"",
+   "captures": [
+    {
+     "url": "https://www.saferproducts.gov/RestWebServices/Recall?format=json&RecallNumber=21-128",
+     "request": null,
+     "retrieved_utc": "2026-10-23T21:57:24Z",
+     "evidence_sha256": "3df43c84a1bc24258dc64ff6eca01985b40bef4e8961301225fd47d5116d1706",
+     "origin": "replayed from tools/examples/standing-watch/snapshot-run1-2026-10-23.json, entry product:peloton-tread, response 0 (live run 2026-10-23T21:57:11Z; SHA-256 3df43c84a1bc24258dc64ff6eca01985b40bef4e8961301225fd47d5116d1706 as recorded)"
+    }
+   ],
+   "counts": [
+    {
+     "rule": "cpsc_records",
+     "capture_url": "https://www.saferproducts.gov/RestWebServices/Recall?format=json&RecallNumber=21-128",
+     "label": "CPSC records returned for the RecallNumber query \"21-128\"",
+     "value": "1"
+    }
+   ]
+  }
+ ]
+}

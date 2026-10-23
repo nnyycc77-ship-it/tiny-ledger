@@ -1,0 +1,12 @@
+{
+ "courtlistener-search-jabil-inc.json": {
+  "url": "https://www.courtlistener.com/api/rest/v4/search/?type=d&q=party%3A%28%22Jabil+Inc.%22%29&filed_after=2021-10-22&order_by=dateFiled+desc",
+  "retrieved_utc": "2026-10-23T23:51:03Z",
+  "http_status": 200,
+  "captured_by": "the coordinator, live, from a working egress environment, no API token used; posted verbatim on issue #154 (Option B: H1's environment could not reach the host)",
+  "posted_at": "https://github.com/nnyycc77-ship-it/tiny-ledger/issues/154#issuecomment-6377076098",
+  "transcript_form": "response body only, exactly as posted (the JSON inside the comment's code fence, no trailing newline, 15,532 bytes); the status line and headers were not captured. The replay status line HTTP/1.1 200 OK is built from the stated HTTP 200 and is labelled as such in every package that uses it.",
+  "status_line_for_replay": "HTTP/1.1 200 OK",
+  "sha256": "11798cc9d090bd9e4913e803a86ff6ac0d925aaac699a77c08b16b9525997ee5"
+ }
+}

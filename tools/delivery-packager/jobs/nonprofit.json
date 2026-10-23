@@ -1,0 +1,8 @@
+{
+ "service": "nonprofit",
+ "subject": "Feeding America",
+ "buyer_ask": "Confirm this nonprofit's identity and its latest Form 990 figures on ProPublica Nonprofit Explorer.",
+ "inputs": {
+  "name": "Feeding America"
+ }
+}

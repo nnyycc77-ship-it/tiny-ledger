@@ -1,0 +1,42 @@
+{
+ "format": "tiny-ledger delivery package",
+ "version": 1,
+ "tool": "tools/delivery_packager.py",
+ "service": "litigation",
+ "subject": "Jabil Inc.",
+ "buyer_ask": "Screen this company for federal court cases filed in the last five years, with each case's role and status and its source.",
+ "inputs": {
+  "parties": [
+   "Jabil Inc."
+  ],
+  "filed_after": "2021-10-22",
+  "list": 10
+ },
+ "mode": "replay",
+ "packaged_utc": "2026-10-23T23:52:48Z",
+ "report_file": "report.md",
+ "deliverable_sha256": "ef32c9826d3797e5fd4c5383efa3b785737454fcb78dce0f602893d6be904e54",
+ "sections": [
+  {
+   "id": "S1",
+   "title": "CourtListener RECAP docket search, party \"Jabil Inc.\"",
+   "captures": [
+    {
+     "url": "https://www.courtlistener.com/api/rest/v4/search/?type=d&q=party%3A%28%22Jabil+Inc.%22%29&filed_after=2021-10-22&order_by=dateFiled+desc",
+     "request": null,
+     "retrieved_utc": "2026-10-23T23:51:03Z",
+     "evidence_sha256": "ec1aadfe4543174226acb3317389fe545b747e55d1425c0ad496f1dbad062ab8",
+     "origin": "replayed from tools/delivery-packager/captures/courtlistener-search-jabil-inc.json, response body only (SHA-256 11798cc9d090bd9e4913e803a86ff6ac0d925aaac699a77c08b16b9525997ee5, as recorded in its provenance.json; captured by the coordinator, live, from a working egress environment, no API token used, posted at https://github.com/nnyycc77-ship-it/tiny-ledger/issues/154#issuecomment-6377076098); the status line is built from the stated HTTP 200 and no headers were captured"
+    }
+   ],
+   "counts": [
+    {
+     "rule": "cl_window_count",
+     "capture_url": "https://www.courtlistener.com/api/rest/v4/search/?type=d&q=party%3A%28%22Jabil+Inc.%22%29&filed_after=2021-10-22&order_by=dateFiled+desc",
+     "label": "CourtListener result count in the window for party \"Jabil Inc.\"",
+     "value": "15"
+    }
+   ]
+  }
+ ]
+}

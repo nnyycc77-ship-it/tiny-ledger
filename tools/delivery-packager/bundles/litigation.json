@@ -1,0 +1,13 @@
+{
+ "about": "Capture bundle for tools/delivery_packager.py --replay. Every entry points at a capture already committed in this repository; the packager checks it against its recorded SHA-256, or rebuilds it byte for byte, before serving it.",
+ "captures": [
+  {
+   "kind": "courtlistener",
+   "url": "https://www.courtlistener.com/api/rest/v4/search/?type=d&q=party%3A%28%22Jabil+Inc.%22%29&filed_after=2021-10-22&order_by=dateFiled+desc",
+   "origin": {
+    "type": "body_only_fixture",
+    "file": "tools/delivery-packager/captures/courtlistener-search-jabil-inc.json"
+   }
+  }
+ ]
+}

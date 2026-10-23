@@ -1,0 +1,25 @@
+{
+ "about": "Capture bundle for tools/delivery_packager.py --replay. Every entry points at a capture already committed in this repository; the packager checks it against its recorded SHA-256, or rebuilds it byte for byte, before serving it.",
+ "captures": [
+  {
+   "kind": "cpsc",
+   "url": "https://www.saferproducts.gov/RestWebServices/Recall?format=json&RecallNumber=21-128",
+   "origin": {
+    "type": "standing_watch_snapshot",
+    "file": "tools/examples/standing-watch/snapshot-run1-2026-10-23.json",
+    "entry": "product:peloton-tread",
+    "index": 0
+   }
+  },
+  {
+   "kind": "cpsc",
+   "url": "https://www.saferproducts.gov/RestWebServices/Recall?format=json&ProductName=Tread%2B",
+   "origin": {
+    "type": "standing_watch_snapshot",
+    "file": "tools/examples/standing-watch/snapshot-run1-2026-10-23.json",
+    "entry": "product:peloton-tread",
+    "index": 1
+   }
+  }
+ ]
+}

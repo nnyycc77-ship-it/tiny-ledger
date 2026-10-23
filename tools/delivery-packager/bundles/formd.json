@@ -1,0 +1,29 @@
+{
+ "about": "Capture bundle for tools/delivery_packager.py --replay. Every entry points at a capture already committed in this repository; the packager checks it against its recorded SHA-256, or rebuilds it byte for byte, before serving it.",
+ "captures": [
+  {
+   "kind": "edgar",
+   "url": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&company=8VC+DSS+III&type=D&output=",
+   "origin": {
+    "type": "http_fixture",
+    "file": "tools/tests/fixtures/edgar/lookup-one.http"
+   }
+  },
+  {
+   "kind": "edgar",
+   "url": "https://data.sec.gov/submissions/CIK0002156237.json",
+   "origin": {
+    "type": "http_fixture",
+    "file": "tools/tests/fixtures/edgar/submissions-2156237.http"
+   }
+  },
+  {
+   "kind": "edgar",
+   "url": "https://www.sec.gov/Archives/edgar/data/2156237/000215623726000001/primary_doc.xml",
+   "origin": {
+    "type": "http_fixture",
+    "file": "tools/tests/fixtures/edgar/formd-0002156237-26-000001.http"
+   }
+  }
+ ]
+}
