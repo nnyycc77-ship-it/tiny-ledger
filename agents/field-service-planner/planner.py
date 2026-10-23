@@ -693,6 +693,10 @@ class Day(object):
             return None
         strength, assumed, note = period.due(c, self.date)
         not_yet_due = strength < 0
+        if not_yet_due and (-strength * c.interval) > self.settings.lookahead:
+            # Due is judged per day: a customer due later in the period is not
+            # a valid pair for this day's gap (issue #87, item 3).
+            return None
         confidence = c.place.confidence
         certainty = "low" if assumed else ("high" if confidence == "high" else "medium")
         score = strength - (added / 60.0) * DRIVE_WEIGHT_PER_HOUR + CONFIDENCE_BONUS[confidence]
@@ -706,7 +710,8 @@ class Day(object):
         reason = "%s; adds %d min of driving; %s; address placed with %s confidence (%s)" % (
             note, round(added), later, confidence, c.place.source)
         if not_yet_due:
-            reason += "; included only because the buyer set the lookahead to %d day(s)" % self.settings.lookahead
+            reason += ("; not yet due on %s and included only because the buyer set the lookahead to %d day(s)"
+                       % (self.date.isoformat(), self.settings.lookahead))
         if assumed:
             reason += "; ranked below every customer with real due evidence"
         reason += period.merge_note(c)
@@ -905,6 +910,8 @@ def render(period, inputs):
     L.append("- " + RANK_NOTE)
     L.append("- Fit: a suggestion is made only when the drive to the customer, the assumed visit and the drive on to the "
              "next job all fit before that job's planned start (or before the shift ends), so no later job moves.")
+    L.append("- Per day: due and the lookahead window are judged against each gap's own day, so a customer due later in "
+             "the period is suggested only from the day it is due (or within the lookahead window of that day).")
     L.append("- Certainty: high when a last service date or open quote is recorded and the address was placed with high "
              "confidence; medium when recorded and placed with medium or low confidence; low when assumption based.")
     L.append("")

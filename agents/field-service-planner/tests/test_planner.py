@@ -288,9 +288,11 @@ class BackfillTests(unittest.TestCase):
         self.assertEqual(self.excluded["K20"], "no service plan, no known service type and no open quote: due date cannot be judged")
         self.assertEqual(self.excluded["K8"], "address could not be placed")
         self.assertTrue(self.excluded["K7"].startswith("not yet due: due on 2027-01-01"))
+        # K21 is due on 2026-11-04, after the single plan day: excluded, never scored
+        self.assertTrue(self.excluded["K21"].startswith("not yet due: due on 2026-11-04"))
         # K4 is due on 2026-11-19, after the day: not due according to the data, so not suggested by default
         self.assertEqual(self.excluded["K4"], "not yet due: due on 2026-11-19 (monthly plan, last service 2026-10-20), 16 day(s) after 2026-11-03")
-        for cid in ("K1", "K4", "K5", "K6", "K7", "K8", "K9", "K15", "K16", "K19", "K20"):
+        for cid in ("K1", "K4", "K5", "K6", "K7", "K8", "K9", "K15", "K16", "K19", "K20", "K21"):
             self.assertNotIn(cid, self.suggested)
 
     def test_each_customer_suggested_once_with_reason_and_certainty(self):
@@ -374,7 +376,7 @@ class BackfillTests(unittest.TestCase):
         k4 = [s for s in p.suggestions if s.customer.id == "K4"]
         self.assertEqual(len(k4), 1)
         self.assertTrue(k4[0].not_yet_due)
-        self.assertIn("included only because the buyer set the lookahead to 30 day(s)", k4[0].reason)
+        self.assertIn("not yet due on 2026-11-03 and included only because the buyer set the lookahead to 30 day(s)", k4[0].reason)
 
 
 class PeriodTests(unittest.TestCase):
@@ -410,6 +412,29 @@ class PeriodTests(unittest.TestCase):
             for seq in ranks.values():
                 self.assertEqual(seq, list(range(1, len(seq) + 1)))
                 self.assertLessEqual(len(seq), planner.DEFAULT_PER_GAP)
+
+    def test_customer_due_mid_period_is_not_suggested_before_its_due_day(self):
+        # Regression for issue #87 item 3: K21 is due on 2026-11-04. Exclusion is
+        # judged on the last day (so K21 is a candidate), but scoring must judge
+        # due per day: never on 2026-11-03, and never with a lookahead reason.
+        self.assertIn("K21", [c.id for c in self.p.candidates])
+        k21 = [s for s in self.p.suggestions if s.customer.id == "K21"]
+        self.assertEqual(len(k21), 1, "K21 fits a gap on a due day in this fixture")
+        self.assertGreaterEqual(k21[0].gap.day.date.isoformat(), "2026-11-04")
+        self.assertFalse(k21[0].not_yet_due)
+        self.assertNotIn("lookahead", k21[0].reason)
+        self.assertIn("due since 2026-11-04", k21[0].reason)
+        first_day = self.p.days[0]
+        for gap in first_day.gaps:
+            self.assertIsNone(first_day.score(gap, k21[0].customer))
+        # with a lookahead of 1 day the first day may take K21, and the reason says so plainly
+        argv = list(self.argv) + ["--lookahead-days", "1"]
+        p, _ = planner.load(planner.build_parser().parse_args(argv), env={})
+        p.run()
+        scored = p.days[0].score(p.days[0].gaps[0], next(c for c in p.candidates if c.id == "K21"))
+        self.assertIsNotNone(scored)
+        self.assertTrue(scored["not_yet_due"])
+        self.assertIn("not yet due on 2026-11-03 and included only because the buyer set the lookahead to 1 day(s)", scored["reason"])
 
     def test_report_has_one_block_per_day(self):
         code, text, err = run(self.argv)

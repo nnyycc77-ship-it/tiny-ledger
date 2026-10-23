@@ -26,6 +26,27 @@ richest record, assumption based customers ranked below real due evidence,
 typical intervals by service type, do not contact and opted out as hard
 exclusions) are built in as described under "The rules, as built".
 
+### Reconciliation with the proposal (issue #87)
+
+The first build (PR #83) followed issue #73's paraphrase of the proposal in
+two places and the README wrongly said the proposal had not been supplied.
+Both are corrected here, forward only:
+
+- (a) Duplicates: the proposal merges on name and address similarity,
+  keeping the richest record and flagging the merge; the first build
+  deduped on exact normalized name plus address and kept the first row.
+  Now: similarity merge into the richest record, every merge flagged.
+- (b) Missing last service date: the proposal falls back on typical
+  intervals by service type and ranks such customers below real due
+  evidence; the first build used the customer's own `service_plan` interval
+  and scored the case as one full interval elapsed, which could rank it
+  first. Now: the plan interval when stated, else a typical interval by
+  `service_type`, and every assumption based suggestion ranks below every
+  evidence based one.
+- Also fixed: due and the lookahead window are judged per day, so a
+  customer due later in a multi day period is not suggested for an earlier
+  day (the reviewer's probe on PR #83).
+
 ## What the buyer provides
 
 Three CSV files with a header row (UTF-8; a BOM is tolerated). Column names
@@ -180,6 +201,9 @@ with light days is `tests/fixtures/jobs-week.csv` run with `--date-to`.
 - Fit: the drive to the customer, the visit and the drive on to the next
   job must fit before that job's planned start (or the shift end), so no
   later job moves.
+- Per day: due and the lookahead window are judged against each gap's own
+  day; a customer due later in the period is suggested only from the day
+  it is due.
 - Certainty: `high` with a recorded last service date and a high confidence
   placement; `medium` with a recorded date and medium or low placement;
   `low` when assumption based.

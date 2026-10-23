@@ -108,6 +108,11 @@
       "lat": 40.005,
       "lon": -75.005,
       "confidence": "high"
+    },
+    "9 Midway Avenue, Sampletown": {
+      "lat": 40.02,
+      "lon": -75.005,
+      "confidence": "high"
     }
   },
   "travel": {
