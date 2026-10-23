@@ -80,7 +80,8 @@ class ListingTests(unittest.TestCase):
     def test_price_arithmetic_inputs_are_sourced_in_the_text(self):
         self.assertIn("six named consumer products", LISTING)
         self.assertIn("10 USD / 6 = 1.67 USD", LISTING)
-        self.assertIn("not yet verified on the", LISTING)
+        self.assertIn("The page itself was not read from the build", LISTING)
+        self.assertIn("0.01 to 100 USDC", LISTING)
 
     def test_entry_point_and_env_value_named_in_deployment_notes(self):
         self.assertIn("python3 -m mcp_server", DEPLOYMENT)
@@ -100,9 +101,11 @@ class ListingTests(unittest.TestCase):
         self.assertIn("name: recall_check", manifest)
         self.assertIn("name: hojo-recall-check", manifest)
         self.assertIn("runtime: python3.12", manifest)
-        # Pricing and the recipient wallet live in the MCPize dashboard, never here.
-        for forbidden in ("pricing", "recipient", "wallet:", "price:", "0x"):
-            self.assertNotIn(forbidden, manifest.lower() if forbidden == "pricing" else manifest, forbidden)
+        # Pricing and the recipient wallet live in the MCPize dashboard, never here:
+        # no pricing, price, recipient, wallet or address key on any non-comment line.
+        keys_and_values = "\n".join(l for l in manifest.splitlines() if not l.lstrip().startswith("#"))
+        for forbidden in ("pricing", "price:", "recipient", "wallet", "0x"):
+            self.assertNotIn(forbidden, keys_and_values.lower(), forbidden)
         self.assertEqual(sorted(p.name for p in FOLDER.iterdir()),
                          [".gitattributes", "DEPLOYMENT.md", "LISTING.md", "README.md", "mcpize.yaml"])
 
