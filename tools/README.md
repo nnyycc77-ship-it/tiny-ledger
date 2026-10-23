@@ -19,6 +19,7 @@ environment and its header comment says so.
 | CourtListener RECAP docket search | `courtlistener_recap.py` | none needed; optional `COURTLISTENER_TOKEN` from the environment |
 | FMCSA carrier data (Census File, SAFER, Licensing and Insurance) | `fmcsa_carrier.py` | none needed |
 | Google PageSpeed Insights (Lighthouse) | `pagespeed_snapshot.py` | free key from `PAGESPEED_API_KEY`; keyless requests are answered 429 (quota 0) |
+| ProPublica Nonprofit Explorer (IRS Form 990 extracts) | `propublica_nonprofits.py` | none needed |
 
 Not a fetcher: `pregate.py` is the offline review pre gate (secrets scan,
 honesty lint, fixture provenance check) from `REVIEW.md`. See
@@ -416,3 +417,42 @@ The tests need no network. Their fixtures are verbatim copies of
 responses recorded in `deliveries/` or captured public responses with
 recorded provenance, and the fetch tests run against a local server
 on 127.0.0.1.
+
+## propublica_nonprofits.py
+
+```sh
+python3 tools/propublica_nonprofits.py --ein 53-0196605
+python3 tools/propublica_nonprofits.py --name 'American Red Cross' --ein 530196605 \
+  --exclude 204801016="separate local club, not the national organization"
+```
+
+Nonprofit diligence from the ProPublica Nonprofit Explorer API v2. These
+inputs are the ones captured live for the tests. Per EIN: the legal name,
+EIN, city and state from the `organization` block, then `tax_prd`,
+`totrevenue`, `totfuncexpns`, `totassetsend` and `totliabend` from the
+`filings_with_data` entry with the highest `tax_prd`. Each claim is followed
+by its source link and the exact `"key":value` text cut from the response
+body. A later filing listed only under `filings_without_data` is disclosed,
+so the figures are never presented as coming from the latest filing when
+they do not. `organization.tax_period` is printed with a label and no figure
+is taken from it. The response states no unit, so values are printed as
+shown.
+
+A `--name` search lists every result as shown. The tool does not choose the
+subject. It examines only the EINs given with `--ein` and any result whose
+name equals the search text, ignoring case and spacing. `--exclude
+EIN="reason"` lists a checked-and-excluded result with the operator's
+reason, and an exclusion for an EIN not in the response is refused. An empty
+search prints the complete raw response. Any transport failure, non-200
+status, or body that is not the expected JSON prints nothing on stdout and
+exits 2.
+
+```sh
+python3 -m unittest discover -s tools/tests -p 'test_propublica_nonprofits.py' -v
+PROPUBLICA_LIVE=1 python3 -m unittest discover -s tools/tests -p 'test_propublica_nonprofits.py' -v
+```
+
+The fixtures in `tests/fixtures/propublica/` are real response bodies. The
+coordinator captured them live and posted them verbatim on issue #47; their
+URLs, times and SHA-256 hashes are in `provenance.json`. Only the bodies
+were captured, not the status lines or headers.
