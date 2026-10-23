@@ -37,8 +37,8 @@
   },
   "index.json": {
     "label": "SYNTHETIC",
-    "sha256": "5f229dfddc9e1453eb3dd5362c47df91597f5b3d16a10772fc806b287bf031b3",
-    "bytes": 787
+    "sha256": "98c2a22cae22645a3711596cf6b838847713591e29c396369ab90d3ad110eeb4",
+    "bytes": 1050
   },
   "brief.json": {
     "label": "SYNTHETIC",
@@ -47,7 +47,14 @@
   },
   "outreach-log.json": {
     "label": "SYNTHETIC",
-    "sha256": "a51a34a576c25ff4579a3c3e0f8c94fbf02ee7be53fcf9fc62025d79e2b4f18c",
-    "bytes": 3162
+    "sha256": "72d7ac2a3084a8304cb1a5aab34ccd0f56aadc57aef4fc7e411fd31b941fbd11",
+    "bytes": 6062
+  },
+  "vendors/cedar-park.html": {
+    "url": "https://cedar-park-kitchen.invalid/catering",
+    "retrieved_utc": "2026-10-23T13:02:00Z (file written; SYNTHETIC, nothing was retrieved)",
+    "label": "SYNTHETIC",
+    "sha256": "f4de73f4951e03036f94e021be238aedc972d0011449eb4a1f1b46dfef7bd451",
+    "bytes": 917
   }
 }

@@ -1,36 +1,62 @@
 {
-  "_label": "SYNTHETIC outreach log written for the tests of issue #75. No message was sent to anyone; the sends and the reply below are invented to exercise the stated, asked-no-reply and drafted-not-sent paths.",
+  "_label": "SYNTHETIC outreach log written for the tests of issue #75. No message was sent to anyone; the sends and the replies below are invented to exercise the stated, asked-no-reply, drafted-not-sent and declined paths. The draft texts were produced by catering_finder.draft_all on the synthetic store.",
   "hire_id": null,
   "drafts": {
     "pecan-grove": {
       "vendor": "Pecan Grove Catering",
       "channel": "events@pecan-grove-catering.invalid",
-      "channel_source": {"url": "https://pecan-grove-catering.invalid/events", "line": 29},
+      "channel_source": {
+        "url": "https://pecan-grove-catering.invalid/events",
+        "line": 29
+      },
       "drafted_utc": "2026-10-21T13:00:00Z",
-      "message": "Subject: Catering enquiry for 2026-11-14, 60 guests, Austin, TX\n\nHello Pecan Grove Catering,\n\nWe are planning a buffet event on 2026-11-14 in Austin, TX for 60 guests, with a budget of 2400 USD.\nCould you tell us:\n1. Are you available on 2026-11-14?\n2. Which buffet menu options would you suggest for this group?\n3. What is the price per person, and what does it include?\n4. Can you cover these dietary needs, and how: nut allergy?\n\nThank you.\n\n(Contact channel as published: events@pecan-grove-catering.invalid)",
+      "message": "Subject: Group buffet enquiry for 2026-11-14, 60 guests, Austin, TX\n\nHello Pecan Grove Catering,\n\nI am contacting you on behalf of a customer who is planning a buffet event on 2026-11-14 in Austin, TX for 60 guests, with a budget of 2400 USD in total. This enquiry is prepared and sent by an automated assistant; if you would rather not be contacted this way again, reply saying so and we will stop.\nCould you tell us:\n1. Are you available on 2026-11-14 for a group of 60?\n2. Which buffet menu options would you suggest for this group?\n3. What is the price per person and the total for 60, and what does it include?\n4. Is there a minimum spend, a deposit, or cancellation terms we should know about?\n5. Can you cover these dietary needs, and how: nut allergy?\n\nWe are only collecting quotes at this stage; the customer decides on any booking. Thank you.\n\n(Contact channel as published: events@pecan-grove-catering.invalid)",
       "sent_utc": "2026-10-21T13:05:00Z",
       "reply": {
         "received_utc": "2026-10-21T16:40:00Z",
-        "text": "Thanks for asking. Yes, we are open on November 14. For a nut allergy we prepare the whole buffet nut-free and keep the pecan dishes off the menu, and we label every tray. Buffet is $22 per person as on our site."
+        "text": "Thanks for asking. Yes, we are open on November 14. For a nut allergy we prepare the whole buffet nut-free and keep the pecan dishes off the menu, and we label every tray. Buffet is $22 per person as on our site.",
+        "availability": "confirmed"
       }
     },
     "bluebonnet": {
       "vendor": "Bluebonnet Table",
       "channel": "Use our contact form and we reply within two business days.",
-      "channel_source": {"url": "https://bluebonnet-table.invalid/catering", "line": 20},
+      "channel_source": {
+        "url": "https://bluebonnet-table.invalid/catering",
+        "line": 19
+      },
       "drafted_utc": "2026-10-21T13:00:00Z",
-      "message": "Subject: Catering enquiry for 2026-11-14, 60 guests, Austin, TX\n\nHello Bluebonnet Table,\n\nWe are planning a buffet event on 2026-11-14 in Austin, TX for 60 guests, with a budget of 2400 USD.\nCould you tell us:\n1. Are you available on 2026-11-14?\n2. Which buffet menu options would you suggest for this group?\n3. What is the price per person, and what does it include?\n4. Can you cover these dietary needs, and how: vegan; gluten-free; nut allergy?\n\nThank you.\n\n(Contact channel as published: Use our contact form and we reply within two business days.)",
+      "message": "Subject: Group buffet enquiry for 2026-11-14, 60 guests, Austin, TX\n\nHello Bluebonnet Table,\n\nI am contacting you on behalf of a customer who is planning a buffet event on 2026-11-14 in Austin, TX for 60 guests, with a budget of 2400 USD in total. This enquiry is prepared and sent by an automated assistant; if you would rather not be contacted this way again, reply saying so and we will stop.\nCould you tell us:\n1. Are you available on 2026-11-14 for a group of 60?\n2. Which buffet menu options would you suggest for this group?\n3. What is the price per person and the total for 60, and what does it include?\n4. Is there a minimum spend, a deposit, or cancellation terms we should know about?\n5. Can you cover these dietary needs, and how: vegan; gluten-free; nut allergy?\n\nWe are only collecting quotes at this stage; the customer decides on any booking. Thank you.\n\n(Contact channel as published: Use our contact form and we reply within two business days.)",
       "sent_utc": "2026-10-21T13:06:00Z",
       "reply": null
     },
     "verde-kitchen": {
       "vendor": "Verde Kitchen Catering",
       "channel": "hello@verde-kitchen.invalid",
-      "channel_source": {"url": "https://verde-kitchen.invalid/", "line": 15},
+      "channel_source": {
+        "url": "https://verde-kitchen.invalid/",
+        "line": 16
+      },
       "drafted_utc": "2026-10-21T13:00:00Z",
-      "message": "Subject: Catering enquiry for 2026-11-14, 60 guests, Austin, TX\n\nHello Verde Kitchen Catering,\n\nWe are planning a buffet event on 2026-11-14 in Austin, TX for 60 guests, with a budget of 2400 USD.\nCould you tell us:\n1. Are you available on 2026-11-14?\n2. Which buffet menu options would you suggest for this group?\n3. What is the price per person, and what does it include?\n4. Can you cover these dietary needs, and how: nut allergy?\n\nThank you.\n\n(Contact channel as published: hello@verde-kitchen.invalid)",
+      "message": "Subject: Group buffet enquiry for 2026-11-14, 60 guests, Austin, TX\n\nHello Verde Kitchen Catering,\n\nI am contacting you on behalf of a customer who is planning a buffet event on 2026-11-14 in Austin, TX for 60 guests, with a budget of 2400 USD in total. This enquiry is prepared and sent by an automated assistant; if you would rather not be contacted this way again, reply saying so and we will stop.\nCould you tell us:\n1. Are you available on 2026-11-14 for a group of 60?\n2. Which buffet menu options would you suggest for this group?\n3. What is the price per person and the total for 60, and what does it include?\n4. Is there a minimum spend, a deposit, or cancellation terms we should know about?\n5. Can you cover these dietary needs, and how: nut allergy?\n\nWe are only collecting quotes at this stage; the customer decides on any booking. Thank you.\n\n(Contact channel as published: hello@verde-kitchen.invalid)",
       "sent_utc": null,
       "reply": null
+    },
+    "cedar-park": {
+      "vendor": "Cedar Park Kitchen Catering",
+      "channel": "orders@cedar-park-kitchen.invalid",
+      "channel_source": {
+        "url": "https://cedar-park-kitchen.invalid/catering",
+        "line": 19
+      },
+      "drafted_utc": "2026-10-21T13:00:00Z",
+      "message": "Subject: Group buffet enquiry for 2026-11-14, 60 guests, Austin, TX\n\nHello Cedar Park Kitchen Catering,\n\nI am contacting you on behalf of a customer who is planning a buffet event on 2026-11-14 in Austin, TX for 60 guests, with a budget of 2400 USD in total. This enquiry is prepared and sent by an automated assistant; if you would rather not be contacted this way again, reply saying so and we will stop.\nCould you tell us:\n1. Are you available on 2026-11-14 for a group of 60?\n2. Which buffet menu options would you suggest for this group?\n3. What is the price per person and the total for 60, and what does it include?\n4. Is there a minimum spend, a deposit, or cancellation terms we should know about?\n5. Can you cover these dietary needs, and how: nut allergy?\n\nWe are only collecting quotes at this stage; the customer decides on any booking. Thank you.\n\n(Contact channel as published: orders@cedar-park-kitchen.invalid)",
+      "sent_utc": "2026-10-21T13:07:00Z",
+      "reply": {
+        "received_utc": "2026-10-22T10:15:00Z",
+        "text": "Sorry, we are fully booked on November 14.",
+        "availability": "declined"
+      }
     }
   }
 }

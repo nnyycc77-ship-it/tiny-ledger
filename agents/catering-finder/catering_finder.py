@@ -13,20 +13,36 @@ printed with its source link and the raw page line it came from directly
 beneath, verbatim. A value the page does not state is reported as not
 published, never filled in.
 
-Dietary rule (the proposal for job f2a6a33d): coverage is never inferred
-from silence. A vendor shows as covering a dietary need only when
-  confirmed   the vendor's own published material says so (page line quoted), or
-  stated      the vendor answered the question (the recorded answer quoted, dated);
+Dietary rule (the bid proposal for job f2a6a33d, quoted on issue #75):
+coverage is never inferred from silence. A vendor shows as covering a
+dietary need only when
+  confirmed      the vendor's own published material says so (page line quoted), or
+  stated         the vendor answered the question (the recorded answer quoted, dated);
 otherwise the row reads
-  unconfirmed with the question's status: drafted and not sent, asked on a
-              date with no reply yet, or answered without addressing it.
+  not confirmed  with the question's status: drafted and not sent, asked on a
+                 date with no reply yet, or answered without addressing it.
+"not confirmed" is the wording of the job's acceptance criterion 3.
 
-Outreach (issue #75 item 3): this build drafts the questions and records
-them in an outreach log. Nothing is sent by this program. Under a real hire
-the operator sends each draft through the vendor's published channel and
-records the send and the reply with `record-sent` and `record-reply`; the
-`send` command exists only to refuse without a hire id and an explicit
---execute, and no live transport is part of this build.
+Availability (acceptance criterion 4): a vendor shows as available for the
+date only when its recorded answer says so; the report separates confirmed,
+declined and not confirmed, and keeps vendors who did not reply or declined
+(criterion 5). Prices, minimum spend, deposit and cancellation terms are
+printed exactly as the vendor's page or answer states them, never totalled
+or estimated (criterion 2); a price whose clause says "from" or "starting
+at" is marked a starting point. The brief's budget per head is the buyer's
+own number (budget divided by headcount) and is labelled so.
+
+Outreach (issue #75 item 3, job rules): every draft says it is sent on
+behalf of a customer by an automated assistant, asks only for a quote,
+shares no buyer contact details, and tells the vendor they can ask us to
+stop. This build drafts the questions and records them in an outreach
+log. Nothing is sent by this program. Under a real hire the operator sends
+each draft through the vendor's published channel and records the send and
+the reply with `record-sent` and `record-reply` (`--stop` records a vendor
+who asked not to be contacted again; no further draft is made for them);
+the `send` command exists only to refuse without a hire id and an explicit
+--execute, and no live transport is part of this build. The agent never
+books, accepts a quote or pays a deposit.
 
 Fail closed, as every tool in this repo does: a brief that does not
 validate, a store that cannot be read, a page that is missing, or a log
@@ -79,7 +95,8 @@ SERVICE_STYLES = {
     "buffet": ("buffet",),
     "plated": ("plated", "seated dinner", "sit-down dinner", "sit down dinner"),
     "family style": ("family style", "family-style"),
-    "drop-off": ("drop-off", "drop off", "delivered trays"),
+    "drop-off": ("drop-off", "drop off", "drop-off catering", "drop off catering", "delivered trays"),
+    "private dining room": ("private dining room", "private dining", "private room"),
     "food truck": ("food truck",),
     "boxed": ("boxed lunch", "boxed lunches", "boxed meals", "box lunch"),
 }
@@ -100,6 +117,13 @@ DIETARY_TERMS = {
 CAPACITY_RE = re.compile(
     r"(?i)(?:up to|maximum of|max(?:imum)?|capacity of|serve(?:s)? up to|groups? of up to)\s+(\d{1,3}(?:,\d{3})*)\s+(?:guests|people|persons|diners)")
 PRICE_RE = re.compile(r"\$\s?(\d{1,3}(?:,\d{3})*(?:\.\d{2})?)\s*(?:per person|/person|per guest|/guest|per head|pp\b)", re.I)
+MINIMUM_RE = re.compile(r"(?i)\bminimum\b")
+DEPOSIT_RE = re.compile(r"(?i)\bdeposit\b")
+CANCEL_RE = re.compile(r"(?i)\bcancel")
+STARTING_RE = re.compile(r"(?i)\b(?:from|starts? at|starting at|starting)\b")
+DECLINE_RE = re.compile(r"(?i)\b(?:not available|unavailable|fully booked|booked up|booked out|cannot|can't|unable to|no availability|decline)\b")
+AVAILABLE_RE = re.compile(r"(?i)\b(?:available|we are open|we're open|open on|happy to|we can do|we can cater|can accommodate|yes)\b")
+TIMESTAMP_RE = re.compile(r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(?::\d{2})?Z")
 EMAIL_RE = re.compile(r"[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}")
 PHONE_RE = re.compile(r"\(?\b\d{3}\)?[ .-]\d{3}[ .-]\d{4}\b")
 TAG_RE = re.compile(r"<[^>]+>")
@@ -184,13 +208,22 @@ def validate_brief(data):
     style = data["service_style"]
     if not isinstance(style, str) or not style.strip():
         raise ConfigError("brief service_style must be a non empty string")
+    event_time = data.get("time")
+    if event_time is not None and (not isinstance(event_time, str) or not re.fullmatch(r"[0-2]\d:[0-5]\d", event_time)):
+        raise ConfigError("brief time, when given, must be HH:MM")
+    deadline = data.get("response_deadline_utc")
+    if deadline is not None and (not isinstance(deadline, str) or not TIMESTAMP_RE.fullmatch(deadline)):
+        raise ConfigError("brief response_deadline_utc, when given, must be a UTC timestamp like 2026-11-10T17:00:00Z")
     return {
         "date": date,
+        "time": event_time,
         "location": location.strip(),
         "headcount": headcount,
         "budget_usd": budget,
+        "budget_per_head": budget / headcount,
         "dietary_needs": [" ".join(n.split()) for n in needs],
         "service_style": " ".join(style.split()),
+        "response_deadline_utc": deadline,
     }
 
 
@@ -386,6 +419,7 @@ def extract_prices(page):
         for m in PRICE_RE.finditer(text):
             claim = Claim("price per person (USD)", float(m.group(1).replace(",", "")), page, no)
             claim.context = price_context(text, m.start())
+            claim.starting = STARTING_RE.search(claim.context) is not None
             claim.style = None
             for key, terms in SERVICE_STYLES.items():
                 if any(t in claim.context.casefold() for t in (key,) + terms):
@@ -409,6 +443,21 @@ def prices_for_style(prices, style):
 def extract_dietary(page, need):
     hit = find_line(page, need_terms(need))
     return Claim("dietary: %s" % canonical_need(need), plain(page.lines[hit[0] - 1]), page, hit[0]) if hit else None
+
+
+def extract_terms(page):
+    """Lines stating a minimum, a deposit or cancellation terms, as shown; empty when none."""
+    out = []
+    for no, line in enumerate(page.lines, 1):
+        text = plain(line)
+        # One label per line: a cancellation line that mentions the deposit is cancellation terms.
+        if CANCEL_RE.search(text):
+            out.append(Claim("cancellation terms", text, page, no))
+        elif MINIMUM_RE.search(text):
+            out.append(Claim("minimum spend or order", text, page, no))
+        elif DEPOSIT_RE.search(text):
+            out.append(Claim("deposit terms", text, page, no))
+    return out
 
 
 def extract_contact(page):
@@ -462,21 +511,28 @@ def save_log(path, log):
 
 
 def draft_message(brief, page, unconfirmed_needs, contact):
+    """The vendor question draft. Per the job rules it says it is on behalf of a
+    customer and sent by an automated assistant, asks for a quote only, carries
+    no buyer contact details, and invites the vendor to ask us to stop."""
     needs = "; ".join(unconfirmed_needs) if unconfirmed_needs else "none beyond the menu"
+    when = brief["date"] + (" at %s" % brief["time"] if brief.get("time") else "")
     return "\n".join([
-        "Subject: Catering enquiry for %s, %d guests, %s" % (brief["date"], brief["headcount"], brief["location"]),
+        "Subject: Group %s enquiry for %s, %d guests, %s" % (brief["service_style"], when, brief["headcount"], brief["location"]),
         "",
         "Hello %s," % page.name,
         "",
-        "We are planning a %s event on %s in %s for %d guests, with a budget of %s USD."
-        % (brief["service_style"], brief["date"], brief["location"], brief["headcount"], fmt_money(brief["budget_usd"])),
+        "I am contacting you on behalf of a customer who is planning a %s event on %s in %s for %d guests, "
+        "with a budget of %s USD in total. This enquiry is prepared and sent by an automated assistant; "
+        "if you would rather not be contacted this way again, reply saying so and we will stop."
+        % (brief["service_style"], when, brief["location"], brief["headcount"], fmt_money(brief["budget_usd"])),
         "Could you tell us:",
-        "1. Are you available on %s?" % brief["date"],
+        "1. Are you available on %s for a group of %d?" % (when, brief["headcount"]),
         "2. Which %s menu options would you suggest for this group?" % brief["service_style"],
-        "3. What is the price per person, and what does it include?",
-        "4. Can you cover these dietary needs, and how: %s?" % needs,
+        "3. What is the price per person and the total for %d, and what does it include?" % brief["headcount"],
+        "4. Is there a minimum spend, a deposit, or cancellation terms we should know about?",
+        "5. Can you cover these dietary needs, and how: %s?" % needs,
         "",
-        "Thank you.",
+        "We are only collecting quotes at this stage; the customer decides on any booking. Thank you.",
         "",
         "(Contact channel as published: %s)" % (contact.value if contact else NOT_PUBLISHED),
     ])
@@ -491,6 +547,8 @@ def draft_all(brief, store, log):
     drafted = []
     for page in store["pages"]:
         if page.vendor_id in log["drafts"]:
+            continue
+        if page.vendor_id in log.get("stopped", []):
             continue
         if extract_style(page, brief["service_style"]) is None or extract_area(page, brief["location"]) is None:
             continue
@@ -518,17 +576,35 @@ def record_sent(log, vendor_id, when):
     entry["sent_utc"] = when
 
 
-def record_reply(log, vendor_id, when, text):
+def reply_availability(text):
+    """confirmed, declined or not confirmed, read from the answer's own words; the
+    operator's --available flag overrides this when the words are ambiguous."""
+    if DECLINE_RE.search(text):
+        return "declined"
+    if AVAILABLE_RE.search(text):
+        return "confirmed"
+    return "not confirmed"
+
+
+def record_reply(log, vendor_id, when, text, available=None, stop=False):
     entry = log["drafts"].get(vendor_id)
     if entry is None:
         raise ConfigError("record-reply: no draft exists for vendor %s" % vendor_id)
     if not entry.get("sent_utc"):
         raise ConfigError("record-reply: vendor %s has no recorded send; a reply cannot precede the question" % vendor_id)
-    if not re.fullmatch(r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(?::\d{2})?Z", when):
+    if not TIMESTAMP_RE.fullmatch(when):
         raise ConfigError("record-reply: --when must be a UTC timestamp like 2026-11-02T09:30:00Z")
     if not isinstance(text, str) or not text.strip():
         raise ConfigError("record-reply: --text must not be blank")
-    entry["reply"] = {"received_utc": when, "text": text}
+    if available not in (None, "yes", "no"):
+        raise ConfigError("record-reply: --available must be yes or no")
+    availability = {"yes": "confirmed", "no": "declined"}.get(available) or reply_availability(text)
+    entry["reply"] = {"received_utc": when, "text": text, "availability": availability}
+    if stop:
+        entry["stop"] = True
+        log.setdefault("stopped", [])
+        if vendor_id not in log["stopped"]:
+            log["stopped"].append(vendor_id)
 
 
 def check_log_against_store(log, store):
@@ -551,12 +627,26 @@ def dietary_state(page, need, entry, run_utc):
         if any(t in text.casefold() for t in need_terms(need)):
             return "stated", reply
     if entry is None:
-        return "unconfirmed", "question not yet drafted"
+        return "not confirmed", "question not yet drafted"
     if not entry.get("sent_utc"):
-        return "unconfirmed", "question drafted %s, not sent" % entry.get("drafted_utc", "")
+        return "not confirmed", "question drafted %s, not sent" % entry.get("drafted_utc", "")
     if reply:
-        return "unconfirmed", "question asked %s; the reply of %s does not address it" % (entry["sent_utc"], reply.get("received_utc", ""))
-    return "unconfirmed", "question asked %s, no reply as of %s" % (entry["sent_utc"], run_utc)
+        return "not confirmed", "question asked %s; the reply of %s does not address it" % (entry["sent_utc"], reply.get("received_utc", ""))
+    return "not confirmed", "question asked %s, no reply as of %s" % (entry["sent_utc"], run_utc)
+
+
+def availability_state(entry):
+    """confirmed / declined / not confirmed for the brief's date, from the recorded answer only."""
+    reply = (entry or {}).get("reply")
+    if not reply:
+        return "not confirmed"
+    return reply.get("availability") or reply_availability(reply.get("text", ""))
+
+
+def reply_prices(entry):
+    """Per person prices the vendor's answer states, as (value, clause) pairs; empty when none."""
+    text = ((entry or {}).get("reply") or {}).get("text", "")
+    return [(float(m.group(1).replace(",", "")), price_context(text, m.start())) for m in PRICE_RE.finditer(text)]
 
 
 # ----------------------------------------------------------------- report
@@ -580,9 +670,12 @@ def compare(brief, store, log, run_utc=None):
         row = {
             "page": page, "style": style, "area": area,
             "capacity": extract_capacity(page), "prices": extract_prices(page),
+            "terms": extract_terms(page),
             "menu": extract_menu(page), "contact": extract_contact(page),
             "dietary": [(need, dietary_state(page, need, entry, run_utc)) for need in brief["dietary_needs"]],
             "outreach": entry,
+            "availability": availability_state(entry),
+            "reply_prices": reply_prices(entry),
         }
         compared.append(row)
     return {"brief": brief, "run_utc": run_utc, "source": store["source"], "compared": compared, "excluded": excluded}
@@ -591,6 +684,8 @@ def compare(brief, store, log, run_utc=None):
 def outreach_status(entry, run_utc):
     if entry is None:
         return "no draft yet"
+    if entry.get("stop"):
+        return "asked us to stop on %s; no further contact" % entry.get("reply", {}).get("received_utc", "")
     if not entry.get("sent_utc"):
         return "draft recorded %s, not sent" % entry.get("drafted_utc", "")
     if entry.get("reply"):
@@ -609,47 +704,72 @@ def render(result):
     L = []
     L.append("# Catering comparison: %s, %s, %d guests" % (brief["location"], brief["date"], brief["headcount"]))
     L.append("")
-    L.append("Brief: service style %s; budget %s USD; dietary needs: %s."
-             % (inline(brief["service_style"]), fmt_money(brief["budget_usd"]),
+    L.append("Brief: %s%s; service style %s; budget %s USD in total, %s USD per head (the brief's budget divided by its headcount); dietary needs: %s."
+             % (brief["date"], (" at %s" % brief["time"]) if brief.get("time") else "", inline(brief["service_style"]),
+                fmt_money(brief["budget_usd"]), fmt_money(round(brief["budget_per_head"], 2)),
                 "; ".join(inline(n) for n in needs) if needs else "none stated"))
-    L.append("Run (UTC): %s. Every value below is quoted from the vendor's own page with the raw line beneath its source link; "
-             "a value the page does not state is marked %s. Dietary coverage is never inferred from silence." % (run_utc, NOT_PUBLISHED))
+    L.append("Run (UTC): %s. Collection window: %s." % (
+        run_utc, ("ends %s" % brief["response_deadline_utc"]) if brief.get("response_deadline_utc") else "no deadline set in the brief"))
+    L.append("Every value below is quoted from the vendor's own page or recorded answer with the raw text beneath its source; "
+             "a value the vendor did not state is marked %s. No price is totalled or estimated. "
+             "Dietary coverage and availability are never inferred from silence." % NOT_PUBLISHED)
     src = result["source"] or {}
     if src:
         L.append("Candidate list: %s (%s)" % (src.get("description", "index.json"), src.get("label", "")))
     L.append("")
     L.append("## Summary")
     L.append("")
-    header = ["Vendor", "Style", "Area", "Capacity", "Price per person", "Estimate for %d" % brief["headcount"]] + \
+    header = ["Vendor", "Style", "Area", "Capacity", "Price per person (as stated)", "Against budget per head", "Availability for %s" % brief["date"]] + \
              ["Dietary: %s" % canonical_need(n) for n in needs] + ["Outreach"]
     L.append("| " + " | ".join(header) + " |")
     L.append("|" + " --- |" * len(header))
     for row in result["compared"]:
         cap = row["capacity"]
         prices = prices_for_style(row["prices"], brief["service_style"])
-        if prices:
-            price_cell = ", ".join(fmt_money(c.value) for c in prices)
+        stated = [v for v, _ in row["reply_prices"]]
+        if stated:
+            price_cell = "%s (stated in the vendor's answer)" % ", ".join(fmt_money(v) for v in stated)
+            compared_prices = stated
+        elif prices:
+            price_cell = ", ".join(fmt_money(c.value) + (" (starting point)" if c.starting else "") for c in prices) + " (page)"
+            compared_prices = [c.value for c in prices]
         elif row["prices"]:
             price_cell = "no %s price published (other styles priced)" % inline(brief["service_style"])
+            compared_prices = []
         else:
             price_cell = NOT_PUBLISHED
-        if prices:
-            lo, hi = min(c.value for c in prices), max(c.value for c in prices)
-            est = "%s to %s" % (fmt_money(lo * brief["headcount"]), fmt_money(hi * brief["headcount"])) if lo != hi \
-                else fmt_money(lo * brief["headcount"])
-            fit = "within budget" if hi * brief["headcount"] <= brief["budget_usd"] else "over budget at the high figure"
-            est_cell = "%s USD (computed from the quoted figure; %s)" % (est, fit)
+            compared_prices = []
+        if compared_prices:
+            lowest = min(compared_prices)
+            budget_cell = ("over budget: %s stated vs %s per head in the brief" if lowest > brief["budget_per_head"]
+                           else "within budget per head (%s stated vs %s)") % (fmt_money(lowest), fmt_money(round(brief["budget_per_head"], 2)))
         else:
-            est_cell = "not computed; no %s price published" % inline(brief["service_style"])
+            budget_cell = "no stated price to compare"
         cells = [row["page"].name, "yes", "yes",
                  (str(cap.value) + (" (fits)" if cap.value >= brief["headcount"] else " (below headcount)")) if cap else NOT_PUBLISHED,
-                 price_cell, est_cell]
+                 price_cell, budget_cell, row["availability"]]
         for need, (state, _) in row["dietary"]:
             cells.append(state)
         cells.append(outreach_status(row["outreach"], run_utc))
         L.append("| " + " | ".join(c.replace("|", "\\|") for c in cells) + " |")
     if not result["compared"]:
         L.append("| (no vendor passed the style and area check; see Checked and excluded) |" + " |" * (len(header) - 1))
+    comp = result["compared"]
+    contacted = [r for r in comp if r["outreach"] and r["outreach"].get("sent_utc")]
+    L.append("")
+    L.append("Counts: %d vendor(s) compared; %d state a capacity of at least %d on their page; %d contacted; %d replied; "
+             "%d confirmed availability for %s; %d declined; %d asked us to stop."
+             % (len(comp), sum(1 for r in comp if r["capacity"] and r["capacity"].value >= brief["headcount"]), brief["headcount"],
+                len(contacted), sum(1 for r in contacted if r["outreach"].get("reply")),
+                sum(1 for r in comp if r["availability"] == "confirmed"), brief["date"],
+                sum(1 for r in comp if r["availability"] == "declined"),
+                sum(1 for r in comp if (r["outreach"] or {}).get("stop"))))
+    L.append("")
+    L.append("## Availability for %s" % brief["date"])
+    for state, title in (("confirmed", "Confirmed by the vendor's answer"), ("declined", "Declined or not available"),
+                         ("not confirmed", "Not confirmed (no answer, or the answer does not say)")):
+        names = [r["page"].name for r in comp if r["availability"] == state]
+        L.append("- %s: %s" % (title, ", ".join(names) if names else "none"))
     L.append("")
     L.append("## Vendors compared")
     for row in result["compared"]:
@@ -666,10 +786,26 @@ def render(result):
             L.append("- Capacity: %s" % NOT_PUBLISHED)
         if row["prices"]:
             for c in row["prices"]:
-                label = "Price per person (USD), clause %s%s" % (inline(c.context), (", %s" % c.style) if c.style else ", no style named")
+                label = "Price per person (USD)%s, clause %s%s" % (" (starting point as stated)" if c.starting else "",
+                                                                  inline(c.context), (", %s" % c.style) if c.style else ", no style named")
                 L.extend(c.lines(label))
         else:
             L.append("- Price per person: %s" % NOT_PUBLISHED)
+        if row["terms"]:
+            for c in row["terms"]:
+                L.extend(c.lines(c.field[0].upper() + c.field[1:]))
+        else:
+            L.append("- Minimum spend, deposit and cancellation terms: %s" % NOT_PUBLISHED)
+        reply = (row["outreach"] or {}).get("reply")
+        if reply:
+            L.append("- Availability for %s: %s, from the vendor's answer received %s" % (brief["date"], row["availability"].upper(), reply.get("received_utc", "")))
+            for value, clause in row["reply_prices"]:
+                L.append("- Price per person (USD) stated in the answer: %s, clause %s" % (fmt_money(value), inline(clause)))
+            L.append("  Source: vendor reply recorded in the outreach log")
+            f = fence_for(reply.get("text", ""))
+            L.extend(["  " + f, "  " + reply.get("text", "").replace("\n", "\n  "), "  " + f])
+        else:
+            L.append("- Availability for %s: NOT CONFIRMED (no answer recorded)" % brief["date"])
         if row["menu"]:
             for c in row["menu"]:
                 L.extend(c.lines("Menu"))
@@ -685,7 +821,7 @@ def render(result):
                 f = fence_for(detail.get("text", ""))
                 L.extend(["  " + f, "  " + detail.get("text", "").replace("\n", "\n  "), "  " + f])
             else:
-                L.append("- %s: UNCONFIRMED (%s)" % (label, detail))
+                L.append("- %s: NOT CONFIRMED (%s)" % (label, detail))
         if row["contact"]:
             L.extend(row["contact"].lines("Contact channel"))
         else:
@@ -700,6 +836,14 @@ def render(result):
                      % (r["page"].name, r["outreach"]["sent_utc"], inline(r["outreach"].get("channel", "")), run_utc))
     else:
         L.append("- none")
+    declined = [r for r in comp if r["availability"] == "declined"]
+    L.append("")
+    L.append("## Declined")
+    if declined:
+        for r in declined:
+            L.append("- %s: answer received %s (quoted in its section above)" % (r["page"].name, r["outreach"]["reply"].get("received_utc", "")))
+    else:
+        L.append("- none")
     L.append("")
     L.append("## Checked and excluded")
     if result["excluded"]:
@@ -711,7 +855,8 @@ def render(result):
     L.append("## Outreach drafts")
     drafts = [r for r in result["compared"] if r["outreach"]]
     if drafts:
-        L.append("Drafts are recorded, not sent. Under a hire the operator sends each one through the vendor's published channel and records the send and the reply.")
+        L.append("Drafts are recorded, not sent. Under a hire the operator sends each one through the vendor's published channel and records the send and the reply. "
+                 "Every draft states it is on behalf of a customer and sent by an automated assistant, asks for a quote only, and carries no buyer contact details.")
         for r in drafts:
             e = r["outreach"]
             L.append("")
@@ -757,6 +902,8 @@ def build_parser():
     reply.add_argument("--log", required=True)
     reply.add_argument("--when", required=True)
     reply.add_argument("--text", required=True)
+    reply.add_argument("--available", choices=("yes", "no"), help="override the availability read from the answer's words")
+    reply.add_argument("--stop", action="store_true", help="the vendor asked not to be contacted again")
 
     send = sub.add_parser("send", help="live sending: refused without --execute and a hire id; no transport in this build")
     send.add_argument("vendor_id")
@@ -803,7 +950,7 @@ def main(argv=None, env=None, stdout=None, stderr=None, fetcher=None):
             return 0
         if args.command == "record-reply":
             log = load_log(args.log)
-            record_reply(log, args.vendor_id, args.when, args.text)
+            record_reply(log, args.vendor_id, args.when, args.text, available=args.available, stop=args.stop)
             save_log(args.log, log)
             stdout.write("recorded: %s replied %s\n" % (args.vendor_id, args.when))
             return 0

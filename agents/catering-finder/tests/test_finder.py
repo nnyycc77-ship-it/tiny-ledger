@@ -95,6 +95,11 @@ class BriefTests(unittest.TestCase):
         self.assertEqual(brief["headcount"], 60)
         self.assertEqual(brief["dietary_needs"], ["vegan", "gluten-free", "nut allergy"])
         self.assertEqual(brief["service_style"], "buffet")
+        self.assertEqual(brief["budget_per_head"], 40)
+        self.assertIsNone(brief["time"])
+        self.assertIsNone(brief["response_deadline_utc"])
+        timed = cf.validate_brief(dict(brief, time="12:30", response_deadline_utc="2026-11-10T17:00:00Z"))
+        self.assertEqual((timed["time"], timed["response_deadline_utc"]), ("12:30", "2026-11-10T17:00:00Z"))
 
     def test_invalid_briefs_are_refused(self):
         good = cf.load_brief(BRIEF)
@@ -108,6 +113,8 @@ class BriefTests(unittest.TestCase):
             dict(good, dietary_needs="vegan"),
             dict(good, dietary_needs=["vegan", ""]),
             dict(good, service_style="  "),
+            dict(good, time="noon"),
+            dict(good, response_deadline_utc="next week"),
             ["not", "an", "object"],
         ]
         for data in bad:
@@ -121,6 +128,8 @@ class BriefTests(unittest.TestCase):
         self.assertEqual(cf.canonical_need("low sodium"), "low sodium")
         self.assertEqual(cf.need_terms("low sodium"), ("low sodium",))
         self.assertEqual(cf.canonical_style("Family-Style"), "family style")
+        self.assertEqual(cf.canonical_style("private dining"), "private dining room")
+        self.assertEqual(cf.canonical_style("drop-off catering"), "drop-off")
         self.assertEqual(cf.canonical_style("afternoon tea"), "afternoon tea")
         self.assertEqual(cf.location_tokens("Austin, TX"), ["Austin", "TX"])
 
@@ -134,7 +143,7 @@ class ExtractionTests(unittest.TestCase):
         self.assertIsNotNone(cf.extract_area(p, "Austin, TX"))
         self.assertEqual(cf.extract_capacity(p).value, 200)
         prices = cf.extract_prices(p)
-        self.assertEqual([(c.value, c.style) for c in prices], [(22.0, "buffet"), (38.0, "plated")])
+        self.assertEqual([(c.value, c.style, c.starting) for c in prices], [(22.0, "buffet", True), (38.0, "plated", False)])
         self.assertEqual([c.value for c in cf.prices_for_style(prices, "buffet")], [22.0])
         self.assertEqual(cf.extract_contact(p).value, "events@pecan-grove-catering.invalid")
         self.assertEqual(len(cf.extract_menu(p)), 5)
@@ -150,6 +159,12 @@ class ExtractionTests(unittest.TestCase):
         self.assertEqual(cf.extract_prices(verde), [])
         self.assertIsNone(cf.extract_dietary(page("bluebonnet"), "vegan"))
         self.assertIsNone(cf.extract_area(page("lone-star-smoke"), "Austin, TX"))
+
+    def test_terms_lines_get_one_label_each(self):
+        terms = cf.extract_terms(page("cedar-park"))
+        self.assertEqual([(c.field, c.line_no) for c in terms],
+                         [("minimum spend or order", 15), ("deposit terms", 16), ("cancellation terms", 17)])
+        self.assertEqual(cf.extract_terms(page("verde-kitchen")), [])
 
     def test_prices_without_a_style_clause_are_kept_only_when_no_clause_names_one(self):
         untagged = cf.prices_for_style(cf.extract_prices(page("hill-country-taco")), "buffet")
@@ -177,21 +192,31 @@ class DietaryStateTests(unittest.TestCase):
         entry = {"drafted_utc": "2026-10-21T13:00:00Z", "sent_utc": "2026-10-21T13:06:00Z",
                  "reply": {"received_utc": "2026-10-22T09:00:00Z", "text": "We are available that day. Buffet is $35."}}
         state, detail = cf.dietary_state(self.blue, "vegan", entry, RUN_UTC)
-        self.assertEqual(state, "unconfirmed")
+        self.assertEqual(state, "not confirmed")
         self.assertIn("does not address it", detail)
 
     def test_unconfirmed_states_name_the_question_status(self):
-        self.assertEqual(cf.dietary_state(self.blue, "vegan", None, RUN_UTC), ("unconfirmed", "question not yet drafted"))
+        self.assertEqual(cf.dietary_state(self.blue, "vegan", None, RUN_UTC), ("not confirmed", "question not yet drafted"))
         state, detail = cf.dietary_state(self.blue, "vegan", self.log["drafts"]["bluebonnet"], RUN_UTC)
-        self.assertEqual(state, "unconfirmed")
+        self.assertEqual(state, "not confirmed")
         self.assertEqual(detail, "question asked 2026-10-21T13:06:00Z, no reply as of " + RUN_UTC)
         state, detail = cf.dietary_state(page("verde-kitchen"), "nut allergy", self.log["drafts"]["verde-kitchen"], RUN_UTC)
-        self.assertEqual((state, detail), ("unconfirmed", "question drafted 2026-10-21T13:00:00Z, not sent"))
+        self.assertEqual((state, detail), ("not confirmed", "question drafted 2026-10-21T13:00:00Z, not sent"))
 
     def test_silence_is_never_coverage(self):
         for need in ("vegan", "gluten-free", "nut allergy", "halal"):
             state, _ = cf.dietary_state(self.blue, need, self.log["drafts"]["bluebonnet"], RUN_UTC)
-            self.assertEqual(state, "unconfirmed", need)
+            self.assertEqual(state, "not confirmed", need)
+
+    def test_availability_comes_from_the_answer_only(self):
+        self.assertEqual(cf.availability_state(None), "not confirmed")
+        self.assertEqual(cf.availability_state(self.log["drafts"]["bluebonnet"]), "not confirmed")
+        self.assertEqual(cf.availability_state(self.log["drafts"]["pecan-grove"]), "confirmed")
+        self.assertEqual(cf.availability_state(self.log["drafts"]["cedar-park"]), "declined")
+        self.assertEqual(cf.reply_availability("We can do that date."), "confirmed")
+        self.assertEqual(cf.reply_availability("Unfortunately we cannot take new bookings that week."), "declined")
+        self.assertEqual(cf.reply_availability("Please send the menu you have in mind."), "not confirmed")
+        self.assertEqual(cf.reply_prices(self.log["drafts"]["pecan-grove"]), [(22.0, "Buffet is $22 per person as on our site")])
 
 
 class OutreachTests(unittest.TestCase):
@@ -199,13 +224,41 @@ class OutreachTests(unittest.TestCase):
         brief, st = cf.load_brief(BRIEF), store()
         log = {"hire_id": None, "drafts": {}}
         drafted = cf.draft_all(brief, st, log)
-        self.assertEqual(drafted, ["pecan-grove", "bluebonnet", "verde-kitchen"])
-        self.assertIn("nut allergy?", log["drafts"]["pecan-grove"]["message"])
-        self.assertNotIn("vegan", log["drafts"]["pecan-grove"]["message"].split("4.")[1])
+        self.assertEqual(drafted, ["pecan-grove", "bluebonnet", "verde-kitchen", "cedar-park"])
+        message = log["drafts"]["pecan-grove"]["message"]
+        self.assertIn("nut allergy?", message)
+        self.assertNotIn("vegan", message.split("5.")[1])
         self.assertIn("vegan; gluten-free; nut allergy?", log["drafts"]["bluebonnet"]["message"])
         self.assertIn("2026-11-14", log["drafts"]["bluebonnet"]["message"])
         self.assertIsNone(log["drafts"]["pecan-grove"]["sent_utc"])
         self.assertEqual(cf.draft_all(brief, st, log), [])  # idempotent, nothing overwritten
+
+    def test_drafts_follow_the_job_rules(self):
+        brief, st = cf.load_brief(BRIEF), store()
+        log = {"hire_id": None, "drafts": {}}
+        cf.draft_all(brief, st, log)
+        for entry in log["drafts"].values():
+            m = entry["message"]
+            self.assertIn("on behalf of a customer", m)
+            self.assertIn("automated assistant", m)
+            self.assertIn("we will stop", m)
+            self.assertIn("minimum spend, a deposit, or cancellation terms", m)
+            self.assertIn("the customer decides on any booking", m)
+            self.assertNotRegex(m, r"@(?!pecan|verde|cedar|bluebonnet|hill|lone)")  # no buyer address: only the vendor's own channel
+        timed = cf.validate_brief(dict(json.loads(BRIEF.read_text()), time="12:00"))
+        self.assertIn("2026-11-14 at 12:00", cf.draft_message(timed, page("verde-kitchen"), ["nut allergy"], None))
+
+    def test_a_vendor_who_asked_us_to_stop_gets_no_further_draft(self):
+        brief, st = cf.load_brief(BRIEF), store()
+        log = {"hire_id": None, "drafts": {}}
+        cf.draft_all(brief, st, log)
+        cf.record_sent(log, "verde-kitchen", "2026-10-21T15:00:00Z")
+        cf.record_reply(log, "verde-kitchen", "2026-10-22T09:00:00Z", "Please do not email us again.", stop=True)
+        self.assertEqual(log["stopped"], ["verde-kitchen"])
+        del log["drafts"]["verde-kitchen"]
+        self.assertEqual(cf.draft_all(brief, st, log), [])
+        with self.assertRaises(cf.ConfigError):
+            cf.record_reply(log, "pecan-grove", "2026-10-22T09:00:00Z", "ok", available="maybe")
 
     def test_record_sent_and_reply_are_ordered_and_validated(self):
         log = {"hire_id": None, "drafts": {"v": {"drafted_utc": "2026-10-21T13:00:00Z", "sent_utc": None, "reply": None}}}
@@ -220,6 +273,9 @@ class OutreachTests(unittest.TestCase):
             cf.record_reply(log, "v", "2026-10-22T09:00:00Z", "   ")
         cf.record_reply(log, "v", "2026-10-22T09:00:00Z", "We can do it.")
         self.assertEqual(log["drafts"]["v"]["reply"]["text"], "We can do it.")
+        self.assertEqual(log["drafts"]["v"]["reply"]["availability"], "confirmed")
+        cf.record_reply(log, "v", "2026-10-22T09:30:00Z", "Yes, received. We will check and get back to you.", available="no")
+        self.assertEqual(log["drafts"]["v"]["reply"]["availability"], "declined")
 
     def test_a_log_entry_for_a_vendor_outside_the_run_is_refused(self):
         log = cf.load_log(LOG)
@@ -234,21 +290,38 @@ class ReportTests(unittest.TestCase):
         self.text = cf.render(self.result)
 
     def test_shape_and_classification(self):
-        self.assertEqual([r["page"].vendor_id for r in self.result["compared"]], ["pecan-grove", "bluebonnet", "verde-kitchen"])
+        self.assertEqual([r["page"].vendor_id for r in self.result["compared"]],
+                         ["pecan-grove", "bluebonnet", "verde-kitchen", "cedar-park"])
         self.assertEqual([(p.vendor_id, reason.split(":")[0]) for p, reason in self.result["excluded"]],
                          [("hill-country-taco", "service style"), ("lone-star-smoke", "area")])
-        for heading in ("## Summary", "## Vendors compared", "## Contacted with no reply", "## Checked and excluded",
-                        "## Outreach drafts", "## Sources"):
+        for heading in ("## Summary", "## Availability for 2026-11-14", "## Vendors compared", "## Contacted with no reply",
+                        "## Declined", "## Checked and excluded", "## Outreach drafts", "## Sources"):
             self.assertIn(heading, self.text)
-        self.assertIn("| Pecan Grove Catering | yes | yes | 200 (fits) | 22 | 1320 USD", self.text)
+        self.assertIn("| Pecan Grove Catering | yes | yes | 200 (fits) | 22 (stated in the vendor's answer) | within budget per head (22 stated vs 40) | confirmed |", self.text)
+        self.assertIn("| Cedar Park Kitchen Catering | yes | yes | 120 (fits) | 28 (starting point) (page) |", self.text)
+        self.assertIn("Counts: 4 vendor(s) compared; 3 state a capacity of at least 60 on their page; 3 contacted; 2 replied; "
+                      "1 confirmed availability for 2026-11-14; 1 declined; 0 asked us to stop.", self.text)
+        self.assertIn("- Confirmed by the vendor's answer: Pecan Grove Catering", self.text)
+        self.assertIn("- Declined or not available: Cedar Park Kitchen Catering", self.text)
         self.assertIn("- Bluebonnet Table: contacted 2026-10-21T13:06:00Z", self.text)
+        self.assertIn("- Cedar Park Kitchen Catering: answer received 2026-10-22T10:15:00Z", self.text)
         self.assertIn("not verified, not inferred", self.text)
+        self.assertIn("40 USD per head (the brief's budget divided by its headcount)", self.text)
+        self.assertNotIn("Estimate", self.text)
+        self.assertIn("Price per person (USD) (starting point as stated)", self.text)
+        self.assertIn("Cancellation terms as shown", self.text)
+
+    def test_over_budget_is_marked_from_the_stated_price(self):
+        brief = dict(cf.load_brief(BRIEF), budget_usd=1200, budget_per_head=20.0)
+        text = cf.render(cf.compare(brief, store(), cf.load_log(LOG), run_utc=RUN_UTC))
+        self.assertIn("over budget: 22 stated vs 20 per head in the brief", text)
 
     def test_all_three_dietary_states_are_exercised(self):
         self.assertIn("CONFIRMED by the vendor's page", self.text)
         self.assertIn("STATED by the vendor's answer received 2026-10-21T16:40:00Z", self.text)
-        self.assertIn("UNCONFIRMED (question asked 2026-10-21T13:06:00Z, no reply as of " + RUN_UTC + ")", self.text)
-        self.assertIn("UNCONFIRMED (question drafted 2026-10-21T13:00:00Z, not sent)", self.text)
+        self.assertIn("NOT CONFIRMED (question asked 2026-10-21T13:06:00Z, no reply as of " + RUN_UTC + ")", self.text)
+        self.assertIn("NOT CONFIRMED (question drafted 2026-10-21T13:00:00Z, not sent)", self.text)
+        self.assertNotIn("UNCONFIRMED", self.text)
 
     def test_every_claim_carries_its_source_and_a_verbatim_excerpt(self):
         lines = self.text.splitlines()
@@ -269,7 +342,7 @@ class ReportTests(unittest.TestCase):
         brief = dict(cf.load_brief(BRIEF), service_style="afternoon tea")
         text = cf.render(cf.compare(brief, store(), {"hire_id": None, "drafts": {}}, run_utc=RUN_UTC))
         self.assertIn("no vendor passed the style and area check", text)
-        self.assertEqual(text.count("service style: no line on the page names"), 5)
+        self.assertEqual(text.count("service style: no line on the page names"), 6)
 
 
 class CliTests(unittest.TestCase):
@@ -291,7 +364,7 @@ class CliTests(unittest.TestCase):
             code, out, _ = run(["draft", "--brief", str(BRIEF), "--store", str(FIXTURES), "--log", str(log)])
             self.assertEqual(code, 0)
             self.assertIn("nothing sent", out)
-            self.assertEqual(sorted(json.loads(log.read_text())["drafts"]), ["bluebonnet", "pecan-grove", "verde-kitchen"])
+            self.assertEqual(sorted(json.loads(log.read_text())["drafts"]), ["bluebonnet", "cedar-park", "pecan-grove", "verde-kitchen"])
             for argv in (["send", "pecan-grove", "--log", str(log)],
                          ["send", "pecan-grove", "--log", str(log), "--execute"],
                          ["send", "pecan-grove", "--log", str(log), "--hire-id", "h1"],
@@ -302,9 +375,15 @@ class CliTests(unittest.TestCase):
             code, out, _ = run(["record-sent", "pecan-grove", "--log", str(log), "--when", "2026-10-21T15:00:00Z"])
             self.assertEqual(code, 0)
             code, out, _ = run(["record-reply", "pecan-grove", "--log", str(log), "--when", "2026-10-22T09:00:00Z",
-                                "--text", "Nut-free menu is fine."])
+                                "--text", "Nut-free menu is fine.", "--available", "yes"])
             self.assertEqual(code, 0)
-            self.assertEqual(json.loads(log.read_text())["drafts"]["pecan-grove"]["reply"]["text"], "Nut-free menu is fine.")
+            saved = json.loads(log.read_text())["drafts"]["pecan-grove"]["reply"]
+            self.assertEqual((saved["text"], saved["availability"]), ("Nut-free menu is fine.", "confirmed"))
+            code, out, _ = run(["record-sent", "bluebonnet", "--log", str(log), "--when", "2026-10-21T15:00:00Z"])
+            code, out, _ = run(["record-reply", "bluebonnet", "--log", str(log), "--when", "2026-10-22T09:00:00Z",
+                                "--text", "Please stop contacting us.", "--stop"])
+            self.assertEqual(code, 0)
+            self.assertEqual(json.loads(log.read_text())["stopped"], ["bluebonnet"])
 
     def test_capture_stores_a_live_page_with_provenance_and_refuses_non_200(self):
         # The SYNTHETIC transport is wired in by _main_with_fake below: it answers
