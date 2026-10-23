@@ -1,0 +1,60 @@
+{
+  "_about": "Fixtures for agents/catering-finder. EVERY FILE HERE IS SYNTHETIC: the five vendor pages, the candidate index, the brief and the outreach log were written by hand by helper H1 for the tests of issue #75, because no vendor host is reachable from the build container (gateway CONNECT 403, recorded on the issue). None of the businesses, addresses, prices or messages is real; the .invalid hostnames are reserved names that cannot resolve. The sha256 under each page is the hash of the file in this folder, checked by catering_finder.load_store and by tools/pregate.py, so an edited fixture is refused rather than quoted. The retrieved_utc values are the times the files were written, not retrievals.",
+  "vendors/pecan-grove.html": {
+    "url": "https://pecan-grove-catering.invalid/events",
+    "retrieved_utc": "2026-10-23T13:02:00Z (file written; SYNTHETIC, nothing was retrieved)",
+    "label": "SYNTHETIC",
+    "sha256": "6ab65b5ab40f540a712bba85b2e0363fbd1b81b36e039489fa4ae3d1d1e0fdcb",
+    "bytes": 1353
+  },
+  "vendors/bluebonnet.html": {
+    "url": "https://bluebonnet-table.invalid/catering",
+    "retrieved_utc": "2026-10-23T13:02:00Z (file written; SYNTHETIC, nothing was retrieved)",
+    "label": "SYNTHETIC",
+    "sha256": "9ef892ac4ab257cb18d31a479390332ddf266ff393311bf794e95513d6a30dd7",
+    "bytes": 903
+  },
+  "vendors/verde-kitchen.html": {
+    "url": "https://verde-kitchen.invalid/",
+    "retrieved_utc": "2026-10-23T13:02:00Z (file written; SYNTHETIC, nothing was retrieved)",
+    "label": "SYNTHETIC",
+    "sha256": "0657b21717fe1a32254d802811a516eb9b707c7383624158f332cd9a9c473f21",
+    "bytes": 776
+  },
+  "vendors/hill-country-taco.html": {
+    "url": "https://hill-country-taco.invalid/book",
+    "retrieved_utc": "2026-10-23T13:02:00Z (file written; SYNTHETIC, nothing was retrieved)",
+    "label": "SYNTHETIC",
+    "sha256": "298551cda7cc09559aa3573702c2bdaddbc83bc820a27a839883b276cb0664a0",
+    "bytes": 592
+  },
+  "vendors/lone-star-smoke.html": {
+    "url": "https://lone-star-smokehouse.invalid/catering",
+    "retrieved_utc": "2026-10-23T13:02:00Z (file written; SYNTHETIC, nothing was retrieved)",
+    "label": "SYNTHETIC",
+    "sha256": "e943436cf9e827588d844222eca821a89727e5c74124fc08f7e6e1a60d8429fc",
+    "bytes": 504
+  },
+  "index.json": {
+    "label": "SYNTHETIC",
+    "sha256": "98c2a22cae22645a3711596cf6b838847713591e29c396369ab90d3ad110eeb4",
+    "bytes": 1050
+  },
+  "brief.json": {
+    "label": "SYNTHETIC",
+    "sha256": "9d059effa7b9b374bec25387310fa17dad2822cd819d23d21f23934c34d62dcf",
+    "bytes": 268
+  },
+  "outreach-log.json": {
+    "label": "SYNTHETIC",
+    "sha256": "72d7ac2a3084a8304cb1a5aab34ccd0f56aadc57aef4fc7e411fd31b941fbd11",
+    "bytes": 6062
+  },
+  "vendors/cedar-park.html": {
+    "url": "https://cedar-park-kitchen.invalid/catering",
+    "retrieved_utc": "2026-10-23T13:02:00Z (file written; SYNTHETIC, nothing was retrieved)",
+    "label": "SYNTHETIC",
+    "sha256": "f4de73f4951e03036f94e021be238aedc972d0011449eb4a1f1b46dfef7bd451",
+    "bytes": 917
+  }
+}
