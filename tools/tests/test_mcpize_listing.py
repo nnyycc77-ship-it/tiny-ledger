@@ -7,10 +7,13 @@ tie it to the code: the example in LISTING.md must equal, byte for byte,
 what the real server renders from the recorded CPSC capture (fetcher
 patched, no network); the tool name and every argument the listing names
 must match the server's live tools/list schema; the track record paragraph
-must match AGENT-BRIEF.md byte for byte; the root mcpize.yaml MCPize
-generated must start the core's entry point, carry no pricing or wallet
-field, and be quoted exactly in the notes; and the folder's own prose
-(quoted sources aside) must not claim a deployment it did not do.
+must match AGENT-BRIEF.md byte for byte; the root mcpize.yaml must start
+the core's entry point, its pricing block must hold exactly the state the
+owner set (issue #57: x402 on base, usdc, recall_check at 0.05, recipient
+the owner wallet as recorded in the manifest), the generated part must be
+quoted exactly in the notes with the pricing values stated there; and the
+folder's own prose (quoted sources aside) must not claim a deployment it
+did not do. The wallet address itself is never written in this test.
 """
 
 import io
@@ -26,6 +29,7 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
+from api import recall_api  # noqa: E402
 from mcp_server import recall_mcp  # noqa: E402
 from tools import cpsc_recalls  # noqa: E402
 import test_recall_mcp as mcp_tests  # noqa: E402
@@ -98,18 +102,51 @@ class ListingTests(unittest.TestCase):
             self.assertNotIn("0x" + "0" * 40, text, name)
         self.assertIn("pull/45", DEPLOYMENT)
 
-    def test_root_manifest_starts_the_core_and_holds_no_payout_fields(self):
-        # The manifest is the one MCPize generated at the repository root (PR #45);
-        # this folder does not duplicate it, and the notes quote it exactly.
+    def test_root_manifest_starts_the_core_and_pricing_matches_the_owner_set_state(self):
+        # The manifest is the one MCPize generated at the repository root (PR #45)
+        # plus the pricing block the owner appended in commit f6fc36c. This folder
+        # does not duplicate it. The expected pricing values are the dashboard
+        # state the owner directed, as stated in issue #57; the manifest is not
+        # changed by any test or by this folder.
         manifest = (ROOT / "mcpize.yaml").read_text(encoding="utf-8")
         self.assertIn('entry: "mcp_server.recall_mcp"', manifest)
         self.assertIn('command: "python"', manifest)
         self.assertIn('- "mcp_server"', manifest)
         self.assertIn("type: stdio", manifest)
-        keys_and_values = "\n".join(l for l in manifest.splitlines() if not l.lstrip().startswith("#"))
-        for forbidden in ("pricing", "price:", "recipient", "wallet", "0x"):
-            self.assertNotIn(forbidden, keys_and_values.lower(), forbidden)
-        self.assertIn("```yaml\n" + manifest + "```", DEPLOYMENT)
+        self.assertIn("mode: stdio", manifest)
+
+        generated, sep, pricing = manifest.partition("\npricing:\n")
+        self.assertEqual(sep, "\npricing:\n", "exactly one pricing block, after the generated part")
+        self.assertNotIn("pricing:", generated)
+        lines = [l for l in pricing.splitlines() if l.strip() and not l.lstrip().startswith("#")]
+        self.assertIn("  protocol: x402", lines)
+        self.assertIn("  network: base", lines)
+        self.assertIn("  asset: usdc", lines)
+        self.assertEqual([l for l in lines if l.startswith("    - name:")], ["    - name: recall_check"])
+        self.assertEqual([l for l in lines if l.lstrip().startswith("price:")], ['      price: "0.05"'])
+        recipients = [l for l in lines if l.startswith("  recipient:")]
+        self.assertEqual(len(recipients), 1)
+        address = recipients[0].split(":", 1)[1].strip().strip('"')
+        self.assertRegex(address, recall_api.WALLET_RE, "recipient must have the shape of an EVM address")
+        allowed = {"protocol", "network", "recipient", "asset", "tools", "name", "price", "description"}
+        for line in lines:
+            key = line.strip().lstrip("- ").split(":", 1)[0]
+            self.assertIn(key, allowed, line)
+        for secret_shaped in ("private", "secret", "token", "seed", "mnemonic", "key:"):
+            self.assertNotIn(secret_shaped, manifest.lower(), secret_shaped)
+        self.assertIsNone(re.search(r"(?<![0-9a-fA-F])[0-9a-fA-F]{64}(?![0-9a-fA-F])", manifest), "no 64 hex string in the manifest")
+
+        # The notes quote the generated part exactly and state the pricing values
+        # read from the block, with the owner's commit as the source; the address
+        # itself appears in the manifest only.
+        self.assertIn("```yaml\n" + generated + "```", DEPLOYMENT)
+        for text in (DEPLOYMENT, LISTING, README):
+            self.assertIn("f6fc36c", text)
+            self.assertIn("0.05 USDC", text)
+            self.assertNotIn(address, text)
+        self.assertIn("`x402`", DEPLOYMENT)
+        self.assertIn("`base`", DEPLOYMENT)
+        self.assertIn("`usdc`", DEPLOYMENT)
         self.assertEqual(sorted(p.name for p in FOLDER.iterdir()),
                          [".gitattributes", "DEPLOYMENT.md", "LISTING.md", "README.md"])
 
