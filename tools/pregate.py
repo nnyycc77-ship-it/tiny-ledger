@@ -61,6 +61,11 @@ characters fails, unless the value is an obvious placeholder: `<...>`,
 variable they read a key from), or a value that says it is not real
 (not-a-real..., fake, dummy, placeholder, example, redacted). A real key
 carries none of those, and test stand ins in the merged tools use them.
+One more exemption: a value that is exactly 0x followed by 40 hex digits is a
+public EVM payment address, not key material, so it passes under a wallet or
+other secret named key (issue #84: payout_wallet and payTo in the API's
+descriptor and 402 captures). The match is exact; a private key is 64 hex
+and is still caught by this rule's other cases and by the 64 hex rules below.
 
 64 character hex strings (with or without 0x), the shape of a private key and
 also of a SHA-256 digest or a transaction hash:
@@ -291,6 +296,7 @@ SEED_QUOTED = re.compile(r"[\"']((?:[a-z]{3,8} ){11,23}[a-z]{3,8})[\"']")
 ASSIGN = re.compile(r"""(?P<name>[A-Za-z_][A-Za-z0-9_.\-]*)["']?\s*(?:=|:)\s*["'](?P<val>[^"'\s]{8,})["']""")
 HEX64 = re.compile(r"(?<![0-9A-Za-z])(?:0x)?[0-9a-fA-F]{64}(?![0-9A-Za-z])")
 HEX_ASSIGN = re.compile(r"""(?P<name>[A-Za-z_][A-Za-z0-9_.\-]*)["']?\s*(?:=|:)\s*["']?(?:0x)?[0-9a-fA-F]{64}(?![0-9A-Za-z])""")
+ADDRESS40 = re.compile(r"^0x[0-9a-fA-F]{40}$")  # public EVM address, issue #84
 PLACEHOLDER = re.compile(r"^(?:<[^>]*>|\$\{?[A-Za-z_][A-Za-z0-9_]*\}?|(.)\1+|\*+|[A-Z][A-Z0-9_]*)$"
                          r"|(?i:not[-_ ]?a[-_ ]?real|fake|dummy|placeholder|example|redacted)")
 
@@ -321,7 +327,7 @@ def scan_secrets(added):
                 name_words = set(words(m.group("name")))
                 val = m.group("val")
                 if name_words & SECRET_WORDS and not (name_words & HASH_WORDS) and not PLACEHOLDER.search(val) \
-                        and not HEX64.fullmatch(val):
+                        and not HEX64.fullmatch(val) and not ADDRESS40.match(val):
                     findings.append((path, no, "literal value assigned to secret named %r" % m.group("name")))
             if fixture:
                 continue

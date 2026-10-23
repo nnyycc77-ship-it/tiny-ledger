@@ -140,6 +140,39 @@ class Secrets(GateCase):
         self.assertIn("key context", out)
         self.assertSecretFails('signer pk 0x%s' % h, path="docs/deploy.md")
 
+    def test_public_address_under_wallet_key_passes(self):
+        # SYNTHETIC 0x plus 40 hex address, built at run time, in the shape of
+        # the PR #81 descriptor capture line and a 402 payTo line (issue #84).
+        addr = "0x" + "1" * 40
+        mixed = "0x" + "aB3c" * 10
+        for path in ("tools/tests/fixtures/api_smoke/descriptor.http", "api/notes.md"):
+            with self.subTest(path=path):
+                code, out = self.gate(diff=make_diff(path, [
+                    '  "payout_wallet": "%s",' % addr,
+                    '    "payTo": "%s",' % mixed,
+                    'PAYOUT_WALLET_ADDRESS = "%s"' % mixed,
+                ]))
+                self.assertEqual(code, 0, out)
+
+    def test_hex64_under_wallet_key_still_fails(self):
+        # SYNTHETIC 64 hex value under the same wallet named key: key material.
+        out = self.assertSecretFails('  "payout_wallet": "0x%s",' % hex64("d"))
+        self.assertIn("key context", out)
+
+    def test_non_address_under_wallet_key_follows_existing_rule(self):
+        # SYNTHETIC near misses: none is exactly 0x plus 40 hex, so the
+        # existing secret named assignment rule still applies to each.
+        near = ["0x" + "1a" * 19 + "1",      # 39 hex digits
+                "0x" + "1a" * 20 + "b",      # 41 hex digits
+                "1a" * 20,                   # 40 hex, no 0x
+                "0X" + "1a" * 20,            # upper case X
+                "0x" + "1a" * 19 + "zz",     # not hex
+                "q8Wmq8Wmq8Wm"]              # ordinary literal
+        for val in near:
+            with self.subTest(val=val):
+                out = self.assertSecretFails('payout_wallet = "%s"' % val)
+                self.assertIn("secret named 'payout_wallet'", out)
+
     def test_hex_hash_context_passes_and_unnamed_assignment_fails(self):
         # SYNTHETIC hex outside any fixture directory.
         h = hex64("c")
