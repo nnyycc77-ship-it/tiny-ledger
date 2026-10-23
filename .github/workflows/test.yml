@@ -22,3 +22,13 @@ jobs:
       - uses: foundry-rs/foundry-toolchain@v1
       - name: Run the AgentTab test suite
         run: forge test -vvv
+
+  proof-page-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Run the proof page logic tests
+        run: node --test app/proof-core.test.mjs
