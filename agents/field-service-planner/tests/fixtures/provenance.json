@@ -1,0 +1,10 @@
+{
+  "label": "SYNTHETIC: every file in this folder is invented sample data for the planner tests (PLAYBOOK lesson 1). Nothing here was captured from a buyer, a geocoder or a routing service. The names, addresses, dates, coordinates and drive times are made up; the town Sampletown does not exist.",
+  "files": {
+    "jobs.csv": "synthetic job rows for one planning day (2026-11-03); J6 has an address the fixture geocoder does not place, J7 needs a skill no crew member has, J8 has a non numeric duration on purpose",
+    "crew.csv": "synthetic crew rows; C3 has a start address the fixture geocoder does not place on purpose",
+    "customers.csv": "synthetic customer rows; K5 is flagged do not contact, K6 duplicates K2 in a different case, K7 is not due, K8 is unplaced, K9 has a bad date on purpose, K10 is placed with medium confidence, K11 has an open quote and no last service date, K12 to K14 are overdue customers placed near the light days' routes",
+    "places.json": "synthetic places on an abstract grid and the drive time rule (great circle distance at 40 km/h)",
+    "jobs-week.csv": "synthetic job rows with a date column for a three day period (2026-11-03 to 2026-11-05): the one day rows plus light days; W4 is dated outside the period and W5 has a blank date on purpose"
+  }
+}

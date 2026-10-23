@@ -1,0 +1,4 @@
+__pycache__/
+*.py[cod]
+# reports written by local dry runs
+*.report.md
