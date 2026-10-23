@@ -1,0 +1,9 @@
+{
+  "keyless-429.http": {
+    "url": "https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url=https%3A%2F%2Fexample.com%2F&strategy=mobile&category=performance&category=accessibility&category=best-practices&category=seo",
+    "retrieved_utc": "2026-10-23T01:59:55Z",
+    "method": "GET, no key parameter, by tools/pagespeed_snapshot.py fetch()",
+    "transcript_form": "status line, response headers in the order returned, a blank line, then the body exactly as returned, decoded as UTF-8, joined with newline characters",
+    "sha256": "6d833533700babf806d1b6b83607a978d1fee68e4fa049c4eb30ce82f1c5183f"
+  }
+}
