@@ -52,6 +52,7 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
+from api import endpoints  # noqa: E402
 from tools import cpsc_recalls, nhtsa_recalls  # noqa: E402
 
 PAYOUT_ENV = "PAYOUT_WALLET_ADDRESS"
@@ -113,6 +114,13 @@ def descriptor(wallet):
         "payout_wallet": wallet,
         "payment": "USDC to payout_wallet; collected by the registry that lists this service, not by this endpoint",
     }
+    # Every endpoint, including this module's own /recall, in one table
+    # (issue #65). The keys above are unchanged for existing clients.
+    doc["endpoints"] = dict(
+        {"/recall": {"method": "GET", "tool": "tools/cpsc_recalls.py and tools/nhtsa_recalls.py",
+                     "params": doc["forms"]["product"]["params"] + doc["forms"]["vehicle"]["params"],
+                     "sources": [doc["forms"]["product"]["source"], doc["forms"]["vehicle"]["source"]]}},
+        **endpoints.describe())
     return doc
 
 
@@ -223,6 +231,25 @@ def handle(method, path, query_string, wallet):
         if method != "GET":
             return reply("405 Method Not Allowed", TEXT_PLAIN, "GET only.\n")
         return reply("200 OK", APP_JSON, json.dumps(descriptor(wallet), indent=2) + "\n")
+    if path in endpoints.ROUTES:
+        if method != "GET":
+            return reply("405 Method Not Allowed", TEXT_PLAIN, "GET only.\n")
+        query = urllib.parse.parse_qs(query_string or "", keep_blank_values=True)
+        try:
+            text = endpoints.call(path, query)
+        except endpoints.BadRequest as err:
+            return reply("400 Bad Request", TEXT_PLAIN, "Bad request: %s\n" % err)
+        except endpoints.Unavailable as err:
+            return reply("503 Service Unavailable", TEXT_PLAIN, "Endpoint unavailable, no report emitted: %s\n" % err)
+        except endpoints.FetchFailed as err:
+            return reply("502 Bad Gateway", TEXT_PLAIN, "%s\n" % err)
+        except ValueError as err:
+            # A fetcher's own validation of operator input against the response
+            # (an exclusion naming a record the response does not hold).
+            return reply("400 Bad Request", TEXT_PLAIN, "Bad request: %s\n" % err)
+        except (urllib.error.URLError, OSError) as err:
+            return reply("502 Bad Gateway", TEXT_PLAIN, "Fetch failed, no report emitted: %s\n" % err)
+        return reply("200 OK", TEXT_MD, text)
     if path != "/recall":
         return reply("404 Not Found", TEXT_PLAIN, "Unknown path. GET / describes the service.\n")
     if method != "GET":
