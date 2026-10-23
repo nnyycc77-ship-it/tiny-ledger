@@ -19,10 +19,16 @@ class Capabilities(object):
     follows_references whether reference material can steer the output
     voices             voice ids offered (voice providers only)
     offline            True when it runs locally with no network and no key
+    model              the model id the provider reports for its output
+    commercial_use     True when the provider's terms, as recorded by the
+                       operator, allow commercial use and resale of the output;
+                       False excludes the provider; None means not recorded
+    max_side           largest width or height in pixels (image and video)
     """
 
     def __init__(self, formats, aspects=(), max_seconds=None, max_count=4,
-                 follows_references=False, voices=(), offline=False):
+                 follows_references=False, voices=(), offline=False, model="", commercial_use=None,
+                 max_side=None):
         self.formats = tuple(formats)
         self.aspects = tuple(aspects)
         self.max_seconds = max_seconds
@@ -30,17 +36,21 @@ class Capabilities(object):
         self.follows_references = follows_references
         self.voices = tuple(voices)
         self.offline = offline
+        self.model = model
+        self.commercial_use = commercial_use
+        self.max_side = max_side
 
 
 class Output(object):
     """One file a provider produced, with what it says it made."""
 
-    def __init__(self, path, media_format, prompt, provider, placeholder):
+    def __init__(self, path, media_format, prompt, provider, placeholder, model=""):
         self.path = path
         self.format = media_format
         self.prompt = prompt
         self.provider = provider
         self.placeholder = placeholder
+        self.model = model
 
 
 class Provider(object):

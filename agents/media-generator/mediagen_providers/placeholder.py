@@ -211,7 +211,7 @@ def read_gif(path):
 # WAV
 # ----------------------------------------------------------------------
 
-def wav_voice(path, seconds, prompt, seed=0, rate=16000):
+def wav_voice(path, seconds, prompt, seed=0, rate=16000, script=""):
     import math
     base = 180 + (hashlib.sha256(("%s|%d" % (prompt, seed)).encode()).digest()[0] % 120)
     n = int(seconds * rate)
@@ -226,7 +226,8 @@ def wav_voice(path, seconds, prompt, seed=0, rate=16000):
         w.setframerate(rate)
         w.writeframes(bytes(frames))
     # append a LIST/INFO chunk carrying the prompt, then fix the RIFF size
-    text = ("%s | tiny-ledger media-generator stub (placeholder tone, not speech)" % prompt).encode("latin-1", "replace") + b"\x00"
+    text = ("prompt: %s | script: %s | tiny-ledger media-generator stub (placeholder tone, not speech)"
+            % (prompt, script)).encode("latin-1", "replace") + b"\x00"
     if len(text) % 2:
         text += b"\x00"
     info = b"INFO" + b"ICMT" + struct.pack("<I", len(text)) + text
