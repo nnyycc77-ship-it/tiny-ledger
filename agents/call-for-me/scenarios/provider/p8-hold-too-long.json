@@ -1,0 +1,98 @@
+{
+  "label": "Flow: hold passes the provisional limit; agent ends politely; next attempt books",
+  "_label": "SYNTHETIC scenario written by hand for issue #109 tests; the business, number and dialogue are invented and no call was placed",
+  "brief": {
+    "_label": "SYNTHETIC scenario written by hand for issue #79 tests; the business, number and dialogue are invented and no call was placed",
+    "business": {
+      "name": "Bella Notte Trattoria",
+      "phone": "+15125550134",
+      "country": "US",
+      "phone_source": "https://bella-notte-trattoria.invalid/contact",
+      "timezone": "America/Chicago",
+      "opening_hours": {
+        "mon": "closed",
+        "tue": [
+          [
+            "11:30",
+            "22:00"
+          ]
+        ],
+        "wed": [
+          [
+            "11:30",
+            "22:00"
+          ]
+        ],
+        "thu": [
+          [
+            "11:30",
+            "22:00"
+          ]
+        ],
+        "fri": [
+          [
+            "11:30",
+            "23:00"
+          ]
+        ],
+        "sat": [
+          [
+            "11:30",
+            "23:00"
+          ]
+        ],
+        "sun": [
+          [
+            "11:30",
+            "21:00"
+          ]
+        ]
+      }
+    },
+    "booking": {
+      "date": "2026-11-13",
+      "start": "19:00",
+      "end": "20:30",
+      "party_size": 4,
+      "name": "Jordan Rivera"
+    },
+    "alternatives": [],
+    "callback_number": null,
+    "special_requests": [],
+    "report_language": "en"
+  },
+  "start_utc": "2026-11-12T15:00:00Z",
+  "calls": [
+    {
+      "result": "answered",
+      "turns": [
+        "Bella Notte, please hold.",
+        {
+          "hold": 120
+        },
+        {
+          "hold": 120
+        },
+        "Sorry about that!"
+      ]
+    },
+    {
+      "result": "answered",
+      "turns": [
+        "Bella Notte.",
+        "7:45 on Friday is open.",
+        "You're all set."
+      ]
+    }
+  ],
+  "expect": {
+    "status": "booked",
+    "booking": {
+      "time": "7:45 pm"
+    },
+    "ended": [
+      "held_too_long",
+      "booked"
+    ]
+  }
+}
