@@ -40,7 +40,9 @@ How each leg is judged (from the live checks recorded on issue #51):
 * Trademarks: not covered. No working trademark source has been captured
   for this tool, so the section says so and names the database it would
   search (USPTO trademark search, United States). It never states a mark
-  or a status.
+  or a status. The section comes from uspto_trademarks.py, which reads an
+  optional key from USPTO_API_KEY only; with no key, or before the keyed
+  search is documented (issue #125), the wording is unchanged.
 
 Handles are checked in lower case (these platforms treat handles case
 insensitively; the recorded X check was x.com/nike). Handle and status
@@ -68,6 +70,7 @@ import urllib.request
 from collections import namedtuple
 from datetime import datetime, timezone
 
+import uspto_trademarks
 from propublica_nonprofits import Node, fenced, inline, skip_ws
 
 RDAP_BASE = "https://rdap.org/domain/"
@@ -266,7 +269,7 @@ def itunes_url(name, limit):
     return ITUNES_SEARCH + "?" + urllib.parse.urlencode({"term": name, "entity": "software", "limit": limit})
 
 
-def report(name, tlds, platforms, limit, variations, countries, fetch=get):
+def report(name, tlds, platforms, limit, variations, countries, fetch=get, env=None):
     lines = ['## Brand name check: "%s"' % name, "",
              "Scope: public lookups at the stated check times. A check time is when the source answered, "
              "not a guarantee the name stays free. Nothing was registered or reserved.", ""]
@@ -323,10 +326,7 @@ def report(name, tlds, platforms, limit, variations, countries, fetch=get):
         evidence(lines, claim, res, "")
     lines += ["Google Play: out of scope. Google Play has no official public search API, so it was not checked.", ""]
 
-    lines += ["### Trademarks", "",
-              "Not covered. No working trademark source has been captured for this tool, so no trademark search "
-              "was run and no mark or status is stated. The database it would search: USPTO trademark search "
-              "(United States). Countries requested: %s." % ", ".join(countries), ""]
+    lines += uspto_trademarks.section(name, countries, env)
 
     if variations:
         lines += ["### Variations", ""]
@@ -366,7 +366,7 @@ def parser():
     return p
 
 
-def main(argv=None, fetch=get):
+def main(argv=None, fetch=get, env=None):
     args = parser().parse_args(argv)
     try:
         tlds = [t.strip().lower().lstrip(".") for t in args.tlds.split(",") if t.strip()]
@@ -388,7 +388,7 @@ def main(argv=None, fetch=get):
     except ValueError as err:
         print("error: %s" % err, file=sys.stderr)
         return 2
-    out = [report(n, tlds, platforms, args.app_limit, args.variations, countries, fetch) for n in args.names]
+    out = [report(n, tlds, platforms, args.app_limit, args.variations, countries, fetch, env) for n in args.names]
     sys.stdout.write("\n".join(out))
     return 0
 
