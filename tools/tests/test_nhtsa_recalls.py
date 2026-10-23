@@ -1,6 +1,6 @@
 """Tests for tools/nhtsa_recalls.py. Standard library only, no network.
 
-Run:  python3 -m unittest discover -s tools -v
+Run:  python3 -m unittest discover -s tools/tests -v
 
 The fixtures are not invented. Every response text below is copied
 verbatim from the published delivery
@@ -23,11 +23,11 @@ import io
 import json
 import os
 import sys
+from pathlib import Path
 import threading
 import unittest
 
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 import nhtsa_recalls as nr  # noqa: E402
 
 # Delivery source S24, "Excerpt (Response head and campaign 1 of 6, in
