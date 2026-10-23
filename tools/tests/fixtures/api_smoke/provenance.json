@@ -1,25 +1,25 @@
 {
   "descriptor.http": {
     "url": "http://127.0.0.1:8765/",
-    "retrieved_utc": "2026-10-23T12:48:42Z",
-    "sha256": "1d5f43d14d06367fa4cdbf89cc3a7608906d20241e4819ab01696642e50c060d",
-    "captured_by": "H3, with tools/api_smoke.py fetch(), from the local gated server: python3 server.py at main f6a3e0c (api.payment_gate:app), PORT=8765",
+    "retrieved_utc": "2026-10-23T14:51:26Z",
+    "sha256": "ff02aa2f1df493658fb84ddbade7016d4445192ed561a9a149167e5843c53171",
+    "captured_by": "H2, with tools/api_smoke.py fetch(), from the local gated server: python3 server.py at main 04ba970 (api.payment_gate:app), PORT=8765; recaptured for issue #95 after GET /openapi.json was added (PR #93, issue #85). The earlier capture was H3's at main f6a3e0c for PR #81.",
     "server_config": "PAYOUT_WALLET_ADDRESS=0x1111111111111111111111111111111111111111, a SYNTHETIC placeholder address chosen for the capture, not any real wallet; FACILITATOR_URL, X402_PRICE_ATOMIC, X402_NETWORK and X402_ASSET at their defaults; no X-PAYMENT header sent, so the facilitator was never contacted",
     "transcript_form": "status line, response headers in the order returned, a blank line, then the body exactly as returned, joined with newline characters"
   },
   "recall-402.http": {
     "url": "http://127.0.0.1:8765/recall?product=Instant+Pot",
-    "retrieved_utc": "2026-10-23T12:48:42Z",
-    "sha256": "f209ed2bbe9d262e8ad92c8fb5f5443fbc318c0fca4a631dab241b07c65c8dc2",
-    "captured_by": "H3, with tools/api_smoke.py fetch(), from the local gated server: python3 server.py at main f6a3e0c (api.payment_gate:app), PORT=8765",
+    "retrieved_utc": "2026-10-23T14:51:26Z",
+    "sha256": "59975b0b187c86675ea23fbc932d4482e152ac17fa24200efd97bc6796bfac34",
+    "captured_by": "H2, with tools/api_smoke.py fetch(), from the local gated server: python3 server.py at main 04ba970 (api.payment_gate:app), PORT=8765; recaptured for issue #95 after GET /openapi.json was added (PR #93, issue #85). The earlier capture was H3's at main f6a3e0c for PR #81.",
     "server_config": "PAYOUT_WALLET_ADDRESS=0x1111111111111111111111111111111111111111, a SYNTHETIC placeholder address chosen for the capture, not any real wallet; FACILITATOR_URL, X402_PRICE_ATOMIC, X402_NETWORK and X402_ASSET at their defaults; no X-PAYMENT header sent, so the facilitator was never contacted",
     "transcript_form": "status line, response headers in the order returned, a blank line, then the body exactly as returned, joined with newline characters"
   },
   "openapi.http": {
     "url": "http://127.0.0.1:8765/openapi.json",
-    "retrieved_utc": "2026-10-23T12:48:42Z",
-    "sha256": "25752d0727689e73e3a3a5639724a8b845b2ed4d5689e44aa855897a858866bf",
-    "captured_by": "H3, with tools/api_smoke.py fetch(), from the local gated server: python3 server.py at main f6a3e0c (api.payment_gate:app), PORT=8765",
+    "retrieved_utc": "2026-10-23T14:51:26Z",
+    "sha256": "5eed4d8f8b5cb9ffd6bf42411e445dfc077aab3987e4016469a900bae0616126",
+    "captured_by": "H2, with tools/api_smoke.py fetch(), from the local gated server: python3 server.py at main 04ba970 (api.payment_gate:app), PORT=8765; recaptured for issue #95 after GET /openapi.json was added (PR #93, issue #85). The earlier capture was H3's at main f6a3e0c for PR #81.",
     "server_config": "PAYOUT_WALLET_ADDRESS=0x1111111111111111111111111111111111111111, a SYNTHETIC placeholder address chosen for the capture, not any real wallet; FACILITATOR_URL, X402_PRICE_ATOMIC, X402_NETWORK and X402_ASSET at their defaults; no X-PAYMENT header sent, so the facilitator was never contacted",
     "transcript_form": "status line, response headers in the order returned, a blank line, then the body exactly as returned, joined with newline characters"
   }
