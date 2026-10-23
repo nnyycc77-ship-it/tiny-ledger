@@ -399,6 +399,38 @@ class PeriodTests(unittest.TestCase):
         self.assertIn("jobs row 13 (W4) dropped: date 2026-11-09 is outside the planning period", self.p.problems)
         self.assertIn("jobs row 14 (W5) dropped: date is blank but the file has a date column", self.p.problems)
 
+    def test_every_dropped_row_is_listed_once_as_unassigned(self):
+        # Job posting acceptance 1 (issue #128): no job may be missing from both
+        # the schedule and the unassigned list. A dropped row goes on its own day
+        # when its date reads and is in the period (J8, 2026-11-03), otherwise on
+        # the first day (W4 outside the period, W5 blank).
+        placed = {d.date.isoformat(): [x.id for x in d.dropped] for d in self.p.days}
+        self.assertEqual(placed, {"2026-11-03": ["J8", "W4", "W5"], "2026-11-04": [], "2026-11-05": []})
+        listed = [s.job.id for d in self.p.days for stops, _ in d.routes.values() for s in stops]
+        listed += [job.id for d in self.p.days for job, _ in d.unassigned]
+        listed += [x.id for d in self.p.days for x in d.dropped]
+        with open(FIX / "jobs-week.csv", newline="", encoding="utf-8") as f:
+            ids = [line.split(",", 1)[0] for line in f.read().splitlines()[1:] if line.strip()]
+        self.assertEqual(sorted(listed), sorted(ids))
+
+    def test_unreadable_row_dated_later_in_the_period_goes_on_its_own_day(self):
+        # SYNTHETIC edit of the committed week fixture: W1 (dated 2026-11-04)
+        # gets an unreadable duration; nothing else changes.
+        text = (FIX / "jobs-week.csv").read_text(encoding="utf-8")
+        edited = text.replace("W1,Hilltop Library,\"5 Summit Avenue, Sampletown\",60,",
+                              "W1,Hilltop Library,\"5 Summit Avenue, Sampletown\",sixty,", 1)
+        self.assertNotEqual(edited, text)
+        with tempfile.TemporaryDirectory() as tmp:
+            jobs = Path(tmp) / "jobs-week-edited.csv"
+            jobs.write_text(edited, encoding="utf-8")
+            argv = list(self.argv)
+            argv[argv.index("--jobs") + 1] = str(jobs)
+            period, _ = planner.load(planner.build_parser().parse_args(argv), env={})
+            period.run()
+        placed = {d.date.isoformat(): [x.id for x in d.dropped] for d in period.days}
+        self.assertEqual(placed["2026-11-04"], ["W1"])
+        self.assertNotIn("W1", placed["2026-11-03"])
+
     def test_customers_suggested_once_across_the_period_and_light_days_get_suggestions(self):
         ids = [s.customer.id for s in self.p.suggestions]
         self.assertEqual(len(ids), len(set(ids)))
@@ -472,6 +504,15 @@ class ReportTests(unittest.TestCase):
         self.assertIn("| 1 | J1 | Northside Dental | 10 Oak Street, Sampletown |", self.text)
         self.assertIn("- jobs row 9 (J8) dropped", self.text)
         self.assertIn("- Job J6 (Westfield Garage, 77 Nowhere Road, Sampletown", self.text)
+
+    def test_dropped_row_is_listed_under_unassigned_with_its_reason(self):
+        # Job posting acceptance 1 (issue #128): J8 cannot be read, so it is
+        # listed under the day's unassigned jobs as well as under data problems.
+        unassigned = self.text.split("### Unassigned jobs", 1)[1].split("### Gaps", 1)[0]
+        self.assertIn("- Job J8 (jobs row 9, Corner Florist, 10 Oak Street, Sampletown): not planned, "
+                      "duration_minutes must be an integer, got 'ninety' (see data problems)", unassigned)
+        problems = self.text.split("## Data problems", 1)[1].split("## Day ", 1)[0]
+        self.assertIn("- jobs row 9 (J8) dropped: duration_minutes must be an integer, got 'ninety'", problems)
 
     def test_suggestions_and_drafts_match_and_exclude_do_not_contact(self):
         drafts = re.findall(r"^### Draft for .* \((K\d+)\)", self.text, re.M)
