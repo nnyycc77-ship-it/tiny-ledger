@@ -1,0 +1,5 @@
+clips-out/
+out/
+*.mp4
+*.srt
+__pycache__/
