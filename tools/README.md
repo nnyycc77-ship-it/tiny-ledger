@@ -312,7 +312,7 @@ The fetch tests run against a local server on 127.0.0.1.
 
 ## Tests
 
-All four suites live in `tools/tests/` and run offline with one
+All five suites live in `tools/tests/` and run offline with one
 discovery command:
 
 ```
