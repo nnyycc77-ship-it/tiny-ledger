@@ -152,6 +152,34 @@ sets or changes the price, network or recipient; those are the owner's.
 4. **Record on issue #38**: the live URL, the price set, the network, and
    the verification result, so the parent issue #33 can close.
 
+## Tools added to the core after deployment (issue #67)
+
+The core on `main` now lists three tools: `recall_check`, and from issue
+#67 `carrier_check` (FMCSA carrier vetting via `tools/fmcsa_carrier.py`)
+and `litigation_screen` (CourtListener RECAP docket screen via
+`tools/courtlistener_recap.py`). Arguments and sources: `mcp_server/README.md`.
+
+What that means for the deployment, stated plainly:
+
+- **Auto deploy stays off.** Merging the two tools to `main` changes the
+  code in this repository and nothing on MCPize. Putting the new tools live
+  on MCPize is a deliberate later step, taken by the owner from the MCPize
+  side when they choose, not part of issue #67 and not part of any merge.
+- **No pricing change.** The pricing block in the root `mcpize.yaml` names
+  one priced tool, `recall_check`, and issue #67 does not touch that file.
+  The two new tools carry no price in the manifest and no payout sentence
+  in their tool descriptions. Whether and how to price them is the owner's
+  decision, recorded in the manifest or the dashboard when it is made.
+- **Listing copy unchanged.** `LISTING.md` describes the live server's one
+  priced tool and stays as it is until the new tools are deployed.
+- **Prerequisites the new tools add**, for the day they go live: outbound
+  HTTPS to `data.transportation.gov`, `safer.fmcsa.dot.gov`,
+  `li-public.fmcsa.dot.gov` and `www.courtlistener.com`; optionally
+  `COURTLISTENER_TOKEN` in the host environment (lifts CourtListener's
+  anonymous rate limit; read at call time, never printed, never in a file
+  in this repo). Whether the MCPize runtime reaches those hosts is not
+  known from this repo and is a check for the go-live step.
+
 ## MCPize facts, as read by the coordinator
 
 Source: [coordinator review on pull request #44](https://github.com/nnyycc77-ship-it/tiny-ledger/pull/44#issuecomment-6356274881), citing the publish page https://mcpize.com/developers/publish-mcp-server and the monetization page https://mcpize.com/docs/monetization, both read 2026-10-23.
