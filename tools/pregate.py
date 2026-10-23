@@ -12,14 +12,32 @@ closed: an error never prints PASS.
   3. provenance  every SHA-256 recorded in a fixture provenance file matches the
                  fixture bytes
 
-Standard library only, fully offline. The diff comes from local git (default
-`git diff <base>...HEAD`), from a unified diff file (`--diff FILE`, `-` for
-stdin), or whole files are treated as added (`--files PATH ...`).
+Standard library only, fully offline. The diff comes from local git, from a
+unified diff file (`--diff FILE`, `-` for stdin), or whole files are treated
+as added (`--files PATH ...`).
 
-  python3 tools/pregate.py                      # diff against origin/main
+  python3 tools/pregate.py                      # working tree vs origin/main
   python3 tools/pregate.py --base main
+  python3 tools/pregate.py --committed          # the committed range only
   git diff main...HEAD | python3 tools/pregate.py --diff -
   python3 tools/pregate.py --files README.md docs/*.md
+
+Which lines git mode gates, and where the honesty label window is read from:
+
+* Default: the working tree against the merge base of `<base>` and HEAD, so
+  an uncommitted edit is gated exactly as it will be committed. Staged and
+  unstaged changes are included, and untracked files (not ignored) count as
+  added whole. The label window is read from the working tree, the same
+  source as the added lines.
+* `--committed`: `git diff <base>...HEAD`, the committed range a reviewer or
+  CI gates. The label window is read from HEAD, again the same source. When
+  the working tree differs from HEAD the gate says so in a NOTE line, since
+  the findings describe the commit and not the files on disk.
+* `--diff` and `--files`: the label window is read from the working tree.
+
+The first output line names the source that was gated. Before this split
+the gate diffed the committed range but read the window from disk, so an
+uncommitted edit produced findings at line numbers that matched neither.
 
 This gate is the mechanical half of the review only. A PASS here does not
 replace the reviewer reading every added line (REVIEW.md says a scan run by a
@@ -94,7 +112,8 @@ Honesty lint rules
   synthetic, sample, placeholder, illustrative, hypothetical, demo, dummy,
   fake or mock, or when the file sits under examples/ or fixtures/. The
   example shapes themselves are removed before looking for a label, so
-  example.com does not label itself.
+  example.com does not label itself. The file is read from the same source
+  as the added lines (working tree by default, HEAD with --committed).
 * tools/pregate.py, tools/pregate-README.md and tools/tests/test_pregate.py
   are exempt from the honesty lint: their text defines and tests its rules,
   so it necessarily contains the phrases the lint looks for. The secrets
@@ -161,16 +180,60 @@ def parse_diff(text):
     return added
 
 
-def git_diff(base, root):
-    cmd = ["git", "-C", str(root), "diff", "--no-color", "--no-renames",
-           "--no-ext-diff", "--unified=0", base + "...HEAD"]
+DIFF_FLAGS = ("--no-color", "--no-renames", "--no-ext-diff", "--unified=0")
+
+
+def git_run(root, *args):
+    """Run one git command in root; stdout bytes, or GateError."""
+    cmd = ["git", "-C", str(root)] + list(args)
     try:
         out = subprocess.run(cmd, capture_output=True, check=False)
     except OSError as exc:
         raise GateError("cannot run git: %s" % exc)
     if out.returncode != 0:
-        raise GateError("git diff %s...HEAD failed: %s" % (base, out.stderr.decode("utf-8", "replace").strip()))
-    return out.stdout.decode("utf-8", "replace")
+        raise GateError("git %s failed: %s" % (" ".join(args), out.stderr.decode("utf-8", "replace").strip()))
+    return out.stdout
+
+
+def git_diff(base, root, committed=False):
+    """Unified diff text of the change plus the list of untracked files.
+
+    Default: merge base of `base` and HEAD -> working tree, so uncommitted
+    edits are gated as they will be committed; untracked (not ignored) files
+    are returned separately to be treated as added whole.
+    committed=True: `base...HEAD`, the committed range only; no untracked
+    files."""
+    if committed:
+        return git_run(root, "diff", *DIFF_FLAGS, base + "...HEAD").decode("utf-8", "replace"), []
+    merge_base = git_run(root, "merge-base", base, "HEAD").decode("utf-8", "replace").strip()
+    text = git_run(root, "diff", *DIFF_FLAGS, merge_base).decode("utf-8", "replace")
+    listing = git_run(root, "ls-files", "--others", "--exclude-standard", "-z").decode("utf-8", "replace")
+    return text, [p for p in listing.split("\0") if p]
+
+
+def git_short(root, rev):
+    return git_run(root, "rev-parse", "--short", rev).decode("utf-8", "replace").strip()
+
+
+def git_dirty_count(root):
+    """Number of working tree paths that differ from HEAD, untracked included."""
+    status = git_run(root, "status", "--porcelain", "--untracked-files=all").decode("utf-8", "replace")
+    return len([l for l in status.splitlines() if l.strip()])
+
+
+def untracked_as_added(paths, root):
+    """Untracked files as whole added files. A file that is not UTF-8 text has
+    no lines to gate, the way git diff reports a binary file without lines."""
+    added = {}
+    for p in paths:
+        try:
+            text = (root / p).read_text(encoding="utf-8")
+        except UnicodeDecodeError:
+            continue
+        except OSError as exc:
+            raise GateError("cannot read %s: %s" % (p, exc))
+        added[p] = list(enumerate(text.splitlines(), start=1))
+    return added
 
 
 def files_as_added(paths, root):
@@ -187,9 +250,18 @@ def files_as_added(paths, root):
 
 
 def file_lines(root, path):
+    """Lines of a file in the working tree, or None when it cannot be read."""
     try:
         return (root / path).read_text(encoding="utf-8").splitlines()
     except (OSError, UnicodeDecodeError):
+        return None
+
+
+def head_lines(root, path):
+    """Lines of a file as committed in HEAD, or None when HEAD has no such file."""
+    try:
+        return git_run(root, "show", "HEAD:" + path).decode("utf-8").splitlines()
+    except (GateError, UnicodeDecodeError):
         return None
 
 
@@ -314,7 +386,11 @@ def claim_matches(sentence, canonical):
     return (s[0].swapcase() + s[1:]) in canonical
 
 
-def lint_honesty(added, root):
+def lint_honesty(added, root, read_lines=None):
+    """read_lines(path) -> the file's lines from the same source as `added`,
+    for the example label window; default is the working tree."""
+    if read_lines is None:
+        read_lines = lambda path: file_lines(root, path)  # noqa: E731
     canonical, (b_start, b_end) = track_record_paragraph(root)
     findings = []
     for path, lines in sorted(added.items()):
@@ -338,7 +414,7 @@ def lint_honesty(added, root):
                     findings.append((path, no, "guarantee language: %r" % m.group(0)))
             if EXAMPLE_SHAPES.search(line) and not under_examples:
                 if full is None:
-                    full = file_lines(root, path) or []
+                    full = read_lines(path) or []
                 window = full[max(0, no - 6):no] if full else [line]
                 if not any(EXAMPLE_LABEL.search(EXAMPLE_SHAPES.sub("", w)) for w in window + [line]):
                     findings.append((path, no, "example data not labelled as an example or fixture"))
@@ -421,24 +497,51 @@ def run(argv=None):
     src.add_argument("--base", default=None, help="git ref to diff against (default origin/main)")
     src.add_argument("--diff", help="unified diff file, or - for stdin")
     src.add_argument("--files", nargs="+", help="treat these whole files as added")
+    ap.add_argument("--committed", action="store_true",
+                    help="git mode: gate the committed range <base>...HEAD only, "
+                         "instead of the working tree against the merge base")
     ap.add_argument("--root", default=str(ROOT), help="repository root (default: this repo)")
     args = ap.parse_args(argv)
     root = Path(args.root)
+    read_lines = None
+    notes = []
     try:
         if args.diff:
             text = sys.stdin.read() if args.diff == "-" else Path(args.diff).read_text(encoding="utf-8")
             added = parse_diff(text)
+            source = "unified diff %s; label window from the working tree" % ("on stdin" if args.diff == "-" else args.diff)
         elif args.files:
             added = files_as_added(args.files, root)
+            source = "%d whole file(s) as added; label window from the working tree" % len(added)
         else:
-            added = parse_diff(git_diff(args.base or "origin/main", root))
+            base = args.base or "origin/main"
+            text, untracked = git_diff(base, root, committed=args.committed)
+            added = parse_diff(text)
+            if args.committed:
+                read_lines = lambda path: head_lines(root, path)  # noqa: E731
+                source = "committed range %s...HEAD (HEAD %s); label window from HEAD" % (base, git_short(root, "HEAD"))
+                dirty = git_dirty_count(root)
+                if dirty:
+                    notes.append("NOTE %d path(s) in the working tree differ from HEAD; these findings describe "
+                                 "the commit, not the files on disk. Run without --committed to gate the "
+                                 "working tree." % dirty)
+            else:
+                extra = untracked_as_added(untracked, root)
+                added.update(extra)
+                source = ("working tree vs merge base %s of %s; %d untracked file(s) included; "
+                          "label window from the working tree"
+                          % (git_short(root, git_run(root, "merge-base", base, "HEAD").decode().strip()),
+                             base, len(extra)))
         n_lines = sum(len(v) for v in added.values())
         secrets = scan_secrets(added)
-        honesty = lint_honesty(added, root)
+        honesty = lint_honesty(added, root, read_lines)
         prov, checked = verify_provenance(root)
     except GateError as exc:
         print("ERROR pregate could not run: %s" % exc)
         return 2
+    print("SOURCE %s" % source)
+    for note in notes:
+        print(note)
     scope = "%d added line(s) in %d file(s)" % (n_lines, len(added))
     ok = report("secrets", secrets, scope)
     ok = report("honesty", honesty, scope) and ok

@@ -294,6 +294,96 @@ class FailClosed(GateCase):
         self.assertIn("n.md:1: guarantee language", out)
 
 
+class GitModes(GateCase):
+    """Git mode gates the working tree by default and the committed range
+    with --committed, reading the honesty label window from the same source
+    in each case. SYNTHETIC repositories throughout; AGENT-BRIEF.md is the
+    REAL TEXT copy from GateCase."""
+
+    def setUp(self):
+        super().setUp()
+        self.g = ["git", "-C", str(self.root), "-c", "user.name=t", "-c", "user.email=t@t.invalid"]
+        subprocess.run(["git", "init", "-q", "-b", "main", str(self.root)], check=True)
+        self.git("add", "AGENT-BRIEF.md")
+        self.git("commit", "-q", "-m", "base")
+        self.git("checkout", "-q", "-b", "work")
+
+    def git(self, *args):
+        subprocess.run(self.g + list(args), check=True)
+
+    def write(self, rel, text):
+        p = self.root / rel
+        p.parent.mkdir(parents=True, exist_ok=True)
+        p.write_text(text, encoding="utf-8")
+
+    def commit(self, rel, text, msg="work"):
+        self.write(rel, text)
+        self.git("add", rel)
+        self.git("commit", "-q", "-m", msg)
+
+    def test_pr49_shape_uncommitted_label_is_gated_as_it_will_be_committed(self):
+        # SYNTHETIC replay of the PR #49 fix round: a committed line carries
+        # unlabelled example data, then the fix inserts a label line above it
+        # in the working tree without committing, which shifts the line.
+        self.commit("docs/usage.md", "# Usage\n\nContact ops@example.com for access.\n")
+        code, out = self.gate("--base", "main")
+        self.assertEqual(code, 1, out)
+        self.assertIn("docs/usage.md:3: example data not labelled", out)
+
+        self.write("docs/usage.md",
+                   "# Usage\n\nThe contact below is a placeholder.\nContact ops@example.com for access.\n")
+        code, out = self.gate("--base", "main")
+        self.assertEqual(code, 0, out)
+        self.assertIn("SOURCE working tree vs merge base", out)
+        self.assertIn("label window from the working tree", out)
+
+        # The committed range is unchanged: the finding stays at the commit's
+        # line 3, with the window read from HEAD (where no label exists), and
+        # the gate says the tree differs from the commit it describes.
+        code, out = self.gate("--base", "main", "--committed")
+        self.assertEqual(code, 1, out)
+        self.assertIn("docs/usage.md:3: example data not labelled", out)
+        self.assertIn("SOURCE committed range main...HEAD", out)
+        self.assertIn("label window from HEAD", out)
+        self.assertIn("NOTE 1 path(s) in the working tree differ from HEAD", out)
+
+    def test_untracked_and_staged_files_are_gated_by_default_only(self):
+        # SYNTHETIC: a new file with guarantee language, first untracked,
+        # then staged; neither is in the committed range.
+        self.write("n.md", "Results are guaranteed.\n")
+        code, out = self.gate("--base", "main")
+        self.assertEqual(code, 1, out)
+        self.assertIn("n.md:1: guarantee language", out)
+        self.assertIn("1 untracked file(s) included", out)
+        code, out = self.gate("--base", "main", "--committed")
+        self.assertEqual(code, 0, out)
+        self.assertIn("0 added line(s) in 0 file(s)", out)
+        self.assertIn("NOTE 1 path(s) in the working tree differ from HEAD", out)
+
+        self.git("add", "n.md")
+        code, out = self.gate("--base", "main")
+        self.assertEqual(code, 1, out)
+        self.assertIn("n.md:1: guarantee language", out)
+        self.assertIn("0 untracked file(s) included", out)
+
+    def test_clean_tree_gives_the_same_result_in_both_modes(self):
+        self.commit("n.md", "Results are guaranteed.\n")
+        default_code, default_out = self.gate("--base", "main")
+        committed_code, committed_out = self.gate("--base", "main", "--committed")
+        self.assertEqual((default_code, committed_code), (1, 1), default_out + committed_out)
+        self.assertIn("n.md:1: guarantee language", default_out)
+        self.assertIn("n.md:1: guarantee language", committed_out)
+        self.assertNotIn("NOTE", committed_out)
+        self.assertEqual(default_out.splitlines()[1:], committed_out.splitlines()[1:])
+
+    def test_untracked_binary_file_has_no_lines_to_gate(self):
+        # SYNTHETIC bytes that are not UTF-8 text.
+        (self.root / "blob.bin").write_bytes(bytes([0xFF, 0xFE, 0x00, 0x80]) * 8)
+        code, out = self.gate("--base", "main")
+        self.assertEqual(code, 0, out)
+        self.assertIn("0 added line(s) in 0 file(s)", out)
+
+
 class SelfCheck(unittest.TestCase):
     def test_gate_passes_its_own_files(self):
         out = io.StringIO()
