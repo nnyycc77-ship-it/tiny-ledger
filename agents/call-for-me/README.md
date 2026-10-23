@@ -11,6 +11,7 @@ Reconciled against the job description and the bid proposal the coordinator post
 | `call_for_me.py` | Brief validation, call schedule, understanding rules, the `CallSession` policy, the job runner, the report, and the simulation harness |
 | `call_sources.py`, `sources/provenance.json` | Pinned provider captures (URL, time, size, sha256) and every quoted line by number, with fetch, build and verify commands |
 | `scenarios/*.json` | SYNTHETIC scripted businesses: the job's four sample scenarios plus four more |
+| `call_runner.py`, `RUNNER.md`, `scenarios/provider/*.json` | The offline runner (issue #109): the same policy played through a fake telephony provider with call events, hold and transfer; eight SYNTHETIC provider scenarios; open design questions |
 
 ## Commands
 
@@ -49,8 +50,9 @@ Every scenario is also checked against invariants that do not depend on its expe
 ## Verification
 
 ```
-python3 -m unittest discover -s tests          # 36 tests, 1 skipped unless CALL_FOR_ME_CAPTURES is set
+python3 -m unittest discover -s tests          # 50 tests, 1 skipped unless CALL_FOR_ME_CAPTURES is set
 python3 call_for_me.py simulate scenarios/*.json   # 8 PASS
+python3 call_runner.py scenarios/provider/*.json   # 8 PASS
 python3 call_sources.py fetch --out DIR && python3 call_sources.py verify --captures DIR
 CALL_FOR_ME_CAPTURES=DIR python3 -m unittest tests.test_call_flow.DocsAndSourcesTests
 ```

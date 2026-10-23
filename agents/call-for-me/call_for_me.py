@@ -309,7 +309,7 @@ INTENT_PATTERNS = [
                     r"|\bconfirmation (number|code) is\b|\bsee you (then|on)\b")),
     ("goodbye", P(r"\b(good ?bye|bye|have a (good|nice) (one|day|evening|night))\b")),
 ]
-CONFIRMATION_RE = P(r"\bconfirmation (?:number|code) is ([A-Z0-9][A-Z0-9-]{2,15})\b")
+CONFIRMATION_RE = P(r"\bconfirmation (?:number|code) is ([A-Z0-9][A-Z0-9-]{1,15})\b")
 TIME_RE = P(r"\b(noon|midday)\b|\b(\d{1,2})(?::([0-5]\d))?\s*(a\.?m\.?|p\.?m\.?|o'?clock)?(?![\w:])")
 NON_OFFER_SPAN_RE = P(r"\bbetween\b[^.?!]*?\band\b\s*\d{1,2}(?::\d{2})?\s*(?:a\.?m\.?|p\.?m\.?)?"
                       r"|\b(?:open|opens|close|closes|closed|until|till|from)\b\s*(?:at\s*)?\d{1,2}(?::\d{2})?\s*(?:a\.?m\.?|p\.?m\.?)?")
@@ -389,7 +389,8 @@ def understand(text, context_date, requested_date, today=None):
     if "payment_required" in heard.intents:
         heard.intents.discard("payment_waived")
     m = CONFIRMATION_RE.search(text)
-    if m:
+    # a code holds a digit or is written in capitals; "is in your email" is not a code
+    if m and (any(ch.isdigit() for ch in m.group(1)) or m.group(1).isupper()):
         heard.confirmation = m.group(1)
         heard.intents.add("confirmed")
     masked = NON_OFFER_SPAN_RE.sub(lambda x: " " * len(x.group(0)), text)
