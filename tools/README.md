@@ -18,6 +18,7 @@ environment and its header comment says so.
 | USAspending contract awards | `usaspending_awards.py` | none needed |
 | CourtListener RECAP docket search | `courtlistener_recap.py` | none needed; optional `COURTLISTENER_TOKEN` from the environment |
 | FMCSA carrier data (Census File, SAFER, Licensing and Insurance) | `fmcsa_carrier.py` | none needed |
+| Google PageSpeed Insights (Lighthouse) | `pagespeed_snapshot.py` | free key from `PAGESPEED_API_KEY`; keyless requests are answered 429 (quota 0) |
 
 ## cpsc_recalls.py
 
@@ -310,9 +311,81 @@ contiguous slices of each JSON response, and the tests close each slice
 syntactically where it ends, values unchanged, as the file explains.
 The fetch tests run against a local server on 127.0.0.1.
 
+## pagespeed_snapshot.py
+
+```sh
+python3 tools/pagespeed_snapshot.py https://example.com/
+python3 tools/pagespeed_snapshot.py --strategy desktop https://example.com/ https://example.com/about
+PAGESPEED_API_KEY=... python3 tools/pagespeed_snapshot.py --subject "Example site" \
+  https://example.com/ --exclude https://example.com/about="redirects to a login page; not a public page"
+```
+
+Catalog service 7 tooling, matching the delivery shape in
+[`templates/service-07-pagespeed-snapshot.md`](../templates/service-07-pagespeed-snapshot.md).
+Up to five page URLs per run; each is measured once with the Google
+PageSpeed Insights API (v5 `runPagespeed`, which runs Lighthouse against
+the live page) with `strategy` (default `mobile`) and the four categories
+`performance`, `accessibility`, `best-practices`, `seo` as request
+parameters. The output opens with a fixed scope line (a snapshot of one
+run at a stated time, not a permanent grade), then one section per page:
+the QUERY line with the exact request, strategy, UTC retrieval time and
+HTTP status; for a 200 JSON response the four category scores and the
+three lab metrics (Largest Contentful Paint, Cumulative Layout Shift,
+Total Blocking Time) as shown, each with the field path it was read from
+under `lighthouseResult`, and `not shown` for any path absent from the
+response. A page the API cannot measure keeps its section: the status,
+the error fields as shown, and its complete raw response. The Sources
+section prints every request's complete raw HTTP transcript directly
+beneath its request URL.
+
+Key. A keyless request from this environment was answered live by the API
+with HTTP 429 and a daily quota of zero for the anonymous consumer; the
+capture is the fixture below.
+Source: [`tests/fixtures/pagespeed/keyless-429.http`](tests/fixtures/pagespeed/keyless-429.http), provenance in [`tests/fixtures/pagespeed/provenance.json`](tests/fixtures/pagespeed/provenance.json)
+```text
+HTTP/1.1 429 Too Many Requests
+```
+```text
+    "message": "Quota exceeded for quota metric 'Queries' and limit 'Queries per day' of service 'pagespeedonline.googleapis.com' for consumer 'project_number:583797351490'.",
+```
+```text
+          "quota_limit_value": "0"
+```
+So a real measurement needs a free API key. If `PAGESPEED_API_KEY` is set
+in the environment its value is sent as the `key` parameter. The value is
+never printed: the recorded request URL shows
+`key=<redacted, supplied from the environment>`, and if the value appears
+anywhere in a response it is replaced by `[key value redacted]` and the
+source block says how many times. No key is written to any file here.
+
+`--exclude URL="reason"` measures the page like any other but lists it
+under "Checked and excluded" with the operator's reason; it is refused for
+a URL that is not among the pages given. The tool never decides
+relevance. A transport failure prints nothing on stdout and exits 2.
+
+Not checked from this environment: a successful (keyed) response, so the
+field paths the tool reads (`lighthouseResult.categories.<name>.score`,
+`lighthouseResult.audits.<id>.displayValue`, `.numericValue`,
+`.numericUnit`) follow the Lighthouse result shape and have not been
+confirmed against a live 200 body; a path that is absent prints
+`not shown`, and the full response is always printed.
+
+### Verification
+
+```sh
+python3 -m unittest discover -s tools/tests -p 'test_pagespeed_snapshot.py' -v
+```
+
+The tests need no network. The error path runs on the real keyless
+capture, whose SHA-256 is checked against its provenance. The success
+path parser runs on a hand built structure that is labelled synthetic at
+the place it appears and carries placeholder values, because no
+successful live response was available. The fetch tests run against a
+local server on 127.0.0.1.
+
 ## Tests
 
-All five suites live in `tools/tests/` and run offline with one
+All six suites live in `tools/tests/` and run offline with one
 discovery command:
 
 ```
