@@ -16,6 +16,7 @@ environment and its header comment says so.
 | CPSC SaferProducts recalls | `cpsc_recalls.py` | none needed |
 | NHTSA recalls API | `nhtsa_recalls.py` | none needed |
 | USAspending contract awards | `usaspending_awards.py` | none needed |
+| FMCSA carrier data (Census File, SAFER, Licensing and Insurance) | `fmcsa_carrier.py` | none needed |
 
 ## cpsc_recalls.py
 
@@ -162,9 +163,86 @@ scope notes are in [`usaspending-README.md`](usaspending-README.md),
 with rendered captured examples in
 [`examples/usaspending.md`](examples/usaspending.md).
 
+## fmcsa_carrier.py
+
+```sh
+python3 tools/fmcsa_carrier.py --subject "GARDA CL CENTRAL INC" --usdot 2046
+python3 tools/fmcsa_carrier.py --usdot 2046 --source census --source safer
+python3 tools/fmcsa_carrier.py --name "CHENEY BROTHERS" \
+  --exclude 123456="different state; not the subject carrier"
+```
+
+One carrier per run, by USDOT number. Three public FMCSA sources are
+queried in order and each gets its own sub-section: claim lines, then
+the source link with the exact query URL and UTC retrieval time, then
+the complete raw HTTP response transcript directly beneath it.
+
+1. FMCSA Company Census File (DOT open data portal, dataset
+   az4n-8mr2, JSON), with the same `$select` field list the published
+   carrier vetting delivery used. The query URL reproduces the one
+   recorded there byte for byte.
+   Source: <https://github.com/nnyycc77-ship-it/tiny-ledger/blob/aaacd5e/deliveries/carrier-vetting-3b4e7143-c7e2-4fda-92f4-c19a99bbd98f.md>
+   ```text
+   https://data.transportation.gov/resource/az4n-8mr2.json?dot_number=2046&$select=dot_number,legal_name,dba_name,phy_city,phy_state,power_units,total_drivers,docket1prefix,docket1,docket1_status_code,safety_rating,safety_rating_date,mcs150_mileage,mcs150_mileage_year,mcs150_date,business_org_desc,carship,carrier_operation,status_code,classdef
+   ```
+   Every selected field is printed as shown or marked not present in
+   the record.
+2. FMCSA SAFER Company Snapshot (HTML). The query URL is the recorded
+   one. The claim lines are the text lines that follow each labelled
+   field in the page text (Entity Type, USDOT Status, Out of Service
+   Date, USDOT Number, MCS-150 Form Date and Mileage, Operating
+   Authority Status, MC/MX/FF Number(s), Legal Name, DBA Name, Physical
+   Address, Phone, Power Units, Non-CMV Units, Drivers, Total
+   Inspections, Rating Date, Review Date, Rating), the way the delivery
+   quotes them. A label that is not in the page text is said to be not
+   found; a blank field is reported as none shown. The inspection, out
+   of service and crash tables are not parsed; they are read from the
+   complete page printed beneath the source link.
+3. FMCSA Licensing and Insurance carrier search (HTML), using the form
+   fields the delivery recorded (`n_dotno`, `s_prefix=MC`,
+   `pv_vpath=LIVIEW`) as a GET query. The delivery records that this
+   site presents a verification challenge to automated reads.
+   Source: <https://github.com/nnyycc77-ship-it/tiny-ledger/blob/aaacd5e/deliveries/carrier-vetting-3b4e7143-c7e2-4fda-92f4-c19a99bbd98f.md>
+   ```text
+   Retrieval note: SAFER and the Census API answered direct automated reads. The Licensing and Insurance site presents a verification challenge to automated reads, so its records were read in a live browser session at the UTC times shown; the excerpts under its entries are the record text as displayed in that session.
+   ```
+   The tool prints whatever the site returns in full. When no record
+   text lines (`US DOT:`, `Docket Number:`, `Legal Name:`) are found in
+   it, the section says so and claims nothing from it.
+
+`--name TEXT` runs a Census File full text search (`$q`) instead and
+lists every returned record as a candidate, with the operator choosing
+the subject carrier; `--exclude USDOT="reason"` lists a candidate as
+checked and excluded with the reason and is refused for a USDOT number
+not in the response. The `$q` query shape and the GET form of the
+Licensing and Insurance request have not been checked against a
+recorded live response; whatever they return is printed verbatim.
+
+A transport failure (no connection, blocked host, timeout) prints
+nothing on stdout and exits 2, so a failed fetch is never shown as an
+empty result. An HTTP error status is captured, printed in full, and
+the claim lines say the fields are not determinable from it. Bodies
+that are not valid UTF-8 are decoded as Latin-1, which keeps every
+byte, and the source block says so. No key is needed or read.
+
+### Verification
+
+```sh
+python3 -m unittest discover -s tools/tests -p 'test_fmcsa_carrier.py' -v
+```
+
+The tests need no network. The fixtures are verbatim copies of sources
+S1, S2, S3, S8, S9 and S35 of the published carrier vetting delivery,
+with their delivery line ranges named in the test file. Two things in
+the tests are labelled as not recordings: the Census excerpt gets the
+object braces the delivery omitted so it parses, values unchanged, and
+the HTML parser runs on a harness that wraps each recorded text line in
+a table row, because no page HTML was recorded. The fetch tests run
+against a local server on 127.0.0.1.
+
 ## Tests
 
-All three suites live in `tools/tests/` and run offline with one
+All four suites live in `tools/tests/` and run offline with one
 discovery command:
 
 ```
