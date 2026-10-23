@@ -1,0 +1,10 @@
+{
+  "_label": "SYNTHETIC request written by hand for the tests of issue #76",
+  "service": "plumbing",
+  "location": "Austin, TX",
+  "job_details": "Replace a 50 gallon gas water heater in a garage; the old unit is leaking at the base.",
+  "timing": "weekday mornings, week of 2026-11-09",
+  "budget_max_usd": 2500,
+  "response_deadline_utc": "2026-11-04T17:00:00Z",
+  "follow_up_after_hours": 48
+}
