@@ -235,6 +235,16 @@ it by cutting, never by adding. Each line paraphrases that tool's own
 `tools/list` description on `main`. The server's description is the
 authority, and nothing here goes beyond it.
 
+One page per tool, stating what it answers, its source and its price, is
+in [`docs/mcpize-tools/`](mcpize-tools/README.md):
+[`recall_check`](mcpize-tools/recall_check.md),
+[`carrier_check`](mcpize-tools/carrier_check.md),
+[`litigation_screen`](mcpize-tools/litigation_screen.md),
+[`formd_check`](mcpize-tools/formd_check.md),
+[`nonprofit_check`](mcpize-tools/nonprofit_check.md),
+[`awards_search`](mcpize-tools/awards_search.md),
+[`pagespeed_snapshot`](mcpize-tools/pagespeed_snapshot.md).
+
 **Title:** Hojo public records checks: sourced recall, carrier, litigation,
 Form D, nonprofit, contract award and PageSpeed lookups
 
