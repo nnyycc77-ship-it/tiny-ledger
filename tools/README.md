@@ -20,6 +20,10 @@ environment and its header comment says so.
 | FMCSA carrier data (Census File, SAFER, Licensing and Insurance) | `fmcsa_carrier.py` | none needed |
 | Google PageSpeed Insights (Lighthouse) | `pagespeed_snapshot.py` | free key from `PAGESPEED_API_KEY`; keyless requests are answered 429 (quota 0) |
 
+Not a fetcher: `pregate.py` is the offline review pre gate (secrets scan,
+honesty lint, fixture provenance check) from `REVIEW.md`. See
+[`pregate-README.md`](pregate-README.md).
+
 ## cpsc_recalls.py
 
 Run from the repository root with Python and curl installed. No API key,
