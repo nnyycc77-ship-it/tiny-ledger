@@ -1,0 +1,205 @@
+HTTP/1.1 200 OK
+Content-Type: text/xml
+Referrer-Policy: strict-origin-when-cross-origin
+Permissions-Policy: geolocation=(), microphone=(), camera=()
+Content-Security-Policy: frame-ancestors 'self'
+X-Frame-Options: SAMEORIGIN
+x-amz-id-2: dfvH2SrCsIhbQ1B7yjZpUlOTvHXhh2N4lnAhFUG1wJ4g8yc8WfzMLSojjdqf/KTA7SAYnoRDoPA=
+x-amz-request-id: Q9FTDT72T109C88A
+x-amz-replication-status: PENDING
+Last-Modified: Thu, 22 Oct 2026 21:26:39 GMT
+ETag: "7bad7bae3151aa11112873b5c37d812b-gzip"
+x-amz-server-side-encryption: AES256
+x-amz-meta-mode: 33188
+x-amz-version-id: jhv5ebKltplqHNsFOAw_XH1KrVr2LzbG
+X-Content-Type-Options: nosniff
+X-XSS-Protection: 1; mode=block
+Pragma: no-cache
+Vary: Accept-Encoding
+Cache-Control: no-cache, no-store, no-transform, proxy-revalidate
+Date: Fri, 23 Oct 2026 03:45:22 GMT
+Content-Length: 7671
+Connection: close
+Strict-Transport-Security: max-age=31536000 ; includeSubDomains ; preload
+Set-Cookie: _abck=919E2689C46AAC179ECE10E78B9D5D68~-1~YAAQZxjQF6K8i0ihAQAAxALdZhCnlbNSi5/ogt7PHXn1VNNGMKZS5UzVI9tR/MUUbSSqthIa0MZgoIC03gpMRuQgeJhIXrpBQspnBSYWyaHUPjNKK6gwakBdU6Y400sZn6war38B/q9w4BpyVdv6eoX5L9wmfRqwK5cA6LoMy3SJvXvZ0nY3N2WdO0H8WeqqaolCWTOHopVHWnwRk7eRWA/rpINLDHM+Zr85QyHHyL4aNRPzlQpHDZP3rxWoxbk9xonEpolHmNTSE8BeM5AXBRPfQ1zlRbw31LbVpJTdYyZIRl+MIRCNkaDlsKuKOCEUC7o47yNMaxwJqWnmR56onDqXEk5hvCcp+wyAbC8twyRaxoulJH0mqUGOMsLF3l8ZKIltSaYm+VtH43MtaSRqNAGjX4q1ZOqI8yR1KivcyfyBVVcULhDdst2i+nYqFzqf+ad7+3UfQFM41g==~-1~-1~-1~-1~-1; Domain=.sec.gov; Path=/; Expires=Sat, 23 Oct 2027 03:45:22 GMT; Max-Age=31536000; SameSite=None; Secure
+Set-Cookie: bm_sz=1E1630D841285E516C24ABD17314F07F~YAAQZxjQF6O8i0ihAQAAxALdZgGrF3iFBL0DvcWFEMVD1up+ZyGm+/UrGoxOyJu5FtAId2QtpKz+B7I7txM17sDpwKf3lGZwYoi7Wqe9Cf2gTXoLWjKqJdQFINbiz6pbqcc3JIK+5dOkAnVO6Nko+frZVVA0GRJjvA9Ghvpbd98EyGW/oilYMcYWeBnFqkXVy+hDB8v5IkggP0d/sof1TpXrqtKwiedAU8loJe0AWb3nUjlvExP2F8K+ujjS/bVWztmSgS3I11oWqzPqBqBLMK703XYxaooeq5jfob+aKaarX7NrdKLe+JducdhPG3JQ2vywkeSvQ288vWIsGfjqrFXjFvn1ZCa7/3tKtUgdFIx4s/he~4339524~4407875; Domain=.sec.gov; Path=/; Expires=Fri, 23 Oct 2026 07:45:22 GMT; Max-Age=14400; SameSite=None; Secure
+
+<?xml version="1.0"?>
+<edgarSubmission>
+
+    <schemaVersion>X0708</schemaVersion>
+
+    <submissionType>D/A</submissionType>
+
+    <testOrLive>LIVE</testOrLive>
+
+    <primaryIssuer>
+        <cik>0001801756</cik>
+        <entityName>Argentem Opportunities Fund LP</entityName>
+        <issuerAddress>
+            <street1>152 West 57 Street</street1>
+            <street2>17th Floor</street2>
+            <city>New York</city>
+            <stateOrCountry>NY</stateOrCountry>
+            <stateOrCountryDescription>NEW YORK</stateOrCountryDescription>
+            <zipCode>10019</zipCode>
+        </issuerAddress>
+        <issuerPhoneNumber>877-235-4500</issuerPhoneNumber>
+        <jurisdictionOfInc>CAYMAN ISLANDS</jurisdictionOfInc>
+        <issuerPreviousNameList>
+            <value>None</value>
+        </issuerPreviousNameList>
+        <edgarPreviousNameList>
+            <previousName>ACP Fund II LP</previousName>
+        </edgarPreviousNameList>
+        <entityType>Limited Partnership</entityType>
+        <yearOfInc>
+            <overFiveYears>true</overFiveYears>
+        </yearOfInc>
+    </primaryIssuer>
+
+    <relatedPersonsList>
+        <relatedPersonInfo>
+            <relatedPersonName>
+                <firstName>N/A</firstName>
+                <lastName>Argentem Creek Partners LP</lastName>
+            </relatedPersonName>
+            <relatedPersonAddress>
+                <street1>152 West 57 Street</street1>
+                <street2>17th Floor</street2>
+                <city>New York</city>
+                <stateOrCountry>NY</stateOrCountry>
+                <stateOrCountryDescription>NEW YORK</stateOrCountryDescription>
+                <zipCode>10019</zipCode>
+            </relatedPersonAddress>
+            <relatedPersonRelationshipList>
+                <relationship>Promoter</relationship>
+            </relatedPersonRelationshipList>
+            <relationshipClarification>Investment Manager of the Issuer</relationshipClarification>
+        </relatedPersonInfo>
+        <relatedPersonInfo>
+            <relatedPersonName>
+                <firstName>n/a</firstName>
+                <lastName>Argentem Opportunities Fund GP LLC</lastName>
+            </relatedPersonName>
+            <relatedPersonAddress>
+                <street1>152 West 57 Street, 17th Floor</street1>
+                <city>New York</city>
+                <stateOrCountry>NY</stateOrCountry>
+                <stateOrCountryDescription>NEW YORK</stateOrCountryDescription>
+                <zipCode>10019</zipCode>
+            </relatedPersonAddress>
+            <relatedPersonRelationshipList>
+                <relationship>Promoter</relationship>
+            </relatedPersonRelationshipList>
+            <relationshipClarification>General Partner of the Issuer</relationshipClarification>
+        </relatedPersonInfo>
+        <relatedPersonInfo>
+            <relatedPersonName>
+                <firstName>Daniel</firstName>
+                <lastName>Chapman</lastName>
+            </relatedPersonName>
+            <relatedPersonAddress>
+                <street1>152 West 57 Street</street1>
+                <street2>17th Floor</street2>
+                <city>New York</city>
+                <stateOrCountry>NY</stateOrCountry>
+                <stateOrCountryDescription>NEW YORK</stateOrCountryDescription>
+                <zipCode>10019</zipCode>
+            </relatedPersonAddress>
+            <relatedPersonRelationshipList>
+                <relationship>Executive Officer</relationship>
+            </relatedPersonRelationshipList>
+            <relationshipClarification>Managing Member of the General Partner of the Issuer</relationshipClarification>
+        </relatedPersonInfo>
+        <relatedPersonInfo>
+            <relatedPersonName>
+                <firstName>Maarten</firstName>
+                <lastName>Terlouw</lastName>
+            </relatedPersonName>
+            <relatedPersonAddress>
+                <street1>152 West 57 Street</street1>
+                <street2>17th Floor</street2>
+                <city>New York</city>
+                <stateOrCountry>NY</stateOrCountry>
+                <stateOrCountryDescription>NEW YORK</stateOrCountryDescription>
+                <zipCode>10019</zipCode>
+            </relatedPersonAddress>
+            <relatedPersonRelationshipList>
+                <relationship>Executive Officer</relationship>
+            </relatedPersonRelationshipList>
+            <relationshipClarification>President of the Managing Member of the General Partner of the Issuer</relationshipClarification>
+        </relatedPersonInfo>
+    </relatedPersonsList>
+
+    <offeringData>
+        <industryGroup>
+            <industryGroupType>Pooled Investment Fund</industryGroupType>
+            <investmentFundInfo>
+                <investmentFundType>Hedge Fund</investmentFundType>
+                <is40Act>false</is40Act>
+            </investmentFundInfo>
+        </industryGroup>
+        <issuerSize>
+            <aggregateNetAssetValueRange>Decline to Disclose</aggregateNetAssetValueRange>
+        </issuerSize>
+        <federalExemptionsExclusions>
+            <item>06b</item>
+            <item>3C</item>
+            <item>3C.7</item>
+        </federalExemptionsExclusions>
+        <typeOfFiling>
+            <newOrAmendment>
+                <isAmendment>true</isAmendment>
+                <previousAccessionNumber>0001801756-20-000001</previousAccessionNumber>
+            </newOrAmendment>
+            <dateOfFirstSale>
+                <value>2020-01-22</value>
+            </dateOfFirstSale>
+        </typeOfFiling>
+        <durationOfOffering>
+            <moreThanOneYear>true</moreThanOneYear>
+        </durationOfOffering>
+        <typesOfSecuritiesOffered>
+            <isPooledInvestmentFundType>true</isPooledInvestmentFundType>
+        </typesOfSecuritiesOffered>
+        <businessCombinationTransaction>
+            <isBusinessCombinationTransaction>false</isBusinessCombinationTransaction>
+        </businessCombinationTransaction>
+        <minimumInvestmentAccepted>0</minimumInvestmentAccepted>
+        <salesCompensationList></salesCompensationList>
+        <offeringSalesAmounts>
+            <totalOfferingAmount>Indefinite</totalOfferingAmount>
+            <totalAmountSold>243290624</totalAmountSold>
+            <totalRemaining>Indefinite</totalRemaining>
+            <clarificationOfResponse>The Total Amount Sold includes investments by the Feeder Fund</clarificationOfResponse>
+        </offeringSalesAmounts>
+        <investors>
+            <hasNonAccreditedInvestors>false</hasNonAccreditedInvestors>
+            <totalNumberAlreadyInvested>8</totalNumberAlreadyInvested>
+        </investors>
+        <salesCommissionsFindersFees>
+            <salesCommissions>
+                <dollarAmount>0</dollarAmount>
+            </salesCommissions>
+            <findersFees>
+                <dollarAmount>0</dollarAmount>
+            </findersFees>
+        </salesCommissionsFindersFees>
+        <useOfProceeds>
+            <grossProceedsUsed>
+                <dollarAmount>0</dollarAmount>
+            </grossProceedsUsed>
+        </useOfProceeds>
+        <signatureBlock>
+            <authorizedRepresentative>false</authorizedRepresentative>
+            <signature>
+                <issuerName>Argentem Opportunities Fund LP</issuerName>
+                <signatureName>/s/ Daniel Chapman</signatureName>
+                <nameOfSigner>Daniel Chapman</nameOfSigner>
+                <signatureTitle>Managing Member of General Partner of the Issuer</signatureTitle>
+                <signatureDate>2026-10-22</signatureDate>
+            </signature>
+        </signatureBlock>
+    </offeringData>
+</edgarSubmission>

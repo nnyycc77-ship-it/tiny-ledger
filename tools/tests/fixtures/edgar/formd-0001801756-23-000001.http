@@ -1,0 +1,264 @@
+HTTP/1.1 200 OK
+Content-Type: text/xml
+Referrer-Policy: strict-origin-when-cross-origin
+Permissions-Policy: geolocation=(), microphone=(), camera=()
+Content-Security-Policy: frame-ancestors 'self'
+X-Frame-Options: SAMEORIGIN
+x-amz-id-2: zgjxQBWQQq1lCIHpDLKq2nkmPFWZUphaAxY/I6+VtB6Je7KPEcRlybaKxq+Edkp9DfE+ZW9giaLWWDpWXuJnB5XWKI+h2k7T
+x-amz-request-id: TD8BXVZ9TP5HRZFN
+x-amz-replication-status: COMPLETED
+Last-Modified: Tue, 31 Jan 2023 20:48:17 GMT
+ETag: "79d1aaaf2e3c406084f04c5e5dd1a571-gzip"
+x-amz-server-side-encryption: AES256
+x-amz-meta-mode: 33188
+x-amz-version-id: QxXl9bl4GlUEhGDZOOEt7YgTdfNpFyp6
+X-Content-Type-Options: nosniff
+X-XSS-Protection: 1; mode=block
+Pragma: no-cache
+Vary: Accept-Encoding
+Cache-Control: no-cache, no-store, no-transform, proxy-revalidate
+Date: Fri, 23 Oct 2026 03:45:23 GMT
+Content-Length: 10475
+Connection: close
+Strict-Transport-Security: max-age=31536000 ; includeSubDomains ; preload
+Set-Cookie: _abck=01B379F102A3B88798FAD7A496EC91B6~-1~YAAQcRjQF6YY9l6hAQAAYQTdZhC9471q1xcUTKtOm09+UL0JBAZS6++IZvi/dYRwSinpcagxzuLJ91gYPczdFiQpgy3AekkRSKgQXvBA2R2QmL90Y3ziJXqoDbS3SnewrViobVJg8r0VCNJqJfHtZMGT+3ooxJ2Fnl7MdwYH+WD0Y/cNyvEvhQFp0rWwnBczaD1PsHFuVocrbWLlhyTf3wb13+Gy1xS7If4khflU1CIOmWg+MHBpyg9QJH02/RrTap3wsuOoE7z2L0z0oAarxtVpfvhovmtTCAEtTzRjZEv/93BmRwXTHbWqhynCuu/vM/Lh61x29Foj6JEdsK7TVWIJ4SU9eKuiyiJtuuRgau9Ogko42AcQe8B664CKKUx+IAtnyYg286yJiwyItJcCxzMyo/eIzZf8SFdbTxcUtddAmU5MaKyd5Z7La9twKiybKpltJf4tUmDnUA==~-1~-1~-1~-1~-1; Domain=.sec.gov; Path=/; Expires=Sat, 23 Oct 2027 03:45:23 GMT; Max-Age=31536000; SameSite=None; Secure
+Set-Cookie: bm_sz=CCAF7F5EFD257A592EC9F1CD87C24E72~YAAQcRjQF6cY9l6hAQAAYQTdZgE4+iin0Y2Ub7FWTLw9VW4JPLfUHAn5XMEWMOp0kDN34/A3j5+nIxGKSnNBPSWzOVctJZlE4wSvehvvmdvkdorbLLyfoe4QA81qcSDieUlIs4FTEVi59Xt9DsbJS9RXxLE4uLgbI62aUu+IKQiHasHWAVGindYhAFxOcf2e2ZYYt4vN5E3Okkj9/0Fcs4RuM+YHLX8NjjQjL/rZhj9Rs0IT5YZRz9UMWIi9UR6y9CFhdRVS597JOzwCJnyUBUWUEqP29c7lfuR+9p80Rgxi1mWzdNoQGzSFziZR9L8YzhkwoN1oYEk632xJamymMePXUNSA8m+9Xy0VoEvsU9IFbIcz~4339524~4407875; Domain=.sec.gov; Path=/; Expires=Fri, 23 Oct 2026 07:45:22 GMT; Max-Age=14399; SameSite=None; Secure
+
+<?xml version="1.0"?>
+<edgarSubmission>
+
+    <schemaVersion>X0708</schemaVersion>
+
+    <submissionType>D/A</submissionType>
+
+    <testOrLive>LIVE</testOrLive>
+
+    <primaryIssuer>
+        <cik>0001801756</cik>
+        <entityName>ACP Fund II LP</entityName>
+        <issuerAddress>
+            <street1>12800 WHITEWATER DR.</street1>
+            <street2>SUITE 210</street2>
+            <city>MINNETONKA</city>
+            <stateOrCountry>MN</stateOrCountry>
+            <stateOrCountryDescription>MINNESOTA</stateOrCountryDescription>
+            <zipCode>55343</zipCode>
+        </issuerAddress>
+        <issuerPhoneNumber>877-235-4500</issuerPhoneNumber>
+        <jurisdictionOfInc>CAYMAN ISLANDS</jurisdictionOfInc>
+        <issuerPreviousNameList>
+            <value>None</value>
+        </issuerPreviousNameList>
+        <edgarPreviousNameList>
+            <value>None</value>
+        </edgarPreviousNameList>
+        <entityType>Limited Partnership</entityType>
+        <yearOfInc>
+            <withinFiveYears>true</withinFiveYears>
+            <value>2019</value>
+        </yearOfInc>
+    </primaryIssuer>
+
+    <relatedPersonsList>
+        <relatedPersonInfo>
+            <relatedPersonName>
+                <firstName>N/A</firstName>
+                <lastName>Argentem Creek GP II LLC</lastName>
+            </relatedPersonName>
+            <relatedPersonAddress>
+                <street1>12800 Whitewater Drive</street1>
+                <street2>Suite 210</street2>
+                <city>Minnetonka</city>
+                <stateOrCountry>MN</stateOrCountry>
+                <stateOrCountryDescription>MINNESOTA</stateOrCountryDescription>
+                <zipCode>55343</zipCode>
+            </relatedPersonAddress>
+            <relatedPersonRelationshipList>
+                <relationship>Promoter</relationship>
+            </relatedPersonRelationshipList>
+            <relationshipClarification>General Partner of the Issuer</relationshipClarification>
+        </relatedPersonInfo>
+        <relatedPersonInfo>
+            <relatedPersonName>
+                <firstName>N/A</firstName>
+                <lastName>Argentem Creek GP Holdings LP</lastName>
+            </relatedPersonName>
+            <relatedPersonAddress>
+                <street1>12800 Whitewater Drive</street1>
+                <street2>Suite 210</street2>
+                <city>Minnetonka</city>
+                <stateOrCountry>MN</stateOrCountry>
+                <stateOrCountryDescription>MINNESOTA</stateOrCountryDescription>
+                <zipCode>55343</zipCode>
+            </relatedPersonAddress>
+            <relatedPersonRelationshipList>
+                <relationship>Promoter</relationship>
+            </relatedPersonRelationshipList>
+            <relationshipClarification>Manager of the General Partner of the Issuer</relationshipClarification>
+        </relatedPersonInfo>
+        <relatedPersonInfo>
+            <relatedPersonName>
+                <firstName>N/A</firstName>
+                <lastName>Argentem Creek Holdings LLC</lastName>
+            </relatedPersonName>
+            <relatedPersonAddress>
+                <street1>12800 Whitewater Dr.</street1>
+                <street2>Suite 210</street2>
+                <city>Minnetonka</city>
+                <stateOrCountry>MN</stateOrCountry>
+                <stateOrCountryDescription>MINNESOTA</stateOrCountryDescription>
+                <zipCode>55343</zipCode>
+            </relatedPersonAddress>
+            <relatedPersonRelationshipList>
+                <relationship>Promoter</relationship>
+            </relatedPersonRelationshipList>
+            <relationshipClarification>General Partner of the Manager of the General Partner of the Issuer</relationshipClarification>
+        </relatedPersonInfo>
+        <relatedPersonInfo>
+            <relatedPersonName>
+                <firstName>Daniel</firstName>
+                <lastName>Chapman</lastName>
+            </relatedPersonName>
+            <relatedPersonAddress>
+                <street1>156 West 56th Street</street1>
+                <street2>12th Floor</street2>
+                <city>New York</city>
+                <stateOrCountry>NY</stateOrCountry>
+                <stateOrCountryDescription>NEW YORK</stateOrCountryDescription>
+                <zipCode>10019</zipCode>
+            </relatedPersonAddress>
+            <relatedPersonRelationshipList>
+                <relationship>Executive Officer</relationship>
+            </relatedPersonRelationshipList>
+            <relationshipClarification>Chief Investment Officer of the Investment Manager</relationshipClarification>
+        </relatedPersonInfo>
+        <relatedPersonInfo>
+            <relatedPersonName>
+                <firstName>Ethan</firstName>
+                <lastName>Mark</lastName>
+            </relatedPersonName>
+            <relatedPersonAddress>
+                <street1>12800 Whitewater Drive</street1>
+                <street2>Suite 210</street2>
+                <city>Minnetonka</city>
+                <stateOrCountry>MN</stateOrCountry>
+                <stateOrCountryDescription>MINNESOTA</stateOrCountryDescription>
+                <zipCode>55343</zipCode>
+            </relatedPersonAddress>
+            <relatedPersonRelationshipList>
+                <relationship>Executive Officer</relationship>
+            </relatedPersonRelationshipList>
+            <relationshipClarification>General Counsel of the Investment Manager</relationshipClarification>
+        </relatedPersonInfo>
+        <relatedPersonInfo>
+            <relatedPersonName>
+                <firstName>Robert</firstName>
+                <lastName>Hargraves</lastName>
+            </relatedPersonName>
+            <relatedPersonAddress>
+                <street1>156 West 56th Street</street1>
+                <street2>12th Floor</street2>
+                <city>New York</city>
+                <stateOrCountry>NY</stateOrCountry>
+                <stateOrCountryDescription>NEW YORK</stateOrCountryDescription>
+                <zipCode>10019</zipCode>
+            </relatedPersonAddress>
+            <relatedPersonRelationshipList>
+                <relationship>Executive Officer</relationship>
+            </relatedPersonRelationshipList>
+            <relationshipClarification>Head of Global Business Development of the Investment Manager</relationshipClarification>
+        </relatedPersonInfo>
+        <relatedPersonInfo>
+            <relatedPersonName>
+                <firstName>Nick</firstName>
+                <lastName>Olson</lastName>
+            </relatedPersonName>
+            <relatedPersonAddress>
+                <street1>12800 Whitewater Drive</street1>
+                <street2>Suite 210</street2>
+                <city>Minnetonka</city>
+                <stateOrCountry>MN</stateOrCountry>
+                <stateOrCountryDescription>MINNESOTA</stateOrCountryDescription>
+                <zipCode>55343</zipCode>
+            </relatedPersonAddress>
+            <relatedPersonRelationshipList>
+                <relationship>Executive Officer</relationship>
+            </relatedPersonRelationshipList>
+            <relationshipClarification>Chief Financial Officer and Chief Compliance Officer of the Investment Manager</relationshipClarification>
+        </relatedPersonInfo>
+    </relatedPersonsList>
+
+    <offeringData>
+        <industryGroup>
+            <industryGroupType>Pooled Investment Fund</industryGroupType>
+            <investmentFundInfo>
+                <investmentFundType>Other Investment Fund</investmentFundType>
+                <is40Act>false</is40Act>
+            </investmentFundInfo>
+        </industryGroup>
+        <issuerSize>
+            <aggregateNetAssetValueRange>Decline to Disclose</aggregateNetAssetValueRange>
+        </issuerSize>
+        <federalExemptionsExclusions>
+            <item>06b</item>
+            <item>3C</item>
+            <item>3C.7</item>
+        </federalExemptionsExclusions>
+        <typeOfFiling>
+            <newOrAmendment>
+                <isAmendment>true</isAmendment>
+                <previousAccessionNumber>0001801756-22-000001</previousAccessionNumber>
+            </newOrAmendment>
+            <dateOfFirstSale>
+                <value>2020-01-22</value>
+            </dateOfFirstSale>
+        </typeOfFiling>
+        <durationOfOffering>
+            <moreThanOneYear>true</moreThanOneYear>
+        </durationOfOffering>
+        <typesOfSecuritiesOffered>
+            <isPooledInvestmentFundType>true</isPooledInvestmentFundType>
+        </typesOfSecuritiesOffered>
+        <businessCombinationTransaction>
+            <isBusinessCombinationTransaction>false</isBusinessCombinationTransaction>
+            <clarificationOfResponse></clarificationOfResponse>
+        </businessCombinationTransaction>
+        <minimumInvestmentAccepted>0</minimumInvestmentAccepted>
+        <salesCompensationList></salesCompensationList>
+        <offeringSalesAmounts>
+            <totalOfferingAmount>Indefinite</totalOfferingAmount>
+            <totalAmountSold>136998813</totalAmountSold>
+            <totalRemaining>Indefinite</totalRemaining>
+            <clarificationOfResponse></clarificationOfResponse>
+        </offeringSalesAmounts>
+        <investors>
+            <hasNonAccreditedInvestors>false</hasNonAccreditedInvestors>
+            <totalNumberAlreadyInvested>9</totalNumberAlreadyInvested>
+        </investors>
+        <salesCommissionsFindersFees>
+            <salesCommissions>
+                <dollarAmount>0</dollarAmount>
+            </salesCommissions>
+            <findersFees>
+                <dollarAmount>0</dollarAmount>
+            </findersFees>
+            <clarificationOfResponse></clarificationOfResponse>
+        </salesCommissionsFindersFees>
+        <useOfProceeds>
+            <grossProceedsUsed>
+                <dollarAmount>0</dollarAmount>
+            </grossProceedsUsed>
+            <clarificationOfResponse></clarificationOfResponse>
+        </useOfProceeds>
+        <signatureBlock>
+            <authorizedRepresentative>false</authorizedRepresentative>
+            <signature>
+                <issuerName>ACP Fund II LP</issuerName>
+                <signatureName>/s/ Ethan Mark</signatureName>
+                <nameOfSigner>Ethan Mark</nameOfSigner>
+                <signatureTitle>General Counsel of the Investment Manager</signatureTitle>
+                <signatureDate>2023-01-31</signatureDate>
+            </signature>
+        </signatureBlock>
+    </offeringData>
+</edgarSubmission>
