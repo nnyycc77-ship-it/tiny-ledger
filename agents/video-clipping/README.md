@@ -55,7 +55,36 @@ The core path needs no account and no key.
    - `manifest.json`: moments, scores, reasons, crop boxes and files;
    - `report.md`: the deliverable text.
 
-5. **Deliver through the NEAR worker loop** (`near-agent/`, PR #52).
+5. **Change specific clips** (issue #129, job criterion 7: "When asked to
+   change specific clips, it changes only those clips and keeps the rest as
+   delivered"). This writes a new folder and leaves the earlier delivery
+   untouched:
+
+   ```sh
+   python3 agents/video-clipping/clipper.py revise --from out/ --clips 2 \
+     --video talk.mp4 --engine vosk --note "a different moment for clip 2" --out out-rev1/
+   ```
+
+   - Without bounds, each named clip gets the next best moment. That moment
+     overlaps neither a kept clip nor the clip it replaces, and its reason
+     line starts "next best moment after the change request".
+   - With `--start S --end E`, for one clip only, the buyer sets the bounds.
+     Bounds that cut through a word, or overlap a kept clip, are refused.
+   - The source must be the same file: same name and same duration as in
+     the earlier `manifest.json`.
+   - A delivery made with `--retention FILE` is revised with the same file,
+     so the new moment is ranked on the same basis. Without the file it is
+     refused. A retention file for a delivery that had none is refused too.
+   - Every file of the other clips is copied byte for byte. The changed
+     clips are cut again in every platform of the original brief, with
+     captions if the brief had them.
+   - `report.md` gains a "Revision" section. It quotes the change request
+     and lists every file as changed (with its old SHA-256) or kept as
+     delivered.
+   - `manifest.json` gains a `revision` block.
+   - A refusal writes nothing.
+
+6. **Deliver through the NEAR worker loop** (`near-agent/`, PR #52).
    1. `worker.py poll` shows the assignment.
    2. The operator runs this agent on the buyer's file.
    3. `report.md` is the `deliverableMarkdown` that `worker.py submit`

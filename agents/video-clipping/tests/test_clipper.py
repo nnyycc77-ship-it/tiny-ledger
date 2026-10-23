@@ -12,6 +12,7 @@ Needs ffmpeg and ffprobe on PATH; the suite is skipped, not failed, when
 they are missing.
 """
 
+import hashlib
 import io
 import json
 import shutil
@@ -343,6 +344,130 @@ class RetentionRunTests(unittest.TestCase):
             self.assertIn("retention file", err)
             self.assertFalse(out.exists(), name)
 
+
+def file_hashes(folder):
+    return {p.name: hashlib.sha256(p.read_bytes()).hexdigest() for p in Path(folder).iterdir()
+            if p.suffix in (".mp4", ".srt")}
+
+
+@unittest.skipUnless(HAVE_FFMPEG, "ffmpeg and ffprobe are needed for the media tests")
+class RevisionTests(unittest.TestCase):
+    """revise changes only the named clips and keeps the rest byte for byte (job criterion 7)."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.tmp = tempfile.TemporaryDirectory()
+        cls.folder = Path(cls.tmp.name)
+        cls.video, cls.transcript = make_fixture(cls.folder)
+        cls.out = cls.folder / "delivered"
+        code = clipper.main(["run", "--video", str(cls.video), "--transcript", str(cls.transcript),
+                             "--clips", "2", "--platforms", "tiktok,square", "--captions",
+                             "--min-seconds", "8", "--max-seconds", "15", "--out", str(cls.out),
+                             "--preset", "ultrafast"], stdout=io.StringIO(), stderr=io.StringIO())
+        assert code == 0
+        cls.before = file_hashes(cls.out)
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.tmp.cleanup()
+
+    def revise(self, name, *extra):
+        out, err = self.folder / name, io.StringIO()
+        code = clipper.main(["revise", "--from", str(self.out), "--video", str(self.video),
+                             "--transcript", str(self.transcript), "--out", str(out),
+                             "--preset", "ultrafast"] + list(extra), stdout=io.StringIO(), stderr=err)
+        return code, out, err.getvalue()
+
+    def test_next_moment_changes_only_the_named_clip(self):
+        code, out, err = self.revise("rev-next", "--clips", "2", "--note", "another moment for clip 2")
+        self.assertEqual(code, 0, err)
+        after = file_hashes(out)
+        self.assertEqual(set(after), set(self.before))
+        changed = sorted(f for f in after if after[f] != self.before[f])
+        self.assertEqual(changed, ["clip_02.srt", "clip_02_square.mp4", "clip_02_tiktok.mp4"])
+        old = json.loads((self.out / "manifest.json").read_text(encoding="utf-8"))
+        new = json.loads((out / "manifest.json").read_text(encoding="utf-8"))
+        self.assertEqual(new["moments"][0], old["moments"][0])
+        self.assertNotEqual((new["moments"][1]["start"], new["moments"][1]["end"]),
+                            (old["moments"][1]["start"], old["moments"][1]["end"]))
+        self.assertTrue(new["moments"][1]["reason"].startswith("next best moment after the change request"))
+        rows = {r["file"]: r for r in new["revision"]["files"]}
+        self.assertEqual(rows["clip_01_tiktok.mp4"]["status"], "kept as delivered")
+        self.assertEqual(rows["clip_02_tiktok.mp4"]["sha256_before"], self.before["clip_02_tiktok.mp4"])
+        report = (out / "report.md").read_text(encoding="utf-8")
+        self.assertIn("## Revision", report)
+        self.assertIn("Change request: another moment for clip 2", report)
+
+    def test_set_bounds_on_word_gaps(self):
+        old = json.loads((self.out / "manifest.json").read_text(encoding="utf-8"))
+        code, out, err = self.revise("rev-bounds", "--clips", "2", "--start", "1.0", "--end", "9.4")
+        self.assertEqual(code, 0, err)
+        new = json.loads((out / "manifest.json").read_text(encoding="utf-8"))
+        self.assertEqual((new["moments"][1]["start"], new["moments"][1]["end"]), (1.0, 9.4))
+        self.assertEqual(new["moments"][1]["reason"], "bounds set by the change request")
+        self.assertEqual(new["moments"][0], old["moments"][0])
+
+    def test_bounds_through_a_word_are_refused(self):
+        code, out, err = self.revise("rev-cut", "--clips", "2", "--start", "1.2", "--end", "9.4")
+        self.assertEqual(code, 2)
+        self.assertIn("cut through the word", err)
+        self.assertFalse(out.exists())
+
+    def test_refusals_write_nothing(self):
+        cases = [(["--clips", "7"], "no clip 7"),
+                 (["--clips", "1,2", "--start", "1.0", "--end", "9.4"], "name exactly one clip"),
+                 (["--clips", "2", "--start", "14.38", "--end", "20.38"], "overlap a clip that is kept")]
+        for n, (extra, message) in enumerate(cases):
+            code, out, err = self.revise("rev-bad-%d" % n, *extra)
+            self.assertEqual(code, 2, extra)
+            self.assertIn(message, err)
+            self.assertFalse(out.exists())
+        code, _, err = self.revise("delivered", "--clips", "2")
+        self.assertEqual(code, 2)
+        self.assertIn("never overwritten", err)
+        self.assertEqual(file_hashes(self.out), self.before)
+
+    def test_revision_keeps_the_retention_basis(self):
+        retention = self.folder / "retention.json"
+        retention.write_text(json.dumps(RETENTION_PEAK), encoding="utf-8")
+        delivered = self.folder / "delivered-retention"
+        code = clipper.main(["run", "--video", str(self.video), "--transcript", str(self.transcript),
+                             "--clips", "2", "--platforms", "square", "--min-seconds", "6", "--max-seconds", "15",
+                             "--retention", str(retention), "--out", str(delivered), "--preset", "ultrafast"],
+                            stdout=io.StringIO(), stderr=io.StringIO())
+        self.assertEqual(code, 0)
+        base = ["revise", "--from", str(delivered), "--video", str(self.video), "--transcript",
+                str(self.transcript), "--clips", "2", "--preset", "ultrafast"]
+        err = io.StringIO()
+        code = clipper.main(base + ["--out", str(self.folder / "rev-ret-missing")], stdout=io.StringIO(), stderr=err)
+        self.assertEqual(code, 2)
+        self.assertIn("pass the same --retention file", err.getvalue())
+        self.assertFalse((self.folder / "rev-ret-missing").exists())
+        out = self.folder / "rev-ret"
+        code = clipper.main(base + ["--retention", str(retention), "--out", str(out)], stdout=io.StringIO(),
+                            stderr=io.StringIO())
+        self.assertEqual(code, 0)
+        new = json.loads((out / "manifest.json").read_text(encoding="utf-8"))
+        self.assertEqual(new["retention"]["kind"], "most_replayed")
+        self.assertIn("## Retention data", (out / "report.md").read_text(encoding="utf-8"))
+        before, after = file_hashes(delivered), file_hashes(out)
+        self.assertEqual(sorted(f for f in after if after[f] != before.get(f)), ["clip_02_square.mp4"])
+        err = io.StringIO()
+        code = clipper.main(["revise", "--from", str(self.out), "--video", str(self.video), "--transcript",
+                             str(self.transcript), "--clips", "2", "--retention", str(retention),
+                             "--out", str(self.folder / "rev-ret-extra")], stdout=io.StringIO(), stderr=err)
+        self.assertEqual(code, 2)
+        self.assertIn("used no retention data", err.getvalue())
+
+    def test_a_different_source_is_refused(self):
+        other = self.folder / "other.mp4"
+        other.write_bytes(self.video.read_bytes())
+        out, err = self.folder / "rev-other", io.StringIO()
+        code = clipper.main(["revise", "--from", str(self.out), "--video", str(other), "--transcript",
+                             str(self.transcript), "--clips", "2", "--out", str(out)],
+                            stdout=io.StringIO(), stderr=err)
+        self.assertEqual(code, 2)
+        self.assertIn("was cut from fixture.mp4", err.getvalue())
 
 if __name__ == "__main__":
     unittest.main()

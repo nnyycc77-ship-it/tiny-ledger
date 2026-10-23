@@ -8,7 +8,7 @@ chosen moments with ffmpeg: resized per platform, reframed to keep the
 speaker in frame, captions burned in only when the brief asks. Every chosen
 moment carries a one line reason.
 
-Two commands, both run from the repository root:
+Three commands, all run from the repository root:
 
   plan  transcribe and score, then print the chosen moments, their reasons,
         and the exact ffmpeg command for every clip. Encodes nothing.
@@ -16,6 +16,11 @@ Two commands, both run from the repository root:
         clips, manifest.json (moments, reasons, files) and report.md (the
         deliverable Markdown, the body a NEAR assignment submit carries as
         deliverableMarkdown; see near-agent/README.md).
+  revise
+        change only the named clips of an earlier delivery: the next best
+        moment that overlaps no clip, or bounds the buyer gives (never
+        through a word). Every other clip is copied byte for byte into a new
+        folder, and the report lists each file's status and SHA-256.
 
     python3 agents/video-clipping/clipper.py plan --video in.mp4 \\
         --transcript words.json --clips 3 --platforms tiktok,landscape
@@ -49,8 +54,10 @@ Standard library only, plus ffmpeg and ffprobe on PATH.
 """
 
 import argparse
+import hashlib
 import json
 import os
+import shutil
 import sys
 from pathlib import Path
 
@@ -175,8 +182,14 @@ def plan(video, engine, brief, out_dir, preset, retention_path=None):
                              "points": len(retention.points),
                              "median": round(retention.median(info["duration"]), 4),
                              "peaks": peak_notes(retention, info["duration"], candidates, moments, brief)}
+    jobs = make_jobs(video, info, brief, list(enumerate(moments, 1)), preset)
+    return info, transcript, moments, jobs
+
+
+def make_jobs(video, info, brief, numbered, preset):
+    """One ffmpeg job per (clip number, moment) and platform."""
     jobs = []
-    for n, moment in enumerate(moments, 1):
+    for n, moment in numbered:
         focus = media.horizontal_focus(video, moment.start, moment.duration,
                                        info["width"], info["height"])
         for platform in brief["platforms"]:
@@ -190,7 +203,7 @@ def plan(video, engine, brief, out_dir, preset, retention_path=None):
                 "command": media.cut_command(video, moment.start, moment.duration, box,
                                              out_w, out_h, name, srt, preset),
             })
-    return info, transcript, moments, jobs
+    return jobs
 
 
 def write_outputs(out_dir, video, info, transcript, brief, moments, jobs):
@@ -236,6 +249,151 @@ def write_outputs(out_dir, video, info, transcript, brief, moments, jobs):
     return manifest
 
 
+def _sha256(path):
+    with open(path, "rb") as fh:
+        return hashlib.sha256(fh.read()).hexdigest()
+
+
+def revise_plan(args, video, engine, preset):
+    """Read an earlier delivery and choose the replacement moments for the
+    named clips. Every other clip is kept exactly as delivered."""
+    src_dir, out_dir = Path(args.from_dir), Path(args.out)
+    try:
+        with open(src_dir / "manifest.json", encoding="utf-8") as fh:
+            old = json.load(fh)
+    except (OSError, ValueError) as err:
+        raise ClipError("cannot read %s: %s" % (src_dir / "manifest.json", err))
+    if out_dir.resolve() == src_dir.resolve():
+        raise ClipError("--out must be a new folder; the earlier delivery is never overwritten")
+    if out_dir.exists() and any(out_dir.iterdir()):
+        raise ClipError("--out %s already holds files; give an empty or new folder" % out_dir)
+    numbers = [m["clip"] for m in old["moments"]]
+    try:
+        named = sorted({int(x) for x in args.clips_to_change.split(",") if x.strip()})
+    except ValueError:
+        raise ClipError("--clips takes clip numbers, for example 2 or 1,3")
+    unknown = [n for n in named if n not in numbers]
+    if not named or unknown:
+        raise ClipError("no clip %s in the earlier delivery; it has clips %s"
+                        % (", ".join(map(str, unknown)) or "(none)", ", ".join(map(str, numbers))))
+    if os.path.basename(video) != old["source"]:
+        raise ClipError("the earlier delivery was cut from %s, not %s" % (old["source"], os.path.basename(video)))
+    media.require_tools()
+    info = media.probe(video)
+    if abs(info["duration"] - old["source_duration"]) > 0.05:
+        raise ClipError("%s is %.3f s long; the earlier delivery's source was %.3f s, so it is not the same file"
+                        % (video, info["duration"], old["source_duration"]))
+    retention = load_retention(getattr(args, "retention", None), info["duration"])
+    if old.get("retention") and retention is None:
+        raise ClipError("the earlier delivery ranked moments by %s data (%s); pass the same --retention file"
+                        % (old["retention"]["kind"], old["retention"]["source"]))
+    if retention is not None and not old.get("retention"):
+        raise ClipError("the earlier delivery used no retention data; a revision keeps the original basis")
+    brief = old["brief"]
+    transcript = engine.transcribe(video)
+    energy = media.audio_energy(video)
+    candidates = scoring.score_candidates(transcript.words, energy, media.ENERGY_STEP,
+                                          brief["min_seconds"], brief["max_seconds"],
+                                          retention, info["duration"])
+    kept = [m for m in old["moments"] if m["clip"] not in named]
+    replaced = [m for m in old["moments"] if m["clip"] in named]
+
+    def clear_of(cand, others):
+        return all(cand.end <= o["start"] or cand.start >= o["end"] for o in others)
+
+    if args.start is not None or args.end is not None:
+        if len(named) != 1 or args.start is None or args.end is None:
+            raise ClipError("--start and --end set one clip's bounds: name exactly one clip and give both")
+        start, end = float(args.start), float(args.end)
+        if not 0 <= start < end <= info["duration"]:
+            raise ClipError("need 0 <= start < end <= %.3f" % info["duration"])
+        cut = [w.text for w in transcript.words if w.start < start < w.end or w.start < end < w.end]
+        if cut:
+            raise ClipError("those bounds cut through the word(s) %s; move them to a gap between words"
+                            % ", ".join(repr(w) for w in cut))
+        inside = [w for w in transcript.words if w.start >= start and w.end <= end]
+        if not inside:
+            raise ClipError("no words between %.3f and %.3f s" % (start, end))
+        new = [scoring.Moment(start, end, " ".join(w.text for w in inside), 0.0,
+                              ["bounds set by the change request"])]
+        if not clear_of(new[0], kept):
+            raise ClipError("those bounds overlap a clip that is kept")
+    else:
+        free = [c for c in candidates if clear_of(c, kept + replaced)]
+        new = scoring.choose(free, len(named))
+        if len(new) < len(named):
+            raise ClipError("asked to change %d clip(s); this source has %d other non overlapping moments "
+                            "that fit %.0f to %.0f seconds" % (len(named), len(new), brief["min_seconds"],
+                                                               brief["max_seconds"]))
+        for m in new:
+            m.reasons = ["next best moment after the change request"] + m.reasons
+    numbered = list(zip(named, new))
+    jobs = make_jobs(video, info, brief, numbered, preset)
+    return old, info, transcript, brief, kept, numbered, jobs, retention, candidates
+
+
+def revise(args, stdout, stderr):
+    src_dir, out_dir = Path(args.from_dir), Path(args.out)
+    try:
+        engine = transcribe.make_engine(args.engine, args.transcript)
+        old, info, transcript, brief, kept, numbered, jobs, retention, candidates = revise_plan(
+            args, args.video, engine, args.preset)
+    except (ClipError, transcribe.EngineError, media.MediaError) as err:
+        stderr.write("error: %s\n" % err)
+        return 2
+    named = [n for n, _ in numbered]
+    kept_files = [f for f in old["files"] if f["clip"] not in named]
+    kept_srts = sorted({f["srt"] for f in kept_files if f.get("srt")})
+    out_dir.mkdir(parents=True, exist_ok=True)
+    try:
+        for name in [f["file"] for f in kept_files] + kept_srts:
+            shutil.copyfile(src_dir / name, out_dir / name)
+        for n, m in numbered:
+            if brief["captions"]:
+                media.write_srt(out_dir / ("clip_%02d.srt" % n), transcript.words, m.start, m.end)
+        for job in jobs:
+            media.run_in(job["command"], cwd=str(out_dir))
+    except (media.MediaError, OSError) as err:
+        stderr.write("error: %s\n" % err)
+        return 2
+    by_clip = dict(numbered)
+    for m in kept:
+        by_clip[m["clip"]] = scoring.Moment(m["start"], m["end"], m["text"], m["score"],
+                                            m["reason"].split("; "))
+        by_clip[m["clip"]].retention_lift = m.get("retention_lift")
+    ordered = [by_clip[n] for n in sorted(by_clip)]
+    info["retention"] = None
+    if retention is not None:
+        info["retention"] = {"kind": retention.kind, "source": retention.source,
+                             "points": len(retention.points),
+                             "median": round(retention.median(info["duration"]), 4),
+                             "peaks": peak_notes(retention, info["duration"], candidates, ordered, brief)}
+    all_jobs = sorted([dict(f) for f in kept_files] + jobs, key=lambda j: (j["clip"], j["file"]))
+    manifest = write_outputs(out_dir, args.video, info, transcript, brief, ordered, all_jobs)
+    clip_of = {f["file"]: f["clip"] for f in manifest["files"]}
+    clip_of.update({f["srt"]: f["clip"] for f in manifest["files"] if f.get("srt")})
+    before = {name: _sha256(src_dir / name) for name in clip_of if (src_dir / name).is_file()}
+    manifest["revision"] = {"from": os.path.basename(os.path.abspath(src_dir)), "changed_clips": named,
+                            "note": args.note, "files": [
+                                {"file": name, "status": "changed" if clip_of[name] in named else "kept as delivered",
+                                 "sha256_before": before.get(name), "sha256": _sha256(out_dir / name)}
+                                for name in sorted(clip_of)]}
+    (out_dir / "manifest.json").write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
+    lines = ["", "## Revision", "",
+             "Change request: %s" % (args.note or "(no note given)"),
+             "Changed clip(s): %s. Every other clip is copied byte for byte from the earlier delivery."
+             % ", ".join(map(str, named)), "",
+             "| File | Status | SHA-256 |", "| --- | --- | --- |"]
+    for row in manifest["revision"]["files"]:
+        status = row["status"] + (" (was `%s`)" % row["sha256_before"] if row["status"] == "changed" else "")
+        lines.append("| `%s` | %s | `%s` |" % (row["file"], status, row["sha256"]))
+    with open(out_dir / "report.md", "a", encoding="utf-8") as fh:
+        fh.write("\n".join(lines) + "\n")
+    stdout.write("changed clip(s) %s, kept %d file(s), in %s\n"
+                 % (", ".join(map(str, named)), len(kept_files) + len(kept_srts), out_dir))
+    return 0
+
+
 def build_parser():
     parser = argparse.ArgumentParser(description="Cut short platform clips from a long video.")
     sub = parser.add_subparsers(dest="command", required=True)
@@ -256,6 +414,18 @@ def build_parser():
         p.add_argument("--max-seconds", dest="max_seconds", type=float)
         p.add_argument("--out", default="clips-out")
         p.add_argument("--preset", default="veryfast", help="libx264 preset")
+    r = sub.add_parser("revise", help="change only the named clips of an earlier delivery; keep the rest")
+    r.add_argument("--from", dest="from_dir", required=True, help="the earlier delivery folder (its manifest.json)")
+    r.add_argument("--clips", dest="clips_to_change", required=True, help="clip numbers to change, for example 2 or 1,3")
+    r.add_argument("--video", required=True, help="the same source video the delivery was cut from")
+    r.add_argument("--engine", default="transcript-file", choices=sorted(transcribe.ENGINES))
+    r.add_argument("--transcript", help="word timing JSON for the transcript-file engine")
+    r.add_argument("--retention", help="the same retention file the earlier delivery used, when it used one")
+    r.add_argument("--start", type=float, help="new start, seconds (one named clip only, with --end)")
+    r.add_argument("--end", type=float, help="new end, seconds (one named clip only, with --start)")
+    r.add_argument("--note", default="", help="the buyer's change request, quoted in the report")
+    r.add_argument("--out", required=True, help="a new folder for the revised delivery")
+    r.add_argument("--preset", default="veryfast", help="libx264 preset")
     return parser
 
 
@@ -263,6 +433,8 @@ def main(argv=None, stdout=None, stderr=None):
     stdout = stdout or sys.stdout
     stderr = stderr or sys.stderr
     args = build_parser().parse_args(argv)
+    if args.command == "revise":
+        return revise(args, stdout, stderr)
     out_dir = Path(args.out)
     try:
         brief = load_brief(args)
