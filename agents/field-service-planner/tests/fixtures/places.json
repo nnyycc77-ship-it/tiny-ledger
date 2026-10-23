@@ -1,0 +1,98 @@
+{
+  "label": "SYNTHETIC fixture: invented places in a made up town (Sampletown) on an abstract grid near 40 N 75 W; no address, coordinate or drive time here was fetched from any geocoder or routing service. Built for the planner tests only.",
+  "places": {
+    "1 Depot Road, Sampletown": {
+      "lat": 40.0,
+      "lon": -75.0,
+      "confidence": "high"
+    },
+    "10 Oak Street, Sampletown": {
+      "lat": 40.01,
+      "lon": -75.0,
+      "confidence": "high"
+    },
+    "22 Mill Street, Sampletown": {
+      "lat": 40.0,
+      "lon": -74.95,
+      "confidence": "high"
+    },
+    "5 Summit Avenue, Sampletown": {
+      "lat": 40.05,
+      "lon": -75.0,
+      "confidence": "high"
+    },
+    "40 Park Lane, Sampletown": {
+      "lat": 40.012,
+      "lon": -75.002,
+      "confidence": "high"
+    },
+    "3 Pier Road, Sampletown": {
+      "lat": 39.96,
+      "lon": -75.0,
+      "confidence": "high"
+    },
+    "12 Lantern Street, Sampletown": {
+      "lat": 40.001,
+      "lon": -75.001,
+      "confidence": "high"
+    },
+    "15 Maple Court, Sampletown": {
+      "lat": 40.03,
+      "lon": -75.0,
+      "confidence": "high"
+    },
+    "15 MAPLE COURT, Sampletown": {
+      "lat": 40.03,
+      "lon": -75.0,
+      "confidence": "high"
+    },
+    "8 Cedar Street, Sampletown": {
+      "lat": 40.011,
+      "lon": -74.998,
+      "confidence": "high"
+    },
+    "2 Lake Road, Sampletown": {
+      "lat": 39.98,
+      "lon": -75.02,
+      "confidence": "high"
+    },
+    "6 Hush Lane, Sampletown": {
+      "lat": 40.02,
+      "lon": -75.02,
+      "confidence": "high"
+    },
+    "99 Far Road, Sampletown": {
+      "lat": 40.2,
+      "lon": -75.2,
+      "confidence": "high"
+    },
+    "21 Blue Street, Sampletown": {
+      "lat": 40.04,
+      "lon": -75.01,
+      "confidence": "medium"
+    },
+    "9 Unplaced Lane, Sampletown": null,
+    "77 Nowhere Road, Sampletown": null,
+    "4 Dusk Street, Sampletown": null,
+    "30 Quarry Road, Sampletown": {
+      "lat": 40.045,
+      "lon": -74.99,
+      "confidence": "high"
+    },
+    "18 Pine Street, Sampletown": {
+      "lat": 40.002,
+      "lon": -74.945,
+      "confidence": "high"
+    },
+    "44 River Road, Sampletown": {
+      "lat": 39.965,
+      "lon": -74.99,
+      "confidence": "high"
+    }
+  },
+  "travel": {
+    "method": "haversine",
+    "speed_kmh": 40.0,
+    "overrides": {}
+  }
+}

@@ -1,0 +1,14 @@
+job_id,customer,address,duration_minutes,window_start,window_end,skills,date
+J1,Northside Dental,"10 Oak Street, Sampletown",90,08:30,10:30,hvac,2026-11-03
+J2,Riverbend Bakery,"22 Mill Street, Sampletown",60,09:00,12:00,plumbing,2026-11-03
+J3,Hilltop Library,"5 Summit Avenue, Sampletown",120,13:00,15:00,electrical,2026-11-03
+J4,Greenway Vet Clinic,"40 Park Lane, Sampletown",45,10:00,11:00,hvac,2026-11-03
+J5,Harbor Hotel,"3 Pier Road, Sampletown",60,14:00,16:00,hvac;plumbing,2026-11-03
+J6,Westfield Garage,"77 Nowhere Road, Sampletown",60,09:00,11:00,hvac,2026-11-03
+J7,Old Town Pharmacy,"12 Lantern Street, Sampletown",60,08:00,09:00,welding,2026-11-03
+J8,Corner Florist,"10 Oak Street, Sampletown",ninety,11:00,12:00,hvac,2026-11-03
+W1,Hilltop Library,"5 Summit Avenue, Sampletown",60,09:00,10:00,electrical,2026-11-04
+W2,Harbor Hotel,"3 Pier Road, Sampletown",60,15:00,16:00,hvac,2026-11-04
+W3,Riverbend Bakery,"22 Mill Street, Sampletown",60,10:00,11:00,plumbing,2026-11-05
+W4,Old Town Pharmacy,"12 Lantern Street, Sampletown",60,10:00,11:00,hvac,2026-11-09
+W5,Corner Florist,"10 Oak Street, Sampletown",60,10:00,11:00,hvac,

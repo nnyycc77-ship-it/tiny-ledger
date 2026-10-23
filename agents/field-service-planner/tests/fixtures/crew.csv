@@ -1,0 +1,4 @@
+crew_id,name,start_address,shift_start,shift_end,skills
+C1,Dana Reyes,"1 Depot Road, Sampletown",08:00,16:00,hvac;plumbing
+C2,Lee Okafor,"1 Depot Road, Sampletown",09:00,17:00,electrical;hvac
+C3,Pat Lund,"9 Unplaced Lane, Sampletown",08:00,16:00,plumbing
