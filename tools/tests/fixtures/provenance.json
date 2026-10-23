@@ -1,0 +1,12 @@
+{
+  "instant-pot.http": {
+    "url": "https://www.saferproducts.gov/RestWebServices/Recall?format=json&ProductName=Instant+Pot",
+    "retrieved_utc": "2026-10-23T00:05:55Z",
+    "sha256": "b9df5871bb68e5bcf6101f1635adbb44220d2050c2a27db76b6b089b56fe94fb"
+  },
+  "smart-wifi.http": {
+    "url": "https://www.saferproducts.gov/RestWebServices/Recall?format=json&ProductName=Instant+Pot+Smart+WiFi",
+    "retrieved_utc": "2026-10-23T00:05:58Z",
+    "sha256": "e50cbc096ac645dbe81f3efa7327e7585286be9d75efc6e0c5679abab35e3409"
+  }
+}

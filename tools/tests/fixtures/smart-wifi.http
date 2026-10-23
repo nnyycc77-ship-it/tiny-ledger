@@ -1,0 +1,18 @@
+HTTP/1.1 200 OK
+content-type: application/json; charset=utf-8
+content-length: 2
+pragma: no-cache
+server: envoy
+x-aspnet-version: 4.0.30319
+x-powered-by: ASP.NET
+access-control-allow-origin: *
+access-control-allow-headers: Content-Type
+access-control-allow-methods: POST, GET, PUT, DELETE, OPTIONS
+cache-control: no-cache
+expires: Fri, 23 Oct 2026 00:05:58 GMT
+date: Fri, 23 Oct 2026 00:05:58 GMT
+alt-svc: h3=":443"; ma=93600
+strict-transport-security: max-age=31536000 ; includeSubDomains ; preload
+x-envoy-upstream-service-time: 153
+
+[]

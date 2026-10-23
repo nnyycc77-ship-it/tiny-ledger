@@ -1,0 +1,19 @@
+HTTP/1.1 200 OK
+content-type: application/json; charset=utf-8
+pragma: no-cache
+server: envoy
+x-aspnet-version: 4.0.30319
+x-powered-by: ASP.NET
+access-control-allow-origin: *
+access-control-allow-headers: Content-Type
+access-control-allow-methods: POST, GET, PUT, DELETE, OPTIONS
+vary: Accept-Encoding
+cache-control: no-cache
+expires: Fri, 23 Oct 2026 00:05:55 GMT
+date: Fri, 23 Oct 2026 00:05:55 GMT
+content-length: 2712
+alt-svc: h3=":443"; ma=93600
+strict-transport-security: max-age=31536000 ; includeSubDomains ; preload
+x-envoy-upstream-service-time: 204
+
+[{"RecallID":6443,"RecallNumber":"15741","RecallDate":"2015-07-15T00:00:00","Description":"This recall involves Instant Pot \"Smart\" and \"Smart-60\" electric pressure cookers. They are stainless steel with black molded plastic attachments, have a control panel/keypad on the front and measure about 12 inches in diameter and 12 inches tall. They are Bluetooth® enabled and can be controlled by an app. \"Instant Pot\" and \"Smart\" are printed on the front of the control panel. Serial numbers between 1410 and 1503 and manufacture dates between 12/1/2014 and 6/1/2015 are included in the recall. The serial numbers and dates are printed on a label on the bottom of the pressure cooker's base.","URL":"https://www.cpsc.gov/Recalls/2015/Instant-Pot-Pressure-Cookers-Recalled-by-Double-Insight","Title":"Instant Pot Pressure Cookers Recalled by Double Insight Due to Shock Hazard (Recall Alert)","ConsumerContact":"Instant Pot at (800) 828-7280 between 9 a.m. and 5 p.m. PT Monday through Friday, or at http://instantpot.com and click on \"Instant Pot Smart recall\" under \"Useful Information\" for more information.","LastPublishDate":"2015-07-15T00:00:00","Products":[{"Name":"Instant Pot 'Smart' pressure cookers","Description":"","Model":"","Type":"Pressure Cookers or Canners","CategoryID":"68137","NumberOfUnits":"About 1,000 (in addition, 140 were sold in Canada)"}],"Inconjunctions":[{"URL":"http://healthycanadians.gc.ca/recall-alert-rappel-avis/hc-sc/2015/54204r-eng.php"}],"Images":[{"URL":"https://www.cpsc.gov/s3fs-public/Recall.2015.15741.SmartModelPressureCooker-1.JPG","Caption":"Instant Pot \"Smart\" model pressure cooker"},{"URL":"https://www.cpsc.gov/s3fs-public/Recall.2015.15741.BasePressureCooker-1.jpg","Caption":"Instant Pot base"}],"Injuries":[{"Name":"The firm has received reports from three consumers of being shocked while using the pressure cooker."}],"Manufacturers":[],"Retailers":[{"Name":"Online at Instantpot.com and Amazon.com from November 2014 through May 2015 for about $250.","CompanyID":""}],"Importers":[{"Name":"Double Insight Inc., of Canada","CompanyID":""}],"Distributors":[],"SoldAtLabel":null,"ManufacturerCountries":[{"Country":"China"}],"ProductUPCs":[],"Hazards":[{"Name":"The thermal probe in the base can conduct electricity throughout the cooker, posing a risk of electric shock.","HazardType":"","HazardTypeID":""}],"Remedies":[{"Name":"Consumers should stop using the recalled product immediately and contact Instant Pot for instructions to receive a free replacement base, which consists of the entire bottom of the pressure cooker including the control panel. The firm is contacting all purchasers directly."}],"RemedyOptions":[{"Option":"Replace"}]}]
