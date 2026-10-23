@@ -1,0 +1,9 @@
+{
+  "_label": "SYNTHETIC brief written for the tests (issue #75); not a real event",
+  "date": "2026-11-14",
+  "location": "Austin, TX",
+  "headcount": 60,
+  "budget_usd": 2400,
+  "dietary_needs": ["vegan", "gluten-free", "nut allergy"],
+  "service_style": "buffet"
+}

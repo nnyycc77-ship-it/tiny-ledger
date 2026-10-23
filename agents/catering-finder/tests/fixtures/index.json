@@ -1,0 +1,13 @@
+{
+  "source": {
+    "description": "SYNTHETIC candidate list written by hand for the tests of issue #75; no directory was searched and none of these businesses exists",
+    "label": "SYNTHETIC"
+  },
+  "vendors": [
+    {"id": "pecan-grove", "name": "Pecan Grove Catering", "url": "https://pecan-grove-catering.invalid/events"},
+    {"id": "bluebonnet", "name": "Bluebonnet Table", "url": "https://bluebonnet-table.invalid/catering"},
+    {"id": "verde-kitchen", "name": "Verde Kitchen Catering", "url": "https://verde-kitchen.invalid/"},
+    {"id": "hill-country-taco", "name": "Hill Country Taco Truck", "url": "https://hill-country-taco.invalid/book"},
+    {"id": "lone-star-smoke", "name": "Lone Star Smokehouse Catering", "url": "https://lone-star-smokehouse.invalid/catering"}
+  ]
+}

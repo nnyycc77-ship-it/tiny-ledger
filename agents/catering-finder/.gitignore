@@ -1,0 +1,5 @@
+__pycache__/
+*.py[cod]
+# a live store or outreach log an operator keeps inside the folder
+store/
+*.outreach-log.json

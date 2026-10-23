@@ -1,0 +1,36 @@
+{
+  "_label": "SYNTHETIC outreach log written for the tests of issue #75. No message was sent to anyone; the sends and the reply below are invented to exercise the stated, asked-no-reply and drafted-not-sent paths.",
+  "hire_id": null,
+  "drafts": {
+    "pecan-grove": {
+      "vendor": "Pecan Grove Catering",
+      "channel": "events@pecan-grove-catering.invalid",
+      "channel_source": {"url": "https://pecan-grove-catering.invalid/events", "line": 29},
+      "drafted_utc": "2026-10-21T13:00:00Z",
+      "message": "Subject: Catering enquiry for 2026-11-14, 60 guests, Austin, TX\n\nHello Pecan Grove Catering,\n\nWe are planning a buffet event on 2026-11-14 in Austin, TX for 60 guests, with a budget of 2400 USD.\nCould you tell us:\n1. Are you available on 2026-11-14?\n2. Which buffet menu options would you suggest for this group?\n3. What is the price per person, and what does it include?\n4. Can you cover these dietary needs, and how: nut allergy?\n\nThank you.\n\n(Contact channel as published: events@pecan-grove-catering.invalid)",
+      "sent_utc": "2026-10-21T13:05:00Z",
+      "reply": {
+        "received_utc": "2026-10-21T16:40:00Z",
+        "text": "Thanks for asking. Yes, we are open on November 14. For a nut allergy we prepare the whole buffet nut-free and keep the pecan dishes off the menu, and we label every tray. Buffet is $22 per person as on our site."
+      }
+    },
+    "bluebonnet": {
+      "vendor": "Bluebonnet Table",
+      "channel": "Use our contact form and we reply within two business days.",
+      "channel_source": {"url": "https://bluebonnet-table.invalid/catering", "line": 20},
+      "drafted_utc": "2026-10-21T13:00:00Z",
+      "message": "Subject: Catering enquiry for 2026-11-14, 60 guests, Austin, TX\n\nHello Bluebonnet Table,\n\nWe are planning a buffet event on 2026-11-14 in Austin, TX for 60 guests, with a budget of 2400 USD.\nCould you tell us:\n1. Are you available on 2026-11-14?\n2. Which buffet menu options would you suggest for this group?\n3. What is the price per person, and what does it include?\n4. Can you cover these dietary needs, and how: vegan; gluten-free; nut allergy?\n\nThank you.\n\n(Contact channel as published: Use our contact form and we reply within two business days.)",
+      "sent_utc": "2026-10-21T13:06:00Z",
+      "reply": null
+    },
+    "verde-kitchen": {
+      "vendor": "Verde Kitchen Catering",
+      "channel": "hello@verde-kitchen.invalid",
+      "channel_source": {"url": "https://verde-kitchen.invalid/", "line": 15},
+      "drafted_utc": "2026-10-21T13:00:00Z",
+      "message": "Subject: Catering enquiry for 2026-11-14, 60 guests, Austin, TX\n\nHello Verde Kitchen Catering,\n\nWe are planning a buffet event on 2026-11-14 in Austin, TX for 60 guests, with a budget of 2400 USD.\nCould you tell us:\n1. Are you available on 2026-11-14?\n2. Which buffet menu options would you suggest for this group?\n3. What is the price per person, and what does it include?\n4. Can you cover these dietary needs, and how: nut allergy?\n\nThank you.\n\n(Contact channel as published: hello@verde-kitchen.invalid)",
+      "sent_utc": null,
+      "reply": null
+    }
+  }
+}
