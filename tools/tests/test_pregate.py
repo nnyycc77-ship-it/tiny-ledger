@@ -19,6 +19,7 @@ Which data is which:
   brief itself and a reworded one is the brief with one word changed.
 """
 
+import re
 import contextlib
 import io
 import shutil
@@ -199,8 +200,18 @@ class Honesty(GateCase):
 
     def test_reworded_track_record_fails(self):
         # SYNTHETIC rewording of the REAL TEXT: one word changed per case.
+        # The job count and the USDC total are read from the current
+        # paragraph, so this test keeps working when the reviewer updates
+        # the record, rather than naming the figures of one date.
         sentence = " ".join(l.strip() for l in self.brief_lines())
-        for old, new in [("three paid", "four paid"), ("28.13 USDC", "38.13 USDC"),
+        count = re.search(r"\b([a-z]+) paid jobs\b", sentence)
+        total = re.search(r"\b(\d+\.\d{2}) USDC\b", sentence)
+        self.assertIsNotNone(count, "no '<count> paid jobs' phrase in the brief paragraph")
+        self.assertIsNotNone(total, "no '<amount> USDC' figure in the brief paragraph")
+        other_count = "twelve" if count.group(1) != "twelve" else "thirteen"
+        other_total = "%.2f" % (float(total.group(1)) + 10)
+        for old, new in [(count.group(0), other_count + " paid jobs"),
+                         (total.group(0), other_total + " USDC"),
                          ("won and delivered", "won, delivered and praised")]:
             with self.subTest(new=new):
                 code, out = self.gate(diff=make_diff("README.md", [sentence.replace(old, new)]))

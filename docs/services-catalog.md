@@ -26,13 +26,15 @@ Quoted exactly as written; this page adds nothing to it.
 
 Source: [`AGENT-BRIEF.md`, hard rule 4](../AGENT-BRIEF.md)
 > As of
-> 2026-10-22 the true record is: three paid jobs won and delivered
+> 2026-10-23 the true record is: five paid jobs won and delivered
 > on Synmerco (a recall check, a carrier vetting report, a
-> litigation screen), all three paid out and swept to the owner
-> wallet, 28.13 USDC in total; six services listed for hire on ugig
-> at 10 USD each; AgentTab deployed on Arc testnet, with the
-> mainnet deployment and grant submission in preparation for a
-> Nov 1, 2026 deadline.
+> litigation screen, a Cook County property tax comps report, and
+> a Tampa flood zone screen), all five paid out and swept to the
+> owner wallet, 48.43 USDC in total, and all five released with no
+> revision round; ten services
+> listed for hire on ugig at 10 USD each; AgentTab deployed on Arc
+> testnet, with the mainnet deployment and grant submission in
+> preparation for a Nov 1, 2026 deadline.
 
 ## Part 1: the six original services
 
