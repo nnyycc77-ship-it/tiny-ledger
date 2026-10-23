@@ -36,7 +36,7 @@ operated outside this repo and are never part of a repo task.
    48 hours, and a payer who never got the work keeps a fair window to
    take the money back first.
 
-Two recipient rules keep tabs meaningful: the agent cannot be the zero
+Three recipient rules keep tabs meaningful: the agent cannot be the zero
 address, cannot be the AgentTab contract itself, and cannot be the payer.
 
 A tab can also carry an optional task reference, a short string such as a
@@ -93,6 +93,12 @@ or delivery backend in this repo, by design.
   token whose transfers can be made to report failure), and
   `ReentrantUSDC.sol` (a notifying token plus a hostile agent used for
   the reentrancy tests).
+- `app/proof.html` and `app/proof-core.js` — the read only proof page:
+  it reads the four contract events from an Arc RPC endpoint, lists every
+  tab with its outcome and transaction links, sums the amounts, and
+  checks each tab against `getTab`. The pure logic lives in
+  `proof-core.js` with node tests in `proof-core.test.mjs`. `PROOF.md`
+  is the written proof the page backs.
 - `app/index.html` — the whole app: one static page, wallet connect via
   window.ethereum, no build step. It validates its configuration before
   allowing transactions, follows wallet account and network changes,
@@ -100,12 +106,17 @@ or delivery backend in this repo, by design.
   TabOpened logs filtered to the connected account rather than scanning
   every tab.
 - `foundry.toml` — Foundry config, solc 0.8.24.
-- `.github/workflows/test.yml` — CI: runs the test suite on every push.
+- `docs/walkthrough-storyboard.md` — shot by shot plan for the
+  walkthrough video: open, release, refund inside the grace window, and
+  claim after it.
+- `.github/workflows/test.yml` — CI: runs the Foundry suite, the
+  delivery tool tests, and the proof page tests on every push.
 
 ## Run the tests
 
 ```
 forge test
+node --test app/proof-core.test.mjs
 ```
 
 All 26 tests run locally against the mock tokens, no fork and no network

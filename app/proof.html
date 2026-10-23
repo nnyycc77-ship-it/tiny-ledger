@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AgentTab proof — live contract events on Arc</title>
+<style>
+  body { font-family: system-ui, sans-serif; margin: 2rem auto; max-width: 900px; padding: 0 1rem; color: #14213d; }
+  h1 { font-size: 1.6rem; margin-bottom: 0.25rem; }
+  h2 { font-size: 1.15rem; margin: 0 0 0.5rem; }
+  p.sub { color: #555; margin-top: 0; }
+  section { border: 1px solid #ddd; border-radius: 10px; padding: 1rem; margin: 1rem 0; }
+  table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+  td, th { border-bottom: 1px solid #eee; padding: 0.4rem; text-align: left; vertical-align: top; }
+  button { padding: 0.55rem 1rem; border: 0; border-radius: 8px; background: #2775ca; color: #fff; cursor: pointer; }
+  #status { white-space: pre-wrap; font-size: 0.9rem; color: #333; margin-top: 0.5rem; }
+  #configBanner { display: none; border: 1px solid #c0392b; background: #fdecea; color: #7b241c; border-radius: 10px; padding: 1rem; margin: 1rem 0; font-size: 0.95rem; }
+  .mono { font-family: ui-monospace, monospace; font-size: 0.8rem; word-break: break-all; }
+  .totals div { margin: 0.2rem 0; }
+  .ok { color: #1e7e34; } .bad { color: #c0392b; }
+  .note { font-size: 0.85rem; color: #555; }
+</style>
+</head>
+<body>
+<h1>AgentTab proof</h1>
+<p class="sub">Read only. This page reads the AgentTab contract's own events from an Arc RPC endpoint and lists every tab, how it settled, and the amounts, with a link to each transaction on the explorer. No wallet is needed. Every event name and field below is taken from <span class="mono">contracts/AgentTab.sol</span>; the written proof is in <span class="mono">PROOF.md</span>.</p>
+
+<div id="configBanner"></div>
+
+<section>
+  <h2>Contract under proof</h2>
+  <div class="mono" id="cfgAddress"></div>
+  <div class="mono" id="cfgNetwork"></div>
+  <div class="mono" id="cfgRange"></div>
+  <p class="note">Override without editing the file: <span class="mono">proof.html?address=0x…&amp;rpc=https://…&amp;explorer=https://…&amp;chainId=5042&amp;fromBlock=0</span>. The RPC must serve the chain the contract is deployed on; the page checks the chain id it answers with.</p>
+  <button id="loadBtn">Load events</button>
+  <div id="status"></div>
+</section>
+
+<section>
+  <h2>Totals (USDC, 6 decimals, summed from the events)</h2>
+  <div class="totals" id="totals">Not loaded yet.</div>
+</section>
+
+<section>
+  <h2>Tabs</h2>
+  <p class="note">Outcome comes from the settlement event. On the contract a claimed tab reads <span class="mono">Released</span>, because <span class="mono">claim()</span> sets <span class="mono">Status.Released</span>; the "contract says" column is read live with <span class="mono">getTab</span> and must agree with the events.</p>
+  <table>
+    <thead><tr><th>Id</th><th>Payer</th><th>Agent</th><th>Amount</th><th>Expires (UTC)</th><th>Task ref</th><th>Outcome from events</th><th>Contract says</th><th>Transactions</th></tr></thead>
+    <tbody id="tabsBody"></tbody>
+  </table>
+</section>
+
+<section>
+  <h2>Events, in chain order</h2>
+  <table>
+    <thead><tr><th>Block</th><th>Event</th><th>Tab</th><th>Amount</th><th>Fields</th><th>Tx</th></tr></thead>
+    <tbody id="eventsBody"></tbody>
+  </table>
+</section>
+
+<section>
+  <h2>Event signatures and topic hashes used by this page</h2>
+  <p class="note">Each signature is copied from the contract. The topic hash is keccak256 of the canonical signature, computed here in the browser; it is what the RPC log filter matches on, so a wrong signature would return nothing rather than something else.</p>
+  <table>
+    <thead><tr><th>Event</th><th>Signature as declared in contracts/AgentTab.sol</th><th>topic0</th></tr></thead>
+    <tbody id="sigBody"></tbody>
+  </table>
+</section>
+
+<script src="https://cdn.jsdelivr.net/npm/ethers@6.13.4/dist/ethers.umd.min.js"></script>
+<script src="proof-core.js"></script>
+<script>
+"use strict";
+/* ================= CONFIG: deployment day edits happen only here =================
+   Defaults are the Arc mainnet facts stated in README.md (Deployment). The
+   deployed AgentTab address is not stored in this repo; paste it here or
+   pass ?address= in the URL. For the testnet deployment pass ?rpc=, ?explorer=
+   and ?chainId=5042002 as well (README names the testnet chain id). */
+const CONFIG = {
+  CHAIN_ID: 5042,
+  RPC_URL: "https://rpc.mainnet.arc.io",
+  EXPLORER: "https://explorer.arc.io",
+  AGENTTAB_ADDRESS: "PASTE_DEPLOYED_AGENTTAB_ADDRESS_HERE",
+  FROM_BLOCK: 0,
+  MAX_LOGS_PER_QUERY: 10000
+};
+/* ================= end of CONFIG ================= */
+
+const P = globalThis.AgentTabProof;
+const EVENT_ABI = Object.values(P.EVENT_SIGNATURES).map(function (s) { return "event " + s; });
+const GETTAB_ABI = ["function getTab(uint256 tabId) view returns (address payer, address agent, uint256 amount, uint64 expiresAt, uint8 status, string taskRef)"];
+const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
+
+const $ = function (id) { return document.getElementById(id); };
+function say(msg) { $("status").textContent = msg; }
+function esc(s) { return String(s).replace(/[&<>"']/g, function (c) { return ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]; }); }
+function txLink(explorer, hash) { return '<a class="mono" href="' + esc(explorer) + "/tx/" + esc(hash) + '" target="_blank" rel="noopener">' + esc(hash.slice(0, 10)) + "…</a>"; }
+function utc(ts) { return new Date(Number(ts) * 1000).toISOString().replace(".000Z", "Z"); }
+
+function settings() {
+  const q = new URLSearchParams(location.search);
+  return {
+    chainId: Number(q.get("chainId") || CONFIG.CHAIN_ID),
+    rpc: q.get("rpc") || CONFIG.RPC_URL,
+    explorer: (q.get("explorer") || CONFIG.EXPLORER).replace(/\/$/, ""),
+    address: q.get("address") || CONFIG.AGENTTAB_ADDRESS,
+    fromBlock: Number(q.get("fromBlock") || CONFIG.FROM_BLOCK)
+  };
+}
+
+function isConfigured(s) {
+  return typeof s.address === "string" && ethers.isAddress(s.address) && s.address.toLowerCase() !== ZERO_ADDRESS && !s.address.startsWith("PASTE");
+}
+
+function showConfig() {
+  const s = settings();
+  const ok = isConfigured(s);
+  $("cfgAddress").innerHTML = ok
+    ? "Contract: <a href=\"" + esc(s.explorer) + "/address/" + esc(s.address) + "\" target=\"_blank\" rel=\"noopener\">" + esc(s.address) + "</a>"
+    : "Contract: not set";
+  $("cfgNetwork").textContent = "Expected chain id: " + s.chainId + "   RPC: " + s.rpc + "   Explorer: " + s.explorer;
+  $("cfgRange").textContent = "Log range: from block " + s.fromBlock + " to latest";
+  if (!ok) {
+    $("configBanner").style.display = "block";
+    $("configBanner").textContent = "No AgentTab contract address is configured. Paste the deployed address into the CONFIG block at the top of this page, or open the page with ?address=0x… in the URL. Until then there is nothing to read.";
+  } else {
+    $("configBanner").style.display = "none";
+  }
+  $("loadBtn").disabled = !ok;
+  return ok ? s : null;
+}
+
+function renderSignatures() {
+  const iface = new ethers.Interface(EVENT_ABI);
+  const rows = Object.keys(P.EVENT_SIGNATURES).map(function (name) {
+    return "<tr><td>" + esc(name) + "</td><td class=\"mono\">" + esc(P.EVENT_SIGNATURES[name]) + "</td><td class=\"mono\">" + esc(iface.getEvent(name).topicHash) + "</td></tr>";
+  });
+  $("sigBody").innerHTML = rows.join("");
+}
+
+async function fetchLogs(provider, address, fromBlock, iface) {
+  const topic0s = Object.keys(P.EVENT_SIGNATURES).map(function (n) { return iface.getEvent(n).topicHash; });
+  const logs = await provider.getLogs({ address: address, topics: [topic0s], fromBlock: fromBlock, toBlock: "latest" });
+  if (logs.length >= CONFIG.MAX_LOGS_PER_QUERY) {
+    throw new Error("The RPC returned " + logs.length + " logs, at or above this page's cap; narrow fromBlock.");
+  }
+  const decoded = [];
+  const unknown = [];
+  for (const log of logs) {
+    const parsed = iface.parseLog({ topics: log.topics, data: log.data });
+    if (!parsed) { unknown.push(log); continue; }
+    const args = {};
+    parsed.fragment.inputs.forEach(function (inp, i) { args[inp.name] = parsed.args[i]; });
+    decoded.push({ name: parsed.name, args: args, txHash: log.transactionHash, blockNumber: log.blockNumber, logIndex: log.index });
+  }
+  return { decoded: decoded, unknown: unknown, rawCount: logs.length };
+}
+
+async function load() {
+  const s = showConfig();
+  if (!s) return;
+  const explorer = s.explorer;
+  $("tabsBody").innerHTML = ""; $("eventsBody").innerHTML = ""; $("totals").textContent = "Loading…";
+  try {
+    say("Connecting to " + s.rpc + " …");
+    const provider = new ethers.JsonRpcProvider(s.rpc);
+    const net = await provider.getNetwork();
+    if (Number(net.chainId) !== s.chainId) {
+      throw new Error("The RPC answered with chain id " + net.chainId + ", not the expected " + s.chainId + ". Nothing was read.");
+    }
+    const code = await provider.getCode(s.address);
+    if (!code || code === "0x") {
+      throw new Error("No contract code at " + s.address + " on chain " + net.chainId + ". Nothing was read.");
+    }
+    const iface = new ethers.Interface(EVENT_ABI);
+    say("Reading logs from block " + s.fromBlock + " …");
+    const r = await fetchLogs(provider, s.address, s.fromBlock, iface);
+    const summary = P.summarize(r.decoded);
+    const now = Math.floor(Date.now() / 1000);
+
+    // Cross check every tab against getTab on the contract.
+    const reader = new ethers.Contract(s.address, GETTAB_ABI, provider);
+    let mismatches = 0;
+    const tabRows = [];
+    for (const tab of summary.tabs) {
+      let contractSays = "(read failed)";
+      let agree = false;
+      try {
+        const t = await reader.getTab(tab.tabId);
+        const st = P.STATUS_NAMES[Number(t.status)] || ("status " + t.status);
+        contractSays = st + ", " + P.formatUsdc(t.amount) + " USDC, expires " + utc(t.expiresAt);
+        agree = st === tab.contractStatus && BigInt(t.amount) === tab.amount && Number(t.expiresAt) === tab.expiresAt &&
+          String(t.payer).toLowerCase() === String(tab.payer).toLowerCase() && String(t.agent).toLowerCase() === String(tab.agent).toLowerCase();
+      } catch (e) { contractSays = "(read failed: " + (e.shortMessage || e.message) + ")"; }
+      if (!agree) mismatches += 1;
+      tabRows.push("<tr><td>" + esc(tab.tabId) + "</td><td class=\"mono\">" + esc(tab.payer) + "</td><td class=\"mono\">" + esc(tab.agent) + "</td><td>" +
+        esc(P.formatUsdc(tab.amount)) + " USDC</td><td>" + esc(utc(tab.expiresAt)) + "</td><td>" + esc(tab.taskRef) + "</td><td>" +
+        esc(P.describeTab(tab, now)) + "</td><td class=\"" + (agree ? "ok" : "bad") + "\">" + esc(contractSays) + (agree ? " ✓" : " ✗ differs") + "</td><td>" +
+        "open " + txLink(explorer, tab.openedTx) + (tab.settledTx ? "<br>settle " + txLink(explorer, tab.settledTx) : "") + "</td></tr>");
+    }
+    $("tabsBody").innerHTML = tabRows.join("") || "<tr><td colspan=\"9\">No TabOpened events in the range read.</td></tr>";
+
+    $("eventsBody").innerHTML = summary.events.map(function (ev) {
+      const fields = Object.keys(ev.args).map(function (k) {
+        const v = ev.args[k];
+        return k + "=" + (typeof v === "bigint" ? v.toString() : String(v));
+      }).join("  ");
+      return "<tr><td>" + esc(ev.blockNumber) + "</td><td>" + esc(ev.name) + "</td><td>" + esc(String(ev.args.tabId)) + "</td><td>" +
+        esc(P.formatUsdc(ev.args.amount)) + " USDC</td><td class=\"mono\">" + esc(fields) + "</td><td>" + txLink(explorer, ev.txHash) + "</td></tr>";
+    }).join("") || "<tr><td colspan=\"6\">No events in the range read.</td></tr>";
+
+    const t = summary.totals;
+    $("totals").innerHTML =
+      "<div>Tabs opened: <b>" + t.count + "</b></div>" +
+      "<div>Deposited into tabs (sum of TabOpened.amount): <b>" + esc(P.formatUsdc(t.opened)) + " USDC</b></div>" +
+      "<div>Paid to agents by payer release (sum of TabReleased.amount): <b>" + esc(P.formatUsdc(t.released)) + " USDC</b></div>" +
+      "<div>Paid to agents by agent claim after the grace window (sum of TabClaimed.amount): <b>" + esc(P.formatUsdc(t.claimed)) + " USDC</b></div>" +
+      "<div>Settled to agents in total: <b>" + esc(P.formatUsdc(t.settledToAgents)) + " USDC</b></div>" +
+      "<div>Returned to payers by refund inside the grace window (sum of TabRefunded.amount): <b>" + esc(P.formatUsdc(t.refunded)) + " USDC</b></div>" +
+      "<div>Still held in open tabs: <b>" + esc(P.formatUsdc(t.stillOpen)) + " USDC</b></div>";
+
+    const notes = [];
+    notes.push("Read " + r.rawCount + " logs from " + s.address + " on chain " + net.chainId + " at " + new Date().toISOString() + ".");
+    if (r.unknown.length) notes.push(r.unknown.length + " logs did not match any of the four event signatures and were ignored.");
+    if (summary.problems.length) notes.push("Inconsistencies in the event stream: " + summary.problems.join("; "));
+    notes.push(mismatches === 0 ? "Every tab agrees with getTab on the contract." : mismatches + " tab(s) differ from getTab; see the red cells.");
+    say(notes.join("\n"));
+  } catch (e) {
+    $("totals").textContent = "Not loaded.";
+    say("Load failed, nothing is shown: " + (e.shortMessage || e.message));
+  }
+}
+
+$("loadBtn").addEventListener("click", load);
+renderSignatures();
+showConfig();
+</script>
+</body>
+</html>
