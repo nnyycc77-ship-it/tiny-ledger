@@ -1,0 +1,11 @@
+{
+  "_about": "Fixtures for tools/weekly_brief.py (issue #146). The two USAspending bodies here are SYNTHETIC, labelled inside each file in its _SYNTHETIC field, written by H3 on 2026-10-23; none is a capture of api.usaspending.gov. The EDGAR responses the tests replay are the real captures in ../edgar/, recorded in ../edgar/provenance.json.",
+  "synthetic-usaspending-two.json": {
+    "what": "SYNTHETIC page with two awards (one with a null Award Amount) and hasNext true",
+    "sha256": "f5b8f37c73c529151968010b7fe503f26a81c069892a851860b763aa5b788df1"
+  },
+  "synthetic-usaspending-empty.json": {
+    "what": "SYNTHETIC page with no awards",
+    "sha256": "ee6183902160c26a949a76e0410777a9dc8373e58103f60733e020b3510883c5"
+  }
+}

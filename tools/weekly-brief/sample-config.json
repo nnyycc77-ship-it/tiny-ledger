@@ -1,0 +1,5 @@
+{
+  "title": "Weekly filings and awards brief (sample)",
+  "edgar": {"ciks": ["2156237", "1801756"], "sectors": ["Pooled Investment Fund"], "keywords": []},
+  "usaspending": {"naics": ["5415"], "limit": 10}
+}
