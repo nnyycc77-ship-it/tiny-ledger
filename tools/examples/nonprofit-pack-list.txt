@@ -1,0 +1,8 @@
+# Sample list for tools/nonprofit_pack.py: five well known nonprofits,
+# plus one name that is not found, to exercise the pack's not found path.
+American National Red Cross
+Feeding America
+World Wildlife Fund Inc
+Goodwill Industries International Inc
+United States Fund for UNICEF
+Zxqv Memorial Pancake Foundation
