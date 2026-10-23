@@ -1,0 +1,272 @@
+{
+  "_about": "Captures of the providers' own OpenAPI definitions, pinned to a commit. The files are not committed (size); re-fetch the url and compare sha256. Each claim quotes raw lines from the capture by line number.",
+  "captures": {
+    "twilio_api_v2010.json": {
+      "provider": "Twilio",
+      "repo": "https://github.com/twilio/twilio-oai",
+      "url": "https://raw.githubusercontent.com/twilio/twilio-oai/d9775142962ea67d5f3d50c5021a23ae6d330c5b/spec/json/twilio_api_v2010.json",
+      "sha256": "bfdf249a129819af274d6bdc7672156ea3416ad48670a6f0544def6ef386ba87",
+      "bytes": 1878657,
+      "retrieved_utc": "2026-10-23T13:36:18Z"
+    },
+    "twilio_pricing_v2.json": {
+      "provider": "Twilio",
+      "repo": "https://github.com/twilio/twilio-oai",
+      "url": "https://raw.githubusercontent.com/twilio/twilio-oai/d9775142962ea67d5f3d50c5021a23ae6d330c5b/spec/json/twilio_pricing_v2.json",
+      "sha256": "5f6cd2972bd77516708b86cbe3b4bfb6ffe381fb7b918d5815bb5d25d939b83b",
+      "bytes": 51833,
+      "retrieved_utc": "2026-10-23T13:36:18Z"
+    },
+    "telnyx_spec3.json": {
+      "provider": "Telnyx",
+      "repo": "https://github.com/team-telnyx/openapi",
+      "url": "https://raw.githubusercontent.com/team-telnyx/openapi/5f12994582345f12feb4fd4dbe5ef80ad3693243/openapi/spec3.json",
+      "sha256": "49c60b9ee81d9ab1992e27e8bea7e7a1389020b8182f5168719ddd4a66a24ade",
+      "bytes": 8425641,
+      "retrieved_utc": "2026-10-23T13:36:19Z"
+    }
+  },
+  "claims": [
+    {
+      "id": "twilio-outbound",
+      "file": "twilio_api_v2010.json",
+      "line": 13324,
+      "anchor": "\"/2010-04-01/Accounts/{AccountSid}/Calls.json\": {",
+      "raw": [
+        "        \"description\": \"Create a new outgoing call to phones, SIP-enabled endpoints or Twilio Client connections\","
+      ]
+    },
+    {
+      "id": "twilio-caller-id",
+      "file": "twilio_api_v2010.json",
+      "line": 13494,
+      "anchor": "\"/2010-04-01/Accounts/{AccountSid}/Calls.json\": {",
+      "raw": [
+        "                    \"description\": \"The phone number or client identifier to use as the caller id. If using a phone number, it must be a Twilio number or a Verified [outgoing caller id](https://www.twilio.com/docs/voice/api/outgoing-caller-ids) for your account. If the `to` parameter is a phone number, `From` must also be a phone number.\""
+      ]
+    },
+    {
+      "id": "twilio-record-default",
+      "file": "twilio_api_v2010.json",
+      "line": 13550,
+      "anchor": "\"/2010-04-01/Accounts/{AccountSid}/Calls.json\": {",
+      "raw": [
+        "                    \"description\": \"Whether to record the call. Can be `true` to record the phone call, or `false` to not. The default is `false`. The `recording_url` is sent to the `status_callback` URL.\""
+      ]
+    },
+    {
+      "id": "twilio-ring-timeout",
+      "file": "twilio_api_v2010.json",
+      "line": 13546,
+      "anchor": "\"/2010-04-01/Accounts/{AccountSid}/Calls.json\": {",
+      "raw": [
+        "                    \"description\": \"The integer number of seconds that we should allow the phone to ring before assuming there is no answer. The default is `60` seconds and the maximum is `600` seconds. For some call flows, we will add a 5-second buffer to the timeout value you provide. For this reason, a timeout value of 10 seconds could result in an actual timeout closer to 15 seconds. You can set this to a short time, such as `15` seconds, to hang up before reaching an answering machine or voicemail.\""
+      ]
+    },
+    {
+      "id": "twilio-time-limit",
+      "file": "twilio_api_v2010.json",
+      "line": 13659,
+      "anchor": "\"/2010-04-01/Accounts/{AccountSid}/Calls.json\": {",
+      "raw": [
+        "                    \"description\": \"The maximum duration of the call in seconds. Constraints depend on account and configuration.\""
+      ]
+    },
+    {
+      "id": "twilio-machine-detection",
+      "file": "twilio_api_v2010.json",
+      "line": 13583,
+      "anchor": "\"/2010-04-01/Accounts/{AccountSid}/Calls.json\": {",
+      "raw": [
+        "                    \"description\": \"Whether to detect if a human, answering machine, or fax has picked up the call. Can be: `Enable` or `DetectMessageEnd`. Use `Enable` if you would like us to return `AnsweredBy` as soon as the called party is identified. Use `DetectMessageEnd`, if you would like to leave a message on an answering machine. If `send_digits` is provided, this parameter is ignored. For more information, see [Answering Machine Detection](https://www.twilio.com/docs/voice/answering-machine-detection).\""
+      ]
+    },
+    {
+      "id": "twilio-progress-events",
+      "file": "twilio_api_v2010.json",
+      "line": 13529,
+      "anchor": "\"/2010-04-01/Accounts/{AccountSid}/Calls.json\": {",
+      "raw": [
+        "                    \"description\": \"The call progress events that we will send to the `status_callback` URL. Can be: `initiated`, `ringing`, `answered`, and `completed`. If no event is specified, we send the `completed` status. If you want to receive multiple events, specify each one in a separate `status_callback_event` parameter. See the code sample for [monitoring call progress](https://www.twilio.com/docs/voice/api/call-resource?code-sample=code-create-a-call-resource-and-specify-a-statuscallbackevent&code-sdk-version=json). If an `application_sid` is present, this parameter is ignored.\""
+      ]
+    },
+    {
+      "id": "twilio-recording-delete",
+      "file": "twilio_api_v2010.json",
+      "line": 30632,
+      "anchor": "\"/2010-04-01/Accounts/{AccountSid}/Recordings/{Sid}.json\": {",
+      "raw": [
+        "        \"description\": \"Delete a recording from your account\","
+      ]
+    },
+    {
+      "id": "twilio-transcription-engine",
+      "file": "twilio_api_v2010.json",
+      "line": 30197,
+      "anchor": "\"/2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Transcriptions.json\": {",
+      "raw": [
+        "                    \"description\": \"Definition of the transcription engine to be used, among those supported by Twilio\""
+      ]
+    },
+    {
+      "id": "twilio-speech-model",
+      "file": "twilio_api_v2010.json",
+      "line": 30205,
+      "anchor": "\"/2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Transcriptions.json\": {",
+      "raw": [
+        "                    \"description\": \"Recognition model used by the transcription engine, among those supported by the provider\""
+      ]
+    },
+    {
+      "id": "twilio-price-fields",
+      "file": "twilio_pricing_v2.json",
+      "line": 386,
+      "anchor": "\"pricing.v2.voice.voice_number\": {",
+      "raw": [
+        "          \"outbound_call_prices\": {",
+        "            \"type\": \"array\",",
+        "            \"items\": {",
+        "              \"type\": \"object\",",
+        "              \"format\": \"outbound-call-price-with-origin\",",
+        "              \"properties\": {",
+        "                \"base_price\": {",
+        "                  \"type\": \"number\",",
+        "                  \"x-twilio\": {",
+        "                    \"overrideType\": \"string\"",
+        "                  }",
+        "                },",
+        "                \"current_price\": {",
+        "                  \"type\": \"number\",",
+        "                  \"x-twilio\": {",
+        "                    \"overrideType\": \"string\"",
+        "                  }",
+        "                },"
+      ]
+    },
+    {
+      "id": "twilio-price-unit",
+      "file": "twilio_pricing_v2.json",
+      "line": 442,
+      "anchor": "\"pricing.v2.voice.voice_number\": {",
+      "raw": [
+        "            \"description\": \"The currency in which prices are measured, specified in [ISO 4127](https://www.iso.org/iso/home/standards/currency_codes.htm) format (e.g. `usd`, `eur`, `jpy`).\""
+      ]
+    },
+    {
+      "id": "telnyx-outbound",
+      "file": "telnyx_spec3.json",
+      "line": 28271,
+      "anchor": "\"/calls\": {",
+      "raw": [
+        "        \"description\": \"Dial a number or SIP URI from a given connection. A successful response will include a `call_leg_id` which can be used to correlate the command with subsequent webhooks.\\n\\nTo place the call with an AI assistant from the start, include `assistant.id` and any per-call overrides in the `assistant` object; Telnyx attempts to warm up the assistant before placing the call and starts it automatically when the called party answers.\\n\\n**Expected Webhooks:**\\n\\n- `call.initiated`\\n- `call.answered` or `call.hangup`\\n- `call.conversation.created` when the requested assistant conversation is created, or `call.conversation.start_failed` when it could not be started after the called party answered\\n- `call.hold` and `call.unhold` if the call is held/unheld\\n- `call.machine.detection.ended` if `answering_machine_detection` was requested\\n- `call.machine.greeting.ended` if `answering_machine_detection` was requested to detect the end of machine greeting\\n- `call.machine.premium.detection.ended` if `answering_machine_detection=premium` was requested\\n- `call.machine.premium.greeting.ended` if `answering_machine_detection=premium` was requested and a beep was detected\\n- `call.machine.premium.call_screening.detected` if `answering_machine_detection=premium_ios_call_screening_detection` was requested and an Apple Call Screening tone was detected\\n- `call.deepfake_detection.result` if `deepfake_detection` was enabled\\n- `call.deepfake_detection.error` if `deepfake_detection` was enabled and an error occurred\\n- `streaming.started`, `streaming.stopped` or `streaming.failed` if `stream_url` was set\\n\\nWhen the `record` parameter is set to `record-from-answer`, the response will include a `recording_id` field.\\n\","
+      ]
+    },
+    {
+      "id": "telnyx-record-default",
+      "file": "telnyx_spec3.json",
+      "line": 129548,
+      "anchor": "\"CallRequest\": {",
+      "raw": [
+        "            \"description\": \"Start recording automatically after an event. Disabled by default.\","
+      ]
+    },
+    {
+      "id": "telnyx-transcription-default",
+      "file": "telnyx_spec3.json",
+      "line": 129640,
+      "anchor": "\"CallRequest\": {",
+      "raw": [
+        "            \"description\": \"Enable transcription upon call answer. The default value is false.\","
+      ]
+    },
+    {
+      "id": "telnyx-ring-timeout",
+      "file": "telnyx_spec3.json",
+      "line": 129024,
+      "anchor": "\"CallRequest\": {",
+      "raw": [
+        "            \"description\": \"The number of seconds that Telnyx will wait for the call to be answered by the destination to which it is being called. If the timeout is reached before an answer is received, the call will hangup and a `call.hangup` webhook with a `hangup_cause` of `timeout` will be sent. Minimum value is 5 seconds. Maximum value is 600 seconds.\","
+      ]
+    },
+    {
+      "id": "telnyx-time-limit",
+      "file": "telnyx_spec3.json",
+      "line": 129037,
+      "anchor": "\"CallRequest\": {",
+      "raw": [
+        "            \"description\": \"Sets the maximum duration of a Call Control Leg in seconds. If the time limit is reached, the call will hangup and a `call.hangup` webhook with a `hangup_cause` of `time_limit` will be sent. For example, by setting a time limit of 120 seconds, a Call Leg will be automatically terminated two minutes after being answered. The default time limit is 14400 seconds or 4 hours and this is also the maximum allowed call length.\","
+      ]
+    },
+    {
+      "id": "telnyx-machine-detection",
+      "file": "telnyx_spec3.json",
+      "line": 129046,
+      "anchor": "\"CallRequest\": {",
+      "raw": [
+        "            \"description\": \"Enables Answering Machine Detection. Telnyx offers Premium and Standard detections. With Premium detection, when a call is answered, Telnyx runs real-time detection and sends a `call.machine.premium.detection.ended` webhook with one of the following results: `human_residence`, `human_business`, `machine`, `silence` or `fax_detected`. If we detect a beep, we also send a `call.machine.premium.greeting.ended` webhook with the result of `beep_detected`. If we detect a beep before `call.machine.premium.detection.ended` we only send `call.machine.premium.greeting.ended`, and if we detect a beep after `call.machine.premium.detection.ended`, we send both webhooks. With Standard detection, when a call is answered, Telnyx runs real-time detection to determine if it was picked up by a human or a machine and sends an `call.machine.detection.ended` webhook with the analysis result. If `greeting_end` or `detect_words` is used and a `machine` is detected, you will receive another `call.machine.greeting.ended` webhook when the answering machine greeting ends with a beep or silence. If `detect_beep` is used, you will only receive `call.machine.greeting.ended` if a beep is detected. If `answering_machine_detection` is set to `premium_ios_call_screening_detection`, Premium AMD runs with iOS Call Screening support: after an initial `machine` result, Telnyx listens for the iOS call-screening prompt to end or for an Apple Call Screening tone, sends `call.machine.premium.greeting.ended` with `result=prompt_ended` or `call.machine.premium.call_screening.detected` with `result=screening` respectively. When the Apple Call Screening tone is detected, Premium AMD is restarted on the screened call and a `call.machine.premium.detection.ended` webhook with the post-screening classification follows.\","
+      ]
+    },
+    {
+      "id": "telnyx-transcription-engines",
+      "file": "telnyx_spec3.json",
+      "line": 205171,
+      "anchor": "\"TranscriptionStartRequest\": {",
+      "raw": [
+        "            \"description\": \"Engine to use for speech recognition. Legacy values `A` - `Google`, `B` - `Telnyx` are supported for backward compatibility.\",",
+        "            \"type\": \"string\",",
+        "            \"enum\": [",
+        "              \"Google\",",
+        "              \"Telnyx\",",
+        "              \"Deepgram\",",
+        "              \"Azure\",",
+        "              \"xAI\",",
+        "              \"AssemblyAI\",",
+        "              \"Speechmatics\",",
+        "              \"Soniox\",",
+        "              \"Parakeet\",",
+        "              \"Humain\",",
+        "              \"Reson8\",",
+        "              \"Cohere\",",
+        "              \"A\",",
+        "              \"B\"",
+        "            ],"
+      ]
+    },
+    {
+      "id": "telnyx-tts-voice",
+      "file": "telnyx_spec3.json",
+      "line": 191709,
+      "anchor": "\"SpeakRequest\": {",
+      "raw": [
+        "            \"description\": \"Specifies the voice used in speech synthesis.\\n\\n- Define voices using the format `<Provider>.<Model>.<VoiceId>`. Specifying only the provider will give default values for voice_id and model_id.\\n\\n **Supported Providers:**\\n- **AWS:** Use `AWS.Polly.<VoiceId>` (e.g., `AWS.Polly.Joanna`). For neural voices, which provide more realistic, human-like speech, append `-Neural` to the `VoiceId` (e.g., `AWS.Polly.Joanna-Neural`). Check the [available voices](https://docs.aws.amazon.com/polly/latest/dg/available-voices.html) for compatibility.\\n- **Azure:** Use `Azure.<VoiceId>` (e.g., `Azure.en-CA-ClaraNeural`, `Azure.en-US-BrianMultilingualNeural`, `Azure.en-US-Ava:DragonHDLatestNeural`). For a complete list of voices, go to [Azure Voice Gallery](https://speech.microsoft.com/portal/voicegallery). Use `voice_settings` to configure custom deployments, regions, or API keys.\\n- **ElevenLabs:** Use `ElevenLabs.<ModelId>.<VoiceId>` (e.g., `ElevenLabs.eleven_multilingual_v2.21m00Tcm4TlvDq8ikWAM`). The `ModelId` part is optional. To use ElevenLabs, you must provide your ElevenLabs API key as an integration identifier secret in `\\\"voice_settings\\\": {\\\"api_key_ref\\\": \\\"<secret_identifier>\\\"}`. See [integration secrets documentation](https://developers.telnyx.com/api/secrets-manager/integration-secrets/create-integration-secret) for details. Check [available voices](https://elevenlabs.io/docs/api-reference/get-voices).\\n- **Telnyx:** Use `Telnyx.<model_id>.<voice_id>` (e.g., `Telnyx.KokoroTTS.af`). Use `voice_settings` to configure voice_speed and other synthesis parameters. `Bayan` provides Arabic (multiple dialects) and English voices (e.g., `Telnyx.Bayan.Ahmed`, `Telnyx.Bayan.Amanda`). `Sukhan` provides Urdu voices (e.g., `Telnyx.Sukhan.urdu-professor`); `voice_speed` is not supported.\\n- **Minimax:** Use `Minimax.<ModelId>.<VoiceId>` (e.g., `Minimax.speech-02-hd.Wise_Woman`). Supported models: `speech-02-turbo`, `speech-02-hd`, `speech-2.6-turbo`, `speech-2.8-turbo`. Use `voice_settings` to configure speed, volume, pitch, and language_boost.\\n- **Resemble:** Use `Resemble.Turbo.<voice_id>` (e.g., `Resemble.Turbo.my_voice`). Only `Turbo` model is supported. Use `voice_settings` to configure precision, sample_rate, and format.\\n- **Inworld:** Use `Inworld.<ModelId>.<VoiceId>` (e.g., `Inworld.Mini.Loretta`, `Inworld.Max.Oliver`, `Inworld.TTS2.Loretta`). Supported models: `Mini`, `Max`, `TTS2`. Use `voice_settings` to configure `delivery_mode` (`STABLE`, `BALANCED`, `CREATIVE`), supported by `TTS2` only.\\n- **Fish Audio:** Use `FishAudio.<ModelId>.<VoiceId>` (e.g., `FishAudio.s2.1-pro.<reference_id>`). Supported models: `s2.1-pro`, `s2-pro`, `s1`. `VoiceId` is a Fish Voice-Library reference ID.\\n- **Soniox:** Use `Soniox.<ModelId>.<VoiceId>` (e.g., `Soniox.tts-rt-v2.Emma`). Supported model: `tts-rt-v2`. Browse the catalog via the [Voices API](https://developers.telnyx.com/api-reference/text-to-speech-commands/list-available-voices). Every voice speaks all supported languages; set `language` to the two-letter ISO 639-1 code of the text, for example `it`. SSML is not supported. Use `voice_settings` to configure `speed` (0.7 to 1.3) and `reduce_silence`.\\n- **xAI:** Use `xAI.<VoiceId>` (e.g., `xAI.eve`). Available voices: `eve`, `ara`, `rex`, `sal`, `leo`.\\n- **Humain:** Use `Humain.<VoiceId>` (e.g., `Humain.sara-ar`). Available voices: `sara-en`, `abdulaziz-en`, `sara-ar`, `abdulaziz-ar`, `nourah-ar`, `abdullah-ar`. Native Arabic (Saudi dialect) and English voices only \\u2014 no `ModelId` segment.\\n\\nFor service_level basic, you may define the gender of the speaker (male or female).\","
+      ]
+    },
+    {
+      "id": "telnyx-tts-service-level",
+      "file": "telnyx_spec3.json",
+      "line": 191694,
+      "anchor": "\"SpeakRequest\": {",
+      "raw": [
+        "            \"description\": \"This parameter impacts speech quality, language options and payload types. When using `basic`, only the `en-US` language and payload type `text` are allowed.\","
+      ]
+    },
+    {
+      "id": "telnyx-recording-delete",
+      "file": "telnyx_spec3.json",
+      "line": 78567,
+      "anchor": "\"/recordings/{recording_id}\": {",
+      "raw": [
+        "        \"description\": \"Permanently deletes the specified call recording and returns the deleted recording resource. The media is removed and can no longer be downloaded.\","
+      ]
+    },
+    {
+      "id": "telnyx-pricing",
+      "file": "telnyx_spec3.json",
+      "line": 76278,
+      "anchor": "\"/pricing/products/{slug}\": {",
+      "raw": [
+        "        \"description\": \"Returns pricing entries for a single product. Most products return standard rate entries with fields like rate, unit, country_iso, direction, and tiers. Inference products return model-specific fields (model, input_rate, output_rate, cached_input_rate) with tiered pricing. Some products use rate decks (pricing_type: rate_deck) where rates are determined dynamically.\","
+      ]
+    }
+  ]
+}

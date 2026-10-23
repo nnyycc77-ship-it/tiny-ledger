@@ -1,0 +1,92 @@
+{
+  "label": "Extra: window full, business offers a time inside a pre-approved alternative; booked and labelled",
+  "_label": "SYNTHETIC scenario written by hand for issue #79 tests; the business, number and dialogue are invented and no call was placed",
+  "brief": {
+    "_label": "SYNTHETIC scenario written by hand for issue #79 tests; the business, number and dialogue are invented and no call was placed",
+    "business": {
+      "name": "Bella Notte Trattoria",
+      "phone": "+15125550134",
+      "country": "US",
+      "phone_source": "https://bella-notte-trattoria.invalid/contact",
+      "timezone": "America/Chicago",
+      "opening_hours": {
+        "mon": "closed",
+        "tue": [
+          [
+            "11:30",
+            "22:00"
+          ]
+        ],
+        "wed": [
+          [
+            "11:30",
+            "22:00"
+          ]
+        ],
+        "thu": [
+          [
+            "11:30",
+            "22:00"
+          ]
+        ],
+        "fri": [
+          [
+            "11:30",
+            "23:00"
+          ]
+        ],
+        "sat": [
+          [
+            "11:30",
+            "23:00"
+          ]
+        ],
+        "sun": [
+          [
+            "11:30",
+            "21:00"
+          ]
+        ]
+      }
+    },
+    "booking": {
+      "date": "2026-11-13",
+      "start": "19:00",
+      "end": "20:30",
+      "party_size": 4,
+      "name": "Jordan Rivera"
+    },
+    "alternatives": [
+      {
+        "date": "2026-11-14",
+        "start": "18:30",
+        "end": "20:00"
+      }
+    ],
+    "callback_number": null,
+    "special_requests": [],
+    "report_language": "en"
+  },
+  "start_utc": "2026-11-12T15:00:00Z",
+  "attempts": [
+    {
+      "result": "answered",
+      "turns": [
+        "Bella Notte, how can I help?",
+        "Friday is fully booked, but I could do Saturday at 7 pm.",
+        "Sure, and how many people?",
+        "Great, that's confirmed. Confirmation code is SAT-7. See you Saturday."
+      ]
+    }
+  ],
+  "expect": {
+    "status": "booked",
+    "booking": {
+      "date": "2026-11-14",
+      "time": "7:00 pm",
+      "confirmation": "SAT-7",
+      "used_pre_approved_alternative": true
+    },
+    "alternatives": []
+  }
+}

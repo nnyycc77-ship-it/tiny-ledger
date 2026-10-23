@@ -1,0 +1,94 @@
+{
+  "label": "Job sample 3: business asks \"is this a robot?\", call continues",
+  "_label": "SYNTHETIC scenario written by hand for issue #79 tests; the business, number and dialogue are invented and no call was placed",
+  "brief": {
+    "_label": "SYNTHETIC scenario written by hand for issue #79 tests; the business, number and dialogue are invented and no call was placed",
+    "business": {
+      "name": "Bella Notte Trattoria",
+      "phone": "+15125550134",
+      "country": "US",
+      "phone_source": "https://bella-notte-trattoria.invalid/contact",
+      "timezone": "America/Chicago",
+      "opening_hours": {
+        "mon": "closed",
+        "tue": [
+          [
+            "11:30",
+            "22:00"
+          ]
+        ],
+        "wed": [
+          [
+            "11:30",
+            "22:00"
+          ]
+        ],
+        "thu": [
+          [
+            "11:30",
+            "22:00"
+          ]
+        ],
+        "fri": [
+          [
+            "11:30",
+            "23:00"
+          ]
+        ],
+        "sat": [
+          [
+            "11:30",
+            "23:00"
+          ]
+        ],
+        "sun": [
+          [
+            "11:30",
+            "21:00"
+          ]
+        ]
+      }
+    },
+    "booking": {
+      "date": "2026-11-13",
+      "start": "19:00",
+      "end": "20:30",
+      "party_size": 4,
+      "name": "Jordan Rivera"
+    },
+    "alternatives": [],
+    "callback_number": null,
+    "special_requests": [],
+    "report_language": "en"
+  },
+  "start_utc": "2026-11-12T15:00:00Z",
+  "attempts": [
+    {
+      "result": "answered",
+      "turns": [
+        "Bella Notte, good morning.",
+        "Wait, is this a robot?",
+        "Oh, okay. Sure. We have 8:15 on Friday.",
+        "Name for the reservation?",
+        "Alright, you're booked, see you then."
+      ]
+    }
+  ],
+  "expect": {
+    "status": "booked",
+    "booking": {
+      "date": "2026-11-13",
+      "time": "8:15 pm",
+      "name": "Jordan Rivera",
+      "confirmation": null
+    },
+    "agent_said": [
+      "OPENING",
+      "AI_ANSWER",
+      "AI_CONTINUE",
+      "ACCEPT",
+      "GIVE_NAME",
+      "CONFIRM_END"
+    ]
+  }
+}
