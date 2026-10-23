@@ -574,6 +574,47 @@ live captures on issue #51:
 - `status-captures.json`, a transcription of the recorded statuses for the
   status-only checks.
 
+## Cross agent offline integration pass (`tests/test_agents_integration.py`)
+
+Issue #100. It runs every agent in `agents/` plus the brand checker through
+the offline entry point its README documents, in process, on the agent's
+committed fixtures (or, for the two video agents, on the fixture their own
+suite generates):
+
+| Agent | Offline entry point used |
+| --- | --- |
+| catering-finder | `run` on the fixture store |
+| local-quotes | `run` on the fixture store with a fixed `--now` |
+| field-service-planner | `plan` with the `--places` fixture provider |
+| call-for-me | `simulate` over every scenario, plus `call` (must refuse) |
+| media-generator | `generate` with the stub providers on the README's four sample scenarios |
+| video-clipping | `run` on the generated fixture video |
+| video-dubbing | `run` with the stub voice on the generated fixture video |
+| brand checker | the captured fixtures replayed from a loopback server |
+
+```sh
+python3 -m unittest discover -s tools/tests -p 'test_agents_integration.py' -v
+```
+
+**What a green run proves.** Every agent:
+- still completes its documented dry run;
+- writes the report or files its README promises;
+- prints every section its README lists, in the README's words;
+- reaches for no network on that path.
+
+Every run is wrapped in a guard that fails the test on any socket connection
+or name lookup to a host other than loopback. Proxy settings are cleared for
+the run, so a proxy on loopback cannot carry a request out. The guard's own
+tests prove it blocks outside hosts, keeps loopback, and stops a real agent's
+live command (catering-finder `capture`). A coverage test fails when a
+folder is added to `agents/` without a case here.
+
+**What it does not prove.** Nothing about live sources, real speech or
+translation, or output quality. The guard sees only sockets opened by
+Python in this process. ffmpeg and ffprobe run as subprocesses on local
+files, with no URLs given to them. The video cases skip when ffmpeg is
+missing.
+
 ## api_smoke.py
 
 ```sh
