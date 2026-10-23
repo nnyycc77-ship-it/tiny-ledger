@@ -53,6 +53,7 @@ Input column names and formats are listed in README.md.
 import argparse
 import csv
 import datetime as dt
+import difflib
 import hashlib
 import os
 import re
@@ -65,16 +66,26 @@ if HERE not in sys.path:
 import routing  # noqa: E402
 
 AGENT_NAME = "Field Service Route Planner & Schedule Backfill"
-AGENT_VERSION = "0.2.0"
+AGENT_VERSION = "0.3.0"
 
 JOB_COLUMNS = ("job_id", "customer", "address", "duration_minutes", "window_start", "window_end", "skills")
 JOB_DATE_COLUMN = "date"                      # optional; required with --date-to
 CREW_COLUMNS = ("crew_id", "name", "start_address", "shift_start", "shift_end", "skills")
 CUSTOMER_COLUMNS = ("customer_id", "name", "address", "last_service_date", "service_plan", "do_not_contact")
 CUSTOMER_QUOTE_COLUMN = "open_quote"          # optional
+CUSTOMER_TYPE_COLUMN = "service_type"         # optional; a typical interval when service_plan is blank
+CUSTOMER_OPTOUT_COLUMN = "opted_out"          # optional; a hard exclusion like do_not_contact
+CUSTOMER_OPTIONAL = (CUSTOMER_QUOTE_COLUMN, CUSTOMER_TYPE_COLUMN, CUSTOMER_OPTOUT_COLUMN)
 
 PLAN_INTERVALS = {"weekly": 7, "biweekly": 14, "monthly": 30, "bimonthly": 61, "quarterly": 91,
                   "semiannual": 182, "annual": 365, "yearly": 365}
+# Stated assumptions, used only when a customer's service_plan is blank: a
+# typical interval by service type (the bid proposal's examples are HVAC twice
+# a year and pest control quarterly). Every suggestion built on one of these is
+# labelled assumption based and ranks below customers with real due evidence.
+TYPICAL_INTERVALS = {"hvac": 182, "pest control": 91, "pest": 91, "cleaning": 30, "landscaping": 30,
+                     "lawn care": 30, "plumbing": 365, "electrical": 365, "window cleaning": 91, "pool": 30}
+NAME_SIMILARITY = 0.80        # SequenceMatcher ratio on normalized names for a duplicate at the same address
 EVERY_N_DAYS = re.compile(r"^every\s+(\d+)\s+days?$")
 TRUE_WORDS = ("yes", "y", "true", "1")
 FALSE_WORDS = ("no", "n", "false", "0", "")
@@ -154,11 +165,27 @@ def parse_plan(value):
     raise ValueError("service_plan must be one of %s or 'every N days', got %r" % (", ".join(sorted(PLAN_INTERVALS)), value))
 
 
+def norm_text(s):
+    """Lower case, punctuation removed, whitespace collapsed."""
+    return re.sub(r"\s+", " ", re.sub(r"[^a-z0-9 ]", " ", (s or "").lower())).strip()
+
+
 def normalize_key(name, address):
-    """Dedupe key: lower case, punctuation removed, whitespace collapsed."""
-    def norm(s):
-        return re.sub(r"\s+", " ", re.sub(r"[^a-z0-9 ]", " ", (s or "").lower())).strip()
-    return norm(name) + "|" + norm(address)
+    """Exact dedupe key: normalized name plus normalized address."""
+    return norm_text(name) + "|" + norm_text(address)
+
+
+def similar_customers(a, b):
+    """The proposal's duplicate rule: the same normalized address and names
+    that are equal or similar (SequenceMatcher ratio at least NAME_SIMILARITY)
+    after normalization. Returns the ratio when they match, else None."""
+    if norm_text(a.address) != norm_text(b.address):
+        return None
+    na, nb = norm_text(a.name), norm_text(b.name)
+    if na == nb:
+        return 1.0
+    ratio = difflib.SequenceMatcher(None, na, nb).ratio()
+    return ratio if ratio >= NAME_SIMILARITY else None
 
 
 def read_csv(path, columns, what, optional=()):
@@ -239,9 +266,21 @@ class Customer(object):
         self.address = row["address"]
         self.last_service = parse_date(row["last_service_date"], "last_service_date") if row["last_service_date"] else None
         self.plan_text = row["service_plan"]
-        self.interval = parse_plan(row["service_plan"])
+        self.service_type = row.get(CUSTOMER_TYPE_COLUMN, "")
+        self.interval = None
+        self.interval_assumed = False
+        if self.plan_text:
+            self.interval = parse_plan(self.plan_text)
+        elif norm_text(self.service_type) in TYPICAL_INTERVALS:
+            self.interval = TYPICAL_INTERVALS[norm_text(self.service_type)]
+            self.interval_assumed = True
+        elif self.service_type:
+            raise ValueError("service_plan is blank and service_type %r has no typical interval (known: %s)"
+                             % (self.service_type, ", ".join(sorted(TYPICAL_INTERVALS))))
         self.do_not_contact = parse_flag(row["do_not_contact"], "do_not_contact")
+        self.opted_out = parse_flag(row.get(CUSTOMER_OPTOUT_COLUMN, ""), CUSTOMER_OPTOUT_COLUMN)
         self.open_quote = row.get(CUSTOMER_QUOTE_COLUMN, "")
+        self.merged_from = []   # duplicate rows folded into this record, with the ratio
         if not self.id:
             raise ValueError("customer_id must not be blank")
         if not self.address:
@@ -251,6 +290,35 @@ class Customer(object):
     @property
     def key(self):
         return normalize_key(self.name, self.address)
+
+    @property
+    def richness(self):
+        """How many fields that matter for backfill are filled; the richest
+        record is kept when duplicates merge (the proposal's rule)."""
+        return sum(1 for v in (self.last_service, self.plan_text, self.open_quote, self.service_type) if v)
+
+    @property
+    def plan_label(self):
+        if self.plan_text:
+            return "%s plan" % self.plan_text
+        return "typical %s interval" % self.service_type
+
+    def merge_from(self, other, ratio):
+        """Fold a duplicate into this record: fill blanks from it, carry its
+        exclusions, and remember the merge for the report."""
+        if self.last_service is None and other.last_service is not None:
+            self.last_service = other.last_service
+        if not self.plan_text and other.plan_text:
+            self.plan_text, self.interval, self.interval_assumed = other.plan_text, other.interval, False
+        if self.interval is None and other.interval is not None:
+            self.interval, self.interval_assumed = other.interval, other.interval_assumed
+        if not self.service_type and other.service_type:
+            self.service_type = other.service_type
+        if not self.open_quote and other.open_quote:
+            self.open_quote = other.open_quote
+        self.do_not_contact = self.do_not_contact or other.do_not_contact
+        self.opted_out = self.opted_out or other.opted_out
+        self.merged_from.append((other, ratio))
 
 
 def load_records(rows, cls, label, problems):
@@ -346,49 +414,80 @@ class Period(object):
         if customer.open_quote:
             return 1.0, False, "open quote on record (%s); treated as due" % customer.open_quote
         if customer.last_service is None:
-            return 1.0, True, ("assumption based: no last service date recorded, so the %s plan (%d day interval) is treated "
-                               "as one full interval elapsed" % (customer.plan_text, customer.interval))
+            return 1.0, True, ("assumption based: no last service date recorded, so the %s (%d day interval) is treated "
+                               "as one full interval elapsed" % (customer.plan_label, customer.interval))
         next_due = customer.last_service + dt.timedelta(days=customer.interval)
         overdue = (date - next_due).days
+        assumed = customer.interval_assumed
         if overdue >= 0:
-            note = "due since %s (%s plan, last service %s), %d day(s) overdue on %s" % (
-                next_due.isoformat(), customer.plan_text, customer.last_service.isoformat(), overdue, date.isoformat())
+            note = "due since %s (%s, last service %s), %d day(s) overdue on %s" % (
+                next_due.isoformat(), customer.plan_label, customer.last_service.isoformat(), overdue, date.isoformat())
         else:
-            note = "not yet due: due on %s (%s plan, last service %s), %d day(s) after %s" % (
-                next_due.isoformat(), customer.plan_text, customer.last_service.isoformat(), -overdue, date.isoformat())
-        return overdue / float(customer.interval), False, note
+            note = "not yet due: due on %s (%s, last service %s), %d day(s) after %s" % (
+                next_due.isoformat(), customer.plan_label, customer.last_service.isoformat(), -overdue, date.isoformat())
+        if assumed:
+            note = "assumption based: no service plan stated, the %s of %d days is applied; %s" % (customer.plan_label, customer.interval, note)
+        return overdue / float(customer.interval), assumed, note
 
     def exclude_customers(self):
-        """Hard exclusions, in this order, before any ranking: duplicate; do
-        not contact; address not placed; already has a job in the period; not
-        due within the lookahead window (measured from the last day of the
-        period). The rest are candidates."""
+        """Hard exclusions, in this order, before any ranking: duplicate
+        (merged into the richest record, flagged); do not contact or opted
+        out; address not placed; no plan or type to judge due by; already has
+        a job in the period; not due within the lookahead window (measured
+        from the last day of the period). The rest are candidates."""
         scheduled = {normalize_key(j.customer, j.address) for j in self.jobs}
         last_day = self.dates[-1]
-        seen = {}
+        kept = []
         for c in sorted(self.customers, key=lambda c: c.row):
-            key = c.key
-            if key in seen:
-                self.excluded.append((c, "duplicate of customer %s on normalized name plus address" % seen[key].id))
+            match = None
+            for k in kept:
+                ratio = similar_customers(k, c)
+                if ratio is not None:
+                    match = (k, ratio)
+                    break
+            if match is None:
+                kept.append(c)
                 continue
-            seen[key] = c
-            if c.do_not_contact:
-                self.excluded.append((c, "do not contact flag is set"))
+            k, ratio = match
+            if c.richness > k.richness:
+                # the later row is richer: it becomes the kept record and absorbs the earlier one
+                kept[kept.index(k)] = c
+                c.merge_from(k, ratio)
+                self.excluded.append((k, "duplicate of customer %s (same address, name similarity %.2f): merged into %s, "
+                                      "which has more filled fields" % (c.id, ratio, c.id)))
+            else:
+                k.merge_from(c, ratio)
+                self.excluded.append((c, "duplicate of customer %s (same address, name similarity %.2f): merged into %s"
+                                      % (k.id, ratio, k.id)))
+        for c in kept:
+            key = c.key
+            if c.do_not_contact or c.opted_out:
+                flags = [f for f, v in (("do not contact", c.do_not_contact), ("opted out", c.opted_out)) if v]
+                self.excluded.append((c, "%s flag is set%s" % (" and ".join(flags), self.merge_note(c))))
                 continue
             if c.place is None:
-                self.excluded.append((c, "address could not be placed"))
+                self.excluded.append((c, "address could not be placed" + self.merge_note(c)))
+                continue
+            if c.interval is None and not c.open_quote:
+                self.excluded.append((c, "no service plan, no known service type and no open quote: due date cannot be judged" + self.merge_note(c)))
                 continue
             if key in scheduled:
-                self.excluded.append((c, "already has a job in the planning period"))
+                self.excluded.append((c, "already has a job in the planning period" + self.merge_note(c)))
                 continue
             strength, assumed, note = self.due(c, last_day)
-            if not assumed and strength < 0 and (-strength * c.interval) > self.settings.lookahead:
+            if strength < 0 and (-strength * c.interval) > self.settings.lookahead:
                 if self.settings.lookahead:
-                    self.excluded.append((c, "not due within %d days of %s: %s" % (self.settings.lookahead, last_day.isoformat(), note)))
+                    self.excluded.append((c, "not due within %d days of %s: %s%s" % (self.settings.lookahead, last_day.isoformat(), note, self.merge_note(c))))
                 else:
-                    self.excluded.append((c, "%s" % note))
+                    self.excluded.append((c, "%s%s" % (note, self.merge_note(c))))
                 continue
             self.candidates.append(c)
+
+    @staticmethod
+    def merge_note(c):
+        if not c.merged_from:
+            return ""
+        return "; merged duplicate row(s): %s" % ", ".join("%s (name similarity %.2f)" % (o.id, r) for o, r in c.merged_from)
 
     def rank(self):
         """Backfill across the whole period (RANK_NOTE): score every
@@ -400,7 +499,8 @@ class Period(object):
                     scored = day.score(gap, c)
                     if scored is not None:
                         pairs.append((scored, day_index, gap_index, gap, c))
-        pairs.sort(key=lambda item: (-item[0]["score"], item[0]["added"], item[4].id, item[1], item[2]))
+        # assumption based pairs (tier 1) always sort after evidence based pairs (tier 0): the proposal's rule
+        pairs.sort(key=lambda item: (1 if item[0]["assumed"] else 0, -item[0]["score"], item[0]["added"], item[4].id, item[1], item[2]))
         count = {}
         for scored, day_index, gap_index, gap, c in pairs:
             if c.id in self.used or count.get(id(gap), 0) >= self.settings.per_gap:
@@ -410,7 +510,7 @@ class Period(object):
             self.days[day_index].suggestions.append(Suggestion(gap, 0, c, **scored))
         for day in self.days:
             order = {id(g): i for i, g in enumerate(day.gaps)}
-            day.suggestions.sort(key=lambda sg: (order[id(sg.gap)], -sg.score, sg.added, sg.customer.id))
+            day.suggestions.sort(key=lambda sg: (order[id(sg.gap)], 1 if sg.assumed else 0, -sg.score, sg.added, sg.customer.id))
             rank, current = 0, None
             for sg in day.suggestions:
                 rank = rank + 1 if sg.gap is current else 1
@@ -592,7 +692,7 @@ class Day(object):
         if needed > gap.free + 1e-9:
             return None
         strength, assumed, note = period.due(c, self.date)
-        not_yet_due = (not assumed) and strength < 0
+        not_yet_due = strength < 0
         confidence = c.place.confidence
         certainty = "low" if assumed else ("high" if confidence == "high" else "medium")
         score = strength - (added / 60.0) * DRIVE_WEIGHT_PER_HOUR + CONFIDENCE_BONUS[confidence]
@@ -607,6 +707,9 @@ class Day(object):
             note, round(added), later, confidence, c.place.source)
         if not_yet_due:
             reason += "; included only because the buyer set the lookahead to %d day(s)" % self.settings.lookahead
+        if assumed:
+            reason += "; ranked below every customer with real due evidence"
+        reason += period.merge_note(c)
         return {"score": score, "added": added, "arrive": arrive, "back_by": back_by, "reason": reason,
                 "certainty": certainty, "assumed": assumed, "not_yet_due": not_yet_due}
 
@@ -624,14 +727,15 @@ def outreach_draft(s):
     if c.open_quote:
         history = "You have an open quote with us (%s)" % c.open_quote
     elif c.last_service is None:
-        history = "We have no record of your last %s service" % c.plan_text
+        history = "We have no record of your last service"
     else:
-        history = "Your last %s service was on %s" % (c.plan_text, c.last_service.isoformat())
-    return ("Hello %s, this is a message from [buyer's company name] about your %s service plan. %s. Our technician %s "
+        history = "Your last service was on %s" % c.last_service.isoformat()
+    service = ("%s service plan" % c.plan_text) if c.plan_text else ("%s service" % (c.service_type or "scheduled"))
+    return ("Hello %s, this is a message from [buyer's company name] about your %s. %s. Our technician %s "
             "is scheduled near %s on %s %s and could visit at about %s. Would that time suit you? Reply yes to confirm, "
             "or tell us a better time. If you would rather not be contacted about scheduling, reply stop and we will "
             "mark your record."
-            % (c.name or "there", c.plan_text, history, gap.member.name, c.address, gap.day.date.isoformat(), when, fmt_hhmm(s.arrive)))
+            % (c.name or "there", service, history, gap.member.name, c.address, gap.day.date.isoformat(), when, fmt_hhmm(s.arrive)))
 
 
 def render_day(day):
@@ -784,12 +888,20 @@ def render(period, inputs):
     L.append("")
     L.append("- Sequencing: " + SEQUENCE_NOTE)
     L.append("- Gaps: " + GAP_NOTE)
-    L.append("- Exclusions before ranking, in order: duplicate on normalized name plus address; do not contact flag; "
-             "address not placed; already has a job in the planning period; not due (within the lookahead window, when one is set).")
-    L.append("- Due: a customer is due when the last service date plus the plan interval is on or before the day, or an "
-             "open quote is on record. Due strength is (day minus next due date) divided by the interval. With no last "
-             "service date the customer is treated as one full interval elapsed and the suggestion is labelled assumption "
-             "based with certainty low.")
+    L.append("- Duplicates: customers at the same normalized address whose normalized names are equal or similar "
+             "(sequence ratio at least %.2f) are merged into the record with the most filled fields; blanks are filled "
+             "from the merged row, a do not contact or opted out flag on either row carries over, and every merge is "
+             "flagged in the excluded list and in the kept customer's reason." % NAME_SIMILARITY)
+    L.append("- Exclusions before ranking, in order: duplicate (merged); do not contact or opted out flag; address not "
+             "placed; no service plan, known service type or open quote; already has a job in the planning period; not due "
+             "(within the lookahead window, when one is set).")
+    L.append("- Due: a customer is due when the last service date plus the interval is on or before the day, or an open "
+             "quote is on record. The interval is the stated service plan, or, when the plan is blank, a typical interval "
+             "by service type (%s), which is a stated assumption. Due strength is (day minus next due date) divided by the "
+             "interval. With no last service date the customer is treated as one full interval elapsed. Every suggestion "
+             "that rests on an assumed interval or an assumed last service is labelled assumption based with certainty low "
+             "and ranks below every suggestion with real due evidence."
+             % ", ".join("%s %d days" % (k, v) for k, v in sorted(TYPICAL_INTERVALS.items())))
     L.append("- " + RANK_NOTE)
     L.append("- Fit: a suggestion is made only when the drive to the customer, the assumed visit and the drive on to the "
              "next job all fit before that job's planned start (or before the shift ends), so no later job moves.")
@@ -838,7 +950,7 @@ def load(args, env=None, provider=None):
     problems = []
     jobs_rows, job_optional = read_csv(args.jobs, JOB_COLUMNS, "jobs", optional=(JOB_DATE_COLUMN,))
     crew_rows, _ = read_csv(args.crew, CREW_COLUMNS, "crew")
-    cust_rows, _ = read_csv(args.customers, CUSTOMER_COLUMNS, "customers", optional=(CUSTOMER_QUOTE_COLUMN,))
+    cust_rows, _ = read_csv(args.customers, CUSTOMER_COLUMNS, "customers", optional=CUSTOMER_OPTIONAL)
     if len(dates) > 1 and JOB_DATE_COLUMN not in job_optional:
         raise InputError("jobs file %s needs a %r column when --date-to is given" % (args.jobs, JOB_DATE_COLUMN))
     if not crew_rows:

@@ -3,7 +3,7 @@
   "files": {
     "jobs.csv": "synthetic job rows for one planning day (2026-11-03); J6 has an address the fixture geocoder does not place, J7 needs a skill no crew member has, J8 has a non numeric duration on purpose",
     "crew.csv": "synthetic crew rows; C3 has a start address the fixture geocoder does not place on purpose",
-    "customers.csv": "synthetic customer rows; K5 is flagged do not contact, K6 duplicates K2 in a different case, K7 is not due, K8 is unplaced, K9 has a bad date on purpose, K10 is placed with medium confidence, K11 has an open quote and no last service date, K12 to K14 are overdue customers placed near the light days' routes",
+    "customers.csv": "synthetic customer rows; K5 is flagged do not contact, K6 duplicates K2 in a different case, K7 is not due, K8 is unplaced, K9 has a bad date on purpose, K10 is placed with medium confidence, K11 has an open quote and no last service date, K12 to K14 are overdue customers placed near the light days' routes; K15 is a near duplicate of K2 (similar name, same address, fewer filled fields), K16 and K17 are near duplicates where the later row is richer, K18 has a service type but no plan, K19 is opted out, K20 has neither a plan nor a known type",
     "places.json": "synthetic places on an abstract grid and the drive time rule (great circle distance at 40 km/h)",
     "jobs-week.csv": "synthetic job rows with a date column for a three day period (2026-11-03 to 2026-11-05): the one day rows plus light days; W4 is dated outside the period and W5 has a blank date on purpose"
   }
