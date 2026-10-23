@@ -1,0 +1,5 @@
+__pycache__/
+*.py[cod]
+# local poll state, if an operator points --state inside the folder
+state/
+*.state.json
