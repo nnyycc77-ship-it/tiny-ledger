@@ -57,3 +57,9 @@ Reason: every smooth review so far has had exactly this shape, including the hel
 ---
 
 Seeded 2026-10-22 from the reviews of PRs #5, #19, #20, #21, #30, #31, #32, and #34. The coordinator appends new lessons below this line as reviews produce them.
+
+### 9. A review is only evidence for the exact head it ran on (coordinator lesson, PR #82 delegated review, 2026-10-23)
+
+Run every gate check, especially pregate, on a clean checkout of the exact PR head under review, and read the DONE comment on the task issue, where helpers post it, not only on the pull request. A delegated review of PR #82 ran pregate on a different PR's checkout, searched the PR for a DONE comment that lived on the issue, and returned a cannot verify verdict that the coordinator's own rerun on the correct head superseded (pregate PASS on all three checks, suite green). A verdict produced against the wrong tree is void, however careful the rest of the work looks: name the head SHA in the review and confirm the checkout matches it before running anything.
+
+Reason: gates are tree specific. The same command on a neighbouring branch measures a different product, and a conclusion drawn from it misleads the merge decision in either direction.
