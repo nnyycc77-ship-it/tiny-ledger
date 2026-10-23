@@ -561,6 +561,14 @@ How each check is judged:
   documented name search and a live keyed run exist; see
   `uspto_trademarks-README.md` (issue #125) for the owner step sheet.
 
+**Offline dry run** (issue #137): `python3 tools/brand_check_dryrun.py` runs
+every leg against recorded responses, with no network. The responses are
+the issue #51 captures and status records, plus SYNTHETIC bodies labelled
+inside their files. It covers three cases (taken, free and mixed) and
+prints each leg's expected and actual verdict. It exits 0 only when every
+verdict matches. `--report` also prints the rendered reports. The cases
+are in `tests/fixtures/brandcheck-dryrun/cases.json`.
+
 Variations appear only with `--variations` and are listed only after every
 requested domain and X answer 404. A failed request is "could not confirm",
 never available. The tool only sends GET requests; it never registers or
