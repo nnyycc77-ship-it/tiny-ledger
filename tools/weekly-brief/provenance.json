@@ -1,0 +1,13 @@
+{
+  "_about": "The live sample brief for issue #146, produced under Option B by the coordinator (this build environment cannot reach www.sec.gov or api.usaspending.gov). Committed byte for byte as posted; the hash below is checked by tools/pregate.py and by tools/tests/test_weekly_brief.py.",
+  "sample-brief-2026-10-23.md": {
+    "produced_by": "the coordinator, from a working environment, on PR #151 head b23802a23d58e94ca1d100538f9ede49a1c9e3fa",
+    "command": "python3 tools/weekly_brief.py --config tools/weekly-brief/sample-config.json --week-ending 2026-10-23 (EDGAR_CONTACT set to a plain coordinator contact, not recorded here)",
+    "pull_time_utc": "2026-10-23T21:58:06Z (the brief's own Generated line; each section prints its own retrieval times)",
+    "filters": "sample-config.json: EDGAR watchlist CIK 2156237 and 1801756, sector Pooled Investment Fund, no keywords; USAspending NAICS prefix 5415, limit 10; window 2026-10-17 to 2026-10-23",
+    "posted_at": "https://github.com/nnyycc77-ship-it/tiny-ledger/issues/146#issuecomment-6375580707",
+    "transcript_form": "the text inside the comment's markdown fence, byte for byte; 13,306 bytes with no trailing newline, which is how the posted sha256 was computed",
+    "bytes": 13306,
+    "sha256": "953761f2d96e147504cfcb859f7eeb79f7d8afda6e6468c749b333ed04fcf876"
+  }
+}

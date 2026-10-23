@@ -22,6 +22,7 @@ environment and its header comment says so.
 | SEC EDGAR Form D filings | `edgar_formd.py` | none needed; an operator contact for the User-Agent is required (`--contact` or `EDGAR_CONTACT`) |
 | ProPublica Nonprofit Explorer (IRS Form 990 extracts) | `propublica_nonprofits.py` | none needed |
 | Brand name checks: RDAP domains, X / Instagram / TikTok handles, iTunes Search (trademarks not covered) | `brand_name_checker.py` | none needed |
+| Weekly brief: watchlist Form D filings and NAICS filtered contract awards for a seven day window (docs/weekly-brief.md) | `weekly_brief.py` | EDGAR contact |
 
 Not a fetcher: `pregate.py` is the offline review pre gate (secrets scan,
 honesty lint, fixture provenance check) from `REVIEW.md`. See
