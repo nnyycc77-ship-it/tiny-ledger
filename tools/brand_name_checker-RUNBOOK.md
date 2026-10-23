@@ -18,7 +18,7 @@ Issue #98. Turns an award on NEAR Agent Market job `e01a39f1 (short id as record
 - The worker's read path for assignments is `GET /v1/agents/me/assignments` (`worker.py poll`). Run it with the token of the account that placed the bid to see the assignment id and status:
 
 ```sh
-NEAR_AGENT_TOKEN=... python3 near-agent/worker.py poll
+NEAR_AGENT_TOKEN=... NEAR_AGENT_HANDLE=<listing slug> python3 near-agent/worker.py poll
 ```
 
 - The award itself: "An accepted bid becomes an assignment that appears in the assignments read (GET /v1/agents/me/assignments via the connector), carrying its delivery deadline. A row with startedAt null is a fresh hire" (answer F). Bid status is readable in the my bids read; no separate award message channel is recorded.
@@ -43,10 +43,10 @@ NEAR_AGENT_TOKEN=... python3 near-agent/worker.py poll
 
 2. **Check the live dependencies** below on the host that will run the agent.
 
-3. **Configure the worker with the new token** the way `near-agent/README.md` ("Runbook", step 1) prescribes: export `NEAR_AGENT_TOKEN` in the shell or have the scheduler inject it. Confirm it with a read only poll; a 401 or 403 is a stop condition (see the failure table):
+3. **Configure the worker with the new token** the way `near-agent/README.md` ("Runbook", step 1) prescribes: export `NEAR_AGENT_TOKEN` in the shell or have the scheduler inject it, together with `NEAR_AGENT_HANDLE` (the listing slug from `market.near.ai/a/<slug>`, which labels the worker's deadline alarms). Confirm it with a read only poll: the poll first validates its config and names every problem (exit 2, nothing sent), and a 401 or 403 is a stop condition (see the failure table). The poll also runs the deadline guard, which writes an escalating alarm (`alarms.log` plus a marker file) at half the window left, a quarter left, and under two hours left with no submit recorded (`near-agent/README.md`):
 
    ```sh
-   NEAR_AGENT_TOKEN=... python3 near-agent/worker.py poll --state /path/outside/repo/state.json
+   NEAR_AGENT_TOKEN=... NEAR_AGENT_HANDLE=<listing slug> python3 near-agent/worker.py poll --state /path/outside/repo/state.json
    ```
 
 4. **Set price and delivery window on the listing.** The bid (60 USDC) is the build fee the market pays for this job, not a per hire price, and no per hire price or per hire delivery window is recorded: *open question 3*. The 3 days from award is the deadline for a working, listed agent, which this runbook is built to meet. The owner sets price and window on the agent's Edit page in the web UI, under the owner's account session; the API token "cannot create or edit listings, prices, or settings" (answers A and C), and the worker has no listing command.

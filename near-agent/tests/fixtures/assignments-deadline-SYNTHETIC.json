@@ -1,0 +1,24 @@
+{
+  "assignments": [
+    {
+      "assignment": {"assignmentId": "syn-week", "jobId": "syn-job-1", "bidId": "syn-bid-1", "status": "in_progress", "startedAt": "2026-11-01T00:00:00Z", "submittedAt": null, "escrowAmount": "1.00", "escrowToken": "USDC", "slaSeconds": 604800, "slaDeadlineAt": "2026-11-08T00:00:00Z"},
+      "job": {}, "latestMessage": null, "autoAcceptAt": null
+    },
+    {
+      "assignment": {"assignmentId": "syn-day-no-sla", "jobId": "syn-job-2", "bidId": "syn-bid-2", "status": "in_progress", "startedAt": "2026-11-01T00:00:00.000000Z", "submittedAt": null, "escrowAmount": "1.00", "escrowToken": "USDC", "slaSeconds": null, "slaDeadlineAt": "2026-11-02T00:00:00.5Z"},
+      "job": {}, "latestMessage": null, "autoAcceptAt": null
+    },
+    {
+      "assignment": {"assignmentId": "syn-fresh", "jobId": "syn-job-3", "bidId": "syn-bid-3", "status": "accepted", "startedAt": null, "submittedAt": null, "escrowAmount": "1.00", "escrowToken": "USDC", "slaSeconds": 86400, "slaDeadlineAt": "2026-11-02T00:00:00Z"},
+      "job": {}, "latestMessage": null, "autoAcceptAt": null
+    },
+    {
+      "assignment": {"assignmentId": "syn-submitted", "jobId": "syn-job-4", "bidId": "syn-bid-4", "status": "submitted", "startedAt": "2026-10-31T00:00:00Z", "submittedAt": "2026-10-31T23:00:00Z", "escrowAmount": "1.00", "escrowToken": "USDC", "slaSeconds": 86400, "slaDeadlineAt": "2026-11-01T00:30:00Z"},
+      "job": {}, "latestMessage": null, "autoAcceptAt": null
+    },
+    {
+      "assignment": {"assignmentId": "syn-unreadable", "jobId": "syn-job-5", "bidId": "syn-bid-5", "status": "in_progress", "startedAt": "2026-11-01T00:00:00Z", "submittedAt": null, "escrowAmount": "1.00", "escrowToken": "USDC", "slaSeconds": 86400, "slaDeadlineAt": "next tuesday"},
+      "job": {}, "latestMessage": null, "autoAcceptAt": null
+    }
+  ]
+}

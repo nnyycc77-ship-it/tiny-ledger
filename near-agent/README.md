@@ -33,7 +33,9 @@ sends nothing. Adding `--execute` sends it. There is no `--execute` for
 The poll digest prints: the assignment count and ids; the board job
 count; and every job whose id is new or whose budget changed since the
 previous poll. The previous poll is kept in a small state file holding job
-ids and budgets only (never a response body, never the token).
+ids and budgets only (never a response body, never the token). Each poll
+also runs a config validation pass first and a deadline guard on the open
+assignments (Runbook, step 2).
 
 ## Runbook
 
@@ -50,8 +52,52 @@ ids and budgets only (never a response body, never the token).
 2. **Poll.** From the repository root:
 
    ```sh
-   NEAR_AGENT_TOKEN=... python3 near-agent/worker.py poll
+   NEAR_AGENT_TOKEN=... NEAR_AGENT_HANDLE=<listing slug> python3 near-agent/worker.py poll
    ```
+
+   Before the first request, the poll validates its config. It reports
+   every problem at once, one named reason each, then exits 2 with nothing
+   sent (issue #110). The checks:
+
+   - **`NEAR_AGENT_TOKEN`**, by shape only: the `aat_` prefix of a per
+     agent token (coordinator answer on #98, comment 6368327577), then no
+     whitespace. The value is never shown.
+   - **`NEAR_AGENT_HANDLE`**: the agent's listing slug, as in
+     `market.near.ai/a/<slug>`. It labels the deadline alarms and is never
+     sent in a request.
+   - **`--repeat` and `--interval`.**
+   - **`NEAR_AGENT_SUBMIT_MAX_BYTES`** (optional; default 262144): a
+     narrower submit limit that must lie within the marketplace rule of
+     1 byte to 256 KiB. That rule is recorded in issue #110, and is read
+     here as the UTF-8 byte length of `deliverableMarkdown`. The submit
+     path itself does not enforce the limit.
+
+   The act commands do not run this pass and are unchanged.
+
+   **Deadline guard.** After both reads of a poll parse, the guard checks
+   every open assignment, meaning one whose `submittedAt` is null. It uses
+   the assignment's own `slaDeadlineAt`, with the window taken from
+   `slaSeconds`, or else from `startedAt` to `slaDeadlineAt` (OpenAPI
+   `JobAssignment` fields, quoted on issue #48). It raises an escalating
+   alarm at three points:
+
+   - `half`: half the window or less left;
+   - `quarter`: a quarter or less left;
+   - `final`: under two hours left with no submit recorded, which includes
+     past the deadline.
+
+   An assignment whose deadline cannot be read raises `unreadable` instead
+   of being skipped. Each alarm does three things:
+
+   - appends one JSON line to `alarms.log`;
+   - writes the marker file `<assignmentId>.json`, which remembers the
+     highest level reached so that each level fires once;
+   - prints the same line on stderr after `ALARM `.
+
+   These are the only files the guard writes. They go in `alarms/` beside
+   the state file, or in `--alarm-dir DIR`. A marker that cannot be read
+   stops the poll (exit 2) before the state is saved. Move the marker
+   aside to reset it.
 
    The state file defaults to `~/.local/state/near-agent/state.json`
    (`XDG_STATE_HOME` honoured), which is outside the repository. To keep it
@@ -63,14 +109,17 @@ ids and budgets only (never a response body, never the token).
    response bodies in `tests/fixtures`:
 
    ```sh
-   NEAR_AGENT_TOKEN=placeholder-for-replay-only python3 near-agent/worker.py poll \
+   NEAR_AGENT_TOKEN=aat_placeholder-for-replay-only NEAR_AGENT_HANDLE=replay-check python3 near-agent/worker.py poll \
      --state /tmp/near-agent-replay.json \
      --replay-assignments near-agent/tests/fixtures/assignments-empty.json \
      --replay-board near-agent/tests/fixtures/board-excerpt.json
    ```
 
    The token is still required (one rule, no exceptions), but a replay
-   builds no connection, so any string works there.
+   builds no connection, so any string of the token's shape works there.
+   `tests/fixtures/assignments-deadline-SYNTHETIC.json` is a SYNTHETIC
+   assignments body: replay it with `--alarm-dir` pointed at a scratch
+   folder to see the deadline guard fire.
 
 3. **Dry run first, always.** Run an act command without `--execute`, read
    the printed request, and only then decide. A bid is never sent by this

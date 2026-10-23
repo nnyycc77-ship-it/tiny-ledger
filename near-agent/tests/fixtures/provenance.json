@@ -19,6 +19,14 @@
     "full_capture_body_sha256_as_reported_by_coordinator": "46226e14044ad4cb53f111856e747220b1c8a91f6aafabe1cceeb8ed65639e8c",
     "sha256": "0f54fb95c94c10ed6e59197b16d3a42467f3e5eb5de6c15e1ef47b3b8bc8dfa9"
   },
+  "assignments-deadline-SYNTHETIC.json": {
+    "url": "none: SYNTHETIC, not a marketplace response",
+    "retrieved_utc": "not retrieved; written by H3 for issue #110 on 2026-10-23",
+    "retrieved_by": "nobody; hand written test input",
+    "source": "https://github.com/nnyycc77-ship-it/tiny-ledger/issues/110",
+    "note": "SYNTHETIC. Five MyAssignmentItem rows built for the deadline guard tests at controlled clock offsets. The field names are the OpenAPI JobAssignment and MyAssignmentItem names quoted on issue #48 (see _sources.openapi); the timestamp form follows the captured board job in board-excerpt.json. Every id, amount and time is invented; none describes a real assignment.",
+    "sha256": "ae022c5cdbe3c7ee855e8d11baf3324bef610b4009500bdb90ea90c44694611a"
+  },
   "_sources": {
     "openapi": {
       "url": "https://market.near.ai/openapi.json",
