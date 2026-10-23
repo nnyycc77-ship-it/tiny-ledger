@@ -466,6 +466,8 @@ def call_recall(arguments):
         text = recall_api.recall(arguments_to_query(arguments))
     except recall_api.BadRequest as err:
         return error_result("Bad request: %s" % err)
+    except recall_api.SourceFailed as err:
+        return error_result(str(err))
     except ValueError as err:
         if isinstance(err, cpsc_recalls.FetchError):
             return error_result("Fetch failed, no report emitted: %s" % err)

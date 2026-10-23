@@ -71,6 +71,12 @@ def query_field(url):
     return present[0]
 
 
+def curl_reason(stderr):
+    """curl's own --show-error line, so a failed fetch says why it failed."""
+    text = " ".join(stderr.decode("utf-8", "replace").split())
+    return f": {text[:300]}" if text else ""
+
+
 def fetch(value, field="ProductName"):
     url = query_url(value, field)
     try:
@@ -82,11 +88,17 @@ def fetch(value, field="ProductName"):
              "--header", "Accept-Encoding: identity", url],
             capture_output=True, timeout=35, check=False,
         )
-    except (OSError, subprocess.TimeoutExpired) as exc:
-        raise FetchError("curl unavailable or timed out; no recall conclusion") from exc
+    except FileNotFoundError as exc:
+        raise FetchError("curl is not installed on this host (not found on PATH); "
+                         "no recall conclusion") from exc
+    except subprocess.TimeoutExpired as exc:
+        raise FetchError("curl did not finish within 35 seconds; no recall conclusion") from exc
+    except OSError as exc:
+        raise FetchError(f"curl could not be started ({exc}); no recall conclusion") from exc
     retrieved = datetime.now(timezone.utc).isoformat(timespec="seconds").replace("+00:00", "Z")
     if result.returncode:
-        raise FetchError(f"curl failed (exit {result.returncode}); no recall conclusion")
+        raise FetchError(f"curl failed (exit {result.returncode}{curl_reason(result.stderr)}); "
+                         "no recall conclusion")
     try:
         return Capture(url, retrieved, result.stdout.decode("utf-8"))
     except UnicodeDecodeError as exc:

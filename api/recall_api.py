@@ -39,6 +39,7 @@ Python runtime, and the like). `handle()` is the host-free core.
 """
 
 import argparse
+import http.client
 import json
 import os
 import re
@@ -70,6 +71,21 @@ class ConfigError(ValueError):
 
 class BadRequest(ValueError):
     """The query does not name a product or a complete vehicle."""
+
+
+CPSC_SOURCE = "CPSC SaferProducts recall API"
+NHTSA_SOURCE = "NHTSA recalls API"
+
+
+class SourceFailed(Exception):
+    """A source could not be fetched or read. The message names the source,
+    the exact query and the reason, so a caller is never handed a bare error;
+    no report is emitted."""
+
+    def __init__(self, source, url, reason):
+        self.source, self.url, self.reason = source, url, str(reason)
+        super().__init__("Fetch failed, no report emitted: the %s could not be read (%s). "
+                         "Query: GET %s" % (source, self.reason, url))
 
 
 # ----------------------------------------------------------------------
@@ -147,8 +163,11 @@ def product_check(product, exact_name=None, near=()):
         raise BadRequest("near requires exact_name to state the exclusion rule")
     sections = []
     for index, name in enumerate([product, *near]):
-        capture = cpsc_recalls.fetch(name)
-        sections.append(cpsc_recalls.render_query(capture, exact_name, near=index > 0))
+        try:
+            capture = cpsc_recalls.fetch(name)
+            sections.append(cpsc_recalls.render_query(capture, exact_name, near=index > 0))
+        except cpsc_recalls.FetchError as err:
+            raise SourceFailed(CPSC_SOURCE, cpsc_recalls.query_url(name), err) from err
     head = [
         "# Recall check: %s" % cpsc_recalls.inline(product).strip('"'),
         "",
@@ -173,7 +192,18 @@ def vehicle_check(make, model, year, exclude=()):
     endpoint = nhtsa_recalls.DEFAULT_ENDPOINT
     exclusions = nhtsa_recalls.parse_exclusions(list(exclude))
     url = nhtsa_recalls.build_url(endpoint, params)
-    retrieved, transcript, body = nhtsa_recalls.fetch(url)
+    try:
+        retrieved, transcript, body = nhtsa_recalls.fetch(url)
+    except TimeoutError as err:
+        raise SourceFailed(NHTSA_SOURCE, url, "no answer within %d seconds"
+                           % nhtsa_recalls.TIMEOUT_SECONDS) from err
+    except urllib.error.URLError as err:
+        if isinstance(err.reason, TimeoutError):
+            raise SourceFailed(NHTSA_SOURCE, url, "no answer within %d seconds"
+                               % nhtsa_recalls.TIMEOUT_SECONDS) from err
+        raise SourceFailed(NHTSA_SOURCE, url, err.reason) from err
+    except (OSError, http.client.HTTPException, UnicodeDecodeError) as err:
+        raise SourceFailed(NHTSA_SOURCE, url, "%s: %s" % (type(err).__name__, err)) from err
     subject = "%s %s %s" % (year, make, model)
     lines = nhtsa_recalls.render_section(subject, endpoint, params, url, retrieved,
                                          transcript, body, exclusions, pretty=False)
@@ -195,8 +225,9 @@ def vehicle_check(make, model, year, exclude=()):
 def recall(query):
     """Dispatch a parsed query (dict of lists) to the right check.
 
-    Returns Markdown text. Raises BadRequest for a bad query, and lets
-    the fetchers' own errors through for the caller to map to 502.
+    Returns Markdown text. Raises BadRequest for a bad query, and
+    SourceFailed (naming the source, the query and the reason) when a
+    source cannot be fetched or read, for the caller to map to 502.
     """
     product = _single(query, "product")
     make = _single(query, "make")
@@ -272,6 +303,8 @@ def handle(method, path, query_string, wallet):
         text = recall(query)
     except BadRequest as err:
         return reply("400 Bad Request", TEXT_PLAIN, "Bad request: %s\n" % err)
+    except SourceFailed as err:
+        return reply("502 Bad Gateway", TEXT_PLAIN, "%s\n" % err)
     except ValueError as err:
         # cpsc_recalls.FetchError is a ValueError; so are the NHTSA fetcher's
         # exclusion and parse errors. Neither becomes an empty result.
