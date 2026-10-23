@@ -1,0 +1,93 @@
+{
+  "label": "Job sample 2: haircut, Saturday morning only, no slots open",
+  "_label": "SYNTHETIC scenario written by hand for issue #79 tests; the business, number and dialogue are invented and no call was placed",
+  "brief": {
+    "_label": "SYNTHETIC scenario written by hand for issue #79 tests; the business, number and dialogue are invented and no call was placed",
+    "business": {
+      "name": "Shear Studio",
+      "phone": "+15125550178",
+      "country": "US",
+      "phone_source": "https://shear-studio.invalid/",
+      "timezone": "America/Chicago",
+      "opening_hours": {
+        "mon": "closed",
+        "tue": [
+          [
+            "09:00",
+            "18:00"
+          ]
+        ],
+        "wed": [
+          [
+            "09:00",
+            "18:00"
+          ]
+        ],
+        "thu": [
+          [
+            "09:00",
+            "20:00"
+          ]
+        ],
+        "fri": [
+          [
+            "09:00",
+            "18:00"
+          ]
+        ],
+        "sat": [
+          [
+            "08:00",
+            "16:00"
+          ]
+        ],
+        "sun": "closed"
+      }
+    },
+    "booking": {
+      "date": "2026-11-14",
+      "start": "09:00",
+      "end": "12:00",
+      "service": "haircut",
+      "name": "Sam Lee"
+    },
+    "alternatives": [],
+    "callback_number": null,
+    "special_requests": [],
+    "report_language": "en"
+  },
+  "start_utc": "2026-11-11T15:00:00Z",
+  "attempts": [
+    {
+      "result": "answered",
+      "turns": [
+        "Shear Studio, this is Dana.",
+        "Saturday morning is fully booked, sorry. I could do Saturday at 2:30 pm, or Tuesday at 10 am.",
+        "No, there's nothing in the morning, sorry."
+      ]
+    }
+  ],
+  "expect": {
+    "status": "not available",
+    "booking": {},
+    "alternatives": [
+      [
+        "2026-11-14",
+        "2:30 pm"
+      ],
+      [
+        "2026-11-17",
+        "10:00 am"
+      ]
+    ],
+    "agent_said": [
+      "OPENING",
+      "ASK_IN_WINDOW",
+      "NOT_BOOKED_END"
+    ],
+    "agent_never_said": [
+      "ACCEPT",
+      "CONFIRM_END"
+    ]
+  }
+}
