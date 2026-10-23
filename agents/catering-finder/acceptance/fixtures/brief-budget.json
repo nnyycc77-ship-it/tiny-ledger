@@ -1,0 +1,10 @@
+{
+  "_label": "SYNTHETIC brief for the acceptance self test (issue #124): the job posting's sample scenario 'set budget per person' (over budget options marked clearly) run against the committed synthetic vendor store; not a real event",
+  "date": "2026-11-14",
+  "location": "Austin, TX",
+  "headcount": 60,
+  "budget_usd": 1500,
+  "dietary_needs": ["gluten-free"],
+  "service_style": "buffet",
+  "_buyer_contact": "planner@buyer-acceptance.invalid"
+}

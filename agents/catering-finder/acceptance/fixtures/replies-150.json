@@ -1,0 +1,14 @@
+{
+  "_label": "SYNTHETIC sends and replies for the acceptance self test (issue #124). Nothing was sent to anyone; these records stand in for the operator's record-sent and record-reply steps under a hire.",
+  "sent": [
+    {"vendor": "pecan-grove", "when": "2026-10-28T10:00:00Z"},
+    {"vendor": "bluebonnet", "when": "2026-10-28T10:02:00Z"},
+    {"vendor": "cedar-park", "when": "2026-10-28T10:04:00Z"}
+  ],
+  "replies": [
+    {"vendor": "pecan-grove", "when": "2026-10-29T09:30:00Z",
+     "text": "Yes, we can serve 150 guests on November 14. The buffet would be $24 per person for a group this size, with a 30% deposit to hold the date. Our vegan platters are made in a separate kitchen area."},
+    {"vendor": "cedar-park", "when": "2026-10-29T11:00:00Z",
+     "text": "Sorry, we cannot take a group of 150 on November 14."}
+  ]
+}

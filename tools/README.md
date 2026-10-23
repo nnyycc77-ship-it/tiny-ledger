@@ -618,6 +618,64 @@ Python in this process. ffmpeg and ffprobe run as subprocesses on local
 files, with no URLs given to them. The video cases skip when ffmpeg is
 missing.
 
+## Acceptance self tests for the built NEAR agents (`acceptance_all.py`)
+
+Issue #124. A marketplace tester checks a delivered agent against the job's
+acceptance criteria, and a failed check means no payment. These scripts run
+that test first, offline, one per built agent:
+
+| Agent | Script | Criteria source |
+| --- | --- | --- |
+| field-service-planner | `agents/field-service-planner/acceptance/acceptance.py` | posting on #73 (comment 6365291384) |
+| catering-finder | `agents/catering-finder/acceptance/acceptance.py` | posting on #75 (comment 6365588905) |
+| local-quotes | `agents/local-quotes/acceptance/acceptance.py` | posting on #76 (comment 6366190586) |
+| media-generator | `agents/media-generator/acceptance/acceptance.py` | posting on #78 (comment 6366897388) |
+| video-clipping | `agents/video-clipping/acceptance/acceptance.py` | posting on #124 (comment 6372113964) |
+| video-dubbing | `agents/video-dubbing/acceptance/acceptance.py` | posting on #77 (comment 6365954974) |
+
+```sh
+python3 tools/acceptance_all.py              # one table, then every FAIL with its evidence
+python3 tools/acceptance_all.py --details    # every criterion with its evidence
+python3 agents/catering-finder/acceptance/acceptance.py   # one agent
+```
+
+**How each script works.**
+- It takes two or three of the posting's own sample scenarios, as far as
+  an offline fixture can stand in for them, and runs the agent through
+  its documented entry point.
+- Each posting criterion, quoted word for word, is printed as `PASS`,
+  `FAIL` or `UNTESTABLE`, with the evidence line, then a summary count.
+- The sample scenarios' expected results are checked as `S` rows where a
+  case exercises them.
+- The checks recompute from the inputs where they can: shift hours and
+  windows from the CSV files, drive minutes from the places file, page
+  lines and replies from the store and the log, frame sizes from ffprobe,
+  cut points from the word timings, background level from ffmpeg.
+- `tools/acceptance_common.py` holds the shared layer: the offline guard
+  (every non loopback connection refused and recorded), the loader and
+  the result format.
+
+**What `UNTESTABLE` means.** The criterion needs something an offline run
+cannot give, and the reason is printed. Examples:
+- a live routing or generation service;
+- a listing's delivery time;
+- a person's judgement (meaning, readability, what a clip shows);
+- an ambiguous wording, which is never given an invented threshold.
+
+**What `FAIL` means.** The agent does not meet the criterion as written. A
+FAIL is filed as its own QUEUE task issue with the evidence. It is never
+patched inside the test, and CI does not gate on it.
+
+`tests/test_acceptance_selftests.py` runs in CI. It checks that:
+- every script runs and reports a status for every criterion;
+- an UNTESTABLE carries its reason and a FAIL its evidence;
+- every posting criterion is covered.
+
+Its tamper tests feed broken outputs and require the matching criterion to
+FAIL, so a check cannot pass vacuously. The video agents need ffmpeg (and
+its flite filter for dubbing). Without them their criteria are UNTESTABLE
+with that reason.
+
 ## api_smoke.py
 
 ```sh

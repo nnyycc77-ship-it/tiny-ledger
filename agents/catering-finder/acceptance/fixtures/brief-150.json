@@ -1,0 +1,12 @@
+{
+  "_label": "SYNTHETIC brief for the acceptance self test (issue #124): the job posting's sample scenario 'Dinner for 150 guests' run against the catering finder's committed synthetic vendor store; not a real event",
+  "date": "2026-11-14",
+  "time": "19:00",
+  "location": "Austin, TX",
+  "headcount": 150,
+  "budget_usd": 6000,
+  "dietary_needs": ["vegan"],
+  "service_style": "buffet",
+  "response_deadline_utc": "2026-11-01T17:00:00Z",
+  "_buyer_contact": "planner@buyer-acceptance.invalid"
+}
