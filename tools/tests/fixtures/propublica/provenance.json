@@ -16,5 +16,29 @@
     "posted_at": "https://github.com/nnyycc77-ship-it/tiny-ledger/issues/47#issuecomment-6356777733",
     "transcript_form": "response body only, exactly as posted (the JSON inside the comment's code fence, no trailing newline); the status line and headers were not captured",
     "sha256": "241bf28a2e5b361e864e719302cfc86d7e659ef62b84a8d0fe302448d5c5dbb7"
+  },
+  "search-feeding-america.json": {
+    "url": "https://projects.propublica.org/nonprofits/api/v2/search.json?q=Feeding+America",
+    "retrieved_utc": "2026-10-23 about 21:47 UTC; no exact second was recorded",
+    "http_status": 200,
+    "captured_by": "H5, live, for the nonprofit pack tests and demo (issue #149)",
+    "transcript_form": "response body only, exactly as returned (no trailing newline added); the status line and headers were not captured",
+    "sha256": "4840ef697e2e994c47d85857af76e9c132938947db290aa2da7dedd2c50dda39"
+  },
+  "organization-363673599.json": {
+    "url": "https://projects.propublica.org/nonprofits/api/v2/organizations/363673599.json",
+    "retrieved_utc": "2026-10-23 about 21:47 UTC; no exact second was recorded",
+    "http_status": 200,
+    "captured_by": "H5, live, for the nonprofit pack tests and demo (issue #149)",
+    "transcript_form": "response body only, exactly as returned (no trailing newline added); the status line and headers were not captured",
+    "sha256": "fcb9c81af3f3d2c9672fd92fd97030c6b046bf16c6b7fd1a382533dd22e1ab01"
+  },
+  "search-empty-zxqv.json": {
+    "url": "https://projects.propublica.org/nonprofits/api/v2/search.json?q=Zxqv+Memorial+Pancake+Foundation",
+    "retrieved_utc": "2026-10-23T21:48:29Z",
+    "http_status": 404,
+    "captured_by": "H5, live, for the nonprofit pack tests and demo (issue #149)",
+    "transcript_form": "response body only, exactly as returned (no trailing newline added); the HTTP status (404) is recorded here because the search endpoint answers an empty search with 404 and this body; the status line and headers were not captured",
+    "sha256": "2c38a4663bfce95df666a6a2a00baa5ce964aecc3a0215c1d1b7b13e5687bae7"
   }
 }
