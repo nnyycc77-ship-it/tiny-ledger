@@ -1,0 +1,92 @@
+{
+  "label": "Job sample 4: business asks for a card to hold the table",
+  "_label": "SYNTHETIC scenario written by hand for issue #79 tests; the business, number and dialogue are invented and no call was placed",
+  "brief": {
+    "_label": "SYNTHETIC scenario written by hand for issue #79 tests; the business, number and dialogue are invented and no call was placed",
+    "business": {
+      "name": "Bella Notte Trattoria",
+      "phone": "+15125550134",
+      "country": "US",
+      "phone_source": "https://bella-notte-trattoria.invalid/contact",
+      "timezone": "America/Chicago",
+      "opening_hours": {
+        "mon": "closed",
+        "tue": [
+          [
+            "11:30",
+            "22:00"
+          ]
+        ],
+        "wed": [
+          [
+            "11:30",
+            "22:00"
+          ]
+        ],
+        "thu": [
+          [
+            "11:30",
+            "22:00"
+          ]
+        ],
+        "fri": [
+          [
+            "11:30",
+            "23:00"
+          ]
+        ],
+        "sat": [
+          [
+            "11:30",
+            "23:00"
+          ]
+        ],
+        "sun": [
+          [
+            "11:30",
+            "21:00"
+          ]
+        ]
+      }
+    },
+    "booking": {
+      "date": "2026-11-13",
+      "start": "19:00",
+      "end": "20:30",
+      "party_size": 4,
+      "name": "Jordan Rivera"
+    },
+    "alternatives": [],
+    "callback_number": null,
+    "special_requests": [],
+    "report_language": "en"
+  },
+  "start_utc": "2026-11-12T15:00:00Z",
+  "attempts": [
+    {
+      "result": "answered",
+      "turns": [
+        "Bella Notte, how can I help?",
+        "We can do 8:00 Friday, but we need a credit card to hold the table.",
+        "Sorry, we can't hold Friday tables without a card."
+      ]
+    }
+  ],
+  "expect": {
+    "status": "not booked",
+    "reason": "payment_required",
+    "booking": {},
+    "payment_requests_declined": [
+      "card details"
+    ],
+    "agent_said": [
+      "OPENING",
+      "PAYMENT_DECLINE",
+      "PAYMENT_END"
+    ],
+    "agent_never_said": [
+      "ACCEPT",
+      "CONFIRM_END"
+    ]
+  }
+}
