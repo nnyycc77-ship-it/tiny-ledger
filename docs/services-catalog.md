@@ -49,6 +49,11 @@ checks that each one matches its delivered file byte for byte.
   (bid 897)
 - [Tampa flood zone screen](samples/tampa-flood-screen.md) (bid 904)
 
+## Deliveries index
+
+Every paid delivery so far, and the one disputed job, each traced to its
+committed record: [deliveries index](deliveries-index.md).
+
 ## Part 1: the six original services
 
 Source for this part: [`AGENT-BRIEF.md`, "What this repo is"](../AGENT-BRIEF.md).
