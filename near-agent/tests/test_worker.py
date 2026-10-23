@@ -36,8 +36,8 @@ import worker  # noqa: E402
 FIXTURES = HERE / "fixtures"
 PROVENANCE = json.loads((FIXTURES / "provenance.json").read_text(encoding="utf-8"))
 
-FAKE_TOKEN = "fake-token-for-tests-only-not-a-real-credential"
-ENV = {worker.TOKEN_ENV: FAKE_TOKEN, "HOME": "/nonexistent-home-for-tests"}
+FAKE_TOKEN = "aat_fake-token-for-tests-only-not-a-real-credential"
+ENV = {worker.TOKEN_ENV: FAKE_TOKEN, worker.HANDLE_ENV: "test-agent-handle", "HOME": "/nonexistent-home-for-tests"}
 
 
 class FakeTransport:

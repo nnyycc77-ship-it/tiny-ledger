@@ -47,6 +47,20 @@ Standard library only. Run from the repository root:
     NEAR_AGENT_TOKEN=... python3 near-agent/worker.py message ASSIGNMENT_ID --text "..."
     NEAR_AGENT_TOKEN=... python3 near-agent/worker.py submit ASSIGNMENT_ID --text "..."
 
+Before the first poll, a config validation pass checks every required
+value and fails closed (exit 2, nothing sent) with one named reason per
+problem: the token's shape (never its value), the agent handle in
+NEAR_AGENT_HANDLE, the poll repeat and interval, and the submit size limit
+against the marketplace rule of 1 byte to 256 KiB (issue #110). After both
+reads of a poll parse, a deadline guard checks every open assignment
+(submittedAt null) against its own slaDeadlineAt and slaSeconds, and
+writes an escalating alarm record, a JSON line in alarms.log plus a
+marker file per assignment, at half the window left, at a quarter left,
+and with under two hours left and no submit recorded. The guard writes
+those two kinds of file and nothing else, in an alarm folder outside the
+repo by default (--alarm-dir). Start, message, submit and bid are
+unchanged.
+
 Add --execute to an act command to send it. There is no --execute for
 poll; polling is read only and always runs. `poll --replay-assignments
 FILE --replay-board FILE` reads two saved response bodies instead of the
@@ -62,8 +76,10 @@ carries the hashes.
 """
 
 import argparse
+import datetime
 import json
 import os
+import re
 import sys
 import time
 import urllib.error
@@ -72,6 +88,8 @@ import urllib.request
 from pathlib import Path
 
 TOKEN_ENV = "NEAR_AGENT_TOKEN"
+HANDLE_ENV = "NEAR_AGENT_HANDLE"
+SUBMIT_MAX_ENV = "NEAR_AGENT_SUBMIT_MAX_BYTES"
 BASE_URL = "https://market.near.ai"
 HOST = "market.near.ai"
 USER_AGENT = "hojo-research-agent-worker/0.1 (+https://github.com/nnyycc77-ship-it/tiny-ledger)"
@@ -82,6 +100,28 @@ MIN_INTERVAL_SECONDS = 30
 ASSIGNMENTS_PATH = "/v1/agents/me/assignments"
 BOARD_PATH = "/v1/jobs/board"
 BOARD_QUERY = {"kind": "standard"}
+
+# Config shapes. The aat_ prefix is the per agent bearer token shape in the
+# coordinator answer on issue #98 (comment 6368327577); the handle is the
+# <slug> of a listing URL market.near.ai/a/<slug> (same answer); the submit
+# rule, 1 byte to 256 KiB, is the one issue #110 records, read here as the
+# UTF-8 byte length of deliverableMarkdown.
+TOKEN_PREFIX = "aat_"
+HANDLE_RE = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
+SUBMIT_MIN_BYTES = 1
+SUBMIT_MAX_BYTES = 256 * 1024
+
+# Deadline guard. Field names from the OpenAPI JobAssignment schema quoted on
+# issue #48; the timestamp form from the captured board job
+# (tests/fixtures/board-excerpt.json, e.g. "2026-10-21T22:52:27.676765Z").
+SLA_DEADLINE_FIELD = "slaDeadlineAt"
+SLA_SECONDS_FIELD = "slaSeconds"
+STARTED_FIELD = "startedAt"
+SUBMITTED_FIELD = "submittedAt"
+FINAL_SECONDS = 2 * 60 * 60
+ALARM_RANK = {"unreadable": 0, "half": 1, "quarter": 2, "final": 3}
+ALARM_LOG = "alarms.log"
+UTC_RE = re.compile(r"^(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2})(\.\d{1,6})?Z$")
 
 REDACTED = "<redacted, supplied from the environment variable %s>" % TOKEN_ENV
 
@@ -327,6 +367,8 @@ def build_parser():
                       help="read the assignments response from this saved JSON body instead of the network")
     poll.add_argument("--replay-board", metavar="FILE",
                       help="read the board response from this saved JSON body instead of the network")
+    poll.add_argument("--alarm-dir", metavar="DIR",
+                      help="deadline alarm folder (default: an alarms folder beside the state file)")
 
     for name, help_text in (
         ("start", "start work on an assignment"),
@@ -343,7 +385,7 @@ def build_parser():
     return parser
 
 
-def main(argv=None, env=None, transport=None, stdout=None, stderr=None):
+def main(argv=None, env=None, transport=None, stdout=None, stderr=None, clock=None):
     stdout = sys.stdout if stdout is None else stdout
     stderr = sys.stderr if stderr is None else stderr
     env = os.environ if env is None else env
@@ -359,7 +401,7 @@ def main(argv=None, env=None, transport=None, stdout=None, stderr=None):
 
     try:
         if args.command == "poll":
-            return run_poll(args, token, transport, redactor, stdout, env)
+            return run_poll(args, token, transport, redactor, stdout, env, stderr, clock)
         return run_act(args, token, transport, redactor, stdout, stderr)
     except (ConfigError, FetchError, NotDocumented) as err:
         redactor.emit(stderr, "error: %s" % err)
@@ -452,8 +494,12 @@ def render_digest(polled_utc, assignments, jobs, titles, changes, sources, state
     return "\n".join(lines) + "\n"
 
 
-def poll_once(token, transport, state_path, replay=None):
-    """One poll. Returns the digest text; writes the state only after both reads parsed."""
+def poll_once(token, transport, state_path, replay=None, guard=None):
+    """One poll. Returns the digest text; writes the state only after both reads parsed.
+
+    When a DeadlineGuard is given it runs on the parsed assignments before
+    the state is saved; its alarm lines are returned through guard.emitted.
+    """
     polled_utc = utc_now()
     assignments_req = build_request(token, "GET", ASSIGNMENTS_PATH)
     board_req = build_request(token, "GET", BOARD_PATH, BOARD_QUERY)
@@ -464,6 +510,8 @@ def poll_once(token, transport, state_path, replay=None):
         assignments_payload, board_payload = replay
     assignments = assignment_rows(assignments_payload)
     jobs = board_jobs(board_payload)
+    if guard is not None:
+        guard.check(open_assignments(assignments_payload))
     titles = job_titles(board_payload)
     previous = load_state(state_path)
     changes = changed_jobs(previous, jobs)
@@ -484,22 +532,198 @@ def read_replay(assignments_file, board_file):
         raise ConfigError("replay files could not be read as JSON: %s" % err)
 
 
-def run_poll(args, token, transport, redactor, stdout, env):
+def run_poll(args, token, transport, redactor, stdout, env, stderr=None, clock=None):
+    stderr = sys.stderr if stderr is None else stderr
+    config = validate_config(args, token, env)
     state_path = Path(args.state) if args.state else default_state_path(env)
+    alarm_dir = Path(args.alarm_dir) if args.alarm_dir else state_path.parent / "alarms"
     replay = None
     if args.replay_board or args.replay_assignments:
         if not (args.replay_board and args.replay_assignments):
             raise ConfigError("--replay-board and --replay-assignments go together")
         replay = read_replay(args.replay_assignments, args.replay_board)
-    if args.repeat < 1:
-        raise ConfigError("--repeat must be at least 1")
-    if args.repeat > 1 and args.interval < MIN_INTERVAL_SECONDS:
-        raise ConfigError("--interval must be at least %d seconds" % MIN_INTERVAL_SECONDS)
+    guard = DeadlineGuard(alarm_dir, config["handle"], clock or utc_clock)
     for index in range(args.repeat):
         if index:
             time.sleep(args.interval)
-        redactor.emit(stdout, poll_once(token, transport, state_path, replay))
+        redactor.emit(stdout, poll_once(token, transport, state_path, replay, guard))
+        for line in guard.take_emitted():
+            redactor.emit(stderr, "ALARM " + line)
     return 0
+
+
+# ----------------------------------------------------------------- config
+
+def validate_config(args, token, env):
+    """Check every required poll value before anything is built or sent.
+
+    Returns {"handle": ..., "submit_max_bytes": ...}. Every problem found is
+    collected and raised together as one ConfigError, one named reason per
+    value, so the operator fixes them all in one pass. The token is judged
+    by its shape only and its value never appears in a message.
+    """
+    problems = []
+    if not token.startswith(TOKEN_PREFIX) or len(token) == len(TOKEN_PREFIX):
+        problems.append("%s: not the per agent token shape (%s prefix followed by the key); value not shown"
+                        % (TOKEN_ENV, TOKEN_PREFIX))
+    elif any(ch.isspace() or not ch.isprintable() for ch in token):
+        problems.append("%s: contains whitespace or control characters; value not shown" % TOKEN_ENV)
+
+    handle = env.get(HANDLE_ENV, "").strip()
+    if not handle:
+        problems.append("%s: not set; give the agent's listing slug (market.near.ai/a/<slug>)" % HANDLE_ENV)
+    elif not HANDLE_RE.match(handle):
+        problems.append("%s: %r is not a listing slug (lower case letters, digits and single hyphens)"
+                        % (HANDLE_ENV, handle))
+
+    if args.repeat < 1:
+        problems.append("--repeat: must be at least 1")
+    if args.repeat > 1 and args.interval < MIN_INTERVAL_SECONDS:
+        problems.append("--interval: must be at least %d seconds" % MIN_INTERVAL_SECONDS)
+
+    submit_max = SUBMIT_MAX_BYTES
+    raw = env.get(SUBMIT_MAX_ENV, "").strip()
+    if raw:
+        if not re.match(r"^\d+$", raw):
+            problems.append("%s: %r is not a whole number of bytes" % (SUBMIT_MAX_ENV, raw))
+        elif not SUBMIT_MIN_BYTES <= int(raw) <= SUBMIT_MAX_BYTES:
+            problems.append("%s: %s is outside the marketplace rule of %d to %d bytes"
+                            % (SUBMIT_MAX_ENV, raw, SUBMIT_MIN_BYTES, SUBMIT_MAX_BYTES))
+        else:
+            submit_max = int(raw)
+
+    if problems:
+        raise ConfigError("config validation failed, nothing was sent:\n- " + "\n- ".join(problems))
+    return {"handle": handle, "submit_max_bytes": submit_max}
+
+
+# ----------------------------------------------------------------- deadline guard
+
+def utc_clock():
+    return datetime.datetime.now(datetime.timezone.utc)
+
+
+def parse_utc(value):
+    """An aware UTC datetime from the marketplace timestamp form, or None."""
+    if not isinstance(value, str):
+        return None
+    match = UTC_RE.match(value)
+    if not match:
+        return None
+    fraction = (match.group(2) or ".0")[1:].ljust(6, "0")
+    try:
+        base = datetime.datetime.strptime(match.group(1), "%Y-%m-%dT%H:%M:%S")
+    except ValueError:
+        return None
+    return base.replace(microsecond=int(fraction), tzinfo=datetime.timezone.utc)
+
+
+def open_assignments(payload):
+    """The inner JobAssignment objects with no submit recorded (submittedAt null).
+
+    Called only after assignment_rows() accepted the payload's shape.
+    """
+    return [item[ASSIGNMENT_ROW_FIELD] for item in payload[ASSIGNMENT_LIST_FIELD]
+            if item[ASSIGNMENT_ROW_FIELD].get(SUBMITTED_FIELD) is None]
+
+
+def deadline_window(assignment):
+    """(deadline, window_seconds) from the assignment's own fields, or ValueError(reason).
+
+    The window is slaSeconds when it is a positive integer, otherwise
+    slaDeadlineAt minus startedAt.
+    """
+    deadline = parse_utc(assignment.get(SLA_DEADLINE_FIELD))
+    if deadline is None:
+        raise ValueError("%s is missing or not a UTC timestamp: %r"
+                         % (SLA_DEADLINE_FIELD, assignment.get(SLA_DEADLINE_FIELD)))
+    sla = assignment.get(SLA_SECONDS_FIELD)
+    if isinstance(sla, int) and not isinstance(sla, bool) and sla > 0:
+        return deadline, sla
+    started = parse_utc(assignment.get(STARTED_FIELD))
+    if started is not None and deadline > started:
+        return deadline, int((deadline - started).total_seconds())
+    raise ValueError("no window: %s is not a positive integer and %s does not precede %s"
+                     % (SLA_SECONDS_FIELD, STARTED_FIELD, SLA_DEADLINE_FIELD))
+
+
+def alarm_level(remaining, window):
+    """The alarm an open assignment has reached, or None while more than half is left."""
+    if remaining < FINAL_SECONDS:
+        return "final"
+    if remaining <= window / 4:
+        return "quarter"
+    if remaining <= window / 2:
+        return "half"
+    return None
+
+
+class DeadlineGuard:
+    """Escalating local alarms for open assignments; the clock is injected.
+
+    Each level fires once per assignment: the marker file
+    <alarm_dir>/<assignmentId>.json remembers the highest level reached,
+    and a new JSON line is appended to <alarm_dir>/alarms.log only when an
+    assignment reaches a higher level. An assignment whose deadline cannot
+    be read raises an "unreadable" alarm instead of being skipped. These
+    two kinds of file are the only things the guard writes.
+    """
+
+    def __init__(self, alarm_dir, handle, clock):
+        self.alarm_dir = Path(alarm_dir)
+        self.handle = handle
+        self.clock = clock
+        self.emitted = []
+
+    def take_emitted(self):
+        lines, self.emitted = self.emitted, []
+        return lines
+
+    def marker_path(self, assignment_id):
+        return self.alarm_dir / (urllib.parse.quote(assignment_id, safe="") + ".json")
+
+    def previous_level(self, assignment_id):
+        path = self.marker_path(assignment_id)
+        if not path.exists():
+            return None
+        try:
+            level = json.loads(path.read_text(encoding="utf-8")).get("level")
+        except (ValueError, AttributeError) as err:
+            raise ConfigError("alarm marker %s is not readable (%s); move it aside" % (path, err))
+        if level not in ALARM_RANK:
+            raise ConfigError("alarm marker %s holds an unknown level %r; move it aside" % (path, level))
+        return level
+
+    def check(self, assignments):
+        now = self.clock()
+        for assignment in assignments:
+            assignment_id = assignment[ASSIGNMENT_ID_FIELD]
+            record = {"agent": self.handle, "assignmentId": assignment_id, "utc": now.strftime("%Y-%m-%dT%H:%M:%SZ"),
+                      SLA_DEADLINE_FIELD: assignment.get(SLA_DEADLINE_FIELD)}
+            try:
+                deadline, window = deadline_window(assignment)
+            except ValueError as err:
+                record.update(alarm="unreadable", reason=str(err))
+            else:
+                remaining = int((deadline - now).total_seconds())
+                level = alarm_level(remaining, window)
+                if level is None:
+                    continue
+                record.update(alarm=level, remainingSeconds=remaining, windowSeconds=window,
+                              reason="no submit recorded" if level == "final" else "%s of the window left" % level)
+            previous = self.previous_level(assignment_id)
+            if previous is not None and ALARM_RANK[previous] >= ALARM_RANK[record["alarm"]]:
+                continue
+            self.write(record)
+
+    def write(self, record):
+        self.alarm_dir.mkdir(parents=True, exist_ok=True)
+        line = json.dumps(record, sort_keys=True, separators=(",", ":"))
+        with open(self.alarm_dir / ALARM_LOG, "a", encoding="utf-8") as log:
+            log.write(line + "\n")
+        marker = {"level": record["alarm"], "utc": record["utc"], SLA_DEADLINE_FIELD: record[SLA_DEADLINE_FIELD]}
+        self.marker_path(record["assignmentId"]).write_text(json.dumps(marker, sort_keys=True) + "\n", encoding="utf-8")
+        self.emitted.append(line)
 
 
 # ----------------------------------------------------------------- act
