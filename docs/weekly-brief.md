@@ -98,6 +98,18 @@ EDGAR_CONTACT="Your Name you@example.com" python3 tools/weekly_brief.py \
 python3 tools/weekly_brief.py --check brief.md
 ```
 
+## Sample
+
+`tools/weekly-brief/sample-brief-2026-10-23.md` is a real brief:
+- **Run:** produced live from `sample-config.json` for the week ending
+  2026-10-23, at 2026-10-23T21:58:06Z.
+- **Who ran it:** the coordinator, under Option B on issue #146, because
+  the build environment cannot reach the sources.
+- **Contents:** 2 Form D filings and 10 awards.
+- **How it was kept:** committed byte for byte, with its sha256 in
+  `tools/weekly-brief/provenance.json`.
+- **Check:** `--check` passes on it.
+
 ## Verification
 
 ```sh

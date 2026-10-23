@@ -84,6 +84,26 @@ class FixtureTests(unittest.TestCase):
             self.assertEqual(hashlib.sha256((EDGAR / name).read_bytes()).hexdigest(), EDGAR_PROV[name]["sha256"])
 
 
+class LiveSampleTests(unittest.TestCase):
+    """The real sample brief (issue #146, Option B): produced live by the
+    coordinator and committed byte for byte; hash recorded in provenance."""
+
+    SAMPLE = SAMPLE_CONFIG.parent / "sample-brief-2026-10-23.md"
+
+    def test_sample_matches_its_recorded_hash(self):
+        prov = json.loads((SAMPLE_CONFIG.parent / "provenance.json").read_text(encoding="utf-8"))
+        entry = prov[self.SAMPLE.name]
+        data = self.SAMPLE.read_bytes()
+        self.assertEqual((len(data), hashlib.sha256(data).hexdigest()), (entry["bytes"], entry["sha256"]))
+        self.assertIn("issuecomment-6375580707", entry["posted_at"])
+
+    def test_every_figure_in_the_sample_is_in_its_excerpts(self):
+        brief = self.SAMPLE.read_text(encoding="utf-8")
+        self.assertIn("In this brief: 2 Form D filing(s), 10 award(s).", brief)
+        self.assertEqual(brief.count("\n### "), 12)
+        self.assertEqual(wb.unsupported_figures(brief), [])
+
+
 class EdgarLegTests(unittest.TestCase):
     def test_sector_filter_lists_both_real_filings_with_their_figures(self):
         brief = build(config(sectors=["pooled investment fund"]))
