@@ -12,7 +12,9 @@ Independent checks:
 - every clip file's frame size from ffprobe;
 - cut points against the word timings (no cut inside a word, cuts on
   sentence ends);
-- caption text against the words spoken inside the clip.
+- caption text against the words spoken inside the clip;
+- a change request through `revise`, with SHA-256 before and after, so
+  only the named clip's files may differ.
 
 Needs ffmpeg and ffprobe. Without them every criterion is UNTESTABLE
 with that reason.
@@ -20,6 +22,7 @@ with that reason.
 Run:  python3 agents/video-clipping/acceptance/acceptance.py
 """
 
+import hashlib
 import json
 import re
 import shutil
@@ -55,11 +58,12 @@ CASES = [
      "args": ["--clips", "3", "--platforms", "tiktok,square", "--min-seconds", "8", "--max-seconds", "15"],
      "sample": ("S2", "Sample '20-minute video file (no platform data), 3 clips, vertical and square', expected: 3 clips "
                       "in both formats, report notes no retention data was available")},
-    {"name": "speech with captions, 2 clips, vertical (sample: captions, speech-heavy content)",
-     "args": ["--clips", "2", "--platforms", "tiktok", "--captions", "--min-seconds", "8", "--max-seconds", "15"]},
-    {"name": "retention input, a format it cannot produce, and a change request (criteria 3, 6 and 7)",
+    {"name": "speech with captions, 2 clips, vertical, then change clip 2 (sample: captions, speech-heavy content)",
+     "args": ["--clips", "2", "--platforms", "tiktok", "--captions", "--min-seconds", "8", "--max-seconds", "15"],
+     "change": "2"},
+    {"name": "retention input, and a format it cannot produce (criteria 3 and 6)",
      "args": ["--clips", "2", "--platforms", "tiktok,linkedin", "--min-seconds", "8", "--max-seconds", "15"],
-     "only": ["3", "6", "7"]},
+     "only": ["3", "6"]},
 ]
 
 
@@ -117,6 +121,8 @@ def run():
                 results.append(res)
                 continue
             evaluate(res, c, case, out, words, attempts)
+            if case.get("change"):
+                change_request(c, clipper, case["change"], out, video, words_path, tmp / ("rev%d" % n), words)
             results.append(res)
     return results
 
@@ -136,17 +142,46 @@ def unknown_format(c, code, err, out):
 
 
 def structural(c, clipper):
-    commands = sorted(clipper.build_parser()._subparsers._group_actions[0].choices)
-    revise = [x for x in commands if x not in ("plan", "run")]
-    c["7"].check(bool(revise), "a change command exists: %s" % revise,
-                 "no way to change specific clips: the commands are %s, and `run` cuts every clip again from the brief; "
-                 "there is no input naming the clips to change and no step that keeps the others byte for byte" % commands)
     flags = [a.dest for a in clipper.build_parser()._subparsers._group_actions[0].choices["run"]._actions]
     retention = [f for f in flags if re.search(r"retention|replay|heatmap|analytics", f)]
     c["3"].check(bool(retention), "a retention data input exists: %s" % retention,
                  "the brief has no input for 'most replayed' or retention data (run options: %s), so a source that has it "
                  "is clipped by content analysis alone, while the report says 'no retention data'"
                  % ", ".join(f for f in flags if f != "help"))
+
+
+def change_request(c, clipper, clips, out, video, words_path, rev, words):
+    """Ask to change specific clips; only their files may differ, byte for byte."""
+    digest = lambda p: hashlib.sha256(p.read_bytes()).hexdigest()  # noqa: E731
+    before = {p.name: digest(p) for p in out.iterdir() if p.suffix in (".mp4", ".srt")}
+    attempts = []
+    code, _, err = ac.run_main(clipper.main, ["revise", "--from", str(out), "--clips", clips, "--video", str(video),
+                                              "--transcript", str(words_path), "--note", "acceptance change request",
+                                              "--out", str(rev), "--preset", "ultrafast"], attempts=attempts)
+    if code != 0:
+        c["7"].fail("revise --clips %s exited %s: %s" % (clips, code, err.strip()[:160]))
+        return
+    after = {p.name: digest(p) for p in rev.iterdir() if p.suffix in (".mp4", ".srt")}
+    named = {int(x) for x in clips.split(",")}
+    clip_of = lambda name: int(re.match(r"clip_(\d+)", name).group(1))  # noqa: E731
+    changed = sorted(f for f in after if after[f] != before.get(f))
+    expected = sorted(f for f in before if clip_of(f) in named)
+    c["7"].check(set(after) == set(before) and changed == expected,
+                 "asked to change clip %s: exactly %s differ; the other %d file(s) are byte identical"
+                 % (clips, ", ".join(changed), len(after) - len(changed)),
+                 "asked to change clip %s: files that differ %s, expected %s; added or missing %s"
+                 % (clips, changed, expected, sorted(set(after) ^ set(before))))
+    report = (rev / "report.md").read_text(encoding="utf-8")
+    c["7"].check("## Revision" in report and "acceptance change request" in report,
+                 "the revised report names the change request and every file's status",
+                 "the revised report does not record the change request")
+    manifest = json.loads((rev / "manifest.json").read_text(encoding="utf-8"))
+    for m in manifest["moments"]:
+        if m["clip"] in named:
+            straddle = [w["w"] for w in words if w["start"] < m["start"] < w["end"] or w["start"] < m["end"] < w["end"]]
+            c["7"].check(not straddle, "changed clip %d %.2f-%.2f s cuts no word" % (m["clip"], m["start"], m["end"]),
+                         "changed clip %d cuts through %s" % (m["clip"], straddle))
+    c["7"].check(not attempts, "", "network access attempted during revise: %s" % attempts[:3])
 
 
 def evaluate(res, c, case, out, words, attempts):
@@ -223,8 +258,9 @@ def evaluate(res, c, case, out, words, attempts):
                if not (out / ("clip_%02d_%s.mp4" % (m["clip"], p))).is_file()]
     c["6"].check(not missing, "every requested format delivered for every clip", "formats missing with no note: %s" % missing)
 
-    # 7. change requests are checked in the third case
-    c["7"].cannot("this case makes no change request; see the third case")
+    # 7. change requests: run by change_request() where the case asks for one
+    if not case.get("change"):
+        c["7"].cannot("this case makes no change request; see the captions case")
     c["7"].check(not attempts, "no network access attempted (guard recorded none)", "network access attempted: %s" % attempts[:3])
 
     sample = case.get("sample")
