@@ -7,9 +7,10 @@ tie it to the code: the example in LISTING.md must equal, byte for byte,
 what the real server renders from the recorded CPSC capture (fetcher
 patched, no network); the tool name and every argument the listing names
 must match the server's live tools/list schema; the track record paragraph
-must match AGENT-BRIEF.md byte for byte; the manifest must name the entry
-command and the tool and carry no pricing or wallet field; and no file in
-the folder may claim that a deployment or listing has happened.
+must match AGENT-BRIEF.md byte for byte; the root mcpize.yaml MCPize
+generated must start the core's entry point, carry no pricing or wallet
+field, and be quoted exactly in the notes; and the folder's own prose
+(quoted sources aside) must not claim a deployment it did not do.
 """
 
 import io
@@ -88,26 +89,29 @@ class ListingTests(unittest.TestCase):
         self.assertIn("PAYOUT_WALLET_ADDRESS", DEPLOYMENT)
         self.assertIn("To confirm from the MCPize docs", DEPLOYMENT)
 
-    def test_no_file_claims_a_deployment_or_listing_happened(self):
+    def test_folder_prose_claims_no_deployment_of_its_own(self):
+        # The folder may quote MCPize's own statement that the server is live (a
+        # block quote with its source link) but must not assert it in its own voice.
         for name, text in (("LISTING.md", LISTING), ("DEPLOYMENT.md", DEPLOYMENT), ("README.md", README)):
-            self.assertIsNone(re.search(r"\b(is|was|has been|now) (deployed|live|listed|published) on MCPize\b", text), name)
+            own = "\n".join(l for l in text.splitlines() if not l.startswith(">"))
+            self.assertIsNone(re.search(r"\b(is|was|has been|now) (deployed|live|listed|published) on MCPize\b", own), name)
             self.assertNotIn("0x" + "0" * 40, text, name)
+        self.assertIn("pull/45", DEPLOYMENT)
 
-    def test_manifest_names_entry_command_and_tool_and_holds_no_payout_fields(self):
-        manifest = (FOLDER / "mcpize.yaml").read_text(encoding="utf-8")
-        self.assertIn("command: python3 -m mcp_server", manifest)
-        self.assertIn("entry: mcp_server/__main__.py", manifest)
+    def test_root_manifest_starts_the_core_and_holds_no_payout_fields(self):
+        # The manifest is the one MCPize generated at the repository root (PR #45);
+        # this folder does not duplicate it, and the notes quote it exactly.
+        manifest = (ROOT / "mcpize.yaml").read_text(encoding="utf-8")
+        self.assertIn('entry: "mcp_server.recall_mcp"', manifest)
+        self.assertIn('command: "python"', manifest)
+        self.assertIn('- "mcp_server"', manifest)
         self.assertIn("type: stdio", manifest)
-        self.assertIn("name: recall_check", manifest)
-        self.assertIn("name: hojo-recall-check", manifest)
-        self.assertIn("runtime: python3.12", manifest)
-        # Pricing and the recipient wallet live in the MCPize dashboard, never here:
-        # no pricing, price, recipient, wallet or address key on any non-comment line.
         keys_and_values = "\n".join(l for l in manifest.splitlines() if not l.lstrip().startswith("#"))
         for forbidden in ("pricing", "price:", "recipient", "wallet", "0x"):
             self.assertNotIn(forbidden, keys_and_values.lower(), forbidden)
+        self.assertIn("```yaml\n" + manifest + "```", DEPLOYMENT)
         self.assertEqual(sorted(p.name for p in FOLDER.iterdir()),
-                         [".gitattributes", "DEPLOYMENT.md", "LISTING.md", "README.md", "mcpize.yaml"])
+                         [".gitattributes", "DEPLOYMENT.md", "LISTING.md", "README.md"])
 
     def test_deployment_notes_quote_the_coordinator_reading_with_sources(self):
         self.assertIn("pull/44#issuecomment-6356274881", DEPLOYMENT)

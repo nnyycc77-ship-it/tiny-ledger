@@ -1,11 +1,14 @@
 # Draft listing copy: recall check MCP server
 
-Status: **draft inside the repo; not submitted anywhere.** Every claim
-below traces to behaviour the merged server has (its README and tests in
-`mcp_server/` and `tools/tests/test_recall_mcp.py`, and the coordinator's
-live runs recorded on PR #41). The example is rendered from a recorded
-source response with its provenance. Nothing here is a track record claim
-beyond the paragraph quoted from `AGENT-BRIEF.md`.
+Status: **draft copy inside the repo.** This repo has not submitted it
+anywhere; the owner pastes it into the MCPize dashboard when setting the
+listing (see `DEPLOYMENT.md`, which also records that MCPize's app reports
+the server itself live). Every claim below traces to behaviour the merged
+server has (its README and tests in `mcp_server/` and
+`tools/tests/test_recall_mcp.py`, and the coordinator's live runs recorded
+on PR #41). The example is rendered from a recorded source response with
+its provenance. Nothing here is a track record claim beyond the paragraph
+quoted from `AGENT-BRIEF.md`.
 
 ## Title
 
@@ -178,7 +181,8 @@ What would change it: MCPize's fee schedule or minimum once the page is
 read directly; the going per call rate for comparable sourced lookups from
 the workstream E3 pricing scan when it exists; and the cost of the live
 fetch, which is currently zero (no keys, public sources). The price is set
-in the MCPize dashboard at deployment, not in this repo.
+in the MCPize dashboard by the owner, not in this repo; the generated
+root `mcpize.yaml` carries no pricing block.
 
 ## What the server does not do
 
