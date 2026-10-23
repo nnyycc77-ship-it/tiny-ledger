@@ -1,0 +1,38 @@
+{
+  "rdap-nike.com.json": {
+    "url": "https://rdap.org/domain/nike.com",
+    "final_url": "https://rdap.verisign.com/com/v1/domain/nike.com",
+    "retrieved_utc": "2026-10-23 about 04:26 UTC, as stated by the coordinator",
+    "http_status": 200,
+    "content_type": "application/rdap+json",
+    "captured_by": "the coordinator, live, posted verbatim on issue #51 (option B: H3's environment could not reach the host)",
+    "posted_at": "https://github.com/nnyycc77-ship-it/tiny-ledger/issues/51#issuecomment-6357378484",
+    "transcript_form": "response body only, exactly as posted (the JSON inside the comment's code fence); the status line and other headers were not captured",
+    "sha256": "1eb4e7060bc73c7434c1f01e06fd4da144d1c408afbdfc8a082f020484e085c4"
+  },
+  "itunes-search-nike.json": {
+    "url": "https://itunes.apple.com/search?term=Nike&entity=software&limit=2",
+    "retrieved_utc": "2026-10-23 about 04:26 UTC, as stated by the coordinator",
+    "http_status": 200,
+    "content_type": "text/javascript; charset=utf-8",
+    "captured_by": "the coordinator, live, posted verbatim on issue #51",
+    "posted_at": "https://github.com/nnyycc77-ship-it/tiny-ledger/issues/51#issuecomment-6357378848",
+    "transcript_form": "response body only, exactly as posted, including its three leading newlines",
+    "sha256": "872e04026bcafa4358e79ce3b5c7a56e08c7c35ba79f935bc94779f068671c49"
+  },
+  "itunes-search-zqxflorp.json": {
+    "url": "https://itunes.apple.com/search?term=zqxflorp&entity=software&limit=2",
+    "retrieved_utc": "2026-10-23 about 04:26 UTC, as stated by the coordinator",
+    "http_status": 200,
+    "content_type": "text/javascript; charset=utf-8",
+    "captured_by": "the coordinator, live, posted verbatim on issue #51",
+    "posted_at": "https://github.com/nnyycc77-ship-it/tiny-ledger/issues/51#issuecomment-6357379189",
+    "transcript_form": "response body only, exactly as posted, including its three leading newlines",
+    "sha256": "0750d24bdbc2875bae48b1e57606c837d296c8fa822712fd16eccc118f8f5bbf"
+  },
+  "status-captures.json": {
+    "source": "the coordinator's status and header table on issue #51, transcribed field for field; these legs are judged by status alone, so no body is in the repo",
+    "posted_at": "https://github.com/nnyycc77-ship-it/tiny-ledger/issues/51#issuecomment-6357378484",
+    "note": "this file is a transcription of a posted table, not a response body; it has no hash of its own"
+  }
+}
