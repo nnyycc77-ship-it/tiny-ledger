@@ -1,0 +1,44 @@
+{
+  "_about": "Dry run cases for tools/brand_check_dryrun.py (issue #137). Each route says where its recorded response comes from: 'capture' is a real response body captured live by the coordinator on issue #51 (file and hash in ../brandcheck/provenance.json); 'status_record' is a real status from the coordinator's status table on issue #51 (../brandcheck/status-captures.json), for legs judged on status alone; 'synthetic' is a SYNTHETIC response written for this harness, labelled inside its body file or in its 'synthetic' note here. No route is ever fetched live.",
+  "cases": [
+    {
+      "case": "taken",
+      "name": "Nike",
+      "about": "Real captures only. Platforms limited to X: Instagram and TikTok answer every name with a 200 login wall, so they can never read taken (see the mixed case).",
+      "tlds": ["com"], "platforms": ["x"], "app_limit": 2,
+      "routes": {
+        "https://rdap.org/domain/nike.com": {"capture": "brandcheck/rdap-nike.com.json", "status": 200, "final_url": "https://rdap.verisign.com/com/v1/domain/nike.com"},
+        "https://x.com/nike": {"status_record": "https://x.com/nike"},
+        "https://itunes.apple.com/search?term=Nike&entity=software&limit=2": {"capture": "brandcheck/itunes-search-nike.json", "status": 200}
+      },
+      "expect": {"domain com": "registered", "x": "taken (live account)", "app store": "exact name match", "trademark": "not covered (unconfirmed wording)"}
+    },
+    {
+      "case": "free",
+      "name": "zqxflorp",
+      "about": "Real captures only: RDAP 404 and X 404 from the status table, and the real iTunes search that returned two unrelated apps.",
+      "tlds": ["com"], "platforms": ["x"], "app_limit": 2,
+      "routes": {
+        "https://rdap.org/domain/zqxflorp.com": {"status_record": "https://rdap.org/domain/zqxflorp.com", "final_url": "https://rdap.verisign.com/com/v1/domain/zqxflorp.com"},
+        "https://x.com/zqxflorp": {"status_record": "https://x.com/zqxflorp"},
+        "https://itunes.apple.com/search?term=zqxflorp&entity=software&limit=2": {"capture": "brandcheck/itunes-search-zqxflorp.json", "status": 200}
+      },
+      "expect": {"domain com": "no registration found", "x": "no account found", "app store": "no exact name match", "trademark": "not covered (unconfirmed wording)"}
+    },
+    {
+      "case": "mixed",
+      "name": "Quillvexa",
+      "about": "SYNTHETIC responses for an invented name, mixing registered, free, login wall and a transport failure.",
+      "tlds": ["com", "io"], "platforms": ["x", "instagram", "tiktok"], "app_limit": 2,
+      "routes": {
+        "https://rdap.org/domain/quillvexa.com": {"synthetic": "brandcheck-dryrun/synthetic-rdap-quillvexa.com.json", "status": 200},
+        "https://rdap.org/domain/quillvexa.io": {"synthetic": "SYNTHETIC status 404, no body", "status": 404},
+        "https://x.com/quillvexa": {"synthetic": "SYNTHETIC status 404, no body", "status": 404},
+        "https://www.instagram.com/quillvexa/": {"synthetic": "SYNTHETIC status 200, standing in for the login wall Instagram answers every name with", "status": 200},
+        "https://www.tiktok.com/@quillvexa": {"synthetic": "SYNTHETIC transport failure", "error": "SYNTHETIC: connection reset"},
+        "https://itunes.apple.com/search?term=Quillvexa&entity=software&limit=2": {"synthetic": "brandcheck-dryrun/synthetic-itunes-quillvexa.json", "status": 200}
+      },
+      "expect": {"domain com": "registered", "domain io": "no registration found", "x": "no account found", "instagram": "could not confirm", "tiktok": "could not confirm", "app store": "exact name match", "trademark": "not covered (unconfirmed wording)"}
+    }
+  ]
+}

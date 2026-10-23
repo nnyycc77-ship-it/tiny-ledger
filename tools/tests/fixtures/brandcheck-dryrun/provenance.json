@@ -1,0 +1,11 @@
+{
+  "_about": "Synthetic response bodies for the issue #137 dry run harness. Each file is SYNTHETIC, says so in its own _SYNTHETIC field, and was written by H3 on 2026-10-23; none is a capture of any live service. The real captures the harness also replays are recorded in ../brandcheck/provenance.json.",
+  "synthetic-rdap-quillvexa.com.json": {
+    "what": "SYNTHETIC RDAP 200 body for the invented name quillvexa.com: ldhName and a registration event, the two fields the checker quotes",
+    "sha256": "1115c574664aa7ba1c722a68eb38b88ab8a688ac526582d5cea40c469efdf083"
+  },
+  "synthetic-itunes-quillvexa.json": {
+    "what": "SYNTHETIC iTunes Search body: one exact title match for Quillvexa and one unrelated app",
+    "sha256": "89c3f8d7444869610522a89228da9983ec6783fa7563ed868b3f6857c0513098"
+  }
+}
