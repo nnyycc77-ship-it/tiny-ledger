@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """The remaining fetchers as paid API endpoints (issue #65).
 
-Twenty-nine GET endpoints beside GET /recall, each wrapping one merged fetcher in
+Thirty-two GET endpoints beside GET /recall, each wrapping one merged fetcher in
 tools/ as library code and returning that fetcher's own rendered Markdown
 in the delivery format from AGENT-BRIEF.md: the claim lines, the exact
 query, the UTC retrieval time, the source link, and the complete raw
@@ -22,6 +22,7 @@ nothing else to the fetchers' output.
     /geocode     tools/address_geocode_check.py address
     /meta        tools/meta_tag_check.py       url
     /csl         tools/csl_screen.py           name
+    /upc         tools/upc_lookup.py           code
     /vin         tools/vin_decode.py           vin
     /fx          tools/exchange_rate_check.py  base, target (amount, date optional)
     /flood       tools/flood_check.py          lat, lon | address
@@ -103,6 +104,7 @@ from tools import vin_decode as vd  # noqa: E402
 from tools import weather_alert_check as wa  # noqa: E402
 from tools import wallet_check as wc  # noqa: E402
 from tools import npi_check as npi  # noqa: E402
+from tools import upc_lookup as ul  # noqa: E402
 
 SERVICE_NAME = "Hojo Research Agent"
 
@@ -1006,6 +1008,19 @@ def geocode(query, env=None):
     return _fetcher_text(lines)
 
 
+def upc_lookup(query, env=None):
+    """Open Food Facts product lookup via tools/upc_lookup.py."""
+    try:
+        code = ul.check_code(_single(query, "code", ""))
+    except ValueError as err:
+        raise BadRequest(str(err))
+    try:
+        lines = ul.report(code, fetcher=ul.fetch)
+    except ul.FetchError as err:
+        raise FetchFailed(str(err))
+    return _fetcher_text(lines)
+
+
 ROUTES = {
     "/carrier": carrier,
     "/litigation": litigation,
@@ -1015,6 +1030,7 @@ ROUTES = {
     "/pagespeed": pagespeed,
     "/ofac": ofac_sdn,
     "/domain": domain,
+    "/upc": upc_lookup,
     "/vin": vin,
     "/github": github_repo,
     "/bank": bank,
@@ -1197,6 +1213,16 @@ DESCRIPTIONS = {
                    "limit (optional, 1 to %d, default %d)" % (ct.MAX_LIMIT, ct.DEFAULT_LIMIT)],
         "sources": [ct.STUDIES_URL],
         "note": "Keyless: the public ClinicalTrials.gov API v2 needs no key.",
+    },
+    "/upc": {
+        "tool": "tools/upc_lookup.py",
+        "params": ["code (a UPC or EAN barcode, 8, 12, 13 or 14 digits with a valid check digit)"],
+        "sources": [ul.API_URL],
+        "note": ("Keyless: the public Open Food Facts API needs no key. Facts as listed only, "
+                 "with no assessment; a barcode the database does not hold is a proven not found "
+                 "(its status 0 document, quoted in full), and the returned code is always "
+                 "compared to the requested code with leading zeros ignored, because the API "
+                 "zero pads UPCs to 13 digits."),
     },
     "/fx": {
         "tool": "tools/exchange_rate_check.py",

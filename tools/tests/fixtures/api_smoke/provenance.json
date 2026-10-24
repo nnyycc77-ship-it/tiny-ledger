@@ -696,5 +696,23 @@
     "server_config": "PAYOUT_WALLET_ADDRESS=0x1111111111111111111111111111111111111111, a SYNTHETIC placeholder address chosen for the capture, not any real wallet; EDGAR_CONTACT set to a labelled test contact (Tiny Ledger Api Smoke smoke@example.com), which /insider checks before its query and its fetch, so without it the server answers 503; HTTP_PROXY, HTTPS_PROXY, http_proxy and https_proxy all set to http://127.0.0.1:9, a closed local port, and NO_PROXY empty, so every source fetch fails at transport and nothing leaves the machine; no X-PAYMENT header sent, so the facilitator was never contacted",
     "transcript_form": "status line, response headers in the order returned, a blank line, then the body exactly as returned, joined with newline characters",
     "note": "Replayed source failure: the query is valid, and the recorded proxy config makes the source fetch fail at transport; the 502 below is the server's own answer, captured verbatim. The descriptor and the payment gate are not affected."
+  },
+  "upc.http": {
+    "url": "http://127.0.0.1:8765/upc?code=3017620422003",
+    "retrieved_utc": "2026-10-24T13:19:09Z",
+    "sha256": "a2070756576a3bfc236e29a98a137a3f65905e63d4b9329b3ec1eba5ee801002",
+    "captured_by": "live capture from a locally run gated server (branch HEAD 4ca729a plus the uncommitted issue #343 changes) via tools/api_smoke.py fetch(); server env PORT=8765, PAYOUT_WALLET_ADDRESS=0x1111111111111111111111111111111111111111 (SYNTHETIC placeholder); the endpoint answers from the keyless Open Food Facts API (api.openfoodfacts.org, reachable from this environment)"
+  },
+  "upc-400.http": {
+    "url": "http://127.0.0.1:8765/upc",
+    "retrieved_utc": "2026-10-24T13:19:10Z",
+    "sha256": "29c589144a674fede154813f369bc6dc1f3637aba9a88964d49212b795fe9e89",
+    "captured_by": "live capture from a locally run gated server (branch HEAD 4ca729a plus the uncommitted issue #343 changes) via tools/api_smoke.py fetch(); server env PORT=8765, PAYOUT_WALLET_ADDRESS=0x1111111111111111111111111111111111111111 (SYNTHETIC placeholder); the endpoint answers from the keyless Open Food Facts API (api.openfoodfacts.org, reachable from this environment)"
+  },
+  "upc-502.http": {
+    "url": "http://127.0.0.1:8765/upc?code=3017620422003",
+    "retrieved_utc": "2026-10-24T13:20:03Z",
+    "sha256": "22698780c78141cf8eb4c81bdb3024d945876f409ce97e264d5304e904ef5a94",
+    "captured_by": "replay capture from a locally run gated server (branch HEAD 4ca729a plus the uncommitted issue #343 changes) via tools/api_smoke.py fetch(), with HTTP_PROXY, HTTPS_PROXY, http_proxy and https_proxy all set to http://127.0.0.1:9 (a closed local port) so the endpoint's Open Food Facts fetch failed at transport and the endpoint answered its own 502; server env PORT=8765, PAYOUT_WALLET_ADDRESS=0x1111111111111111111111111111111111111111 (SYNTHETIC placeholder)"
   }
 }

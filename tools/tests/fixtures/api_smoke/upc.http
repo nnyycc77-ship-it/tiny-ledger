@@ -1,0 +1,57 @@
+HTTP/1.0 200 OK
+Date: Sat, 24 Oct 2026 13:19:10 GMT
+Server: WSGIServer/0.2 CPython/3.12.3
+Content-Type: text/markdown; charset=utf-8
+Content-Length: 2222
+Cache-Control: no-store
+X-Payout-Wallet: 0x1111111111111111111111111111111111111111
+
+# UPC lookup: 3017620422003
+
+Facts as listed by Open Food Facts, a crowdsourced database. A field the response leaves blank is shown as not listed. This report makes no assessment of the product.
+
+Answer (every claim tied to the transcript below):
+- Code as shown: `3017620422003`
+- Product name (product_name) as listed: `Nutella`
+- Brand (brands) as listed: `Nutella, Ferrero`
+- Category (categories) as listed: `Confectionary based spreads, Petit-déjeuners, Produits à tartiner, Produits à tartiner sucrés, Pâtes à tartiner, fr:Goûter, fr:Nutella, fr:Nuttela`
+
+### Open Food Facts API, product lookup (api/v2)
+
+Query: https://api.openfoodfacts.org/api/v2/product/3017620422003.json?fields=product_name,brands,categories
+Retrieved (UTC): 2026-10-24T13:19:10Z
+
+Verbatim field excerpts from the raw response:
+
+```
+- code: "code":"3017620422003"
+- status: "status":1
+- status_verbose: "status_verbose":"product found"
+- product.product_name: "product_name":"Nutella"
+- product.brands: "brands":"Nutella, Ferrero"
+- product.categories: "categories":"Confectionary based spreads, Petit-déjeuners, Produits à tartiner, Produits à tartiner sucrés, Pâtes à tartiner, fr:Goûter, fr:Nutella, fr:Nuttela"
+```
+
+Complete raw response:
+
+```
+HTTP/1.1 200 OK
+Server: nginx
+Date: Sat, 24 Oct 2026 13:19:11 GMT
+Content-Type: application/json; charset=utf-8
+X-Cache-Status: EXPIRED
+X-Cache-Status: EXPIRED
+Access-Control-Max-Age: 1728000
+X-Content-Type-Options: nosniff
+X-Download-Options: noopen
+X-XSS-Protection: 1; mode=block
+X-Request-ID: 3SMgitgTAK4ZZDii
+Access-Control-Allow-Origin: *
+Access-Control-Allow-Methods: HEAD, GET, PATCH, POST, PUT, OPTIONS
+Access-Control-Allow-Headers: DNT,User-Agent,X-User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,If-None-Match,Authorization
+Access-Control-Expose-Headers: Content-Length,Content-Range
+Connection: close
+Transfer-Encoding: chunked
+
+{"code":"3017620422003","product":{"brands":"Nutella, Ferrero","categories":"Confectionary based spreads, Petit-déjeuners, Produits à tartiner, Produits à tartiner sucrés, Pâtes à tartiner, fr:Goûter, fr:Nutella, fr:Nuttela","product_name":"Nutella"},"status":1,"status_verbose":"product found"}
+```

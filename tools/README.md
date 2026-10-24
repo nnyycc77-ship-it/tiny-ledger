@@ -27,6 +27,7 @@ environment and its header comment says so.
 | EPA ECHO facility compliance screen | `epa_screen.py` | none needed |
 | FAA aircraft registry (releasable aircraft download) | `faa_lookup.py` | none needed; the archive is cached once per day outside the repo |
 | FEMA disaster declarations (OpenFEMA API v2) | `disaster_history_check.py` | none needed |
+| Open Food Facts product lookup (API v2) | `upc_lookup.py` | none needed |
 | Brand name checks: RDAP domains, X / Instagram / TikTok handles, iTunes Search (trademarks not covered) | `brand_name_checker.py` | none needed |
 | Weekly brief: watchlist Form D filings and NAICS filtered contract awards for a seven day window (docs/weekly-brief.md) | `weekly_brief.py` | EDGAR contact |
 | OFAC SDN list name check, primary names and aliases (docs/ofac-sdn-check.md) | `ofac_sdn_check.py` | none needed |
