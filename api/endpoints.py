@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """The remaining fetchers as paid API endpoints (issue #65).
 
-Twenty-eight GET endpoints beside GET /recall, each wrapping one merged fetcher in
+Twenty-nine GET endpoints beside GET /recall, each wrapping one merged fetcher in
 tools/ as library code and returning that fetcher's own rendered Markdown
 in the delivery format from AGENT-BRIEF.md: the claim lines, the exact
 query, the UTC retrieval time, the source link, and the complete raw
@@ -19,6 +19,7 @@ nothing else to the fetchers' output.
     /app         tools/app_lookup_check.py     name (country, limit optional)
     /github      tools/github_repo_check.py    owner, repo
     /bank        tools/bank_check.py           name
+    /geocode     tools/address_geocode_check.py address
     /meta        tools/meta_tag_check.py       url
     /csl         tools/csl_screen.py           name
     /vin         tools/vin_decode.py           vin
@@ -69,6 +70,7 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
+from tools import address_geocode_check as ag  # noqa: E402
 from tools import app_lookup_check as al  # noqa: E402
 from tools import bank_check as bk  # noqa: E402
 from tools import broken_link_check as bl  # noqa: E402
@@ -942,6 +944,23 @@ def links(query, env=None):
     return _text([], lines)
 
 
+# ----------------------------------------------------------------------
+# /geocode
+# ----------------------------------------------------------------------
+
+def geocode(query, env=None):
+    """US address geocode check via tools/address_geocode_check.py."""
+    try:
+        address = ag.check_address(_single(query, "address", ""))
+    except ValueError as err:
+        raise BadRequest(str(err))
+    try:
+        lines = ag.report(address, fetcher=ag.fetch)
+    except ag.FetchError as err:
+        raise FetchFailed(str(err))
+    return _fetcher_text(lines)
+
+
 ROUTES = {
     "/carrier": carrier,
     "/litigation": litigation,
@@ -954,6 +973,7 @@ ROUTES = {
     "/vin": vin,
     "/github": github_repo,
     "/bank": bank,
+    "/geocode": geocode,
     "/meta": meta_tags,
     "/csl": csl,
     "/app": app,
@@ -1026,6 +1046,13 @@ DESCRIPTIONS = {
         "params": ["name (the start of the bank's name as FDIC lists it; at least 3 letters or digits)"],
         "sources": [bk.API_URL],
         "note": "Keyless: no api_key parameter is sent. The NAME filter is a prefix match; matches are kept locally under the stated prefix rule.",
+    },
+    "/geocode": {
+        "tool": "tools/address_geocode_check.py",
+        "params": ["address (a US street address, 1 to %d characters)" % ag.MAX_ADDRESS_CHARS],
+        "sources": [ag.API_URL],
+        "note": "Keyless. Benchmark and vintage are pinned; coordinates are interpolated along the "
+                "matched address range, not rooftop grade.",
     },
     "/ofac": {
         "tool": "tools/ofac_sdn_check.py",
