@@ -12,22 +12,27 @@ after it. Refreshed for issue #252 on main
 `80e646427a625346c0dce4480412fa41c12549a7`, after the `faa_lookup`
 registration (issue #210, PR #213) and the registry listing drift check
 (issue #246), by running the script at the end of this file, unchanged,
-from the repository root of that tree:
+from the repository root of that tree. Refreshed again for issue #265 on
+main `af30eb423ef090bfd2adaff7db44ae4bfb4d50e5`, after PR #253 added the
+seven missing routes to `api/openapi.json`, by the same method:
 
-| | Before #228 | After #228 | Refresh #252 |
-| --- | --- | --- | --- |
-| Tools registered (`tool_definitions()` in `mcp_server/recall_mcp.py`) | 25 | 25 | 25 |
-| Registered tools with a page in this folder | 15 | 18 | 18 |
-| Registered tools named in the services catalog | 16 | 19 | 19 |
-| Pages stating a route that differs from the server's dispatch | 0 | 0 | 0 |
-| Pages without the 0.25 USDC shelf price line | 0 | 0 | 0 |
-| Docs pages or catalog entries naming a tool that is not registered | 0 | 0 | 0 |
-| Registered tools whose route is in `api/openapi.json` | 18 | 18 | 18 |
+| | Before #228 | After #228 | Refresh #252 | Refresh #265 |
+| --- | --- | --- | --- | --- |
+| Tools registered (`tool_definitions()` in `mcp_server/recall_mcp.py`) | 25 | 25 | 25 | 25 |
+| Registered tools with a page in this folder | 15 | 18 | 18 | 18 |
+| Registered tools named in the services catalog | 16 | 19 | 19 | 19 |
+| Pages stating a route that differs from the server's dispatch | 0 | 0 | 0 | 0 |
+| Pages without the 0.25 USDC shelf price line | 0 | 0 | 0 | 0 |
+| Docs pages or catalog entries naming a tool that is not registered | 0 | 0 | 0 | 0 |
+| Registered tools whose route is in `api/openapi.json` | 18 | 18 | 18 | 25 |
 
-No count moved between the #228 count and this refresh, and no census
-surface changed in between; the recomputation above, on the pinned
-commit, is the proof of that rather than any reading of the merge
-history.
+One count moved at this refresh: the `api/openapi.json` row, from 18 to
+25. PR #253 (issue #243) added the seven routes the earlier censuses
+reported missing, `/domain`, `/ofac`, `/github`, `/flood`, `/fda`,
+`/oig` and `/insider`, so every registered tool's route now stands in
+`api/openapi.json`, which carries 26 paths in all (the twenty five tool
+routes plus `/`). Every other count is unchanged, and the recomputation
+on the pinned commit, not the merge history, is the proof.
 
 ## Drift found and fixed by the PR for #228
 
@@ -44,6 +49,16 @@ history.
   (#160, whose full page stays at `docs/ofac-sdn-check.md`) and
   `app_lookup_check` (#167). Each now has a page here and an entry in
   catalog Part 5, Wave 1.
+
+## Refresh notes (issue #265)
+
+- The only accounting change since the #252 refresh is the seven
+  OpenAPI routes named above. No tool was registered or dropped, no
+  page or catalog entry was added or removed, and the seven original
+  tools listed under Left open still have no page in this folder.
+- The `api/openapi.json` item under Left open is closed by PR #253 and
+  is struck from that list below; the earlier census text that reported
+  it stays in the #228 section, as the dated record it is.
 
 ## Refresh notes (issue #252)
 
@@ -66,10 +81,11 @@ history.
   Their pages, and an index for this folder, are the docs part of issue
   #147 (H2, branch `h2-mcpize-tool-shelf`), which also carries their
   pricing under the owner ruling on #147. They are not duplicated here.
-- **Seven registered tools' routes are missing from `api/openapi.json`:**
+- **Seven registered tools' routes were missing from `api/openapi.json`:**
   `/domain`, `/ofac`, `/github`, `/flood`, `/fda`, `/oig` and `/insider`.
   That file is not a docs file, and issue #228 limits fixes to docs, so
-  this is reported for a separate task.
+  this was reported for a separate task. Closed since: PR #253 (issue
+  #243) added all seven routes, as the Refresh #265 column above shows.
   **Follow-up:** issue #243 added all seven, so `api/openapi.json` now
   names every registered route; the reproduce script below reports 25.
 
