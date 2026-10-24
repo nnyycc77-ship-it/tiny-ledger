@@ -1038,6 +1038,48 @@ empty.
 guard replaces `urllib.request.urlopen`. Each route's fetch functions are
 replaced too, so no tool's own opener is reached.
 
+## Wave 1 MCP byte equality pass (`tests/test_wave1_mcp_integration.py`)
+
+Issue #227. This is the MCP side of the wave 1 API pass above. It calls each of the ten
+wave 1 MCP tools through `mcp_server.recall_mcp.serve`, the stdio transport
+itself. A JSON-RPC `tools/call` line goes in, and the response line is read back
+and parsed. Each tool reuses its route's fixture serving, command line run
+and title block from `test_wave1_integration.py`:
+
+| MCP tool | Dispatcher (route) | Driven offline |
+| --- | --- | --- |
+| `domain_trust_check` | `/domain` | yes |
+| `ofac_sanctions_check` | `/ofac` | yes |
+| `vin_decode_check` | `/vin` | yes |
+| `clinical_trial_check` | `/trials` | yes |
+| `fda_drug_check` | `/drug` | yes |
+| `broken_link_check` | `/links` | yes |
+| `meta_tag_check` | `/meta` | yes |
+| `github_repo_check` | `/github` | yes |
+| `app_lookup_check` | `/app` | yes |
+| `exchange_rate_check` | `/fx` | yes |
+
+```sh
+python3 -m unittest discover -s tools/tests -p 'test_wave1_mcp_integration.py' -v
+```
+
+**What a green run proves.** For every tool:
+- with `isError` false, its text equals byte for byte what the fetcher's
+  command line prints for the same fixture input, after the dispatcher's
+  title block where the route adds one;
+- refused arguments, wrong argument types and unknown arguments among them,
+  answer `isError` true with a `Bad request: ` message, and no fetch is made;
+- a source failure answers `isError` true with no report.
+
+A coverage test fails if a wave 1 tool is missing from the pass, from
+`TOOL_NAMES` or from `tools/list`. `NOT_DRIVEN` is the named, counted list of
+tools that could not be driven offline. It is empty, and a test pins its
+count.
+
+**What it does not prove.** Nothing about the live sources or a hosted
+deployment. It checks the stdio server in process, not a spawned
+`python3 -m mcp_server`.
+
 ## Acceptance self tests for the built NEAR agents (`acceptance_all.py`)
 
 Issue #124. A marketplace tester checks a delivered agent against the job's
