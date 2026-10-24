@@ -24,17 +24,19 @@ Refreshed again for issue #289 on main
 Refreshed again for issue #297 on main
 `2b86c90199ede1fbf3b31a0d39d6f9a4d3293e65`, by the same method.
 Refreshed again for issue #304 on main
-`65dde3693bf3aeb601e783c78dcfc36472b895d8`, by the same method:
+`65dde3693bf3aeb601e783c78dcfc36472b895d8`, by the same method.
+Refreshed again for issue #311 on main
+`44507b55d1b65d260471c6180689194f5cf40d46`, by the same method:
 
-| | Before #228 | After #228 | Refresh #252 | Refresh #265 | Refresh #272 | Refresh #280 | Refresh #289 | Refresh #297 | Refresh #304 |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| Tools registered (`tool_definitions()` in `mcp_server/recall_mcp.py`) | 25 | 25 | 25 | 25 | 25 | 25 | 25 | 25 | 25 |
-| Registered tools with a page in this folder | 15 | 18 | 18 | 18 | 18 | 18 | 18 | 18 | 18 |
-| Registered tools named in the services catalog | 16 | 19 | 19 | 19 | 19 | 19 | 19 | 19 | 19 |
-| Pages stating a route that differs from the server's dispatch | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
-| Pages without the 0.25 USDC shelf price line | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
-| Docs pages or catalog entries naming a tool that is not registered | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
-| Registered tools whose route is in `api/openapi.json` | 18 | 18 | 18 | 25 | 25 | 25 | 25 | 25 | 25 |
+| | Before #228 | After #228 | Refresh #252 | Refresh #265 | Refresh #272 | Refresh #280 | Refresh #289 | Refresh #297 | Refresh #304 | Refresh #311 |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Tools registered (`tool_definitions()` in `mcp_server/recall_mcp.py`) | 25 | 25 | 25 | 25 | 25 | 25 | 25 | 25 | 25 | 25 |
+| Registered tools with a page in this folder | 15 | 18 | 18 | 18 | 18 | 18 | 18 | 18 | 18 | 18 |
+| Registered tools named in the services catalog | 16 | 19 | 19 | 19 | 19 | 19 | 19 | 19 | 19 | 19 |
+| Pages stating a route that differs from the server's dispatch | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+| Pages without the 0.25 USDC shelf price line | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+| Docs pages or catalog entries naming a tool that is not registered | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+| Registered tools whose route is in `api/openapi.json` | 18 | 18 | 18 | 25 | 25 | 25 | 25 | 25 | 25 | 25 |
 
 One count moved at the #265 refresh: the `api/openapi.json` row, from
 18 to 25. PR #253 (issue #243) added the seven routes the earlier
@@ -75,6 +77,11 @@ census pin, issue #295), PR #299 (pricing drift pin, issue #294) and
 PR #300 (the #297 census refresh itself); none of them touched a
 census surface.
 
+No count moved at the #311 refresh either. Between the #304 pin and
+this one the merges were PR #306 (api smoke census pin, issue #303),
+PR #307 (pricing drift pin, issue #302) and PR #308 (the #304 census
+refresh itself); none of them touched a census surface.
+
 ## Drift found and fixed by the PR for #228
 
 - **Stale registration status, 17 places.** The places were all 15 wave
@@ -90,6 +97,13 @@ census surface.
   (#160, whose full page stays at `docs/ofac-sdn-check.md`) and
   `app_lookup_check` (#167). Each now has a page here and an entry in
   catalog Part 5, Wave 1.
+
+## Refresh notes (issue #311)
+
+- No count moved; the Refresh #311 column repeats the #304 figures,
+  proven by the reproduce script's output on the pinned commit.
+- The left open items stand as they were left: the seven original
+  tools still have no page in this folder.
 
 ## Refresh notes (issue #304)
 
