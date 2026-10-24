@@ -21,6 +21,7 @@ Every merged fetcher in `tools/` is an endpoint with the same contract as `GET /
 | `GET /formd` | `tools/edgar_formd.py` | `cik` or `issuer`; optional `max_filings`, `exclude` |
 | `GET /pagespeed` | `tools/pagespeed_snapshot.py` | `url` (repeatable, up to 5); optional `subject`, `strategy`, `exclude` |
 | `GET /domain` | `tools/domain_trust_check.py` | `domain` (a bare domain) |
+| `GET /vin` | `tools/vin_decode.py` | `vin`; optional `model_year` |
 
 Server side values, read from the environment at call time and never printed or written: `COURTLISTENER_TOKEN` (optional, lifts the anonymous rate limit), `PAGESPEED_API_KEY` (optional; without it the API answers 429 with quota 0, and that transcript is the report), and `EDGAR_CONTACT` (required for `/formd` by EDGAR fair access: the operator's "Name address" contact for the User-Agent; `/formd` answers 503 and fetches nothing while it is unset). The x402 payment gate in `api/payment_gate.py` wraps `GET /recall` only as of this version; the other endpoints are served without payment until the gate is extended, which is a separate task.
 

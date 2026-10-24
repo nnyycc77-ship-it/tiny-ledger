@@ -21,6 +21,7 @@ environment and its header comment says so.
 | Google PageSpeed Insights (Lighthouse) | `pagespeed_snapshot.py` | free key from `PAGESPEED_API_KEY`; keyless requests are answered 429 (quota 0) |
 | SEC EDGAR Form D filings | `edgar_formd.py` | none needed; an operator contact for the User-Agent is required (`--contact` or `EDGAR_CONTACT`) |
 | ProPublica Nonprofit Explorer (IRS Form 990 extracts) | `propublica_nonprofits.py` | none needed |
+| NHTSA vPIC VIN decode (DecodeVinValues) | `vin_decode.py` | none needed |
 | Brand name checks: RDAP domains, X / Instagram / TikTok handles, iTunes Search (trademarks not covered) | `brand_name_checker.py` | none needed |
 | Weekly brief: watchlist Form D filings and NAICS filtered contract awards for a seven day window (docs/weekly-brief.md) | `weekly_brief.py` | EDGAR contact |
 | OFAC SDN list name check, primary names and aliases (docs/ofac-sdn-check.md) | `ofac_sdn_check.py` | none needed |
@@ -416,6 +417,40 @@ path parser runs on a hand built structure that is labelled synthetic at
 the place it appears and carries placeholder values, because no
 successful live response was available. The fetch tests run against a
 local server on 127.0.0.1.
+
+## vin_decode.py
+
+```sh
+python3 tools/vin_decode.py 1HGCM82633A004352
+python3 tools/vin_decode.py "5UXWX7C5*BA" --model-year 2011 --pretty
+```
+
+Tool factory wave 1, issue #161. One VIN per run, decoded once with the
+NHTSA vPIC `DecodeVinValues` endpoint (flat format, `format=json`, plus
+`modelyear` when `--model-year` is given), keyless, through the capture
+path of `nhtsa_recalls.py`. The section shows the QUERY line, vPIC's own
+ErrorCode and ErrorText quoted as shown, the vehicle as shown (model year,
+make, model, trim), then every field with a value in response order. It
+counts the empty fields and quotes the response's own Message about
+missing values. When make, model and model year are all empty it says no
+vehicle was decoded, and the complete raw HTTP response transcript
+directly beneath the source link proves it. The tool checks only that the
+VIN is 1 to 17 letters, digits or `*`; validity is vPIC's answer. A
+transport failure prints nothing on stdout and exits 2. Docs page:
+[`docs/mcpize-tools/vin_decode_check.md`](../docs/mcpize-tools/vin_decode_check.md).
+
+### Verification
+
+```sh
+python3 -m unittest discover -s tools/tests -p 'test_vin_decode.py' -v
+```
+
+The tests need no network. They run on five real vPIC response bodies
+(clean decode, bad check digit, the vPIC page's partial VIN example and
+its 9th character variant, and an all zeros VIN that decodes nothing).
+The coordinator captured them under Option B on issue #161, because this
+container cannot reach vpic.nhtsa.dot.gov. Their URLs, sizes and SHA-256
+are in `tests/fixtures/vpic/provenance.json`, and the hashes are checked.
 
 ## edgar_formd.py
 
