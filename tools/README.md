@@ -985,6 +985,49 @@ guard replaces `urllib.request.urlopen` only. `/faa` downloads through its
 own opener, so there the guard is the replaced download, not the urlopen
 patch.
 
+## Wave 1 endpoint offline integration pass (`tests/test_wave1_integration.py`)
+
+Issue #219, in the #212 pattern. It drives the ten wave 1 routes from #158
+through `api/recall_api.handle`. Each route's source is served from the
+recorded fixtures its own tool tests already use, through that test module's
+capture helper:
+
+| Route | Fixtures served by | Same text as the CLI |
+| --- | --- | --- |
+| `/domain` | `test_domain_trust_check.by_url` (example.com DNS and site) | yes, after the title block |
+| `/ofac` | `test_ofac_sdn_check.replay` | yes |
+| `/vin` | `test_vin_decode.capture` (clean decode) | yes, after the title block |
+| `/trials` | `test_clinical_trial_check.replay` | yes, after the title block |
+| `/drug` | `test_fda_drug_check.capture` (Tylenol hit) | yes, after the title block |
+| `/links` | `test_broken_link_check.replay` | yes |
+| `/meta` | `test_meta_tag_check.replay` (ogp.me) | yes |
+| `/github` | `test_github_repo_check.replay` (psf/requests) | yes |
+| `/app` | `test_app_lookup_check.serve` (Nike) | yes, after the title block |
+| `/fx` | `test_exchange_rate_check.capture` (latest USD to EUR) | yes, after the title block |
+
+```sh
+python3 -m unittest discover -s tools/tests -p 'test_wave1_integration.py' -v
+```
+
+**What a green run proves.** For every route:
+- the 200 body equals, byte for byte, what the tool's command line prints
+  for the same inputs on the same fixtures, after the dispatcher's title
+  block where it adds one;
+- each refused query shape answers 400 with a `Bad request: ` reason, while
+  every source fetch the route can reach is replaced by one that fails the
+  test if called;
+- a source failure answers 502 with no report in the body.
+
+A coverage test fails if a wave 1 route is missing from the pass or from
+`ROUTES`.
+
+**Drift found.** None. All ten same-text cases pass, and `KNOWN_DRIFT` is
+empty.
+
+**What it does not prove.** Nothing about the live sources. The no-network
+guard replaces `urllib.request.urlopen`. Each route's fetch functions are
+replaced too, so no tool's own opener is reached.
+
 ## Acceptance self tests for the built NEAR agents (`acceptance_all.py`)
 
 Issue #124. A marketplace tester checks a delivered agent against the job's
