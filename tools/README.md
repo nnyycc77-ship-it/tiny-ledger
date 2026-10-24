@@ -1301,8 +1301,8 @@ capturable set off the document itself: every other GET endpoint is
 reasoned as declaring no 503.
 
 Coverage census (issue #258, pin refreshed for issues #270, #279,
-#288, #295, #303, #310, #351, #354, #370, #386 and #393), taken on main
-3c13f2e56dccd9cadce02b1981bfbcd5d8591ba1; the merged
+#288, #295, #303, #310, #351, #354, #370, #386, #393 and #399), taken on main
+0791052d6441277f7fe6105af8c8444f483db670; the merged
 main named includes PR #249 (the /formd 503 pass), PR #253 (the seven routes
 added to `api/openapi.json` for issue #243, whose captures extended
 the 400, 502 and 503 tables in the same run), PR #261 (which
