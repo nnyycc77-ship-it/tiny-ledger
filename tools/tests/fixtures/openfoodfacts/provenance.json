@@ -1,0 +1,42 @@
+{
+  "nutella-hit.body": {
+    "url": "https://api.openfoodfacts.org/api/v2/product/3017620422003.json?fields=product_name,brands,categories",
+    "retrieved_utc": "2026-10-24T13:14:32Z",
+    "sha256": "d58a92b3f536ec2dfe409d0bcbd0c1e1e8e6cbb83456548c05f2cd69984142b1",
+    "captured_by": "tools/upc_lookup.py fetch() via urllib, live, for issue #343; the HTTP status line is recorded here rather than in the .body file; the not-found capture was answered with HTTP 404, the API's documented not found delivery",
+    "http_status": 200,
+    "status_line": "HTTP/1.1 200 OK",
+    "content_type": "application/json; charset=utf-8",
+    "fixture_form": "complete raw response body, stored verbatim"
+  },
+  "upc-padded-hit.body": {
+    "url": "https://api.openfoodfacts.org/api/v2/product/036000291452.json?fields=product_name,brands,categories",
+    "retrieved_utc": "2026-10-24T13:14:33Z",
+    "sha256": "744ef3865e6a4d4d2bc9227dde26e826441c5d7aeb0911361c5dd4028df1b81c",
+    "captured_by": "tools/upc_lookup.py fetch() via urllib, live, for issue #343; the HTTP status line is recorded here rather than in the .body file; the not-found capture was answered with HTTP 404, the API's documented not found delivery",
+    "http_status": 200,
+    "status_line": "HTTP/1.1 200 OK",
+    "content_type": "application/json; charset=utf-8",
+    "fixture_form": "complete raw response body, stored verbatim"
+  },
+  "blank-fields-hit.body": {
+    "url": "https://api.openfoodfacts.org/api/v2/product/2000000000008.json?fields=product_name,brands,categories",
+    "retrieved_utc": "2026-10-24T13:14:35Z",
+    "sha256": "2459edda20880be9898e1a082c4177f8015d5fac95b6401635bcb48664220da3",
+    "captured_by": "tools/upc_lookup.py fetch() via urllib, live, for issue #343; the HTTP status line is recorded here rather than in the .body file; the not-found capture was answered with HTTP 404, the API's documented not found delivery",
+    "http_status": 200,
+    "status_line": "HTTP/1.1 200 OK",
+    "content_type": "application/json; charset=utf-8",
+    "fixture_form": "complete raw response body, stored verbatim"
+  },
+  "not-found.body": {
+    "url": "https://api.openfoodfacts.org/api/v2/product/5098765432100.json?fields=product_name,brands,categories",
+    "retrieved_utc": "2026-10-24T13:14:36Z",
+    "sha256": "57d5147a95efc772a96c1557bbd5d2e53166e3e43321280d9c0aa32203d2d868",
+    "captured_by": "tools/upc_lookup.py fetch() via urllib, live, for issue #343; the HTTP status line is recorded here rather than in the .body file; the not-found capture was answered with HTTP 404, the API's documented not found delivery",
+    "http_status": 404,
+    "status_line": "HTTP/1.1 404 Not Found",
+    "content_type": "application/json; charset=utf-8",
+    "fixture_form": "complete raw response body, stored verbatim"
+  }
+}

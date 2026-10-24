@@ -49,6 +49,13 @@ Which data is which:
   400, and a replayed 502 from the closed port proxy config of issue
   #235. Their provenance entries record the configs and the SHA-256
   of each.
+* REAL CAPTURE, UPC SHAPES: the three fixtures added for issue #343
+  (upc.http, upc-400.http and upc-502.http) are transcripts from the
+  same local gated server at main 4ca729a plus that issue's changes:
+  a live 200 report for the Nutella barcode 3017620422003 (the server
+  reached api.openfoodfacts.org), the bare path answered 400, and a
+  replayed 502 from the closed port proxy config of issue #235.
+  Their provenance entries record the configs and the SHA-256 of each.
 * LIVE LOCAL: the live mode tests run the real api.payment_gate app
   in process on 127.0.0.1, configured with the same SYNTHETIC placeholder
   address. No X-PAYMENT header is ever sent, so the facilitator is never
@@ -129,23 +136,24 @@ class OfflineMode(unittest.TestCase):
         self.assertTrue(all(ok for _, ok in results), results)
         self.assertEqual(self.caps["openapi"].status, 200)
 
-    def test_default_run_passes_all_469_with_the_raw_responses(self):
-        # 20 original assertions, 19 endpoint sections of 5, 28 bad
-        # query sections of 4, 30 bad query accounting lines, 28 source
-        # failure sections of 4, 30 source failure accounting lines,
-        # two unavailable sections of 5 (/formd and /insider), 30
-        # unavailable accounting lines, and 30 coverage lines, one per
+    def test_default_run_passes_all_486_with_the_raw_responses(self):
+        # 20 original assertions, 20 endpoint sections of 5, 29 bad
+        # query sections of 4, 31 bad query accounting lines, 29 source
+        # failure sections of 4, 31 source failure accounting lines,
+        # two unavailable sections of 5 (/formd and /insider), 31
+        # unavailable accounting lines, and 31 coverage lines, one per
         # GET path in api/openapi.json (seven paths added by issue #243,
         # with 400 and 502 captures, a 503 capture for /insider, and a
         # reasoned entry in NO_ENDPOINT_CAPTURE; /bank added by issue #320
         # with 200, 400 and 502 captures; /disaster added by issue #312
-        # and /earthquake by issue #317, each with 400 and 502 captures
-        # and a reasoned 200, with no 503; /geocode added by issue #319
-        # with 200, 400 and 502 captures).
+        # with 400 and 502 captures and a reasoned 200, with no 503;
+        # /earthquake added by issue #317 with 400 and 502 captures and
+        # a reasoned 200, with no 503; /geocode added by issue #319 and
+        # /upc by issue #343, each with 200, 400 and 502 captures).
         code, out, err = run_main([])
         self.assertEqual(code, 0, err)
         self.assertIn("Result: PASS, every assertion held.", out)
-        self.assertEqual(out.count("- PASS:"), 469)
+        self.assertEqual(out.count("- PASS:"), 486)
         self.assertNotIn("- FAIL:", out)
         self.assertIn("Source: <http://127.0.0.1:8765/openapi.json>", out)
         self.assertIn("Retrieved (UTC): 2026-10-23T14:51:26Z", out)

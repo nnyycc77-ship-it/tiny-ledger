@@ -43,6 +43,7 @@ from tools import pagespeed_snapshot as ps  # noqa: E402
 from tools import propublica_nonprofits as pp  # noqa: E402
 from tools import safety_file as sf  # noqa: E402
 from tools import usaspending_awards as ua  # noqa: E402
+from tools import upc_lookup as ul  # noqa: E402
 from tools import vin_decode as vd  # noqa: E402
 import test_courtlistener_recap as cl_fixtures  # noqa: E402
 import test_fmcsa_carrier as fc_fixtures  # noqa: E402
@@ -65,9 +66,10 @@ class RoutingTests(unittest.TestCase):
         doc = recall_api.descriptor(WALLET)
         self.assertEqual(sorted(doc["endpoints"]),
                          ["/app", "/awards", "/bank", "/carrier", "/csl", "/disaster", "/domain", "/drug",
-                          "/earthquake", "/epa", "/faa", "/fda", "/flood", "/formd", "/fx", "/geocode", "/github",
-                          "/insider", "/links", "/litigation", "/meta", "/nonprofit", "/npi", "/ofac", "/oig",
-                          "/pagespeed", "/recall", "/safety", "/trials", "/vin", "/wallet", "/weather"])
+                          "/earthquake", "/epa", "/faa", "/fda", "/flood", "/formd", "/fx", "/geocode",
+                          "/github", "/insider", "/links", "/litigation", "/meta", "/nonprofit", "/npi",
+                          "/ofac", "/oig", "/pagespeed", "/recall", "/safety", "/trials", "/upc", "/vin",
+                          "/wallet", "/weather"])
         for path, entry in doc["endpoints"].items():
             self.assertEqual(entry["method"], "GET", path)
             self.assertTrue(entry["tool"].startswith("tools/"), path)
@@ -110,6 +112,7 @@ class RoutingTests(unittest.TestCase):
             "/disaster": ["", "state=R", "state=RIX", "state=RI&state=CT", "state=RI&limit=0", "state=RI&limit=1001",
                           "state=RI&limit=x", "state=RI&county=Prince+George%27s+(County)"],
             "/geocode": ["", "address=", "address=a&address=b", "address=" + "a" * 201],
+            "/upc": ["", "code=", "code=12345", "code=3017620422004", "code=3017620422003&code=036000291452"],
         }
         patches = [patch.object(mod, "fetch", side_effect=AssertionError("no fetch expected"))
                    for mod in (fc, cl, ua, pp, ps, ef, vd, fx, sf, epa, bl, fd)]
@@ -120,6 +123,7 @@ class RoutingTests(unittest.TestCase):
         patches.append(patch.object(faa, "download", side_effect=AssertionError("no fetch expected")))
         patches.append(patch.object(dh, "fetch", side_effect=AssertionError("no fetch expected")))
         patches.append(patch.object(ag, "fetch", side_effect=AssertionError("no fetch expected")))
+        patches.append(patch.object(ul, "fetch", side_effect=AssertionError("no fetch expected")))
         for p in patches:
             p.start()
             self.addCleanup(p.stop)
