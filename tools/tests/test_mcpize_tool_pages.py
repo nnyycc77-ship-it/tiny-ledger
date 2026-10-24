@@ -72,6 +72,18 @@ class ToolPagesTests(unittest.TestCase):
                 else:
                     self.assertTrue(line.group(1).startswith("Not priced."), line.group(1))
 
+    def test_tools_that_sell_an_error_without_their_setting_say_so(self):
+        # Coordinator ruling on #147: formd_check without EDGAR_CONTACT and
+        # pagespeed_snapshot without PAGESPEED_API_KEY are flagged plainly, not
+        # given different prices or terms.
+        for name, setting in (("formd_check", "EDGAR_CONTACT"), ("pagespeed_snapshot", "PAGESPEED_API_KEY")):
+            with self.subTest(tool=name):
+                text = (PAGES / (name + ".md")).read_text(encoding="utf-8")
+                line = re.search(r"^- \*\*Before you pay for a call:\*\* (.*)$", text, re.M)
+                self.assertIsNotNone(line, "no paid call warning")
+                self.assertIn("`%s`" % setting, line.group(1))
+                self.assertIn("a paid call in that state pays for", line.group(1))
+
     def test_runbook_and_index_link_every_page(self):
         runbook = RUNBOOK.read_text(encoding="utf-8")
         index = (PAGES / "README.md").read_text(encoding="utf-8")

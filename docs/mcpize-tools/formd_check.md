@@ -10,6 +10,7 @@ the MCPize redeploy is in the
 - **Needs on the server:** Outbound HTTPS to `data.sec.gov` and `www.sec.gov`, and `EDGAR_CONTACT` set on the server. Without `EDGAR_CONTACT` the tool answers an error and fetches nothing.
 - **What it is not:** A listing of filings as indexed, not an analysis of any offering.
 - **Price:** Not priced. The `pricing` block of [`mcpize.yaml`](../../mcpize.yaml) does not name this tool, and pricing it is the owner's decision (issue #147).
+- **Before you pay for a call:** while the server has no `EDGAR_CONTACT` set, this tool answers an error and fetches nothing, so a paid call in that state pays for that error and gets no report.
 
 Every report uses the repo's fixed evidence format. Each claim has its
 source link with the raw response directly beneath it, the exact query

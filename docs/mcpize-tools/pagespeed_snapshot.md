@@ -10,6 +10,7 @@ the MCPize redeploy is in the
 - **Needs on the server:** Outbound HTTPS to `www.googleapis.com`, and `PAGESPEED_API_KEY` set on the server. Without it the API answers 429 with quota 0, and that transcript is the report.
 - **What it is not:** A measurement of that moment, not a permanent grade.
 - **Price:** Not priced. The `pricing` block of [`mcpize.yaml`](../../mcpize.yaml) does not name this tool, and pricing it is the owner's decision (issue #147).
+- **Before you pay for a call:** while the server has no `PAGESPEED_API_KEY` set, the API answers 429 with quota 0 and that transcript is the whole report, so a paid call in that state pays for the 429 transcript and no scores.
 
 Every report uses the repo's fixed evidence format. Each claim has its
 source link with the raw response directly beneath it, the exact query
