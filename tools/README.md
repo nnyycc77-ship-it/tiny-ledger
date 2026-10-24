@@ -1185,6 +1185,16 @@ tool's `NO_400_CAPTURE` table with the reason it cannot be captured
 (the descriptor takes no query input; `/recall`'s 400 sits behind the
 payment gate this tool never pays through).
 
+Offline mode also asserts the source failure shape (issue #235): a
+valid query whose source fetch fails is answered 502, with a plain
+text body naming the failure and no report served. Those fixtures are
+replays: the capture server ran with its proxy settings pointed at a
+closed local port so every source fetch failed at transport, and each
+`<endpoint>-502.http` provenance entry records that config. The same
+exactly once accounting applies, with `/` (fetches no source) and
+`/recall` (its 502 also sits behind the payment gate) reasoned in the
+tool's `NO_502_CAPTURE` table.
+
 Output is one Markdown section in the delivery format: a PASS or FAIL claim
 line per assertion, the source link, the UTC time, and the complete raw
 transcript beneath. Exit codes:

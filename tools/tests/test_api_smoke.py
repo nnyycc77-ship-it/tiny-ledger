@@ -27,6 +27,14 @@ Which data is which:
   entries record the server config (the same SYNTHETIC placeholder
   wallet and labelled test EDGAR_CONTACT, which /formd checks before
   its query) and the SHA-256 of each.
+* REPLAYED CAPTURE, 502 SHAPES: the seventeen source failure fixtures
+  added for issue #235 (<endpoint>-502.http) are transcripts from the
+  same local gated server at main a92012c, run with its proxy settings
+  pointed at a closed local port so every source fetch failed at
+  transport and each endpoint answered its own 502 to a valid sample
+  query. Their provenance entries record that replay config in full
+  (including the empty tool cache folder used so /faa attempted its
+  archive download) and the SHA-256 of each.
 * LIVE LOCAL: the live mode tests run the real api.payment_gate app
   in process on 127.0.0.1, configured with the same SYNTHETIC placeholder
   address. No X-PAYMENT header is ever sent, so the facilitator is never
@@ -107,14 +115,15 @@ class OfflineMode(unittest.TestCase):
         self.assertTrue(all(ok for _, ok in results), results)
         self.assertEqual(self.caps["openapi"].status, 200)
 
-    def test_default_run_passes_all_211_with_the_raw_responses(self):
+    def test_default_run_passes_all_298_with_the_raw_responses(self):
         # 20 original assertions, 17 endpoint sections of 5, 17 bad
-        # query sections of 4, 19 bad query accounting lines, and 19
-        # coverage lines, one per GET path in api/openapi.json.
+        # query sections of 4, 19 bad query accounting lines, 17 source
+        # failure sections of 4, 19 source failure accounting lines,
+        # and 19 coverage lines, one per GET path in api/openapi.json.
         code, out, err = run_main([])
         self.assertEqual(code, 0, err)
         self.assertIn("Result: PASS, every assertion held.", out)
-        self.assertEqual(out.count("- PASS:"), 211)
+        self.assertEqual(out.count("- PASS:"), 298)
         self.assertNotIn("- FAIL:", out)
         self.assertIn("Source: <http://127.0.0.1:8765/openapi.json>", out)
         self.assertIn("Retrieved (UTC): 2026-10-23T14:51:26Z", out)
@@ -125,6 +134,9 @@ class OfflineMode(unittest.TestCase):
         self.assertIn("- PASS: GET /epa with no valid input answers 400", out)
         self.assertIn("- PASS: GET /recall 400 shape not capturable offline:", out)
         self.assertIn((FIX / "epa-400.http").read_text(encoding="utf-8"), out)
+        self.assertIn("- PASS: GET /csl with its source failing answers 502", out)
+        self.assertIn("- PASS: GET /recall 502 shape not capturable offline:", out)
+        self.assertIn((FIX / "csl-502.http").read_text(encoding="utf-8"), out)
 
     def test_a_failed_assertion_is_named_with_the_raw_response(self):
         # DERIVED: the real openapi capture with its status line changed to a 404,
@@ -229,6 +241,37 @@ class OfflineMode(unittest.TestCase):
         self.assertFalse(ok)
         self.assertIn("- FAIL: GET /epa with no valid input answers 400", report)
 
+    def test_missing_source_failure_fixture_fails_closed_and_names_the_endpoint(self):
+        tmp = Path(tempfile.mkdtemp())
+        try:
+            for f in FIX.iterdir():
+                shutil.copy(f, tmp / f.name)
+            (tmp / "vin-502.http").unlink()  # DERIVED: the real fixture set minus one 502 file
+            with self.assertRaises(smoke.SmokeError) as ctx:
+                smoke.offline_captures(tmp)
+            self.assertIn("/vin", str(ctx.exception))
+        finally:
+            shutil.rmtree(tmp)
+
+    def test_unaccounted_502_shape_fails_the_run_and_is_named(self):
+        # DERIVED: the real captures with one invented path in the
+        # coverage denominator, in neither 502 table.
+        caps = smoke.offline_captures()
+        caps["coverage_paths"] = list(caps["coverage_paths"]) + ["/zzz"]
+        with mock.patch.object(smoke, "offline_captures", return_value=caps):
+            code, out, err = run_main([])
+        self.assertEqual(code, 1, err)
+        self.assertIn("- FAIL: GET /zzz 502 shape is not accounted for exactly once", out)
+
+    def test_source_failure_shape_failure_is_named(self):
+        # DERIVED: the real /vin 502 capture with its status changed to a 200.
+        caps = smoke.offline_captures()
+        caps["source_failures"]["/vin"] = caps["source_failures"]["/vin"]._replace(
+            status_line="HTTP/1.0 200 OK", status=200)
+        report, ok = smoke.run_checks(caps, "offline: derived")
+        self.assertFalse(ok)
+        self.assertIn("- FAIL: GET /vin with its source failing answers 502", report)
+
 
 class CoverageTable(unittest.TestCase):
     def test_every_get_path_in_the_repo_openapi_has_a_fixture_entry(self):
@@ -258,6 +301,20 @@ class CoverageTable(unittest.TestCase):
                     self.assertIn(path, smoke.ENDPOINT_FIXTURES)
                 if reasoned:
                     self.assertTrue(smoke.NO_400_CAPTURE[path])
+
+    def test_every_get_path_502_shape_is_captured_or_reasoned_exactly_once(self):
+        doc = json.loads(OPENAPI_FILE)
+        get_paths = [p for p, ops in doc["paths"].items() if "get" in ops]
+        for path in get_paths:
+            with self.subTest(path=path):
+                captured = path in smoke.SOURCE_FAILURE_FIXTURES
+                reasoned = path in smoke.NO_502_CAPTURE
+                self.assertNotEqual(captured, reasoned, path)  # exactly one of the two
+                if captured:
+                    self.assertIn(smoke.SOURCE_FAILURE_FIXTURES[path], PROVENANCE)
+                    self.assertIn(path, smoke.ENDPOINT_FIXTURES)
+                if reasoned:
+                    self.assertTrue(smoke.NO_502_CAPTURE[path])
 
 
 class Assertions(unittest.TestCase):
