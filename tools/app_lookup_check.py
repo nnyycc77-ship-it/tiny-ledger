@@ -14,12 +14,16 @@ What the claim lines say, all read from the response as shown:
   (a difference between the two is stated, never reconciled);
 * per app, in response order: trackName, sellerName, averageUserRating
   and userRatingCount, and trackViewUrl (the store link), each as shown
-  or "not shown"; and whether trackName equals the searched name,
-  ignoring case and spacing. The tool never decides which app the buyer
-  means; the exact-name mark is a mechanical comparison only.
+  or "not shown" (numbers keep their literal text from the body); and
+  whether trackName equals the searched name, ignoring case and spacing.
+  The tool never decides which app the buyer means; the exact-name mark
+  is a mechanical comparison only.
 
-An empty result is proven, never asserted: a response with no results is
-printed with its complete raw response beneath it. Fail closed: a
+The search matches loosely: on #167 an invented name returned five
+unrelated apps, not an empty list. So the "nothing found" case of this
+tool is zero exact name matches, said in those terms with the complete
+raw response beneath; a response with no results at all is printed the
+same way. Neither is ever claimed as proof that no such app exists. Fail closed: a
 response that is not HTTP 200, a body that is not a JSON object with
 resultCount and a results array, or a transport failure prints nothing on
 stdout and exits 2.
@@ -32,6 +36,7 @@ Standard library only. No key, account, or environment value is needed.
 """
 
 import argparse
+import decimal
 import json
 import re
 import sys
@@ -45,7 +50,7 @@ USER_AGENT = "tiny-ledger-app-lookup-check"
 TIMEOUT_SECONDS = 30
 DEFAULT_COUNTRY = "us"
 DEFAULT_LIMIT = 10
-MAX_LIMIT = 50
+MAX_LIMIT = 200  # "Values: 1 to 200", Apple's Searching page, as captured on #167
 FIELDS = [("trackName", "App name"), ("sellerName", "Seller"), ("averageUserRating", "Average user rating"),
           ("userRatingCount", "User rating count"), ("trackViewUrl", "Store link")]
 SCOPE_LINE = ("Observation only: the apps below are what the public iTunes Search API returned for "
@@ -103,7 +108,18 @@ class Capture(object):
 
     @property
     def status(self):
-        return int(self.status_line.split(" ", 2)[1])
+        """The status code: the first three digit field of the status line.
+        (A capture on #167 carries the line "HTTP/1.1 HTTP/1.1 200 OK" as
+        posted, so the code is not always the second field.)"""
+        m = re.search(r"(?:^|\s)(\d{3})(?:\s|$)", self.status_line)
+        if not m:
+            raise FetchError("%s: no status code in the status line %r" % (self.url, self.status_line))
+        return int(m.group(1))
+
+    @property
+    def status_text(self):
+        m = re.search(r"(?:^|\s)(\d{3}(?:\s.*)?)$", self.status_line)
+        return m.group(1) if m else self.status_line
 
 
 def fetch(url):
@@ -134,7 +150,9 @@ def parse(capture):
     if capture.status != 200:
         raise FetchError("%s answered %s, not 200; no report" % (capture.url, capture.status_line))
     try:
-        data = json.loads(capture.body)
+        # Numbers are kept as their literal text (a rating such as
+        # 4.8885600000000000164845914696343243122100830078125 prints as shown).
+        data = json.loads(capture.body, parse_float=decimal.Decimal)
     except ValueError as err:
         raise FetchError("%s body is not JSON (%s); no report" % (capture.url, err))
     if (not isinstance(data, dict) or "resultCount" not in data or not isinstance(data.get("results"), list)
@@ -147,7 +165,11 @@ def shown(record, key):
     if key not in record or record[key] is None or record[key] == "":
         return "not shown"
     value = record[key]
-    return value if isinstance(value, str) else json.dumps(value)
+    if isinstance(value, str):
+        return value
+    if isinstance(value, decimal.Decimal):
+        return str(value)
+    return json.dumps(value)
 
 
 def inline(text):
@@ -165,7 +187,7 @@ def render(term, country, limit, capture):
     lines = ["## App search: %s" % term, "", SCOPE_LINE, ""]
     lines.append("QUERY: iTunes Search API, term = %s, country = %s, entity = software, limit = %d "
                  "(retrieved %s; source S1). HTTP status as returned: %s."
-                 % (inline(term), country, limit, capture.retrieved, capture.status_line.split(" ", 1)[1]))
+                 % (inline(term), country, limit, capture.retrieved, capture.status_text))
     line = "resultCount as shown: %s. Entries in the results array: %d." % (json.dumps(count), len(results))
     if count != len(results):
         line += " The two differ; both are shown as returned."
@@ -185,6 +207,11 @@ def render(term, country, limit, capture):
         lines.append("")
     if results:
         lines += ["Exact name matches among the returned apps: %d of %d (source S1)." % (exact, len(results)), ""]
+        if not exact:
+            lines += ["No returned app is named %s, ignoring case and spacing. The search matches loosely: "
+                      "it returned %d app%s, and none of them carries the searched name (source S1). This is "
+                      "a search observation, not proof that no such app exists."
+                      % (inline(term), len(results), "" if len(results) == 1 else "s"), ""]
     fence = "`" * max(3, 1 + max((len(m.group()) for m in re.finditer(r"`+", capture.transcript)), default=0))
     lines += ["## Sources", "",
               "### Source. S1. iTunes Search API, term %s" % inline(term),

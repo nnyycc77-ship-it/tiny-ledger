@@ -26,6 +26,7 @@ if str(ROOT) not in sys.path:
 sys.path.insert(0, str(ROOT / "tools" / "tests"))
 
 from api import endpoints, recall_api  # noqa: E402
+from tools import app_lookup_check as al  # noqa: E402
 from tools import courtlistener_recap as cl  # noqa: E402
 from tools import domain_trust_check as dt  # noqa: E402
 from tools import edgar_formd as ef  # noqa: E402
@@ -54,8 +55,8 @@ class RoutingTests(unittest.TestCase):
     def test_descriptor_lists_every_endpoint_with_tool_params_and_sources(self):
         doc = recall_api.descriptor(WALLET)
         self.assertEqual(sorted(doc["endpoints"]),
-                         ["/awards", "/carrier", "/domain", "/formd", "/litigation", "/nonprofit", "/ofac", "/pagespeed",
-                          "/recall", "/vin"])
+                         ["/app", "/awards", "/carrier", "/domain", "/formd", "/litigation", "/nonprofit", "/ofac",
+                          "/pagespeed", "/recall", "/vin"])
         for path, entry in doc["endpoints"].items():
             self.assertEqual(entry["method"], "GET", path)
             self.assertTrue(entry["tool"].startswith("tools/"), path)
@@ -81,6 +82,7 @@ class RoutingTests(unittest.TestCase):
             "/pagespeed": ["", "url=notaurl", "url=https://a.example/&strategy=tablet",
                            "url=https://a.example/&exclude=https://b.example/=reason"],
             "/domain": ["", "domain=https://example.com/", "domain=example", "domain=a.example&domain=b.example"],
+            "/app": ["", "name=Nike&country=usa", "name=Nike&limit=0", "name=Nike&limit=201", "name=Nike&limit=x"],
             "/vin": ["", "vin=1HGCM/2633A004352", "vin=1HGCM82633A0043521", "vin=1HGCM82633A004352&model_year=03",
                      "vin=1HGCM82633A004352&vin=1HGCM82643A004352"],
         }
@@ -88,6 +90,7 @@ class RoutingTests(unittest.TestCase):
                    for mod in (fc, cl, ua, pp, ps, ef, vd)]
         patches += [patch.object(dt, name, side_effect=AssertionError("no fetch expected"))
                     for name in ("fetch_doh", "fetch_site")]
+        patches.append(patch.object(al, "fetch", side_effect=AssertionError("no fetch expected")))
         for p in patches:
             p.start()
             self.addCleanup(p.stop)
@@ -458,6 +461,32 @@ class VinTests(unittest.TestCase):
             status, _, text = get("/vin", "vin=1HGCM82633A004352")
         self.assertEqual(status, "502 Bad Gateway")
         self.assertNotIn("DECODE", text)
+
+
+# ----------------------------------------------------------------------
+# /app
+# ----------------------------------------------------------------------
+
+import test_app_lookup_check as al_fixtures  # noqa: E402
+
+
+class AppTests(unittest.TestCase):
+    """Served from the real captures in tools/tests/fixtures/app-lookup/."""
+
+    def test_nike_search_from_the_recorded_response(self):
+        with patch.object(al, "fetch", side_effect=al_fixtures.serve(al_fixtures.NIKE)):
+            status, headers, text = get("/app", "name=Nike&limit=5", WALLET)
+        self.assertEqual(status, "200 OK", text)
+        self.assertEqual(headers["Content-Type"], recall_api.TEXT_MD)
+        self.assertTrue(text.startswith("# App lookup: Nike\n"))
+        self.assertIn("- Seller (sellerName) as shown: `Nike, Inc`", text)
+        self.assertIn("Exact name matches among the returned apps: 0 of 5 (source S1).", text)
+
+    def test_transport_failure_is_502_with_no_report(self):
+        with patch.object(al, "fetch", side_effect=OSError("connection refused")):
+            status, _, text = get("/app", "name=Nike")
+        self.assertEqual(status, "502 Bad Gateway")
+        self.assertNotIn("## App search", text)
 
 
 if __name__ == "__main__":
