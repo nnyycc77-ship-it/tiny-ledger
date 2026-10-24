@@ -29,16 +29,18 @@ Refreshed again for issue #311 on main
 `44507b55d1b65d260471c6180689194f5cf40d46`, by the same method:
 Refreshed again for issue #384 on main
 `9ad0a24b04e1f99e814113eee1ef04da9a3be5b9`, by the same method:
+Refreshed again for issue #397 on main
+`d28aa52b64e7f9e87adc8f4526a3d41df97243de`, by the same method:
 
-| | Before #228 | After #228 | Refresh #252 | Refresh #265 | Refresh #272 | Refresh #280 | Refresh #289 | Refresh #297 | Refresh #304 | Refresh #311 | Refresh #384 |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| Tools registered (`tool_definitions()` in `mcp_server/recall_mcp.py`) | 25 | 25 | 25 | 25 | 25 | 25 | 25 | 25 | 25 | 25 | 25 |
-| Registered tools with a page in this folder | 15 | 18 | 18 | 18 | 18 | 18 | 18 | 18 | 18 | 18 | 18 |
-| Registered tools named in the services catalog | 16 | 19 | 19 | 19 | 19 | 19 | 19 | 19 | 19 | 19 | 19 |
-| Pages stating a route that differs from the server's dispatch | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
-| Pages without the 0.25 USDC shelf price line | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
-| Docs pages or catalog entries naming a tool that is not registered | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 10 |
-| Registered tools whose route is in `api/openapi.json` | 18 | 18 | 18 | 25 | 25 | 25 | 25 | 25 | 25 | 25 | 25 |
+| | Before #228 | After #228 | Refresh #252 | Refresh #265 | Refresh #272 | Refresh #280 | Refresh #289 | Refresh #297 | Refresh #304 | Refresh #311 | Refresh #397 | Refresh #384 |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Tools registered (`tool_definitions()` in `mcp_server/recall_mcp.py`) | 25 | 25 | 25 | 25 | 25 | 25 | 25 | 25 | 25 | 25 | 25 | 25 |
+| Registered tools with a page in this folder | 15 | 18 | 18 | 18 | 18 | 18 | 18 | 18 | 18 | 18 | 18 | 18 |
+| Registered tools named in the services catalog | 16 | 19 | 19 | 19 | 19 | 19 | 19 | 19 | 19 | 19 | 19 | 19 |
+| Pages stating a route that differs from the server's dispatch | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+| Pages without the 0.25 USDC shelf price line | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+| Docs pages or catalog entries naming a tool that is not registered | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 10 | 10 |
+| Registered tools whose route is in `api/openapi.json` | 18 | 18 | 18 | 25 | 25 | 25 | 25 | 25 | 25 | 25 | 25 | 25 |
 
 One count moved at the #265 refresh: the `api/openapi.json` row, from
 18 to 25. PR #253 (issue #243) added the seven routes the earlier
@@ -78,6 +80,21 @@ this one the merges were PR #285 (suite census), PR #298 (api smoke
 census pin, issue #295), PR #299 (pricing drift pin, issue #294) and
 PR #300 (the #297 census refresh itself); none of them touched a
 census surface.
+
+No count moved at the #397 refresh. Between the #384 pin and this
+one the merges were PR #382 (the track record update of issue
+#196, which also refreshed the quoted hard rule 4 block inside
+`docs/services-catalog.md`; it added and removed no tool entry, so
+the catalog count stands), PR #381 (tools README rows, issue
+#371), PR #380 (suite census, issue #375), PR #388 (pricing drift
+pin, issue #383), PR #389 (the api smoke census refresh, issue
+#386), PR #390 (registry drift pin, issue #387) and PR #391 (the
+#384 census refresh itself); none of them registered or dropped a
+tool, added or removed a page or catalog entry, or changed a
+route, and the recomputation on the pinned commit, not the merge
+history, is the proof. The ten wave 3 names on the unregistered in
+docs row stand as the #384 refresh left them, and `api/openapi.json`
+still carries 36 paths.
 
 One count moved at the #384 refresh: the row for docs pages or
 catalog entries naming a tool that is not registered, from 0 to 10.
@@ -124,6 +141,15 @@ refresh itself); none of them touched a census surface.
   (#160, whose full page stays at `docs/ofac-sdn-check.md`) and
   `app_lookup_check` (#167). Each now has a page here and an entry in
   catalog Part 5, Wave 1.
+
+## Refresh notes (issue #397)
+
+- No count moved; the Refresh #397 column repeats the #384 figures
+  exactly, including the 10 on the unregistered in docs row, proven
+  by the reproduce script's output on the pinned commit.
+- The left open items stand as they were left: the seven original
+  tools still have no page in this folder, and the ten wave 3 tools
+  still wait on the wave end registration step.
 
 ## Refresh notes (issue #384)
 
