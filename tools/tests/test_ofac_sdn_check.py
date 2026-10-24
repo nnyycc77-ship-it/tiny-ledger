@@ -88,6 +88,26 @@ class MatchingTests(unittest.TestCase):
         # folded; it still acts as a separator.
         self.assertEqual(o.normalise("Łukasz"), "ukasz")
 
+    def test_accent_folding_edges(self):
+        # Issue #257: edge coverage over the folding landed in PR #254.
+        # Names with several accented letters, in both directions.
+        self.assertEqual(o.normalise("Željko Ražnatović"), "zeljko raznatovic")
+        self.assertEqual(o.normalise("Frédéric François"), "frederic francois")
+        self.assertEqual(o.normalise("Inês de Castro"), "ines de castro")
+        self.assertEqual(o.match_kind("Željko Ražnatović", "ZELJKO RAZNATOVIC"), "exact")
+        self.assertEqual(o.match_kind("Zeljko Raznatovic", "ŽELJKO RAŽNATOVIĆ"), "exact")
+        self.assertEqual(o.match_kind("José García", "JOSE GARCIA"), "exact")
+        # Whole word matching is unchanged by folding: a partial name is
+        # still not a match, and a partial name inside a longer list name
+        # is a contains match, never promoted to exact.
+        self.assertIsNone(o.match_kind("Mulle", "MÜLLER"))  # prefix of a folded word
+        self.assertIsNone(o.match_kind("Garcí", "GARCÍA"))  # accented partial
+        self.assertIsNone(o.match_kind("Jose", "JOSEPH MÜLLER"))  # whole word, not a prefix
+        self.assertEqual(o.match_kind("Muller", "MÜLLER, Ana"), "contains")
+        self.assertEqual(o.match_kind("Jose Muller", "JOSÉ MÜLLER GARCÍA"), "contains")
+        # Word order is still not rearranged after folding.
+        self.assertIsNone(o.match_kind("García José", "JOSÉ GARCÍA"))
+
 
 class ReportTests(unittest.TestCase):
     def test_alias_match_prints_both_lines_verbatim(self):
@@ -139,6 +159,19 @@ class ReportTests(unittest.TestCase):
         self.assertIn("60 list entries matched", out)
         self.assertIn("The first 50, in file order, are listed; 10 more matched and are not listed.", out)
         self.assertEqual(out.count("\n### ENT_NUM "), 50)
+
+    def test_accented_entry_matches_in_both_directions(self):
+        # DERIVED: a captured line whose name field is replaced, first by
+        # an accented spelling, then by its unaccented form (issue #257).
+        tail = SDN.decode().splitlines()[6].split(",", 1)[1]  # "CIMEX",...
+        accented = ('90001,' + tail.replace('"CIMEX"', '"JOSÉ MÜLLER"') + "\n").encode()
+        _, out, _ = run(["Jose Muller"], replay(sdn=accented))
+        self.assertIn("1 list entry matched Jose Muller: 1 with an exact match", out)
+        self.assertIn('"JOSÉ MÜLLER"', out)  # the entry's line printed verbatim
+        plain = ('90002,' + tail.replace('"CIMEX"', '"JOSE MULLER"') + "\n").encode()
+        _, out, _ = run(["José Müller"], replay(sdn=plain))
+        self.assertIn("1 list entry matched José Müller: 1 with an exact match", out)
+        self.assertIn('"JOSE MULLER"', out)
 
 
 class FailClosedTests(unittest.TestCase):
