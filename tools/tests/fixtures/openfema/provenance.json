@@ -1,0 +1,57 @@
+{
+  "state-RI-top5.json": {
+    "url": "https://www.fema.gov/api/open/v2/DisasterDeclarationsSummaries?$filter=state%20eq%20%27RI%27&$orderby=declarationDate%20desc&$top=5",
+    "url_source": "the response's own metadata.url",
+    "status": "HTTP/1.1 200 OK",
+    "body_bytes": 5042,
+    "sha256": "5699acea2452d3ed8c3d532267f5e446d2a8711d68e5b573b58234af1433e536",
+    "retrieved_utc": "2026-10-24, about 12:09 to 12:11 UTC",
+    "what": "state query, $top=5, newest first, no $count",
+    "captured_by": "coordinator, Option B capture on issue #312 (bodies only; no headers were captured)",
+    "comment": "https://github.com/nnyycc77-ship-it/tiny-ledger/issues/312#issuecomment-6384043591"
+  },
+  "state-RI-top5-count.json": {
+    "url": "https://www.fema.gov/api/open/v2/DisasterDeclarationsSummaries?$filter=state+eq+%27RI%27&$orderby=declarationDate+desc&$top=5&$count=true",
+    "url_source": "the response's own metadata.url",
+    "status": "HTTP/1.1 200 OK",
+    "body_bytes": 5050,
+    "sha256": "753b858b0046f7ee94d3894b9b861a065add47956ab9eba5719ed8a69248603c",
+    "retrieved_utc": "2026-10-24, about 12:09 to 12:11 UTC",
+    "what": "state query with $count=true",
+    "captured_by": "coordinator, Option B capture on issue #312 (bodies only; no headers were captured)",
+    "comment": "https://github.com/nnyycc77-ship-it/tiny-ledger/issues/312#issuecomment-6384043847"
+  },
+  "county-RI-Kent-top5.json": {
+    "url": "https://www.fema.gov/api/open/v2/DisasterDeclarationsSummaries?$filter=state+eq+%27RI%27+and+designatedArea+eq+%27Kent+%28County%29%27&$orderby=declarationDate+desc&$top=5",
+    "url_source": "the response's own metadata.url",
+    "status": "HTTP/1.1 200 OK",
+    "body_bytes": 5009,
+    "sha256": "3f5c07b2a9c0779a21d9742b20d0e541943f909d6383006675963ed4fa681678",
+    "retrieved_utc": "2026-10-24, about 12:09 to 12:11 UTC",
+    "what": "county query, designatedArea eq 'Kent (County)'",
+    "captured_by": "coordinator, Option B capture on issue #312 (bodies only; no headers were captured)",
+    "comment": "https://github.com/nnyycc77-ship-it/tiny-ledger/issues/312#issuecomment-6384044116"
+  },
+  "county-RI-Nosuch-top5.json": {
+    "url": "https://www.fema.gov/api/open/v2/DisasterDeclarationsSummaries?$filter=state+eq+%27RI%27+and+designatedArea+eq+%27Nosuch+%28County%29%27&$top=5",
+    "url_source": "the response's own metadata.url",
+    "status": "HTTP/1.1 200 OK",
+    "body_bytes": 434,
+    "sha256": "06d17ee862ea601526b2def37d1d4db170d1c9a3986e23ad5bf6b2f61140b60c",
+    "retrieved_utc": "2026-10-24, about 12:09 to 12:11 UTC",
+    "what": "proven empty result, designatedArea eq 'Nosuch (County)'",
+    "captured_by": "coordinator, Option B capture on issue #312 (bodies only; no headers were captured)",
+    "comment": "https://github.com/nnyycc77-ship-it/tiny-ledger/issues/312#issuecomment-6384044365"
+  },
+  "bad-field-400.json": {
+    "url": "https://www.fema.gov/api/open/v2/DisasterDeclarationsSummaries?$filter=nosuchfield eq 'RI'&$top=5",
+    "url_source": "as described in the capture comment (the 400 body carries no metadata), shown unencoded",
+    "status": "HTTP/1.1 400 Bad Request",
+    "body_bytes": 233,
+    "sha256": "1a9ea451ba877fbeb2631bbb359d0779e2eb03513640f75181a0f1c1aad55686",
+    "retrieved_utc": "2026-10-24, about 12:09 to 12:11 UTC",
+    "what": "failure answer, misspelled field name",
+    "captured_by": "coordinator, Option B capture on issue #312 (bodies only; no headers were captured)",
+    "comment": "https://github.com/nnyycc77-ship-it/tiny-ledger/issues/312#issuecomment-6384044613"
+  }
+}

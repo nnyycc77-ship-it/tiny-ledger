@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """The remaining fetchers as paid API endpoints (issue #65).
 
-Twenty-four GET endpoints beside GET /recall, each wrapping one merged fetcher in
+Twenty-eight GET endpoints beside GET /recall, each wrapping one merged fetcher in
 tools/ as library code and returning that fetcher's own rendered Markdown
 in the delivery format from AGENT-BRIEF.md: the claim lines, the exact
 query, the UTC retrieval time, the source link, and the complete raw
@@ -35,6 +35,7 @@ nothing else to the fetchers' output.
     /faa         tools/faa_lookup.py           n_number
     /weather     tools/weather_alert_check.py  lat, lon
     /npi         tools/npi_check.py            query (NPI number or provider name)
+    /disaster    tools/disaster_history_check.py  state (county, limit optional)
 
 Each endpoint takes the fetcher's own command line inputs as query
 parameters under the same names (hyphens become underscores), validates
@@ -84,6 +85,7 @@ from tools import fmcsa_carrier as fc  # noqa: E402
 from tools import insider_check as ins  # noqa: E402
 from tools import github_repo_check as gh  # noqa: E402
 from tools import csl_screen as cs  # noqa: E402
+from tools import disaster_history_check as dh  # noqa: E402
 from tools import faa_lookup as faa  # noqa: E402
 from tools import meta_tag_check as mt  # noqa: E402
 from tools import oig_screen as oig  # noqa: E402
@@ -897,6 +899,31 @@ def faa_lookup(query, env=None):
 
 
 # ----------------------------------------------------------------------
+# /disaster
+# ----------------------------------------------------------------------
+
+def disaster_history(query, env=None):
+    """FEMA disaster declarations for a state or designated area via tools/disaster_history_check.py."""
+    try:
+        state = dh.check_state(_single(query, "state", ""))
+        area = dh.check_area(_single(query, "county"))
+        limit = dh.check_limit(_single(query, "limit"))
+    except ValueError as err:
+        raise BadRequest(str(err))
+    try:
+        lines = dh.run(state, area, limit)
+    except dh.SourceFailed as err:
+        raise FetchFailed("source failure, no report emitted: %s" % err)
+    place = "%s, %s" % (area, state) if area else state
+    head = _head("Disaster declarations: %s" % place,
+                 "Observation only: this report records what the public OpenFEMA disaster declarations API "
+                 "returned at the retrieval time stated below; the declarations are FEMA's records as shown, "
+                 "not an assessment of any place.",
+                 "tools/disaster_history_check.py")
+    return _text(head, lines)
+
+
+# ----------------------------------------------------------------------
 # Registry and descriptor
 # ----------------------------------------------------------------------
 
@@ -943,6 +970,7 @@ ROUTES = {
     "/faa": faa_lookup,
     "/weather": weather,
     "/npi": npi_lookup,
+    "/disaster": disaster_history,
 }
 
 DESCRIPTIONS = {
@@ -1126,6 +1154,17 @@ DESCRIPTIONS = {
         "note": "Answers from the FAA archive downloaded at most once per UTC day into the server's cache; every "
                 "reply states the archive Last-Modified. A non-200 answer, a redirect, or an archive not in the "
                 "captured shape is a source failure (502, no report), never a no match.",
+    },
+    "/disaster": {
+        "tool": "tools/disaster_history_check.py",
+        "params": ["state (two letter code as FEMA records it)",
+                   "county (optional: the exact designatedArea, e.g. 'Kent (County)')",
+                   "limit (optional: rows to ask for, 1 to %d, default %d)" % (dh.MAX_LIMIT, dh.DEFAULT_LIMIT)],
+        "sources": [dh.BASE_URL + "?$filter=state eq '<state>'[ and designatedArea eq '<county>']"
+                    "&$orderby=declarationDate desc&$top=<limit>&$count=true"],
+        "note": "Distinct disasterNumber values are listed, since one disaster appears once per designated area. "
+                "Any non-200 answer, a failed fetch or an unreadable body is a source failure (502, no report); "
+                "an empty result is reported only for the exact filter sent, never as no disasters.",
     },
 }
 

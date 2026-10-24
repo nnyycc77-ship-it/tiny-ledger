@@ -26,6 +26,7 @@ environment and its header comment says so.
 | NHTSA safety file: ratings, recalls, complaints | `safety_file.py` | none needed |
 | EPA ECHO facility compliance screen | `epa_screen.py` | none needed |
 | FAA aircraft registry (releasable aircraft download) | `faa_lookup.py` | none needed; the archive is cached once per day outside the repo |
+| FEMA disaster declarations (OpenFEMA API v2) | `disaster_history_check.py` | none needed |
 | Brand name checks: RDAP domains, X / Instagram / TikTok handles, iTunes Search (trademarks not covered) | `brand_name_checker.py` | none needed |
 | Weekly brief: watchlist Form D filings and NAICS filtered contract awards for a seven day window (docs/weekly-brief.md) | `weekly_brief.py` | EDGAR contact |
 | OFAC SDN list name check, primary names and aliases (docs/ofac-sdn-check.md) | `ofac_sdn_check.py` | none needed |
@@ -650,6 +651,47 @@ from those lines (a test arrangement, labelled in the test file), and
 they run the downloader against a local server on 127.0.0.1. The
 fixtures' SHA-256 hashes are in `tests/fixtures/faa-registry/provenance.json`,
 and the hashes are checked.
+
+## disaster_history_check.py
+
+```sh
+python3 tools/disaster_history_check.py RI
+python3 tools/disaster_history_check.py RI --county "Kent (County)" --limit 10
+```
+
+Tool factory wave 3, issue #312. It lists the FEMA disaster declarations
+the keyless OpenFEMA API v2 (`DisasterDeclarationsSummaries`) records for
+one state, or one designated area in it, newest first.
+
+- **Rows are not disasters.** One disaster appears once per designated
+  area, so the report counts distinct `disasterNumber` values and lists
+  each once, with its declaration type, incident type and declaration
+  date as shown, and the areas named in the rows returned.
+- **Totals are stated only when requested.** The tool always sends
+  `$count=true`. FEMA's total of matching rows is stated only when the
+  response's own `metadata.url` shows it was requested; without it the
+  metadata count reads 0.
+- **Counties match exactly.** A county is the exact `designatedArea`
+  string (some carry suffixes, such as `(in PMSA 2480,6480)`), and an
+  empty result is worded for that exact filter only.
+
+A failed fetch, a non-200 answer (a malformed filter is answered 400) or
+a body not in the recorded shape is a source failure: nothing is printed
+on stdout, the exit status is 2, and the answer is unknown. Docs page:
+[`docs/mcpize-tools/disaster_history_check.md`](../docs/mcpize-tools/disaster_history_check.md).
+
+### Verification
+
+```sh
+python3 -m unittest discover -s tools/tests -p 'test_disaster_history_check.py' -v
+```
+
+The tests need no network. They use the five response bodies the
+coordinator captured under Option B on issue #312, because this container
+cannot reach www.fema.gov. The captures are bodies only, so the status
+lines in the test transcripts are a labelled test harness. The fixtures'
+SHA-256 hashes are in `tests/fixtures/openfema/provenance.json`, and the
+hashes are checked.
 
 ## edgar_formd.py
 
