@@ -8,7 +8,7 @@ one, and emits a Markdown report: a baseline edition on the first run,
 after that a change report (alerts for changed entries, one line for
 each entry with no change).
 
-Two watch types, both reusing the existing fetchers in this folder:
+Three watch types, all reusing the existing fetchers in this folder:
 
 * Carriers, by USDOT number, through `fmcsa_carrier.py` (FMCSA Company
   Census File, SAFER Company Snapshot, Licensing and Insurance). The
@@ -17,6 +17,13 @@ Two watch types, both reusing the existing fetchers in this folder:
   the authority state, safety_rating the rating), every labelled SAFER
   value (Operating Authority Status, USDOT Status, Rating, and the
   rest), and the Licensing and Insurance record lines found.
+* Sanctions entries, through `ofac_sdn_check.py` (the OFAC SDN list,
+  primary names and aliases) and `oig_screen.py` (the HHS OIG LEIE
+  database). Each entry names one list and one subject name, taken the
+  way the fetcher takes it. The fields that matter are only what the
+  fetchers return: the match state and the matched record fields as
+  shown. An empty result is proven by the full downloaded list file,
+  stored in the snapshot like every other response.
 * Products, through `cpsc_recalls.py` (CPSC SaferProducts). Each entry
   carries one or more queries (ProductName, RecallTitle, or
   RecallNumber, the fields the CPSC fetcher supports). The field that
@@ -40,11 +47,19 @@ Watchlist format (JSON):
         {"label": "Peloton Tread+",
          "queries": [{"field": "RecallNumber", "value": "21-128"},
                      {"field": "ProductName", "value": "Tread+"}]}
+      ],
+      "sanctions": [
+        {"list": "OFAC SDN", "subject": "BANCO NACIONAL DE CUBA"},
+        {"list": "OIG LEIE", "subject": "1 BEST CARE, INC",
+         "label": "Best Care (watch)"}
       ]
     }
 
 A carrier needs only its USDOT number; the label is optional. A
-product needs a label and at least one query.
+product needs a label and at least one query. A sanctions entry needs
+a list (OFAC SDN or OIG LEIE) and a subject name with at least as many
+letters or digits as the fetchers require; the label is optional and
+defaults to the subject.
 
 Snapshot storage follows the repo fixture habits: the snapshot JSON
 keeps, for every response, the exact query URL, the UTC retrieval
@@ -83,9 +98,12 @@ from pathlib import Path
 
 import cpsc_recalls as cpsc
 import fmcsa_carrier as fc
+import ofac_sdn_check as ofac
+import oig_screen as oig
 
 SNAPSHOT_FORMAT = "standing-watch-snapshot"
 CARRIER_SOURCES = ("census", "safer", "li")
+SANCTIONS_LISTS = ("OFAC SDN", "OIG LEIE")
 
 
 class WatchError(ValueError):
@@ -106,6 +124,8 @@ def entry_keys(watchlist):
         keys.append("carrier:%s" % entry["usdot"])
     for entry in watchlist["products"]:
         keys.append("product:%s" % slug(entry["label"]))
+    for entry in watchlist["sanctions"]:
+        keys.append("sanctions:%s:%s" % (slug(entry["list"]), slug(entry["subject"])))
     return keys
 
 
@@ -116,8 +136,10 @@ def validate_watchlist(data, origin):
         raise WatchError("%s: \"version\" must be 1" % origin)
     carriers = data.get("carriers", [])
     products = data.get("products", [])
-    if not isinstance(carriers, list) or not isinstance(products, list):
-        raise WatchError("%s: \"carriers\" and \"products\" must be arrays" % origin)
+    sanctions = data.get("sanctions", [])
+    if not isinstance(carriers, list) or not isinstance(products, list) \
+            or not isinstance(sanctions, list):
+        raise WatchError("%s: \"carriers\", \"products\" and \"sanctions\" must be arrays" % origin)
     out_carriers = []
     for i, entry in enumerate(carriers):
         if not isinstance(entry, dict) or "usdot" not in entry:
@@ -151,7 +173,23 @@ def validate_watchlist(data, origin):
                 raise WatchError("%s: products[%d] queries[%d] value must be text" % (origin, i, j))
             out_queries.append({"field": field, "value": value})
         out_products.append({"label": entry["label"], "queries": out_queries})
-    watchlist = {"carriers": out_carriers, "products": out_products}
+    out_sanctions = []
+    for i, entry in enumerate(sanctions):
+        if not isinstance(entry, dict) or entry.get("list") not in SANCTIONS_LISTS:
+            raise WatchError("%s: sanctions[%d] list must be one of %s"
+                             % (origin, i, ", ".join(SANCTIONS_LISTS)))
+        subject = entry.get("subject")
+        if not isinstance(subject, str) or not subject.strip():
+            raise WatchError("%s: sanctions[%d] needs a \"subject\" name" % (origin, i))
+        subject = " ".join(subject.split())
+        if ofac.significant(subject) < ofac.MIN_QUERY_CHARS:
+            raise WatchError("%s: sanctions[%d] subject must have at least %d letters or digits, "
+                             "the minimum the fetchers accept" % (origin, i, ofac.MIN_QUERY_CHARS))
+        label = entry.get("label") or subject
+        if not isinstance(label, str) or not label.strip():
+            raise WatchError("%s: sanctions[%d] label must be text" % (origin, i))
+        out_sanctions.append({"list": entry["list"], "subject": subject, "label": label})
+    watchlist = {"carriers": out_carriers, "products": out_products, "sanctions": out_sanctions}
     keys = entry_keys(watchlist)
     if not keys:
         raise WatchError("%s: the watchlist has no entries" % origin)
@@ -237,6 +275,62 @@ def product_fields(queries, captures):
     return fields
 
 
+def ofac_fields(subject, sdn, alt):
+    """The fields that matter for one OFAC SDN entry, from the two
+    downloads: the match state and one line per matched list entry,
+    carrying the matched record fields the fetcher itself shows (the
+    entry number, the name and type as shown, and how the subject
+    matched). Raises ofac.FetchError when a file is not in the
+    captured shape, so a bad file aborts the run."""
+    sdn_rows, _o, _n, _e = ofac.rows(sdn, 1, "SDN.CSV")
+    alt_rows, _o2, _n2, _e2 = ofac.rows(alt, 3, "ALT.CSV")
+    by_ent = {}
+    for _number, _raw, fields in alt_rows:
+        by_ent.setdefault(fields[0].strip(), []).append(fields)
+    matched = []
+    for _number, _raw, fields in sdn_rows:
+        ent = fields[0].strip()
+        found = []
+        kind = ofac.match_kind(subject, fields[1])
+        if kind:
+            found.append((kind, "primary name", fields[1]))
+        for alt_fields in by_ent.get(ent, []):
+            akind = ofac.match_kind(subject, alt_fields[3])
+            if akind:
+                found.append((akind, "alias", alt_fields[3]))
+        if found:
+            matched.append(
+                "ENT_NUM %s: %s; type as shown: %s; matched: %s"
+                % (ent, fields[1],
+                   fields[2].strip() if len(fields) > 2 and fields[2].strip() else "not present",
+                   "; ".join("%s match on the %s %s" % f for f in found)))
+    return {"match_state": "match" if matched else "no match",
+            "matched_entries": matched}
+
+
+def oig_fields(subject, download):
+    """The fields that matter for one OIG LEIE entry, from the
+    download: the match state and one line per matched row, carrying
+    the matched record fields the fetcher itself shows (the name as
+    shown, the exclusion fields as published, and how the subject
+    matched). Raises oig.FetchError when the file is not in the
+    captured shape."""
+    data_rows, _n, _e = oig.rows(download)
+    matched = []
+    for number, _raw, row in data_rows:
+        found = oig.best_match(subject, row)
+        if found:
+            kind, form_label, name = found
+            matched.append(
+                "Line %d: %s; EXCLTYPE as published: %s; EXCLDATE as published: %s; "
+                "REINDATE as published: %s; WAIVERDATE as published: %s; matched: %s match "
+                "on %s (%s)"
+                % (number, oig.shown_name(row), row["EXCLTYPE"], row["EXCLDATE"],
+                   row["REINDATE"], row["WAIVERDATE"], kind, name, form_label))
+    return {"match_state": "match" if matched else "no match",
+            "matched_rows": matched}
+
+
 # ----------------------------------------------------------------------
 # Fetching one entry (live)
 # ----------------------------------------------------------------------
@@ -290,6 +384,45 @@ def fetch_product_entry(entry):
     }
 
 
+def _download_response(source, download, decode):
+    """The snapshot response record for one downloaded list file. The
+    hash is over the file bytes themselves, the identity the fetchers
+    print in their own file blocks; the raw text stored is the file
+    decoded the way the owning fetcher decodes it, so the stored pull
+    is the full response an empty result is proven against."""
+    text, _encoding = decode(download)
+    return {"source": source, "url": download.url,
+            "retrieved_utc": download.retrieved,
+            "status": "downloaded (the fetcher raises on any non 200 response)",
+            "sha256": hashlib.sha256(download.data).hexdigest(),
+            "raw": text}
+
+
+def fetch_sanctions_entry(entry):
+    if entry["list"] == "OFAC SDN":
+        sdn = ofac.fetch(ofac.SDN_URL)
+        alt = ofac.fetch(ofac.ALT_URL)
+        fields = ofac_fields(entry["subject"], sdn, alt)
+        downloads = {"sdn": sdn, "alt": alt}
+        responses = [_download_response("ofac_sdn", sdn, ofac.decode),
+                     _download_response("ofac_alt", alt, ofac.decode)]
+    else:
+        leie = oig.fetch(oig.LEIE_URL)
+        fields = oig_fields(entry["subject"], leie)
+        downloads = {"leie": leie}
+        responses = [_download_response("oig_leie", leie, oig.decode)]
+    return {
+        "watch_id": "sanctions:%s:%s" % (slug(entry["list"]), slug(entry["subject"])),
+        "type": "sanctions",
+        "label": entry["label"],
+        "list": entry["list"],
+        "subject": entry["subject"],
+        "fields": fields,
+        "responses": responses,
+        "_downloads": downloads,
+    }
+
+
 # ----------------------------------------------------------------------
 # Snapshot
 # ----------------------------------------------------------------------
@@ -301,6 +434,9 @@ def build_snapshot(watchlist_name, results, run_utc):
                  "fields": result["fields"], "responses": result["responses"]}
         if result["type"] == "carrier":
             entry["usdot"] = result["usdot"]
+        elif result["type"] == "sanctions":
+            entry["list"] = result["list"]
+            entry["subject"] = result["subject"]
         else:
             entry["queries"] = result["queries"]
         entries[result["watch_id"]] = entry
@@ -392,6 +528,14 @@ def evidence_lines(result):
         for section in sections:
             lines.extend(section)
             lines.append("")
+    elif result["type"] == "sanctions":
+        downloads = result["_downloads"]
+        if result["list"] == "OFAC SDN":
+            lines.extend(ofac.render(result["subject"], downloads["sdn"],
+                                     downloads["alt"]).rstrip("\n").split("\n"))
+        else:
+            lines.extend(oig.render(result["subject"], downloads["leie"]))
+        lines.append("")
     else:
         for capture in result["_captures"]:
             lines.extend(cpsc.render_query(capture).rstrip("\n").split("\n"))
@@ -412,6 +556,8 @@ def provenance_lines(result):
 def describe(result):
     if result["type"] == "carrier":
         return "%s (carrier, USDOT %s)" % (result["label"], result["usdot"])
+    if result["type"] == "sanctions":
+        return "%s (sanctions, %s)" % (result["label"], result["list"])
     return "%s (product)" % result["label"]
 
 
@@ -494,6 +640,8 @@ def run_watch(watchlist, watchlist_name, prev, run_utc):
         results.append(fetch_carrier_entry(entry))
     for entry in watchlist["products"]:
         results.append(fetch_product_entry(entry))
+    for entry in watchlist["sanctions"]:
+        results.append(fetch_sanctions_entry(entry))
     snapshot = build_snapshot(watchlist_name, results, run_utc)
     diff = diff_snapshots(prev, snapshot)
     report = render_report(watchlist_name, results, snapshot, prev, diff)
@@ -520,6 +668,10 @@ def main(argv=None):
         return 2
     except cpsc.FetchError as err:
         sys.stderr.write("standing watch: CPSC fetch failed: %s; no report, "
+                         "snapshot untouched\n" % err)
+        return 2
+    except (ofac.FetchError, oig.FetchError) as err:
+        sys.stderr.write("standing watch: sanctions fetch failed: %s; "
                          "snapshot untouched\n" % err)
         return 2
     except (urllib.error.URLError, OSError) as err:

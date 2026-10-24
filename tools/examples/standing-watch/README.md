@@ -26,6 +26,24 @@ Files:
   (2026-10-23T21:57:45Z) against the run 1 snapshot, showing the no
   change report shape: all seven entries unchanged, one line each
   with the run's source URLs, retrieval times, and response hashes.
+* `snapshot-run3-2026-10-24.json` and
+  `report-run3-no-change-2026-10-24.md` — a third run the next day
+  (2026-10-24T14:28:10Z) against the run 2 snapshot, run live for the
+  Carrier Watch offer page (issue #332): again no change on any of
+  the seven entries.
+* `snapshot-alert-sample-prev-2026-10-22.json`,
+  `snapshot-alert-sample-2026-10-24.json`, and
+  `report-alert-sample-2026-10-24.md` — a change report with one
+  alert, for GARDA CL CENTRAL INC (USDOT 2046). The previous state
+  is the carrier's record as recorded in the published carrier
+  vetting delivery of 2026-10-22 (the same recordings the test suite
+  uses); the new state was pulled live on 2026-10-24. The change is
+  the Licensing and Insurance source answering with its verification
+  challenge page instead of the carrier's record lines, so the
+  watch reports the insurance lines as changed to what the source
+  actually returned rather than stating an insurance position; one
+  SAFER address line also differs in spacing only between the two
+  captures. This is the alert sample the offer page quotes.
 
 Reproduce it (writes a fresh snapshot over the given path):
 

@@ -39,6 +39,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 import cpsc_recalls as cpsc  # noqa: E402
 import fmcsa_carrier as fc  # noqa: E402
+import ofac_sdn_check as ofac  # noqa: E402
+import oig_screen as oig  # noqa: E402
 import standing_watch as sw  # noqa: E402
 
 FIXTURES = Path(__file__).parent / "fixtures"
@@ -381,6 +383,158 @@ class ReportTests(unittest.TestCase):
             with self.assertRaises(urllib.error.URLError):
                 sw.run_watch(sample_watchlist(), "watchlist.json", None,
                              "2026-10-23T00:00:00Z")
+
+
+def sdn_download(data=None):
+    """The committed OFAC SDN excerpt fixture as a Download, with the
+    retrieval time its provenance records (2026-10-24 about 01:36 UTC)."""
+    if data is None:
+        data = (FIXTURES / "ofac" / "sdn-excerpt.csv").read_bytes()
+    return ofac.Download(ofac.SDN_URL, "2026-10-24T01:36:00Z", [], data, False)
+
+
+def alt_download():
+    data = (FIXTURES / "ofac" / "alt-excerpt.csv").read_bytes()
+    return ofac.Download(ofac.ALT_URL, "2026-10-24T01:36:00Z", [], data, False)
+
+
+def leie_download(data=None):
+    """The committed LEIE excerpt fixture as a Download. The headers are
+    the ones its provenance records from the complete file's capture;
+    the Last-Modified header is the database date the fetcher requires."""
+    if data is None:
+        data = (FIXTURES / "oig" / "leie-excerpt.csv").read_bytes()
+    headers = [("Content-Type", "text/csv"),
+               ("Last-Modified", "Fri, 09 Oct 2026 12:51:03 GMT")]
+    return oig.Download(oig.LEIE_URL, "2026-10-24T06:05:00Z", headers, data)
+
+
+def sanctions_watchlist():
+    return sw.validate_watchlist({
+        "version": 1,
+        "sanctions": [
+            {"list": "OFAC SDN", "subject": "BANCO NACIONAL DE CUBA"},
+            {"list": "OIG LEIE", "subject": "ZQXFLORP"},
+        ],
+    }, "test")
+
+
+class SanctionsWatchTests(unittest.TestCase):
+    """The sanctions watch types (issue #332, W4). Downloads are built
+    from the committed OFAC and OIG excerpt fixtures under
+    tools/tests/fixtures, the same files the fetcher test suites use;
+    their provenance sits beside them. One mutation is synthetic and
+    labelled where it appears."""
+
+    def run_sanctions(self, run_utc, prev=None, sdn_data=None):
+        def fake_ofac_fetch(url):
+            if url == ofac.SDN_URL:
+                return sdn_download(sdn_data)
+            if url == ofac.ALT_URL:
+                return alt_download()
+            raise AssertionError(url)
+
+        def fake_oig_fetch(url):
+            self.assertEqual(url, oig.LEIE_URL)
+            return leie_download()
+
+        with mock.patch.object(ofac, "fetch", fake_ofac_fetch), \
+                mock.patch.object(oig, "fetch", fake_oig_fetch):
+            return sw.run_watch(sanctions_watchlist(), "watchlist.json", prev, run_utc)
+
+    def test_sanctions_validation(self):
+        watchlist = sanctions_watchlist()
+        self.assertEqual(watchlist["sanctions"][0]["label"], "BANCO NACIONAL DE CUBA")
+        self.assertEqual(sw.entry_keys(watchlist),
+                         ["sanctions:ofac-sdn:banco-nacional-de-cuba",
+                          "sanctions:oig-leie:zqxflorp"])
+        for bad in ({"list": "EU consolidated", "subject": "SOME NAME"},
+                    {"list": "OFAC SDN"},
+                    {"list": "OFAC SDN", "subject": "AB"},
+                    {"list": "OIG LEIE", "subject": "   "}):
+            with self.assertRaises(sw.WatchError):
+                sw.validate_watchlist({"version": 1, "sanctions": [bad]}, "test")
+        with self.assertRaises(sw.WatchError):
+            sw.validate_watchlist({"version": 1, "sanctions": [
+                {"list": "OFAC SDN", "subject": "SOME NAME"},
+                {"list": "OFAC SDN", "subject": "SOME NAME"}]}, "test")
+
+    def test_ofac_match_fields(self):
+        fields = sw.ofac_fields("BANCO NACIONAL DE CUBA", sdn_download(), alt_download())
+        self.assertEqual(fields["match_state"], "match")
+        self.assertEqual(len(fields["matched_entries"]), 1)
+        self.assertIn("ENT_NUM 306", fields["matched_entries"][0])
+        self.assertIn("BANCO NACIONAL DE CUBA", fields["matched_entries"][0])
+        self.assertIn("exact match on the primary name", fields["matched_entries"][0])
+
+    def test_oig_match_and_empty_fields(self):
+        fields = sw.oig_fields("1 BEST CARE, INC", leie_download())
+        self.assertEqual(fields["match_state"], "match")
+        self.assertEqual(len(fields["matched_rows"]), 1)
+        self.assertIn("1 BEST CARE, INC", fields["matched_rows"][0])
+        self.assertIn("EXCLDATE as published: 20230518", fields["matched_rows"][0])
+        empty = sw.oig_fields("ZQXFLORP", leie_download())
+        self.assertEqual(empty, {"match_state": "no match", "matched_rows": []})
+
+    def test_empty_result_proven_by_the_full_file(self):
+        snapshot, report, _diff = self.run_sanctions("2026-10-24T12:00:00Z")
+        entry = snapshot["entries"]["sanctions:oig-leie:zqxflorp"]
+        self.assertEqual(entry["fields"]["match_state"], "no match")
+        # The snapshot stores the complete file as read, hash first: the
+        # stored hash is the fixture's own recorded hash.
+        provenance = json.loads((FIXTURES / "oig" / "provenance.json").read_text())
+        response = entry["responses"][0]
+        self.assertEqual(response["sha256"], provenance["leie-excerpt.csv"]["sha256"])
+        self.assertEqual(response["raw"].encode("utf-8"),
+                         (FIXTURES / "oig" / "leie-excerpt.csv").read_bytes())
+        # The baseline report's evidence states the no match against the
+        # screened row count and the file hash, in the fetcher's format.
+        self.assertIn("No row of the LEIE database matched ZQXFLORP", report)
+        ofac_entry = snapshot["entries"]["sanctions:ofac-sdn:banco-nacional-de-cuba"]
+        self.assertEqual(ofac_entry["fields"]["match_state"], "match")
+        self.assertIn("## Matching rule", report)
+
+    def test_change_between_runs_alerts(self):
+        first, _r1, _d1 = self.run_sanctions("2026-10-24T12:00:00Z")
+        # Synthetic mutation, used only here: a copy of the SDN excerpt
+        # with the BANCO NACIONAL DE CUBA line removed, standing in for
+        # the subject leaving the list between runs.
+        lines = sdn_download().data.decode("utf-8").split("\n")
+        mutated = "\n".join(l for l in lines if "BANCO NACIONAL DE CUBA" not in l)
+        _snapshot, report, diff = self.run_sanctions(
+            "2026-10-25T12:00:00Z", prev=first, sdn_data=mutated.encode("utf-8"))
+        entry_id = "sanctions:ofac-sdn:banco-nacional-de-cuba"
+        self.assertEqual(diff[entry_id]["status"], "changed")
+        self.assertIn(("match_state", "match", "no match"), diff[entry_id]["changes"])
+        self.assertIn("## Change alerts", report)
+        self.assertIn("- match_state: changed from match to no match", report)
+        self.assertIn("Source evidence for the new state:", report)
+        # The unchanged sanctions entry gets its one headline line.
+        self.assertIn("- ZQXFLORP (sanctions, OIG LEIE): no change in the fields "
+                      "that matter.", report)
+
+    def test_sanctions_fetch_failure_aborts(self):
+        def boom(url):
+            raise ofac.FetchError("the SDN list answered HTTP 503; no report")
+
+        with mock.patch.object(ofac, "fetch", boom):
+            with self.assertRaises(ofac.FetchError):
+                sw.run_watch(sanctions_watchlist(), "watchlist.json", None,
+                             "2026-10-24T12:00:00Z")
+        # At the CLI level the run exits 2 and no snapshot is written.
+        import tempfile
+        with tempfile.TemporaryDirectory() as folder:
+            watchlist_path = Path(folder) / "watchlist.json"
+            watchlist_path.write_text(json.dumps({
+                "version": 1,
+                "sanctions": [{"list": "OFAC SDN", "subject": "BANCO NACIONAL DE CUBA"}],
+            }), encoding="utf-8")
+            snapshot_path = Path(folder) / "snapshot.json"
+            with mock.patch.object(ofac, "fetch", boom):
+                code = sw.main(["--watchlist", str(watchlist_path),
+                                "--snapshot", str(snapshot_path)])
+            self.assertEqual(code, 2)
+            self.assertFalse(snapshot_path.exists())
 
 
 class SnapshotFileTests(unittest.TestCase):

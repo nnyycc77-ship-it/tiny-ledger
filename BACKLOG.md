@@ -312,6 +312,88 @@ subscription runbook around the tool.
   leaves the watch.
 * No listing or price change is made by the follow on task.
 
+### Carrier Watch offer page (adopted 2026-10-24, extends the subscription above)
+
+**Why:** the subscription cannot be sold from a runbook. The page
+is the offer a buyer reads.
+
+**Acceptance:**
+
+* The page names the product, the watch types covered today
+  (carriers by USDOT), the cycle, and the price as approved by the
+  owner (79 USD per month asking price for up to 50 carriers and 20
+  products, approved 2026-10-24) and no other price; estimate tiers
+  from any plan document do not appear as prices.
+* A sample report on the page is the output of a real live run of
+  `tools/standing_watch.py` against public records, run at build
+  time, with its watchlist, run time, and snapshot provenance
+  stated on the page (hard rule 2). Stored demo output may be
+  linked, not passed off as the fresh run.
+* A sample alert shows one changed entry in the real change report
+  format: the field, the old value, the new value, and the new
+  state's source evidence beneath its link.
+* A what the watch does not cover section states, in plain words:
+  the Licensing and Insurance limit, the product name search miss
+  limit, that the watch reports changes and does not rate or
+  recommend, and that changes surface at the next cycle, not in
+  real time.
+* The page is a draft in the repo for the owner's listing step; the
+  task posts nothing and changes no listing.
+
+### Sanctions watch types in the standing watch (adopted build, 2026-10-24)
+
+**Why:** a vendor sanctions rescreen product needs sanctions
+entries watchable next to carriers and products. The fetchers
+(`tools/ofac_sdn_check.py`, `tools/oig_screen.py`) and their
+fixtures already exist; the watchlist format does not.
+
+**Acceptance:**
+
+* The watchlist format gains a sanctions entry type naming the
+  list (OFAC SDN, OIG LEIE), the subject as the fetcher takes it,
+  and an optional label, validated the same way carrier and product
+  entries are validated, with bad entries refused.
+* The fields per sanctions entry are only what the fetchers
+  return: the match state and the matched record fields as shown,
+  with an empty result proven by the full raw response in the
+  evidence (hard rule 3).
+* Snapshots, diff, and report rendering treat sanctions entries
+  like the existing types, and fail closed is preserved: a failed
+  or uninterpretable sanctions fetch aborts the run with no report
+  and the snapshot untouched.
+* Offline tests use the existing OFAC and OIG fixtures and cover a
+  match, a proven empty result, a change between runs, and a fetch
+  failure aborting; the existing standing watch tests keep passing
+  unchanged in behaviour.
+* The Vendor Sanctions Rescreen product launch is deferred (see
+  below); this item builds watch types only.
+
+### Deferred, with their triggers
+
+* **Recall Watch offer page.** Deferred until the Carrier Watch
+  offer page above ships. When triggered, it stands alone, is
+  built on the subscription scheduler with no scheduler changes
+  beyond a product watchlist, and follows the offer page shape
+  above: the approved price as ruled by the owner at that time (no
+  price is approved for Recall Watch today, and no plan estimate
+  may appear as a price), a sample report from a real live run at
+  build time, a sample alert in the real format, and a does not
+  cover section carrying the product name search miss limit.
+* **Vendor Sanctions Rescreen product.** Deferred until the first
+  subscription (Carrier Watch) has a buyer or a listed month
+  behind it. The watch types it needs are the adopted build above;
+  the product, its offer page, and any price are filed as their
+  own tasks when the trigger fires.
+* **Contract Awards Brief subscription** (`tools/weekly_brief.py`).
+  Deferred until the subscription scheduler exists and one
+  subscription is selling. When triggered, the brief for a buyer's
+  chosen industry codes and watchlist is produced and delivered on
+  the same schedule, configuration and snapshots kept per buyer, a
+  failed source fetch produces the failure notice behaviour and
+  never a brief that silently omits a source, the price is
+  whatever the owner rules at that time, and offline tests cover a
+  scheduled brief run and the failure notice path.
+
 ## G. Maintenance and cutoffs
 
 ### Census and pin automation, merge route plan first

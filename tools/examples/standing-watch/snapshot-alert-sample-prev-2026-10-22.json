@@ -1,0 +1,86 @@
+{
+  "format": "standing-watch-snapshot",
+  "version": 1,
+  "watchlist_file": "watchlist.json",
+  "run_utc": "2026-10-22T21:34:25Z",
+  "entries": {
+    "carrier:2046": {
+      "type": "carrier",
+      "label": "GARDA CL CENTRAL INC",
+      "fields": {
+        "census.record_count": 1,
+        "census.dot_number": "2046",
+        "census.legal_name": "GARDA CL CENTRAL INC",
+        "census.dba_name": null,
+        "census.phy_city": "BOCA RATON",
+        "census.phy_state": "FL",
+        "census.power_units": "137",
+        "census.total_drivers": "84",
+        "census.docket1prefix": "MC",
+        "census.docket1": "65419",
+        "census.docket1_status_code": "A",
+        "census.safety_rating": "S",
+        "census.safety_rating_date": "20220817",
+        "census.mcs150_mileage": "1420000",
+        "census.mcs150_mileage_year": "2026",
+        "census.mcs150_date": "20260601",
+        "census.business_org_desc": "CORPORATION",
+        "census.carship": "C",
+        "census.carrier_operation": "A",
+        "census.status_code": "A",
+        "census.classdef": "AUTHORIZED FOR HIRE",
+        "safer.Entity Type:": "CARRIER",
+        "safer.USDOT Status:": "ACTIVE",
+        "safer.Out of Service Date:": "None",
+        "safer.USDOT Number:": "2046",
+        "safer.MCS-150 Form Date:": "06/01/2026",
+        "safer.MCS-150 Mileage (Year):": "1,420,000 (2026)",
+        "safer.Operating Authority Status:": "AUTHORIZED FOR: Motor Carrier of Property (Except Household Goods)",
+        "safer.MC/MX/FF Number(s):": "MC-65419",
+        "safer.Legal Name:": "GARDA CL CENTRAL INC",
+        "safer.DBA Name:": "none shown (blank in the source)",
+        "safer.Physical Address:": "2000 NW CORPORATE BLVD BOCA RATON, FL   33431-7304",
+        "safer.Phone:": "(561) 939-7000",
+        "safer.Power Units:": "68",
+        "safer.Non-CMV Units:": "69",
+        "safer.Drivers:": "84",
+        "safer.Total Inspections:": "label not found in the response text",
+        "safer.Rating Date:": "08/17/2022",
+        "safer.Review Date:": "08/10/2022",
+        "safer.Rating:": "Satisfactory",
+        "li.record_lines": [
+          "US DOT: 2046",
+          "Docket Number: MC00065419",
+          "Legal Name: GARDA CL CENTRAL, INC"
+        ]
+      },
+      "responses": [
+        {
+          "source": "census",
+          "url": "https://data.transportation.gov/resource/az4n-8mr2.json?dot_number=2046&$select=dot_number,legal_name,dba_name,phy_city,phy_state,power_units,total_drivers,docket1prefix,docket1,docket1_status_code,safety_rating,safety_rating_date,mcs150_mileage,mcs150_mileage_year,mcs150_date,business_org_desc,carship,carrier_operation,status_code,classdef",
+          "retrieved_utc": "2026-10-22T21:34:25Z",
+          "status": "HTTP/1.1 200 OK",
+          "sha256": "b6eae3956c0287823c77ff436e8d8f8fae0d0ba94e6bc44bf526d92d580ba5b2",
+          "raw": "HTTP/1.1 200 OK\nContent-Type: text/plain\n\n[{\n  \"dot_number\": \"2046\",\n  \"legal_name\": \"GARDA CL CENTRAL INC\",\n  \"phy_city\": \"BOCA RATON\",\n  \"phy_state\": \"FL\",\n  \"power_units\": \"137\",\n  \"total_drivers\": \"84\",\n  \"docket1prefix\": \"MC\",\n  \"docket1\": \"65419\",\n  \"docket1_status_code\": \"A\",\n  \"safety_rating\": \"S\",\n  \"safety_rating_date\": \"20220817\",\n  \"mcs150_mileage\": \"1420000\",\n  \"mcs150_mileage_year\": \"2026\",\n  \"mcs150_date\": \"20260601\",\n  \"business_org_desc\": \"CORPORATION\",\n  \"carship\": \"C\",\n  \"carrier_operation\": \"A\",\n  \"status_code\": \"A\",\n  \"classdef\": \"AUTHORIZED FOR HIRE\"\n}]"
+        },
+        {
+          "source": "safer",
+          "url": "https://safer.fmcsa.dot.gov/query.asp?searchtype=ANY&query_type=queryCarrierSnapshot&query_param=USDOT&query_string=2046",
+          "retrieved_utc": "2026-10-22T21:34:25Z",
+          "status": "HTTP/1.1 200 OK",
+          "sha256": "586bc78e47e5d7a05594c830f5dd4e2de5b910d7b0b3b2add0caee63982fbec0",
+          "raw": "HTTP/1.1 200 OK\nContent-Type: text/plain\n\n<html><head><title>t</title><script>var x = 'skip me';</script></head><body><table><tr><td>USDOT INFORMATION</td></tr><tr><td>Entity Type:</td></tr><tr><td>CARRIER</td></tr><tr><td>New Entrant Status:</td></tr><tr><td>(Active)</td></tr><tr><td>--></td></tr><tr><td>USDOT Status:</td></tr><tr><td>ACTIVE</td></tr><tr><td>Out of Service Date:</td></tr><tr><td>None</td></tr><tr><td>USDOT Number:</td></tr><tr><td>2046</td></tr><tr><td>State Carrier ID Number:</td></tr><tr><td>MCS-150 Form Date:</td></tr><tr><td>06/01/2026</td></tr><tr><td>MCS-150 Mileage (Year):</td></tr><tr><td>1,420,000 (2026)</td></tr><tr><td>OPERATING AUTHORITY INFORMATION</td></tr><tr><td>Operating Authority Status:</td></tr><tr><td>AUTHORIZED FOR:</td></tr><tr><td>Motor Carrier of Property (Except Household Goods)</td></tr><tr><td>For Licensing and Insurance details</td></tr><tr><td>click here.</td></tr><tr><td>MC/MX/FF Number(s):</td></tr><tr><td>MC-65419</td></tr><tr><td>COMPANY INFORMATION</td></tr><tr><td>Legal Name:</td></tr><tr><td>GARDA CL CENTRAL INC</td></tr><tr><td>DBA Name:</td></tr><tr><td>Physical Address:</td></tr><tr><td>2000 NW CORPORATE BLVD</td></tr><tr><td>BOCA RATON, FL   33431-7304</td></tr><tr><td>Phone:</td></tr><tr><td>(561) 939-7000</td></tr><tr><td>Mailing Address:</td></tr><tr><td>2000 NW CORPORATE BLVD</td></tr><tr><td>BOCA RATON, FL   33431-7304</td></tr><tr><td>DUNS Number:</td></tr><tr><td>45-734-852</td></tr><tr><td>Power Units:</td></tr><tr><td>68</td></tr><tr><td>Non-CMV Units:</td></tr><tr><td>69</td></tr><tr><td>Drivers:</td></tr><tr><td>84</td></tr><tr><td>Carrier Safety Rating:</td></tr><tr><td>The rating below is current as of:</td></tr><tr><td>10/20/2026</td></tr><tr><td>Review Information:</td></tr><tr><td>Review Information</td></tr><tr><td>Rating Date:</td></tr><tr><td>08/17/2022</td></tr><tr><td>Review Date:</td></tr><tr><td>08/10/2022</td></tr><tr><td>Rating:</td></tr><tr><td>Satisfactory</td></tr><tr><td>Type:</td></tr><tr><td>Compliance Review</td></tr></table></body></html>"
+        },
+        {
+          "source": "li",
+          "url": "https://li-public.fmcsa.dot.gov/LIVIEW/pkg_carrquery.prc_carrlist?n_dotno=2046&s_prefix=MC&pv_vpath=LIVIEW",
+          "retrieved_utc": "2026-10-22T21:34:25Z",
+          "status": "HTTP/1.1 200 OK",
+          "sha256": "a46c1ab8ee71a788d3dc10e897fdc02ef9a35789b1cf2a9836ab8f5faaf12c1e",
+          "raw": "HTTP/1.1 200 OK\nContent-Type: text/plain\n\n<html><head><title>t</title><script>var x = 'skip me';</script></head><body><table><tr><td>US DOT: 2046</td></tr><tr><td>Docket Number: MC00065419</td></tr><tr><td>Legal Name: GARDA CL CENTRAL, INC</td></tr><tr><td>Authority Type | Authority Status | Application Pending</td></tr><tr><td>Common | ACTIVE | NO</td></tr></table></body></html>"
+        }
+      ],
+      "usdot": "2046"
+    }
+  }
+}
