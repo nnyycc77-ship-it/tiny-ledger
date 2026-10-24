@@ -1,0 +1,47 @@
+{
+  "example-partial-5UXWX7C5-BA.json": {
+    "url": "https://vpic.nhtsa.dot.gov/api/vehicles/DecodeVinValues/5UXWX7C5*BA?format=json&modelyear=2011",
+    "status": "HTTP 200",
+    "body_bytes": 3994,
+    "sha256": "ed399d02c4cc788607a7d0283f0ccc9a53520ddb1401aeba9c3b4447547f8d2f",
+    "retrieved_utc": "2026-10-24, about 01:37 to 01:38 UTC",
+    "captured_by": "coordinator, Option B capture A on issue #161",
+    "comment": "https://github.com/nnyycc77-ship-it/tiny-ledger/issues/161#issuecomment-6378279668"
+  },
+  "example-partial-5UXWX7C55BA.json": {
+    "url": "https://vpic.nhtsa.dot.gov/api/vehicles/DecodeVinValues/5UXWX7C55BA?format=json&modelyear=2011",
+    "status": "HTTP 200",
+    "body_bytes": 3994,
+    "sha256": "456b68b534a5e17b9ae361ed6fd50f5979c847e4c37aba2e0cce64ab6f12baef",
+    "retrieved_utc": "2026-10-24, about 01:37 to 01:38 UTC",
+    "captured_by": "coordinator, Option B capture A on issue #161",
+    "comment": "https://github.com/nnyycc77-ship-it/tiny-ledger/issues/161#issuecomment-6378279668"
+  },
+  "all-zeros-00000000000000000.json": {
+    "url": "https://vpic.nhtsa.dot.gov/api/vehicles/DecodeVinValues/00000000000000000?format=json",
+    "status": "HTTP 200",
+    "body_bytes": 3781,
+    "sha256": "8de6a78ca613730b85f01b898089e12799a68a4255ba1e99bc68b3d3f8bc0cc9",
+    "retrieved_utc": "2026-10-24, about 01:37 to 01:38 UTC",
+    "captured_by": "coordinator, Option B capture A on issue #161",
+    "comment": "https://github.com/nnyycc77-ship-it/tiny-ledger/issues/161#issuecomment-6378279668"
+  },
+  "clean-1HGCM82633A004352.json": {
+    "url": "https://vpic.nhtsa.dot.gov/api/vehicles/DecodeVinValues/1HGCM82633A004352?format=json",
+    "status": "HTTP 200",
+    "body_bytes": 3921,
+    "sha256": "5bbe2f293edb394f21e10fe8220fb11b30dc7e1614b0a8c2d216c9a27993e6ef",
+    "retrieved_utc": "2026-10-24, about 01:38 UTC",
+    "captured_by": "coordinator, Option B capture B on issue #161",
+    "comment": "https://github.com/nnyycc77-ship-it/tiny-ledger/issues/161#issuecomment-6378279932"
+  },
+  "check-digit-1HGCM82643A004352.json": {
+    "url": "https://vpic.nhtsa.dot.gov/api/vehicles/DecodeVinValues/1HGCM82643A004352?format=json",
+    "status": "HTTP 200",
+    "body_bytes": 3919,
+    "sha256": "58b491c4592fc00d774d64b9e8ba8694f88af61b4d467549b16ee7d609bfcf4f",
+    "retrieved_utc": "2026-10-24, about 01:38 UTC",
+    "captured_by": "coordinator, Option B capture B on issue #161",
+    "comment": "https://github.com/nnyycc77-ship-it/tiny-ledger/issues/161#issuecomment-6378279932"
+  }
+}

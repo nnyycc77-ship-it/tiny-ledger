@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """The remaining fetchers as paid API endpoints (issue #65).
 
-Six GET endpoints beside GET /recall, each wrapping one merged fetcher in
+Nine GET endpoints beside GET /recall, each wrapping one merged fetcher in
 tools/ as library code and returning that fetcher's own rendered Markdown
 in the delivery format from AGENT-BRIEF.md: the claim lines, the exact
 query, the UTC retrieval time, the source link, and the complete raw
@@ -14,7 +14,9 @@ nothing else to the fetchers' output.
     /nonprofit   tools/propublica_nonprofits.py  name | ein
     /formd       tools/edgar_formd.py          cik | issuer
     /pagespeed   tools/pagespeed_snapshot.py   url (repeatable, up to 5)
+    /ofac        tools/ofac_sdn_check.py       name
     /domain      tools/domain_trust_check.py   domain
+    /vin         tools/vin_decode.py           vin
 
 Each endpoint takes the fetcher's own command line inputs as query
 parameters under the same names (hyphens become underscores), validates
@@ -56,6 +58,7 @@ from tools import ofac_sdn_check as ofac  # noqa: E402
 from tools import pagespeed_snapshot as ps  # noqa: E402
 from tools import propublica_nonprofits as pp  # noqa: E402
 from tools import usaspending_awards as ua  # noqa: E402
+from tools import vin_decode as vd  # noqa: E402
 
 SERVICE_NAME = "Hojo Research Agent"
 
@@ -447,6 +450,31 @@ def domain(query, env=None):
 
 
 # ----------------------------------------------------------------------
+# /vin
+# ----------------------------------------------------------------------
+
+def vin(query, env=None):
+    """NHTSA vPIC VIN decode via tools/vin_decode.py."""
+    try:
+        number = vd.check_vin(_single(query, "vin", ""))
+        year = vd.check_year(_single(query, "model_year"))
+    except ValueError as err:
+        raise BadRequest(str(err))
+    url = vd.build_url(number, year)
+    try:
+        retrieved, transcript, body = vd.fetch(url)
+    except (urllib.error.URLError, OSError) as err:
+        raise _transport(err)
+    lines = vd.render_section(number, year, url, retrieved, transcript, body)
+    head = _head("VIN decode: %s" % number,
+                 "Observation only: this report records what the public NHTSA vPIC API "
+                 "returned for this VIN at the retrieval time stated below; the values and "
+                 "the error codes are vPIC's as shown, not an inspection of the vehicle.",
+                 "tools/vin_decode.py")
+    return _text(head, lines)
+
+
+# ----------------------------------------------------------------------
 # Registry and descriptor
 # ----------------------------------------------------------------------
 
@@ -459,6 +487,7 @@ ROUTES = {
     "/pagespeed": pagespeed,
     "/ofac": ofac_sdn,
     "/domain": domain,
+    "/vin": vin,
 }
 
 DESCRIPTIONS = {
@@ -513,6 +542,12 @@ DESCRIPTIONS = {
         "tool": "tools/domain_trust_check.py",
         "params": ["domain (a bare domain, e.g. example.com)"],
         "sources": [dt.DOH_URL, "https://<domain>/ (the site itself, redirects not followed, up to %d hops)" % dt.MAX_HOPS],
+    },
+    "/vin": {
+        "tool": "tools/vin_decode.py",
+        "params": ["vin (17 characters, or fewer with * for unknown ones)",
+                   "model_year (optional, four digits; vPIC recommends sending it)"],
+        "sources": [vd.BASE_URL],
     },
 }
 

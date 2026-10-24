@@ -4,7 +4,7 @@ Run from the repository root: python3 -m unittest discover -s api -v
 
 Every fetcher is patched at its module `fetch` to serve recorded material
 that already lives in this repo with its provenance: the USAspending,
-ProPublica, EDGAR and PageSpeed captures under tools/tests/fixtures, and
+ProPublica, EDGAR, PageSpeed and vPIC captures under tools/tests/fixtures, and
 the FMCSA and CourtListener excerpts carried by their test modules (copied
 from the published deliveries, with the test harness parts labelled there).
 Where a recorded body is served in answer to a differently shaped query for
@@ -33,6 +33,7 @@ from tools import fmcsa_carrier as fc  # noqa: E402
 from tools import pagespeed_snapshot as ps  # noqa: E402
 from tools import propublica_nonprofits as pp  # noqa: E402
 from tools import usaspending_awards as ua  # noqa: E402
+from tools import vin_decode as vd  # noqa: E402
 import test_courtlistener_recap as cl_fixtures  # noqa: E402
 import test_fmcsa_carrier as fc_fixtures  # noqa: E402
 
@@ -53,7 +54,8 @@ class RoutingTests(unittest.TestCase):
     def test_descriptor_lists_every_endpoint_with_tool_params_and_sources(self):
         doc = recall_api.descriptor(WALLET)
         self.assertEqual(sorted(doc["endpoints"]),
-                         ["/awards", "/carrier", "/domain", "/formd", "/litigation", "/nonprofit", "/ofac", "/pagespeed", "/recall"])
+                         ["/awards", "/carrier", "/domain", "/formd", "/litigation", "/nonprofit", "/ofac", "/pagespeed",
+                          "/recall", "/vin"])
         for path, entry in doc["endpoints"].items():
             self.assertEqual(entry["method"], "GET", path)
             self.assertTrue(entry["tool"].startswith("tools/"), path)
@@ -79,9 +81,11 @@ class RoutingTests(unittest.TestCase):
             "/pagespeed": ["", "url=notaurl", "url=https://a.example/&strategy=tablet",
                            "url=https://a.example/&exclude=https://b.example/=reason"],
             "/domain": ["", "domain=https://example.com/", "domain=example", "domain=a.example&domain=b.example"],
+            "/vin": ["", "vin=1HGCM/2633A004352", "vin=1HGCM82633A0043521", "vin=1HGCM82633A004352&model_year=03",
+                     "vin=1HGCM82633A004352&vin=1HGCM82643A004352"],
         }
         patches = [patch.object(mod, "fetch", side_effect=AssertionError("no fetch expected"))
-                   for mod in (fc, cl, ua, pp, ps, ef)]
+                   for mod in (fc, cl, ua, pp, ps, ef, vd)]
         patches += [patch.object(dt, name, side_effect=AssertionError("no fetch expected"))
                     for name in ("fetch_doh", "fetch_site")]
         for p in patches:
@@ -409,6 +413,51 @@ class DomainTests(unittest.TestCase):
             status, _, text = get("/domain", "domain=example.com")  # example domain fixture
         self.assertEqual(status, "502 Bad Gateway")
         self.assertNotIn("## Domain", text)
+
+
+# ----------------------------------------------------------------------
+# /vin
+# ----------------------------------------------------------------------
+
+class VinTests(unittest.TestCase):
+    """The vPIC bodies are the coordinator's Option B captures on issue #161
+    (tools/tests/fixtures/vpic, provenance there). They carry bodies only, so
+    the status and header lines here are a test harness, not a recording."""
+
+    def served(self, name):
+        body = (FIXTURES / "vpic" / name).read_text(encoding="utf-8")
+        return "2026-10-24T01:38:00Z", "HTTP/1.1 200 OK\nContent-Type: application/json\n\n" + body, body
+
+    def test_clean_decode_renders_the_fetchers_section(self):
+        prov = json.loads((FIXTURES / "vpic" / "provenance.json").read_text(encoding="utf-8"))
+        url = prov["clean-1HGCM82633A004352.json"]["url"]
+        cap = self.served("clean-1HGCM82633A004352.json")
+        with patch.object(vd, "fetch", side_effect=lambda u: cap if u == url else AssertionError(u)) as fetch:
+            status, headers, text = get("/vin", "vin=1hgcm82633a004352", WALLET)
+        self.assertEqual(status, "200 OK", text)
+        self.assertEqual(headers["Content-Type"], recall_api.TEXT_MD)
+        self.assertEqual(fetch.call_count, 1)
+        self.assertTrue(text.startswith("# VIN decode: 1HGCM82633A004352\n"))
+        self.assertIn("tools/vin_decode.py", text)
+        section = "\n".join(vd.render_section("1HGCM82633A004352", None, url, *cap))
+        self.assertIn(section, text)
+        self.assertIn("DECODE: vehicle as shown: 2003 HONDA Accord EX-V6", text)
+
+    def test_model_year_goes_into_the_query(self):
+        cap = self.served("example-partial-5UXWX7C5-BA.json")
+        with patch.object(vd, "fetch", return_value=cap) as fetch:
+            status, _, text = get("/vin", "vin=5UXWX7C5*BA&model_year=2011")
+        self.assertEqual(status, "200 OK", text)
+        fetch.assert_called_once_with(
+            "https://vpic.nhtsa.dot.gov/api/vehicles/DecodeVinValues/5UXWX7C5*BA?format=json&modelyear=2011")
+        self.assertIn('"6 - Incomplete VIN"', text)
+
+    def test_failed_fetch_is_502_with_no_report(self):
+        import urllib.error
+        with patch.object(vd, "fetch", side_effect=urllib.error.URLError("refused (test)")):
+            status, _, text = get("/vin", "vin=1HGCM82633A004352")
+        self.assertEqual(status, "502 Bad Gateway")
+        self.assertNotIn("DECODE", text)
 
 
 if __name__ == "__main__":
