@@ -1296,73 +1296,88 @@ capturable set off the document itself: every other GET endpoint is
 reasoned as declaring no 503.
 
 Coverage census (issue #258, pin refreshed for issues #270, #279,
-#288, #295, #303 and #310), taken on main
-44507b55d1b65d260471c6180689194f5cf40d46, the merged main that
+#288, #295, #303, #310 and #351), taken on main
+62f8eeebbcd4012f51bfee0f1abb80ac041f1db4, the merged main that
 includes PR #249 (the /formd 503 pass), PR #253 (the seven routes
 added to `api/openapi.json` for issue #243, whose captures extended
-the 400, 502 and 503 tables in the same run) and PR #261 (which
-landed this census; the pin was last refreshed by PR #306). Every
-figure below reproduces from that tree: the GET denominator is
-the 26 paths in
-`api/openapi.json` (`/`, `/app`, `/awards`, `/carrier`, `/csl`,
-`/domain`, `/drug`, `/epa`, `/faa`, `/fda`, `/flood`, `/formd`,
-`/fx`, `/github`, `/insider`, `/links`, `/litigation`, `/meta`,
-`/nonprofit`, `/ofac`, `/oig`, `/pagespeed`, `/recall`, `/safety`,
-`/trials`, `/vin`), and each shape counts every one of them exactly
-once.
+the 400, 502 and 503 tables in the same run), PR #261 (which
+landed this census; the pin was last refreshed by PR #314) and the
+coverage that arrived with the wave tools since: PR #328 (/bank
+200, 400 and 502 captures), PR #333 (/disaster, 400 and 502
+captures with a reasoned 200), PR #336 (/geocode captures),
+PR #339 (/earthquake, 400 and 502 captures with a reasoned 200),
+PR #345 (/upc captures) and PR #346 (/uksanctions, 400 and 502
+captures with a reasoned 200). Every figure below reproduces from
+that tree: the GET denominator is the 32 paths in
+`api/openapi.json` (`/`, `/app`, `/awards`, `/bank`, `/carrier`,
+`/csl`, `/disaster`, `/domain`, `/drug`, `/earthquake`, `/epa`,
+`/faa`, `/fda`, `/flood`, `/formd`, `/fx`, `/geocode`, `/github`,
+`/insider`, `/links`, `/litigation`, `/meta`, `/nonprofit`,
+`/ofac`, `/oig`, `/pagespeed`, `/recall`, `/safety`, `/trials`,
+`/uksanctions`, `/upc`, `/vin`), and each shape counts every one
+of them exactly once.
 
-- 200 reports: 17 captured, one per wrapped endpoint (the first 17
-  named under the 400 shape below); the descriptor `/` and `/recall`
-  are covered by the original sections (descriptor 200, `/recall`
-  402 unpaid); 7 reasoned in the tool's `NO_ENDPOINT_CAPTURE` table
-  as having no captured 200 yet, each with the capture environment
-  reason recorded there: `/domain` (cloudflare-dns.com refused),
-  `/fda` (api.fda.gov refused), `/flood` (hazards.fema.gov refused),
-  `/github` (the only route to api.github.com adds credentials, so a
-  capture would not show the keyless answer), `/insider` (no declared
-  EDGAR fair access contact for live EDGAR requests), `/ofac`
+- 200 reports: 20 captured (`/app`, `/awards`, `/bank`, `/carrier`,
+  `/csl`, `/drug`, `/epa`, `/faa`, `/formd`, `/fx`, `/geocode`,
+  `/links`, `/litigation`, `/meta`, `/nonprofit`, `/pagespeed`,
+  `/safety`, `/trials`, `/upc`, `/vin`); the descriptor `/` and
+  `/recall` are covered by the original sections (descriptor 200,
+  `/recall` 402 unpaid); 10 reasoned in the tool's
+  `NO_ENDPOINT_CAPTURE` table as having no captured 200 yet, each
+  with the capture environment reason recorded there: `/domain`
+  (cloudflare-dns.com refused), `/fda` (api.fda.gov refused),
+  `/flood` (hazards.fema.gov refused), `/github` (the only route to
+  api.github.com adds credentials, so a capture would not show the
+  keyless answer), `/insider` (no declared EDGAR fair access
+  contact for live EDGAR requests), `/ofac`
   (sanctionslistservice.ofac.treas.gov refused) and `/oig`
-  (oig.hhs.gov refused); a 200 transcript is owed for each from an
-  environment that can capture it.
-- 400 bad query: 24 captured (`/app`, `/awards`, `/carrier`, `/csl`,
-  `/domain`, `/drug`, `/epa`, `/faa`, `/fda`, `/flood`, `/formd`,
-  `/fx`, `/github`, `/insider`, `/links`, `/litigation`, `/meta`,
-  `/nonprofit`, `/ofac`, `/oig`, `/pagespeed`, `/safety`, `/trials`,
-  `/vin`); 2 reasoned: `/` (takes no query input, so it has no 400
-  shape) and `/recall` (the payment gate answers 402 to the smoke's
-  unpaid requests before any query validation, and the smoke never
-  pays).
-- 502 source failure: the same 24 captured; 2 reasoned: `/` (answers
+  (oig.hhs.gov refused), the seven from issue #243, plus `/disaster`
+  (www.fema.gov refused), `/earthquake` (earthquake.usgs.gov
+  refused) and `/uksanctions`
+  (ofsistorage.blob.core.windows.net refused); a 200 transcript is
+  owed for each from an environment that can capture it.
+- 400 bad query: 30 captured (`/app`, `/awards`, `/bank`,
+  `/carrier`, `/csl`, `/disaster`, `/domain`, `/drug`,
+  `/earthquake`, `/epa`, `/faa`, `/fda`, `/flood`, `/formd`, `/fx`,
+  `/geocode`, `/github`, `/insider`, `/links`, `/litigation`,
+  `/meta`, `/nonprofit`, `/ofac`, `/oig`, `/pagespeed`, `/safety`,
+  `/trials`, `/uksanctions`, `/upc`, `/vin`); 2 reasoned: `/` (takes
+  no query input, so it has no 400 shape) and `/recall` (the payment
+  gate answers 402 to the smoke's unpaid requests before any query
+  validation, and the smoke never pays).
+- 502 source failure: the same 30 captured; 2 reasoned: `/` (answers
   from local state and fetches no source, so it has no 502 shape) and
   `/recall` (the payment gate answers 402 before any source fetch,
   and the smoke never pays).
 - 503 unavailable: 2 captured (`/formd` and `/insider`, the two
   endpoints whose entries in `api/openapi.json` declare a 503, each
-  for its missing operator contact); 24 reasoned, each because its
-  entry declares no 503 response: `/`, `/app`, `/awards`, `/carrier`,
-  `/csl`, `/domain`, `/drug`, `/epa`, `/faa`, `/fda`, `/flood`,
-  `/fx`, `/github`, `/links`, `/litigation`, `/meta`, `/nonprofit`,
-  `/ofac`, `/oig`, `/pagespeed`, `/recall`, `/safety`, `/trials`,
-  `/vin`.
+  for its missing operator contact); 30 reasoned, each because its
+  entry declares no 503 response: `/`, `/app`, `/awards`, `/bank`,
+  `/carrier`, `/csl`, `/disaster`, `/domain`, `/drug`,
+  `/earthquake`, `/epa`, `/faa`, `/fda`, `/flood`, `/fx`,
+  `/geocode`, `/github`, `/links`, `/litigation`, `/meta`,
+  `/nonprofit`, `/ofac`, `/oig`, `/pagespeed`, `/recall`, `/safety`,
+  `/trials`, `/uksanctions`, `/upc`, `/vin`.
 
-The fixture folder holds 70 transcripts with 70 provenance entries:
+The fixture folder holds 85 transcripts with 85 provenance entries:
 the 3 original captures (descriptor, OpenAPI document, `/recall`
-402), 17 endpoint 200 captures, 24 bad query captures, 24 source
+402), 20 endpoint 200 captures, 30 bad query captures, 30 source
 failure captures, and 2 unavailable captures. The offline run on the
-pinned tree prints 74 numbered sections and 411 PASS lines with no
-failures: 20 in the three original sections, 85 across the 17
-endpoint 200 sections (5 each), 96 across the 24 bad query sections
-(4 each), 26 in the 400 accounting, 96 across the 24 source failure
-sections (4 each), 26 in the 502 accounting, 10 across the 2
-unavailable sections (5 each), 26 in the 503 accounting, and 26 in
-the closing coverage section. While the seven 200 transcripts above
-are owed, the document side of those same seven routes is guarded
-by `api/test_openapi_alignment.py` (5 tests, offline, added for
-issue #263): for `/domain`, `/ofac`, `/github`, `/flood`, `/fda`,
-`/oig` and `/insider` it proves the entry in `api/openapi.json` and
-the route's dispatcher in `api/endpoints.py` agree on parameter
-names, required flags and response codes, with SYNTHETIC patched
-reports and no source called.
+pinned tree prints 89 numbered sections and 498 PASS lines with no
+failures: 20 in the three original sections, 100 across the 20
+endpoint 200 sections (5 each), 120 across the 30 bad query sections
+(4 each), 32 in the 400 accounting, 120 across the 30 source failure
+sections (4 each), 32 in the 502 accounting, 10 across the 2
+unavailable sections (5 each), 32 in the 503 accounting, and 32 in
+the closing coverage section. While the ten 200 transcripts above
+are owed, the document side of the seven routes added for issue
+#243 among them is guarded by `api/test_openapi_alignment.py`
+(5 tests, offline, added for issue #263): for `/domain`, `/ofac`,
+`/github`, `/flood`, `/fda`, `/oig` and `/insider` it proves the
+entry in `api/openapi.json` and the route's dispatcher in
+`api/endpoints.py` agree on parameter names, required flags and
+response codes, with SYNTHETIC patched reports and no source
+called.
 
 Output is one Markdown section in the delivery format: a PASS or FAIL claim
 line per assertion, the source link, the UTC time, and the complete raw
