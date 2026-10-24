@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 """Recall check MCP server core (B1 of issue #33), plus the carrier
 vetting and litigation screen tools (issue #67), the Form D,
-nonprofit, awards and PageSpeed tools (issue #97), and the tool
-factory wave tools (issue #204).
+nonprofit, awards and PageSpeed tools (issue #97), the tool
+factory wave tools (issue #204), and faa_lookup (issue #210).
 
 A Model Context Protocol server, stdio transport, that exposes
-twenty four tools wrapping merged fetchers in tools/ through the same
+twenty five tools wrapping merged fetchers in tools/ through the same
 host-free dispatchers the pay per call API uses (api/recall_api.py and
 api/endpoints.py):
 
@@ -77,6 +77,9 @@ api/endpoints.py):
     insider_check      SEC EDGAR insider filing listing via
                        tools/insider_check.py (cik or issuer, optional
                        max_filings); the GET /insider dispatcher
+    faa_lookup         FAA aircraft registry lookup via
+                       tools/faa_lookup.py (n_number); the GET /faa
+                       dispatcher
 
 Each call returns the check as Markdown in the fixed delivery format
 from AGENT-BRIEF.md: the claim lines, the exact query, the UTC
@@ -151,6 +154,7 @@ from tools import domain_trust_check as dt  # noqa: E402
 from tools import edgar_formd as ef  # noqa: E402
 from tools import epa_screen as es  # noqa: E402
 from tools import exchange_rate_check as fx  # noqa: E402
+from tools import faa_lookup as fa  # noqa: E402
 from tools import fda_drug_check as fd  # noqa: E402
 from tools import fda_recall_check as fr  # noqa: E402
 from tools import flood_check as fl  # noqa: E402
@@ -195,10 +199,11 @@ EPA_TOOL = "epa_screen"
 CSL_TOOL = "csl_screen"
 OIG_TOOL = "oig_screen"
 INSIDER_TOOL = "insider_check"
+FAA_TOOL = "faa_lookup"
 TOOL_NAMES = (TOOL_NAME, CARRIER_TOOL, LITIGATION_TOOL, FORMD_TOOL, NONPROFIT_TOOL, AWARDS_TOOL,
               PAGESPEED_TOOL, DOMAIN_TOOL, OFAC_TOOL, VIN_TOOL, TRIALS_TOOL, DRUG_TOOL, LINKS_TOOL,
               META_TOOL, GITHUB_TOOL, APP_TOOL, FX_TOOL, FLOOD_TOOL, SAFETY_TOOL, FDA_TOOL,
-              EPA_TOOL, CSL_TOOL, OIG_TOOL, INSIDER_TOOL)
+              EPA_TOOL, CSL_TOOL, OIG_TOOL, INSIDER_TOOL, FAA_TOOL)
 
 JSONRPC_PARSE_ERROR = -32700
 JSONRPC_INVALID_REQUEST = -32600
@@ -905,6 +910,31 @@ def insider_tool_definition():
     }
 
 
+def faa_tool_definition():
+    """faa_lookup: tools/faa_lookup.py through api.endpoints.faa_lookup."""
+    return {
+        "name": FAA_TOOL,
+        "description": (
+            "Sourced FAA aircraft registry lookup from the FAA Releasable Aircraft archive "
+            "(%s), %s. Give `n_number` (the N number, e.g. N100ZT). The archive is downloaded "
+            "at most once per UTC day into the server's cache, and every report states the "
+            "archive's Last-Modified; the report shows the aircraft's make, model, year and "
+            "registrant name exactly as the registry files carry them. A tail with no "
+            "matching registration is proven by the archive file's byte count, line count "
+            "and SHA-256 printed in the report, in those terms. %s %s"
+            % (fa.ARCHIVE_URL, FORMAT_SENTENCE, SAME_TEXT % "GET /faa", FAIL_SENTENCE)
+        ),
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "n_number": {"type": "string", "description": "The N number, e.g. N100ZT."},
+            },
+            "required": ["n_number"],
+            "additionalProperties": False,
+        },
+    }
+
+
 def tool_definitions(wallet):
     """The tools/list entries, recall_check first."""
     return [tool_definition(wallet), carrier_tool_definition(), litigation_tool_definition(),
@@ -914,7 +944,8 @@ def tool_definitions(wallet):
             links_tool_definition(), meta_tool_definition(), github_tool_definition(),
             app_tool_definition(), fx_tool_definition(), flood_tool_definition(),
             safety_tool_definition(), fda_tool_definition(), epa_tool_definition(),
-            csl_tool_definition(), oig_tool_definition(), insider_tool_definition()]
+            csl_tool_definition(), oig_tool_definition(), insider_tool_definition(),
+            faa_tool_definition()]
 
 
 # Argument kinds per tool: how each JSON argument becomes the dict-of-lists
@@ -949,6 +980,7 @@ EPA_ARGUMENTS = {"name": "string", "state": "string", "city": "string", "registr
 CSL_ARGUMENTS = {"name": "string"}
 OIG_ARGUMENTS = {"name": "string"}
 INSIDER_ARGUMENTS = {"cik": "string", "issuer": "string", "max_filings": "integer"}
+FAA_ARGUMENTS = {"n_number": "string"}
 
 
 def coerce_arguments(arguments, kinds, error):
@@ -1038,6 +1070,8 @@ def call_tool(name, arguments):
         return call_endpoint(endpoints.oig_exclusions, OIG_ARGUMENTS, arguments)
     if name == INSIDER_TOOL:
         return call_endpoint(endpoints.insider, INSIDER_ARGUMENTS, arguments)
+    if name == FAA_TOOL:
+        return call_endpoint(endpoints.faa_lookup, FAA_ARGUMENTS, arguments)
     raise ToolNotFound(name)
 
 
@@ -1092,7 +1126,7 @@ class ToolNotFound(Exception):
 # ----------------------------------------------------------------------
 
 def instructions(wallet):
-    text = ("Twenty four tools, each answering in the fixed evidence format: claims, exact query, "
+    text = ("Twenty five tools, each answering in the fixed evidence format: claims, exact query, "
             "UTC retrieval time, source link, and the complete raw response beneath the "
             "link. recall_check answers a product name or a vehicle (make, model, year) "
             "with a sourced recall check; carrier_check answers a USDOT number or a carrier "
@@ -1119,8 +1153,9 @@ def instructions(wallet):
             "with EPA ECHO compliance records; csl_screen answers a name with a Consolidated "
             "Screening List screen; oig_screen answers a name with an HHS OIG LEIE exclusion "
             "screen; insider_check answers a CIK or issuer name with its SEC EDGAR insider "
-            "filings. Results are the public sources' records as returned; an empty result "
-            "is not a clearance.")
+            "filings; faa_lookup answers an N number with its FAA aircraft registry record, "
+            "the make, model, year and registrant name as registered. Results are the public "
+            "sources' records as returned; an empty result is not a clearance.")
     if wallet:
         text += " Payment: USDC per call to %s, collected by the listing platform." % wallet
     return text
