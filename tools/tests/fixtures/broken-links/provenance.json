@@ -1,0 +1,43 @@
+{
+  "_about": "Captures for tools/broken_link_check.py (issue #164), made by H7 with the tool's own fetch path (Python urllib, standard library) from this build environment at the times stated. Link target responses and the no links page are real captures, verbatim. page-with-dead.http is SYNTHETIC: a page body written for this test so the link set is small and stable; it was never fetched from its stated URL, and it says so in an HTML comment at the top of its body. Every link target it names is real, and each target's response is a real capture in this folder.",
+  "link-example-com.http": {
+    "url": "https://example.com/",
+    "final_url": "https://example.com/",
+    "status": 200,
+    "retrieved_utc": "2026-10-24T04:55:23Z",
+    "bytes": 906,
+    "sha256": "d85c28517721cffff99e79de0367c16201dcb0abb7062c6179f999d7b569f193"
+  },
+  "link-iana-example.http": {
+    "url": "https://www.iana.org/domains/example",
+    "final_url": "http://www.iana.org/help/example-domains",
+    "status": 200,
+    "retrieved_utc": "2026-10-24T04:55:23Z",
+    "bytes": 7862,
+    "sha256": "d9ff7f798658bdf835af82f12bf90c7bc7c3dd113ace3f7944cacb8836acdd0f"
+  },
+  "link-example-com-404.http": {
+    "url": "https://example.com/no-such-page-broken-link-check",
+    "final_url": "https://example.com/no-such-page-broken-link-check",
+    "status": 404,
+    "retrieved_utc": "2026-10-24T04:55:23Z",
+    "bytes": 830,
+    "sha256": "8172ddf4b299294fc95da758bc183cecf4a2015826d63a85e34b1854efaf9d09"
+  },
+  "page-no-links.http": {
+    "url": "https://www.iana.org/robots.txt",
+    "final_url": "https://www.iana.org/robots.txt",
+    "status": 200,
+    "what": "a real page with no links on it (a robots.txt), the empty shape",
+    "retrieved_utc": "2026-10-24T04:59:15Z",
+    "bytes": 1167,
+    "sha256": "1501179ae1beb27fff638637f5b902afc7f2d135f6cbe3d13763b7aa70ea53f3"
+  },
+  "page-with-dead.http": {
+    "url": "https://example.com/synthetic-broken-link-page",
+    "what": "SYNTHETIC page body written for this test; never fetched. Its link targets are real and their responses are the real captures in this folder.",
+    "retrieved_utc": "written 2026-10-24T04:55:23Z",
+    "bytes": 915,
+    "sha256": "78cda35057dd01fac9def188cc9012085b6041465ebd0f22d1d05f30986c34d5"
+  }
+}

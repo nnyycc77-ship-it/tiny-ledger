@@ -34,6 +34,7 @@ environment and its header comment says so.
 | FEMA NFHL flood zone check for a point or a US address (Census Geocoder), screening only (docs/mcpize-tools/flood_check.md) | `flood_check.py` | none needed |
 | openFDA food and device enforcement recall search (docs/mcpize-tools/fda_recall_check.md) | `fda_recall_check.py` | none needed; keyless limits 240 per minute and 1,000 per day per IP address |
 | HHS OIG LEIE exclusion screen, persons and entities (docs/mcpize-tools/oig_screen.md) | `oig_screen.py` | none needed |
+| The page itself: every link on one page checked, dead ones listed with status codes (docs/mcpize-tools/broken_link_check.md) | `broken_link_check.py` | none needed |
 
 Not a fetcher: `pregate.py` is the offline review pre gate (secrets scan,
 honesty lint, fixture provenance check) from `REVIEW.md`. See
@@ -571,6 +572,43 @@ container cannot reach echodata.epa.gov. They are posted byte for byte and
 saved as curl output with CRLF line ends, and the tests read them as
 bytes. Their URLs, sizes and SHA-256 hashes are in
 `tests/fixtures/epa-echo/provenance.json`, and the hashes are checked.
+
+## broken_link_check.py
+
+One run, on an example page:
+
+```sh
+python3 tools/broken_link_check.py https://example.com/
+```
+
+Tool factory wave 1, issue #164. One page per run. The page is fetched
+once, every href of an <a>, <area> or <link> element is resolved against
+the page's final URL with its fragment removed, and each unique HTTP
+target is checked once with a plain GET. A link is dead when its final
+status, after redirects, is 400 or above, and the report lists the dead
+ones with their status lines, then every checked link with the status
+line it answered. A request that fails is listed as a check failure,
+never as dead. Same page anchors, non HTTP links, and targets past the
+cap of 100 are listed as not fetched or not checked, so every link on
+the page is accounted for. The page's complete raw response sits
+beneath the source link. A page that fails to fetch, or answers other
+than 200, prints nothing on stdout and exits 2: it is a source failure,
+not an empty result. A page with no links is a report, proven by its
+full transcript. Docs page:
+[`docs/mcpize-tools/broken_link_check.md`](../docs/mcpize-tools/broken_link_check.md).
+
+### Verification
+
+```sh
+python3 -m unittest discover -s tools/tests -p 'test_broken_link_check.py' -v
+```
+
+The tests need no network. The link target responses and the no links
+page are real captures made with the tool's own fetch path; the page
+that carries the dead link is synthetic and is labelled as such where
+it appears. Their URLs, sizes and SHA-256 hashes are in
+`tests/fixtures/broken-links/provenance.json`, and the hashes are
+checked.
 
 ## edgar_formd.py
 

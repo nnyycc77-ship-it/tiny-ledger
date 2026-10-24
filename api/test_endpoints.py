@@ -27,6 +27,7 @@ sys.path.insert(0, str(ROOT / "tools" / "tests"))
 
 from api import endpoints, recall_api  # noqa: E402
 from tools import app_lookup_check as al  # noqa: E402
+from tools import broken_link_check as bl  # noqa: E402
 from tools import clinical_trial_check as ct  # noqa: E402
 from tools import courtlistener_recap as cl  # noqa: E402
 from tools import domain_trust_check as dt  # noqa: E402
@@ -60,7 +61,7 @@ class RoutingTests(unittest.TestCase):
         doc = recall_api.descriptor(WALLET)
         self.assertEqual(sorted(doc["endpoints"]),
                          ["/app", "/awards", "/carrier", "/domain", "/epa", "/fda", "/flood", "/formd", "/fx", "/github",
-                          "/litigation", "/meta", "/nonprofit", "/ofac", "/oig", "/pagespeed", "/recall", "/safety", "/trials", "/vin"])
+                          "/links", "/litigation", "/meta", "/nonprofit", "/ofac", "/oig", "/pagespeed", "/recall", "/safety", "/trials", "/vin"])
         for path, entry in doc["endpoints"].items():
             self.assertEqual(entry["method"], "GET", path)
             self.assertTrue(entry["tool"].startswith("tools/"), path)
@@ -97,9 +98,10 @@ class RoutingTests(unittest.TestCase):
                         "make=Hyundai&model=Elantra&year=21", "make=Hyundai&model=Elan/tra&year=2021"],
             "/epa": ["", "name=BAYTOWN+OLEFINS", "state=TX", "name=BAYTOWN+OLEFINS&state=Texas",
                      "name=BAYTOWN+OLEFINS&state=TX&registry_id=abc"],
+            "/links": ["", "url=notaurl", "url=ftp://example.com/", "url=https://a.example/&url=https://b.example/"],
         }
         patches = [patch.object(mod, "fetch", side_effect=AssertionError("no fetch expected"))
-                   for mod in (fc, cl, ua, pp, ps, ef, vd, fx, sf, epa)]
+                   for mod in (fc, cl, ua, pp, ps, ef, vd, fx, sf, epa, bl)]
         patches += [patch.object(dt, name, side_effect=AssertionError("no fetch expected"))
                     for name in ("fetch_doh", "fetch_site")]
         patches.append(patch.object(al, "fetch", side_effect=AssertionError("no fetch expected")))
@@ -592,8 +594,60 @@ class ExchangeRateTests(unittest.TestCase):
 
 
 
+
+# ----------------------------------------------------------------------
+# /links
+# ----------------------------------------------------------------------
+
+class BrokenLinkTests(unittest.TestCase):
+    """Served from the captures in tools/tests/fixtures/broken-links (issue #164)."""
+
+    def captured(self, name):
+        import json as _json
+        import re as _re
+        fix = FIXTURES / "broken-links"
+        prov = _json.loads((fix / "provenance.json").read_text(encoding="utf-8"))
+        text = (fix / name).read_text(encoding="utf-8")
+        head, _, body = text.partition("\n\n")
+        lines = head.split("\n")
+        headers = [tuple(line.split(": ", 1)) for line in lines[1:] if line]
+        entry = prov[name]
+        return bl.Capture(entry["url"], entry.get("final_url", entry["url"]), "2026-10-24T04:55:23Z",
+                          int(_re.findall(r" (\d{3}) ", lines[0] + " ")[0]), lines[0], headers, body)
+
+    def fetcher(self, url, want_body=True):
+        pages = {"https://example.com/synthetic-broken-link-page": "page-with-dead.http",
+                 "https://www.iana.org/robots.txt": "page-no-links.http"}
+        targets = {"https://example.com/": "link-example-com.http",
+                   "https://www.iana.org/domains/example": "link-iana-example.http",
+                   "https://example.com/no-such-page-broken-link-check": "link-example-com-404.http"}
+        if url in pages:
+            return self.captured(pages[url])
+        if url in targets:
+            return self.captured(targets[url])
+        raise AssertionError("unexpected url %s" % url)
+
+    def test_page_with_a_dead_link_renders_the_report(self):
+        # The fixture page and its recorded example targets.
+        with patch.object(bl, "fetch", side_effect=self.fetcher):
+            status, headers, text = get("/links", "url=https://example.com/synthetic-broken-link-page", WALLET)
+        self.assertEqual(status, "200 OK", text)
+        self.assertEqual(headers["Content-Type"], recall_api.TEXT_MD)
+        self.assertTrue(text.startswith("# Broken link check: https://example.com/synthetic-broken-link-page\n"))
+        self.assertIn("Dead links (final status 400 or above): 1", text)
+        self.assertIn("- https://example.com/no-such-page-broken-link-check -> HTTP/1.1 404 Not Found", text)
+
+    def test_page_fetch_failure_is_502_with_no_report(self):
+        # An example page URL; the fetch is patched to fail.
+        with patch.object(bl, "fetch", side_effect=bl.FetchError("request failed (test); no answer")):
+            status, _, text = get("/links", "url=https://example.com/")
+        self.assertEqual(status, "502 Bad Gateway")
+        self.assertNotIn("Dead links", text)
+
+
 # ----------------------------------------------------------------------
 # /safety
+# ----------------------------------------------------------------------
 # ----------------------------------------------------------------------
 
 class SafetyTests(unittest.TestCase):
