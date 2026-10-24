@@ -39,6 +39,7 @@ Every merged fetcher in `tools/` is an endpoint with the same contract as `GET /
 | `GET /drug` | `tools/fda_drug_check.py` | `name` (a drug brand or generic name) |
 | `GET /faa` | `tools/faa_lookup.py` | `n_number` |
 | `GET /disaster` | `tools/disaster_history_check.py` | `state` (two letter code); optional `county` (the exact designatedArea, e.g. `Kent (County)`), `limit` (1 to 1000, default 50) |
+| `GET /uksanctions` | `tools/uk_sanctions_check.py` | `name` (a person or company name) |
 
 Server side values, read from the environment at call time and never printed or written: `COURTLISTENER_TOKEN` (optional, lifts the anonymous rate limit), `PAGESPEED_API_KEY` (optional; without it the API answers 429 with quota 0, and that transcript is the report), and `EDGAR_CONTACT` (required for `/formd` and `/insider` by EDGAR fair access: the operator's "Name address" contact for the User-Agent; each answers 503 and fetches nothing while it is unset). The x402 payment gate in `api/payment_gate.py` wraps `GET /recall` only as of this version; the other endpoints are served without payment until the gate is extended, which is a separate task.
 

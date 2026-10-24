@@ -45,6 +45,7 @@ from tools import safety_file as sf  # noqa: E402
 from tools import usaspending_awards as ua  # noqa: E402
 from tools import upc_lookup as ul  # noqa: E402
 from tools import vin_decode as vd  # noqa: E402
+from tools import uk_sanctions_check as uks  # noqa: E402
 import test_courtlistener_recap as cl_fixtures  # noqa: E402
 import test_fmcsa_carrier as fc_fixtures  # noqa: E402
 
@@ -66,10 +67,10 @@ class RoutingTests(unittest.TestCase):
         doc = recall_api.descriptor(WALLET)
         self.assertEqual(sorted(doc["endpoints"]),
                          ["/app", "/awards", "/bank", "/carrier", "/csl", "/disaster", "/domain", "/drug",
-                          "/earthquake", "/epa", "/faa", "/fda", "/flood", "/formd", "/fx", "/geocode",
-                          "/github", "/insider", "/links", "/litigation", "/meta", "/nonprofit", "/npi",
-                          "/ofac", "/oig", "/pagespeed", "/recall", "/safety", "/trials", "/upc", "/vin",
-                          "/wallet", "/weather"])
+                          "/earthquake", "/epa", "/faa", "/fda", "/flood", "/formd", "/fx", "/geocode", "/github",
+                          "/insider", "/links", "/litigation", "/meta", "/nonprofit", "/npi", "/ofac", "/oig",
+                          "/pagespeed", "/recall", "/safety", "/trials", "/uksanctions", "/upc", "/vin", "/wallet",
+                          "/weather"])
         for path, entry in doc["endpoints"].items():
             self.assertEqual(entry["method"], "GET", path)
             self.assertTrue(entry["tool"].startswith("tools/"), path)
@@ -113,6 +114,7 @@ class RoutingTests(unittest.TestCase):
                           "state=RI&limit=x", "state=RI&county=Prince+George%27s+(County)"],
             "/geocode": ["", "address=", "address=a&address=b", "address=" + "a" * 201],
             "/upc": ["", "code=", "code=12345", "code=3017620422004", "code=3017620422003&code=036000291452"],
+            "/uksanctions": ["", "name=ab", "name=a.b", "name=Gazprom&name=Neft"],
         }
         patches = [patch.object(mod, "fetch", side_effect=AssertionError("no fetch expected"))
                    for mod in (fc, cl, ua, pp, ps, ef, vd, fx, sf, epa, bl, fd)]
@@ -122,6 +124,7 @@ class RoutingTests(unittest.TestCase):
         patches.append(patch.object(ct, "fetch", side_effect=AssertionError("no fetch expected")))
         patches.append(patch.object(faa, "download", side_effect=AssertionError("no fetch expected")))
         patches.append(patch.object(dh, "fetch", side_effect=AssertionError("no fetch expected")))
+        patches.append(patch.object(uks, "fetch", side_effect=AssertionError("no fetch expected")))
         patches.append(patch.object(ag, "fetch", side_effect=AssertionError("no fetch expected")))
         patches.append(patch.object(ul, "fetch", side_effect=AssertionError("no fetch expected")))
         for p in patches:
@@ -877,6 +880,43 @@ class DisasterTests(unittest.TestCase):
         self.assertIn("source failure, no report emitted", text)
         self.assertIn("the answer is unknown", text)
         self.assertNotIn("DISASTERS", text)
+
+
+# ----------------------------------------------------------------------
+# /uksanctions
+# ----------------------------------------------------------------------
+
+class UkSanctionsTests(unittest.TestCase):
+    """Served from the excerpt of the coordinator's Option B ConList.csv capture
+    on issue #342 (tools/tests/fixtures/uk-sanctions, provenance there)."""
+
+    EXCERPT = (FIXTURES / "uk-sanctions" / "conlist-excerpt.csv").read_bytes()
+
+    def served(self, url):
+        if url != uks.LIST_URL:
+            raise AssertionError("unexpected fetch: %s" % url)
+        return uks.Download(url, "2026-10-24T13:20:00Z", [], self.EXCERPT, False)
+
+    def test_match_renders_the_fetchers_report(self):
+        with patch.object(uks, "fetch", side_effect=self.served):
+            status, headers, text = get("/uksanctions", "name=Gazprom+Neft", WALLET)
+        self.assertEqual(status, "200 OK", text[:500])
+        self.assertEqual(headers["Content-Type"], recall_api.TEXT_MD)
+        self.assertTrue(text.startswith("# UK consolidated sanctions list check: Gazprom Neft\n"))
+        self.assertEqual(text, uks.render("Gazprom Neft", self.served(uks.LIST_URL)) + "\n")
+        self.assertIn("### Group ID 16736: Entity, regime Russia", text)
+
+    def test_no_match_is_a_report_not_an_error(self):
+        with patch.object(uks, "fetch", side_effect=self.served):
+            status, _, text = get("/uksanctions", "name=Nosuch+Holdings")
+        self.assertEqual(status, "200 OK", text[:500])
+        self.assertIn("No name matched Nosuch Holdings under the rule above.", text)
+
+    def test_failed_fetch_is_502_with_no_report(self):
+        with patch.object(uks, "fetch", side_effect=uks.FetchError("SYNTHETIC failure; no report")):
+            status, _, text = get("/uksanctions", "name=Gazprom+Neft")
+        self.assertEqual(status, "502 Bad Gateway")
+        self.assertNotIn("## Result", text)
 
 
 if __name__ == "__main__":
