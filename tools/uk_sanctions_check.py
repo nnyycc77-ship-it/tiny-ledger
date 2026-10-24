@@ -32,7 +32,7 @@ replacing every character that is not a letter or digit with a space;
 an exact match is the whole normalised query equal to the whole
 normalised name, a contains match is the normalised query appearing in
 it as whole words. A row's name is formed from the columns Name 1 to
-Name 6 in two orders, both checked: the file's own column order (Name 6,
+Name 6 in two orderings, both checked: the file's own column order (Name 6,
 then Name 1 to Name 5) and Name 1 to Name 5 followed by Name 6. The
 "Name Non-Latin Script" column is printed with the row but not matched:
 under the rule its letters are not a to z and fold to separators.
@@ -92,7 +92,7 @@ RULE = ("Names are compared after folding case, removing accents where Unicode d
         "off, and replacing every character that is not a letter or digit with a space (the OFAC tool's "
         "rule). An exact match is the whole normalised query equal to the whole normalised name; a contains "
         "match is the normalised query appearing inside the normalised name as whole words. Each row's name "
-        "is formed from Name 1 to Name 6 in two orders, both checked: the file's column order (Name 6, then "
+        "is formed from Name 1 to Name 6 in two orderings, both checked: the file's column order (Name 6, then "
         "Name 1 to Name 5) and Name 1 to Name 5 followed by Name 6. Primary name and alias rows are both "
         "checked, and rows are grouped into list entries by Group ID. The Name Non-Latin Script column is "
         "not matched. No fuzzy or phonetic score is computed or claimed.")

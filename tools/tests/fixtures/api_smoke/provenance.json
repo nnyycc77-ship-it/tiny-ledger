@@ -714,5 +714,23 @@
     "retrieved_utc": "2026-10-24T13:20:03Z",
     "sha256": "22698780c78141cf8eb4c81bdb3024d945876f409ce97e264d5304e904ef5a94",
     "captured_by": "replay capture from a locally run gated server (branch HEAD 4ca729a plus the uncommitted issue #343 changes) via tools/api_smoke.py fetch(), with HTTP_PROXY, HTTPS_PROXY, http_proxy and https_proxy all set to http://127.0.0.1:9 (a closed local port) so the endpoint's Open Food Facts fetch failed at transport and the endpoint answered its own 502; server env PORT=8765, PAYOUT_WALLET_ADDRESS=0x1111111111111111111111111111111111111111 (SYNTHETIC placeholder)"
+  },
+  "uksanctions-400.http": {
+    "url": "http://127.0.0.1:8765/uksanctions",
+    "retrieved_utc": "2026-10-24T13:24:27Z",
+    "sha256": "6fe0696b627a83fc8c830431c4e322054f9de577df4cba8b6113dab9eda078ae",
+    "captured_by": "H4, with tools/api_smoke.py fetch(), from the local gated server: python3 server.py at commit 924258ad (this PR's first commit as first built on main 4ca729a, later rebased onto main aa39a75, then 5aa7f29, then e481504 (as 96c6dd25) with tools/uk_sanctions_check.py and the /uksanctions dispatcher unchanged; api.payment_gate:app), PORT=8765, for issue #342.",
+    "server_config": "PAYOUT_WALLET_ADDRESS=0x1111111111111111111111111111111111111111, a SYNTHETIC placeholder address chosen for the capture, not any real wallet; EDGAR_CONTACT set to a labelled test contact (Tiny Ledger Api Smoke smoke@example.com), as in the earlier captures; HTTP_PROXY, HTTPS_PROXY, http_proxy and https_proxy all set to http://127.0.0.1:9, a closed local port, and NO_PROXY empty, so every source fetch fails at transport and nothing leaves the machine; no X-PAYMENT header sent, so the facilitator was never contacted",
+    "transcript_form": "status line, response headers in the order returned, a blank line, then the body exactly as returned, joined with newline characters",
+    "note": "The request names no valid input (the bare endpoint path, no query string), so the server answers 400 before any source fetch; the api endpoint suite proves the same cases return 400 with its fetch functions patched to raise."
+  },
+  "uksanctions-502.http": {
+    "url": "http://127.0.0.1:8765/uksanctions?name=Gazprom+Neft",
+    "retrieved_utc": "2026-10-24T13:24:27Z",
+    "sha256": "e8b07fd3336b7bfe3f040abc4d792d6797efb4e84400af092bf60861a50c8968",
+    "captured_by": "H4, with tools/api_smoke.py fetch(), from the local gated server: python3 server.py at commit 924258ad (this PR's first commit as first built on main 4ca729a, later rebased onto main aa39a75, then 5aa7f29, then e481504 (as 96c6dd25) with tools/uk_sanctions_check.py and the /uksanctions dispatcher unchanged; api.payment_gate:app), PORT=8765, for issue #342.",
+    "server_config": "PAYOUT_WALLET_ADDRESS=0x1111111111111111111111111111111111111111, a SYNTHETIC placeholder address chosen for the capture, not any real wallet; EDGAR_CONTACT set to a labelled test contact (Tiny Ledger Api Smoke smoke@example.com), as in the earlier captures; HTTP_PROXY, HTTPS_PROXY, http_proxy and https_proxy all set to http://127.0.0.1:9, a closed local port, and NO_PROXY empty, so every source fetch fails at transport and nothing leaves the machine; no X-PAYMENT header sent, so the facilitator was never contacted",
+    "transcript_form": "status line, response headers in the order returned, a blank line, then the body exactly as returned, joined with newline characters",
+    "note": "Replayed source failure: the query is valid, and the recorded proxy config makes the source fetch fail at transport; the 502 below is the server's own answer, captured verbatim. The descriptor and the payment gate are not affected."
   }
 }

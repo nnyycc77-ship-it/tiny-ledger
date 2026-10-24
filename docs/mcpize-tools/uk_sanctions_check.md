@@ -15,7 +15,7 @@ step.
 - **Matching rule:** the OFAC tool's rule (issues #160 and #251).
   - Names are compared after folding case and accents, with every character that is not a letter or digit replaced by a space.
   - An exact match is the whole name; a contains match is the query as whole words.
-  - A row's name is formed from `Name 1` to `Name 6` in two orders, both checked: the file's column order (`Name 6` first) and `Name 1` to `Name 5` followed by `Name 6`.
+  - A row's name is formed from `Name 1` to `Name 6` in two orderings, both checked: the file's column order (`Name 6` first) and `Name 1` to `Name 5` followed by `Name 6`.
   - Rows are grouped into list entries by `Group ID`.
   - The `Name Non-Latin Script` column is printed but not matched.
   - No fuzzy or phonetic score is computed or claimed.

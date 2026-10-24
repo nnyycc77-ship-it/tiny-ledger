@@ -136,12 +136,12 @@ class OfflineMode(unittest.TestCase):
         self.assertTrue(all(ok for _, ok in results), results)
         self.assertEqual(self.caps["openapi"].status, 200)
 
-    def test_default_run_passes_all_486_with_the_raw_responses(self):
-        # 20 original assertions, 20 endpoint sections of 5, 29 bad
-        # query sections of 4, 31 bad query accounting lines, 29 source
-        # failure sections of 4, 31 source failure accounting lines,
-        # two unavailable sections of 5 (/formd and /insider), 31
-        # unavailable accounting lines, and 31 coverage lines, one per
+    def test_default_run_passes_all_498_with_the_raw_responses(self):
+        # 20 original assertions, 20 endpoint sections of 5, 30 bad
+        # query sections of 4, 32 bad query accounting lines, 30 source
+        # failure sections of 4, 32 source failure accounting lines,
+        # two unavailable sections of 5 (/formd and /insider), 32
+        # unavailable accounting lines, and 32 coverage lines, one per
         # GET path in api/openapi.json (seven paths added by issue #243,
         # with 400 and 502 captures, a 503 capture for /insider, and a
         # reasoned entry in NO_ENDPOINT_CAPTURE; /bank added by issue #320
@@ -149,11 +149,13 @@ class OfflineMode(unittest.TestCase):
         # with 400 and 502 captures and a reasoned 200, with no 503;
         # /earthquake added by issue #317 with 400 and 502 captures and
         # a reasoned 200, with no 503; /geocode added by issue #319 and
-        # /upc by issue #343, each with 200, 400 and 502 captures).
+        # /upc by issue #343, each with 200, 400 and 502 captures;
+        # /uksanctions added by issue #342 with 400 and 502 captures and a
+        # reasoned 200, with no 503).
         code, out, err = run_main([])
         self.assertEqual(code, 0, err)
         self.assertIn("Result: PASS, every assertion held.", out)
-        self.assertEqual(out.count("- PASS:"), 486)
+        self.assertEqual(out.count("- PASS:"), 498)
         self.assertNotIn("- FAIL:", out)
         self.assertIn("Source: <http://127.0.0.1:8765/openapi.json>", out)
         self.assertIn("Retrieved (UTC): 2026-10-23T14:51:26Z", out)

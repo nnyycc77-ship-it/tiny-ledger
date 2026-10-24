@@ -709,7 +709,7 @@ list of targets", read keyless and matched locally under the OFAC tool's
 rule.
 
 - **Name forms.** A row's name is formed from `Name 1` to `Name 6` in two
-  orders, the file's column order and `Name 1` to `Name 5` then
+  orderings, the file's column order and `Name 1` to `Name 5` then
   `Name 6`, and both are checked.
 - **Grouping.** Rows are grouped into list entries by `Group ID`, and each
   matching entry is printed with all of its rows verbatim.
