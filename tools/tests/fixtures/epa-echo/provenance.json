@@ -1,0 +1,90 @@
+{
+  "search-baytown-olefins.http": {
+    "url": "https://echodata.epa.gov/echo/echo_rest_services.get_facilities?output=JSON&p_fn=BAYTOWN+OLEFINS&p_cty=BAYTOWN&p_st=TX",
+    "retrieved_utc": "2026-10-24, about 05:10 to 05:11 UTC (response Date header: Sat, 24 Oct 2026 05:10:25 GMT)",
+    "method": "GET, keyless (plain curl through the coordinator's proxy, no credentials), by the coordinator under Option B",
+    "capture": "A",
+    "comment": "https://github.com/nnyycc77-ship-it/tiny-ledger/issues/178#issuecomment-6380456217",
+    "transcript_form": "curl output as saved by the coordinator: the proxy's CONNECT reply line, a blank line, then the response status line and headers with CRLF line ends, a blank line, then the body exactly as returned",
+    "body_bytes": 339,
+    "body_sha256": "8763a2fde1b166cbbdfc3828dbce03ec2bc94e55c363553982d909c19f88c19e",
+    "sha256": "dbfe83067e4cadcf9d2e746b4becfdb66cf74a22f2380bf4249561cfbe4b51da"
+  },
+  "qid-baytown-olefins.http": {
+    "url": "https://echodata.epa.gov/echo/echo_rest_services.get_qid?output=JSON&qid=126",
+    "retrieved_utc": "2026-10-24, about 05:10 to 05:11 UTC (response Date header: Sat, 24 Oct 2026 05:10:32 GMT)",
+    "method": "GET, keyless (plain curl through the coordinator's proxy, no credentials), by the coordinator under Option B",
+    "capture": "A",
+    "comment": "https://github.com/nnyycc77-ship-it/tiny-ledger/issues/178#issuecomment-6380456438",
+    "transcript_form": "curl output as saved by the coordinator: the proxy's CONNECT reply line, a blank line, then the response status line and headers with CRLF line ends, a blank line, then the body exactly as returned",
+    "body_bytes": 6852,
+    "body_sha256": "b29019fefa9ad2d4e0e4759bdc6cde9141fba6d774832eaf42878d5c2e68a2ed",
+    "sha256": "1e08020c9302c6fc88789f9739b8b7565081ae3c9c96a065355f3249c74623eb"
+  },
+  "search-bissonnet-exxon.http": {
+    "url": "https://echodata.epa.gov/echo/echo_rest_services.get_facilities?output=JSON&p_fn=BISSONNET+EXXON&p_cty=HOUSTON&p_st=TX",
+    "retrieved_utc": "2026-10-24, about 05:10 to 05:11 UTC (response Date header: Sat, 24 Oct 2026 05:10:33 GMT)",
+    "method": "GET, keyless (plain curl through the coordinator's proxy, no credentials), by the coordinator under Option B",
+    "capture": "B",
+    "comment": "https://github.com/nnyycc77-ship-it/tiny-ledger/issues/178#issuecomment-6380456719",
+    "transcript_form": "curl output as saved by the coordinator: the proxy's CONNECT reply line, a blank line, then the response status line and headers with CRLF line ends, a blank line, then the body exactly as returned",
+    "body_bytes": 331,
+    "body_sha256": "641e936007dc1d343a68ec5f6f763a38a38ae23d19b7253817b6f5343c8c19e0",
+    "sha256": "3ef261ce0345f79d8ef187b79e766d8c3edaaef1ef9e30f69c142a0e05d4c31c"
+  },
+  "qid-bissonnet.http": {
+    "url": "https://echodata.epa.gov/echo/echo_rest_services.get_qid?output=JSON&qid=158",
+    "retrieved_utc": "2026-10-24, about 05:10 to 05:11 UTC (response Date header: Sat, 24 Oct 2026 05:10:45 GMT)",
+    "method": "GET, keyless (plain curl through the coordinator's proxy, no credentials), by the coordinator under Option B",
+    "capture": "B",
+    "comment": "https://github.com/nnyycc77-ship-it/tiny-ledger/issues/178#issuecomment-6380456960",
+    "transcript_form": "curl output as saved by the coordinator: the proxy's CONNECT reply line, a blank line, then the response status line and headers with CRLF line ends, a blank line, then the body exactly as returned",
+    "body_bytes": 1686,
+    "body_sha256": "7e204713dc615b0d7b1455b2dadd13dd63cc7b6384e2a17dfca160697932c6fb",
+    "sha256": "8802331d1a3979067dc57681f54dd68cc5aea7597a66e2e47865499e07b4d19f"
+  },
+  "search-empty.http": {
+    "url": "https://echodata.epa.gov/echo/echo_rest_services.get_facilities?output=JSON&p_fn=ZQXFLORP+INDUSTRIES&p_st=TX",
+    "retrieved_utc": "2026-10-24, about 05:10 to 05:11 UTC (response Date header: Sat, 24 Oct 2026 05:10:34 GMT)",
+    "method": "GET, keyless (plain curl through the coordinator's proxy, no credentials), by the coordinator under Option B",
+    "capture": "C",
+    "comment": "https://github.com/nnyycc77-ship-it/tiny-ledger/issues/178#issuecomment-6380457192",
+    "transcript_form": "curl output as saved by the coordinator: the proxy's CONNECT reply line, a blank line, then the response status line and headers with CRLF line ends, a blank line, then the body exactly as returned",
+    "body_bytes": 331,
+    "body_sha256": "f100e9cbbb1e7f72080a2064b637821a1f861cfbc666c8db709f8c6403b06277",
+    "sha256": "c17633e9e1d5e2ac35c17dc0dcd665b377e87abcc54cf163ce5d4dc0f34a3346"
+  },
+  "facilities-bad-state.http": {
+    "url": "https://echodata.epa.gov/echo/echo_rest_services.get_facilities?output=JSON&p_fn=EXXON&p_st=ZZ",
+    "retrieved_utc": "2026-10-24, about 05:10 to 05:11 UTC (response Date header: Sat, 24 Oct 2026 05:10:35 GMT)",
+    "method": "GET, keyless (plain curl through the coordinator's proxy, no credentials), by the coordinator under Option B",
+    "capture": "D",
+    "comment": "https://github.com/nnyycc77-ship-it/tiny-ledger/issues/178#issuecomment-6380457406",
+    "transcript_form": "curl output as saved by the coordinator: the proxy's CONNECT reply line, a blank line, then the response status line and headers with CRLF line ends, a blank line, then the body exactly as returned",
+    "body_bytes": 331,
+    "body_sha256": "d72c62286288329aab6109f8a12482bc85e8fb3623d79103fa1d9d14fc875746",
+    "sha256": "946abfe4d121ed33756cc678fad517f5ea582fa061945f6774a5c8f038f512f9"
+  },
+  "dfr-baytown.http": {
+    "url": "https://echodata.epa.gov/echo/echo_rest_services.get_dfr?output=JSON&p_id=110000463178",
+    "retrieved_utc": "2026-10-24, about 05:10 to 05:11 UTC (response Date header: Sat, 24 Oct 2026 05:10:53 GMT)",
+    "method": "GET, keyless (plain curl through the coordinator's proxy, no credentials), by the coordinator under Option B",
+    "capture": "E",
+    "comment": "https://github.com/nnyycc77-ship-it/tiny-ledger/issues/178#issuecomment-6380457620",
+    "transcript_form": "curl output as saved by the coordinator: the proxy's CONNECT reply line, a blank line, then the response status line and headers with CRLF line ends, a blank line, then the body exactly as returned",
+    "body_bytes": 287,
+    "body_sha256": "fb69d50eff24c6f10e593b1f68623ac35f44f90c0022461cfe445abf028f78d3",
+    "sha256": "0d661c9764e147bbfc3b077d11c49ef43fc1e2d9973ece4c040c639fee5ee993"
+  },
+  "facilities-by-id.http": {
+    "url": "https://echodata.epa.gov/echo/echo_rest_services.get_facilities?output=JSON&p_id=110000463178",
+    "retrieved_utc": "2026-10-24, about 05:10 to 05:11 UTC (response Date header: Sat, 24 Oct 2026 05:10:59 GMT)",
+    "method": "GET, keyless (plain curl through the coordinator's proxy, no credentials), by the coordinator under Option B",
+    "capture": "correction",
+    "comment": "https://github.com/nnyycc77-ship-it/tiny-ledger/issues/178#issuecomment-6380457899",
+    "transcript_form": "curl output as saved by the coordinator: the proxy's CONNECT reply line, a blank line, then the response status line and headers with CRLF line ends, a blank line, then the body exactly as returned",
+    "body_bytes": 160,
+    "body_sha256": "8e2c7b8d071bc7e8f702e3bf3ba47251d1422e31194282553b90b0d2422242de",
+    "sha256": "c736ca28c247ed951f6369c8ecf6b7d24eb351fd380b73227db1486036103022"
+  }
+}

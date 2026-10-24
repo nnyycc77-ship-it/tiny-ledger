@@ -1,0 +1,38 @@
+HTTP/1.1 200 Connection Established
+
+HTTP/1.1 200 200
+Date: Sat, 24 Oct 2026 05:10:25 GMT
+Server: Apache
+Cache-Control: private, max-age=0, must-revalidate
+Strict-Transport-Security: max-age=63072000; includeSubdomains; preload
+Strict-Transport-Security: max-age=63072000; includeSubDomains; preload
+Access-Control-Allow-Methods: GET,OPTIONS,POST,PUT
+Access-Control-Max-Age: 86400
+Access-Control-Allow-Credentials: true
+X-Frame-Options: SAMEORIGIN
+X-Content-Type-Options: nosniff
+Content-Type: application/json
+Vary: Accept-Encoding
+Transfer-Encoding: chunked
+
+{
+"Results":{
+"Message":"Success",
+"Version":"ALL DATA v2017-06-16 0923",
+"QueryRows":"4",
+"IndianCountryRows":"0",
+"SVRows":"1",
+"CVRows":"1",
+"V3Rows":"1",
+"FEARows":"1",
+"InfFEARows":"1",
+"INSPRows":"1",
+"TotalPenalties":"$2,204,913",
+"CAARows":"1",
+"CWARows":"1",
+"RCRRows":"1",
+"TRIRows":"1",
+"BadSystemIDs":null,
+"QueryID":"126"
+}
+}

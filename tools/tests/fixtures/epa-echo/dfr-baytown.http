@@ -1,0 +1,25 @@
+HTTP/1.1 200 Connection Established
+
+HTTP/1.1 500 Internal Server Error
+Date: Sat, 24 Oct 2026 05:10:53 GMT
+Server: Apache/2.4.37 (Red Hat Enterprise Linux)
+Cache-Control: private, max-age=0, must-revalidate
+Strict-Transport-Security: max-age=63072000; includeSubdomains; preload
+Access-Control-Allow-Methods: GET,OPTIONS,POST,PUT
+Access-Control-Max-Age: 86400
+Access-Control-Allow-Credentials: true
+Vary: Referer,Access-Control-Request-Headers
+Content-Type: application/json
+Accept-Ranges: bytes
+Last-Modified: Fri, 01 Apr 2022 20:26:48 GMT
+ETag: "11f-5db9d9916cefd"
+Connection: close
+Content-Length: 287
+
+{
+"Results":{
+"Error":{
+"ErrorMessage":"We could not process your query. Please consult our Web service documentation [https://echo.epa.gov/tools/web-services] and try again, or contact ECHO Support [https://echo.epa.gov/resources/general-info/contact-us] if you need assistance."
+}
+}
+}
