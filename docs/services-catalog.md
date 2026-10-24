@@ -161,3 +161,174 @@ Source: [`mcpize.yaml`](../mcpize.yaml)
 - Delivery time: not stated.
 - How to call it: through the MCPize listing named above; `mcpize.yaml` is
   that listing's configuration file.
+
+## Part 5: the tool factory wave tools
+
+Source for this part: each tool's own docs page under
+[`docs/mcpize-tools/`](mcpize-tools/), linked from its entry below. What
+each entry says the tool checks is what that docs page states. Every tool
+in this part is merged into this repository and served by the pay per call
+API at the route its entry names. None of them is on the MCP server yet:
+under the wave registration ruling on issue #158, tools that pass review
+are registered on the server in one shared surface PR, and the shelf goes
+live at one owner redeploy step after that, as each docs page records.
+
+- Price for every tool in this part: 0.25 USDC per call once the shelf
+  goes live, the shelf price set by the owner ruling on issue #147 and
+  recorded on issue #158 and on each tool's docs page.
+- Delivery time: not stated as a duration; each call is answered from the
+  tool's live source at the time of the call, as its docs page describes.
+- How to order: not stated yet; ordering opens only after the
+  registration and redeploy steps above happen.
+
+### Wave 1
+
+#### `broken_link_check`: broken link check
+
+Source: [`docs/mcpize-tools/broken_link_check.md`](mcpize-tools/broken_link_check.md)
+
+- What it checks: which links on one page are dead. The page is fetched
+  once, every link on it is checked once, and the dead ones are listed
+  with their status codes beside every checked link with the status line
+  it answered.
+- Served as: `GET /links` by the pay per call API.
+- Price: 0.25 USDC per call, as stated above for this part.
+
+#### `clinical_trial_check`: clinical trial check
+
+Source: [`docs/mcpize-tools/clinical_trial_check.md`](mcpize-tools/clinical_trial_check.md)
+
+- What it checks: for one company, drug, or condition, how many trials
+  the ClinicalTrials.gov registry reports for that search, and what the
+  top trials are, with their status, each value exactly as the API
+  returns it.
+- Served as: `GET /trials` by the pay per call API.
+- Price: 0.25 USDC per call, as stated above for this part.
+
+#### `exchange_rate_check`: exchange rate
+
+Source: [`docs/mcpize-tools/exchange_rate_check.md`](mcpize-tools/exchange_rate_check.md)
+
+- What it checks: the exchange rate the public Frankfurter API gives for
+  one currency pair, latest or for a date, with the rate's own date, and
+  with the API's own converted figure when an amount is given.
+- Served as: `GET /fx` by the pay per call API.
+- Price: 0.25 USDC per call, as stated above for this part.
+
+#### `fda_drug_check`: FDA drug label facts
+
+Source: [`docs/mcpize-tools/fda_drug_check.md`](mcpize-tools/fda_drug_check.md)
+
+- What it checks: for one drug brand or generic name, the label facts of
+  the first matching openFDA drug label record: its brand and generic
+  names, its maker, its product type and route, which warning sections it
+  carries, and its dosage form as the record carries it. The report also
+  states the total number of matching label records.
+- Served as: `GET /drug` by the pay per call API.
+- Price: 0.25 USDC per call, as stated above for this part.
+
+#### `github_repo_check`: GitHub repository check
+
+Source: [`docs/mcpize-tools/github_repo_check.md`](mcpize-tools/github_repo_check.md)
+
+- What it checks: for one public repository, its stars, its license, its
+  last push date, and whether it is archived, each exactly as GitHub's
+  REST API returns it.
+- Served as: `GET /github` by the pay per call API.
+- Price: 0.25 USDC per call, as stated above for this part.
+
+#### `meta_tag_check`: meta tag check
+
+Source: [`docs/mcpize-tools/meta_tag_check.md`](mcpize-tools/meta_tag_check.md)
+
+- What it checks: for one web page, whether its title, its meta
+  description, and its checked Open Graph tags are present or missing,
+  with the values exactly as the page prints them.
+- Served as: `GET /meta` by the pay per call API.
+- Price: 0.25 USDC per call, as stated above for this part.
+
+#### `vin_decode_check`: VIN decode
+
+Source: [`docs/mcpize-tools/vin_decode_check.md`](mcpize-tools/vin_decode_check.md)
+
+- What it checks: what the public NHTSA vPIC API decodes from one VIN:
+  model year, make, model, trim, manufacturer, plant, and every other
+  field vPIC returns with a value, plus vPIC's own error code and text
+  for the VIN.
+- Served as: `GET /vin` by the pay per call API.
+- Price: 0.25 USDC per call, as stated above for this part.
+
+### Wave 2
+
+#### `csl_screen`: US Consolidated Screening List screen
+
+Source: [`docs/mcpize-tools/csl_screen.md`](mcpize-tools/csl_screen.md)
+
+- What it checks: whether a person or company name appears on any US
+  export control list as published in the Consolidated Screening List,
+  among them the Entity List, the Denied Persons List, the Unverified
+  List, the Military End User List, the ITAR Debarred list, and the SDN
+  list. A name match is not a determination, as the docs page states.
+- Served as: `GET /csl` by the pay per call API.
+- Price: 0.25 USDC per call, as stated above for this part.
+
+#### `epa_screen`: EPA facility compliance screen
+
+Source: [`docs/mcpize-tools/epa_screen.md`](mcpize-tools/epa_screen.md)
+
+- What it checks: whether a facility shows EPA violations or significant
+  noncompliance, answered as the EPA ECHO facility search states it,
+  quoting each facility row's compliance status, significant
+  noncompliance flag, and quarters with noncompliance.
+- Served as: `GET /epa` by the pay per call API.
+- Price: 0.25 USDC per call, as stated above for this part.
+
+#### `fda_recall_check`: FDA enforcement recall check
+
+Source: [`docs/mcpize-tools/fda_recall_check.md`](mcpize-tools/fda_recall_check.md)
+
+- What it checks: whether a food product, medical device, or firm has
+  drawn FDA enforcement recalls in openFDA's enforcement reports, and
+  what the matching records say, each field exactly as returned.
+- Served as: `GET /fda` by the pay per call API.
+- Price: 0.25 USDC per call, as stated above for this part.
+
+#### `flood_check`: FEMA flood zone check
+
+Source: [`docs/mcpize-tools/flood_check.md`](mcpize-tools/flood_check.md)
+
+- What it checks: for one point, or one US street address, what the FEMA
+  National Flood Hazard Layer shows there: the flood zone, the zone
+  subtype, and whether the point is in a Special Flood Hazard Area.
+- Served as: `GET /flood` by the pay per call API.
+- Price: 0.25 USDC per call, as stated above for this part.
+
+#### `insider_check`: SEC EDGAR insider activity
+
+Source: [`docs/mcpize-tools/insider_check.md`](mcpize-tools/insider_check.md)
+
+- What it checks: what insider purchases and sales a public company has
+  reported recently, read from the newest Form 3, 4, and 5 filings in the
+  issuer's EDGAR submissions index.
+- Served as: `GET /insider` by the pay per call API.
+- Price: 0.25 USDC per call, as stated above for this part.
+
+#### `oig_screen`: HHS OIG exclusion screen
+
+Source: [`docs/mcpize-tools/oig_screen.md`](mcpize-tools/oig_screen.md)
+
+- What it checks: whether a person or entity is on the HHS OIG List of
+  Excluded Individuals and Entities, giving each matched row's exclusion
+  type and exclusion date as published.
+- Served as: `GET /oig` by the pay per call API.
+- Price: 0.25 USDC per call, as stated above for this part.
+
+#### `safety_file`: NHTSA model safety file
+
+Source: [`docs/mcpize-tools/safety_file.md`](mcpize-tools/safety_file.md)
+
+- What it checks: for one make, model, and model year, the NHTSA crash
+  test ratings of each rated variant, the recall campaigns, and the
+  consumer complaints, in one file.
+- Served as: `GET /safety` by the pay per call API.
+- Price: 0.25 USDC per call, as stated above for this part.
