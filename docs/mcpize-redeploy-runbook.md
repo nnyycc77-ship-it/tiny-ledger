@@ -2,7 +2,7 @@
 
 The runbook for issue
 [#123](https://github.com/nnyycc77-ship-it/tiny-ledger/issues/123). One
-owner action carries two changes that have merged to `main` but are not live
+owner action carries three changes that have merged to `main` but are not live
 on MCPize, because auto deploy is off by design:
 
 1. **The failure naming fix** (PR
@@ -17,6 +17,18 @@ on MCPize, because auto deploy is off by design:
    `nonprofit_check`, `awards_search` and `pagespeed_snapshot` (PR
    [#102](https://github.com/nnyycc77-ship-it/tiny-ledger/pull/102), merge
    commit `6c31a3444485fe7eada6f764ea7d0fe0f76a22b8`).
+3. **The wave tool registration** (issue
+   [#204](https://github.com/nnyycc77-ship-it/tiny-ledger/issues/204)).
+   The seventeen tool factory wave tools whose fetchers and API
+   endpoints are already on `main` are registered on the same server
+   surface, so the server lists twenty four tools: the seven above plus
+   `domain_trust_check`, `ofac_sanctions_check`, `vin_decode_check`,
+   `clinical_trial_check`, `fda_drug_check`, `broken_link_check`,
+   `meta_tag_check`, `github_repo_check`, `app_lookup_check`,
+   `exchange_rate_check`, `flood_check`, `safety_file`,
+   `fda_recall_check`, `epa_screen`, `csl_screen`, `oig_screen` and
+   `insider_check`. `faa_lookup` is not among them; it joins the
+   surface in a later change, after its own pull request merges.
 
 This file is repo work only. Nothing here was done on the dashboard,
 deployed, or paid for. Every dashboard step is the owner's, taken when the
@@ -77,7 +89,7 @@ Every box is checked before the owner acts.
   CI on that commit is green too: the `test` and `USAspending fetcher
   tests` workflows.
 
-- [ ] **The local server lists seven tools** on that commit:
+- [ ] **The local server lists twenty four tools** on that commit:
 
   ```sh
   printf '%s\n' \
@@ -89,7 +101,12 @@ Every box is checked before the owner acts.
 
   Expected, in this order: `['recall_check', 'carrier_check',
   'litigation_screen', 'formd_check', 'nonprofit_check', 'awards_search',
-  'pagespeed_snapshot']`.
+  'pagespeed_snapshot', 'domain_trust_check', 'ofac_sanctions_check',
+  'vin_decode_check', 'clinical_trial_check', 'fda_drug_check',
+  'broken_link_check', 'meta_tag_check', 'github_repo_check',
+  'app_lookup_check', 'exchange_rate_check', 'flood_check', 'safety_file',
+  'fda_recall_check', 'epa_screen', 'csl_screen', 'oig_screen',
+  'insider_check']`.
 
 - [ ] **The live server lists one tool** before the redeploy. The
   coordinator's probe on 2026-10-23 at about 18:36 UTC (#123, comment
@@ -108,8 +125,8 @@ Every box is checked before the owner acts.
 - [ ] **The owner has the environment values the new tools read ready**
   for step 3 of the owner steps. This runbook names them; their values
   are never written in this repo.
-  - `EDGAR_CONTACT`: without it, `formd_check` answers an error and
-    fetches nothing.
+  - `EDGAR_CONTACT`: without it, `formd_check` and `insider_check`
+    answer an error and fetch nothing.
   - `PAGESPEED_API_KEY`: without it, `pagespeed_snapshot` reports the
     API's 429 with quota 0.
   - `COURTLISTENER_TOKEN`: optional; without it, CourtListener applies
@@ -117,7 +134,7 @@ Every box is checked before the owner acts.
 
 - [ ] **Pricing stays as it is** (coordinator, #123). `mcpize.yaml` is
   untouched, and `recall_check` stays the one priced tool at 0.05 USDC per
-  call. The six new tools go live unpriced unless the owner prices them as
+  call. The other tools go live unpriced unless the owner prices them as
   a separate decision. Per tool prices live in the dashboard's Payments
   tab, which is the runtime source of truth.
 
@@ -135,7 +152,7 @@ them in at the time.
 | 2 | Write down the deployment shown as current, in the Rollback section below: **date or id as shown: ______**. | The deployment live before this redeploy, which serves version 0.1.0 with one tool. Whether the dashboard lists earlier deployments is TO CONFIRM AT THE DASHBOARD. |
 | 3 | In the server's environment or secrets settings, set `EDGAR_CONTACT` and `PAGESPEED_API_KEY`. | Both names present. Their values are entered on the dashboard only, never in this repo or in any issue. |
 | 4 | Use the server's redeploy or deploy-latest control (**label: TO CONFIRM AT THE DASHBOARD**) to deploy from the deploy commit recorded in Preconditions. | A build that finishes with a healthy status. The screen wording is TO CONFIRM AT THE DASHBOARD. |
-| 5 | Leave the Payments tab as it is. | `recall_check` still priced at 0.05 USDC per call, matching `mcpize.yaml`. The six new tools unpriced. |
+| 5 | Leave the Payments tab as it is. | `recall_check` still priced at 0.05 USDC per call, matching `mcpize.yaml`. The other tools unpriced. |
 
 This is one owner action, with the environment values set in the same
 sitting. The coordinator then runs the outside verification below.
@@ -210,7 +227,7 @@ probe on 2026-10-23 at about 18:36 UTC (#123, comment 6372123142):
 | Step | Before the redeploy (observed) | After the redeploy (expected) | Fails when |
 | --- | --- | --- | --- |
 | `initialize` (anonymous) | HTTP 200; `serverInfo` name "hojo-recall-check via MCPize", version "0.1.0", title "Tiny Ledger"; instructions name one tool, `recall_check` | HTTP 200; `serverInfo` version "0.3.0", the server version on `main` since PR #102, under the gateway's name form | It is not 200, or the version is still 0.1.0, which means the old build is live. |
-| `tools/list` | One tool, `recall_check` | Seven tools, in the order listed under Preconditions | Any other count or order. |
+| `tools/list` | One tool, `recall_check` | Twenty four tools, in the order listed under Preconditions | Any other count or order. |
 | `tools/call recall_check`, unpaid | HTTP 402 with a JSON body, not a JSON-RPC error: `x402Version` 1, one `accepts` entry with `scheme` "exact", `network` "base", `maxAmountRequired` "50000" (0.05 USDC at 6 decimals), and `payTo` equal to the `recipient` in `mcpize.yaml` | The same 402 with the same values | Any status other than 402, a different amount or network, or a `payTo` that differs from `mcpize.yaml`. |
 
 The observed 402 body is quoted verbatim in the coordinator's comment. It
@@ -226,7 +243,7 @@ Vornado report (recalls 18-136 and 18-199 for `{"product": "VH101"}`, as
 the coordinator's local run on PR #121 showed) or a named failure under
 the new format. Either answers the open question on #118.
 
-## Listing copy for the seven tools
+## Listing copy for the twenty four tools
 
 This copy is pasted where the dashboard takes it after the outside
 verification passes, replacing the one-tool copy in
@@ -236,9 +253,10 @@ it by cutting, never by adding. Each line paraphrases that tool's own
 authority, and nothing here goes beyond it.
 
 **Title:** Hojo public records checks: sourced recall, carrier, litigation,
-Form D, nonprofit, contract award and PageSpeed lookups
+Form D, nonprofit, contract award, PageSpeed and public records screening
+lookups
 
-**Short description:** Seven tools that each return a Markdown report in
+**Short description:** Twenty four tools that each return a Markdown report in
 one fixed evidence format: the exact query, the UTC retrieval time, the
 source link, and the complete raw response beneath the link. An empty
 result is proven by that raw response, never asserted. A failed fetch is
@@ -268,8 +286,50 @@ an error that names the source, never an empty result.
 - `pagespeed_snapshot`: PageSpeed Insights scores and lab metrics for up
   to five pages, measured at that moment. Without `PAGESPEED_API_KEY` on
   the server, the API answers 429 and that answer is the report.
+- `domain_trust_check`: a domain's A and MX records, its SPF and DMARC
+  records and policies, and its HTTPS answer over up to five hops. No
+  certificate check is made.
+- `ofac_sanctions_check`: an OFAC SDN list name check, against the list
+  and its aliases. A name with no match is not a clearance.
+- `vin_decode_check`: the NHTSA vPIC decode of a VIN, with vPIC's own
+  error text where it gives it. A decode describes the vehicle as
+  manufactured, not its current condition.
+- `clinical_trial_check`: a ClinicalTrials.gov study search by company,
+  drug or condition, with the total count as shown. Not medical advice.
+- `fda_drug_check`: openFDA drug label facts for a brand or generic
+  name, read from the first returned record. Not medical advice.
+- `broken_link_check`: the link targets of one page, each checked once;
+  a link is dead on a final status of 400 or above, and a failed request
+  is a check failure, never a dead link.
+- `meta_tag_check`: one page's title, meta description and Open Graph
+  tags, present with their values or missing, as shown in the page.
+- `github_repo_check`: a GitHub repository's stars, license, last push
+  date and archived state, keyless, as the API shows them.
+- `app_lookup_check`: an App Store lookup by app name, with seller,
+  rating and store link per result, and exact name matches marked.
+- `exchange_rate_check`: a Frankfurter exchange rate for a currency
+  pair, latest or dated, with an optional converted amount. Not a quote
+  to trade at.
+- `flood_check`: a FEMA flood zone screen for coordinates or a US
+  street address. Screening only, not a Standard Flood Hazard
+  Determination.
+- `safety_file`: one vehicle's NHTSA safety ratings, recalls and
+  complaints for a model year, make and model, in one file.
+- `fda_recall_check`: an openFDA enforcement recall search by product,
+  device or firm name, across food, device or both. An empty result is
+  not a clearance.
+- `epa_screen`: EPA ECHO facility compliance records by facility name
+  and state. An empty search is not a finding of no violations.
+- `csl_screen`: a Consolidated Screening List name screen, stating the
+  list publication date and the rows screened. No match is not a
+  clearance.
+- `oig_screen`: an HHS OIG LEIE exclusion screen by name, against the
+  complete current file. No match is not a clearance.
+- `insider_check`: SEC EDGAR insider filings (Forms 3, 4 and 5) for a
+  company, by CIK or by company name search. It works only when the
+  server has `EDGAR_CONTACT` set; until then it answers an error.
 
-`recall_check` is the one priced tool. The other six are unpriced at this
+`recall_check` is the one priced tool. The other twenty three are unpriced at this
 redeploy (coordinator, #123), and the listing names no price for them
 until the owner sets one in the Payments tab.
 
