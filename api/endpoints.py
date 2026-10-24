@@ -25,6 +25,7 @@ nothing else to the fetchers' output.
     /safety      tools/safety_file.py          make, model, year
     /fda         tools/fda_recall_check.py     name (field, category, limit optional)
     /epa         tools/epa_screen.py           name, state (city, registry_id optional)
+    /oig         tools/oig_screen.py           name
 
 Each endpoint takes the fetcher's own command line inputs as query
 parameters under the same names (hyphens become underscores), validates
@@ -69,6 +70,7 @@ from tools import flood_check as fl  # noqa: E402
 from tools import fmcsa_carrier as fc  # noqa: E402
 from tools import github_repo_check as gh  # noqa: E402
 from tools import meta_tag_check as mt  # noqa: E402
+from tools import oig_screen as oig  # noqa: E402
 from tools import ofac_sdn_check as ofac  # noqa: E402
 from tools import pagespeed_snapshot as ps  # noqa: E402
 from tools import propublica_nonprofits as pp  # noqa: E402
@@ -671,6 +673,22 @@ def epa_screen(query, env=None):
 
 
 # ----------------------------------------------------------------------
+# /oig
+# ----------------------------------------------------------------------
+
+def oig_exclusions(query, env=None):
+    """HHS OIG LEIE exclusion screen via tools/oig_screen.py."""
+    name = " ".join(_single(query, "name", "").split())
+    if oig.significant(name) < oig.MIN_QUERY_CHARS:
+        raise BadRequest("name must have at least %d letters or digits" % oig.MIN_QUERY_CHARS)
+    try:
+        lines = oig.render(name, oig.fetch(oig.LEIE_URL))
+    except oig.FetchError as err:
+        raise FetchFailed(str(err))
+    return _text([], lines)
+
+
+# ----------------------------------------------------------------------
 # Registry and descriptor
 # ----------------------------------------------------------------------
 
@@ -692,9 +710,16 @@ ROUTES = {
     "/safety": safety,
     "/fda": fda_recall,
     "/epa": epa_screen,
+    "/oig": oig_exclusions,
 }
 
 DESCRIPTIONS = {
+    "/oig": {
+        "tool": "tools/oig_screen.py",
+        "params": ["name (person or entity name; at least %d letters or digits)" % oig.MIN_QUERY_CHARS],
+        "sources": [oig.LEIE_URL],
+        "note": "Keyless. Reads the complete current LEIE database file on every call; no match is not a clearance.",
+    },
     "/fda": {
         "tool": "tools/fda_recall_check.py",
         "params": ["name (product, device or firm name, %d to %d characters)" % (fda.MIN_TERM_CHARS, fda.MAX_TERM_CHARS),
