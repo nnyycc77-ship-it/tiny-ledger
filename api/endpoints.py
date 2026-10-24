@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """The remaining fetchers as paid API endpoints (issue #65).
 
-Nineteen GET endpoints beside GET /recall, each wrapping one merged fetcher in
+Twenty-two GET endpoints beside GET /recall, each wrapping one merged fetcher in
 tools/ as library code and returning that fetcher's own rendered Markdown
 in the delivery format from AGENT-BRIEF.md: the claim lines, the exact
 query, the UTC retrieval time, the source link, and the complete raw
@@ -29,6 +29,7 @@ nothing else to the fetchers' output.
     /trials      tools/clinical_trial_check.py term (limit optional)
     /links       tools/broken_link_check.py    url
     /insider     tools/insider_check.py        cik | issuer (max_filings optional)
+    /drug        tools/fda_drug_check.py       name
 
 Each endpoint takes the fetcher's own command line inputs as query
 parameters under the same names (hyphens become underscores), validates
@@ -70,6 +71,7 @@ from tools import domain_trust_check as dt  # noqa: E402
 from tools import edgar_formd as ef  # noqa: E402
 from tools import epa_screen as epa  # noqa: E402
 from tools import exchange_rate_check as fx  # noqa: E402
+from tools import fda_drug_check as fd  # noqa: E402
 from tools import fda_recall_check as fda  # noqa: E402
 from tools import flood_check as fl  # noqa: E402
 from tools import fmcsa_carrier as fc  # noqa: E402
@@ -703,6 +705,30 @@ def epa_screen(query, env=None):
 
 
 # ----------------------------------------------------------------------
+# /drug
+# ----------------------------------------------------------------------
+
+def drug(query, env=None):
+    """openFDA drug label check via tools/fda_drug_check.py."""
+    try:
+        name = fd.check_name(_single(query, "name", ""))
+    except ValueError as err:
+        raise BadRequest(str(err))
+    url = fd.build_url(name)
+    try:
+        retrieved, transcript, body = fd.fetch(url)
+    except (urllib.error.URLError, OSError) as err:
+        raise _transport(err)
+    lines = fd.render_section(name, url, retrieved, transcript, body)
+    head = _head("FDA drug label: %s" % name,
+                 "Observation only: this report records what the public openFDA drug label "
+                 "API returned for this name at the retrieval time stated below; the facts are "
+                 "the first returned label record's as shown, and the report is not medical advice.",
+                 "tools/fda_drug_check.py")
+    return _text(head, lines)
+
+
+# ----------------------------------------------------------------------
 # /oig
 # ----------------------------------------------------------------------
 
@@ -794,6 +820,7 @@ ROUTES = {
     "/oig": oig_exclusions,
     "/links": links,
     "/insider": insider,
+    "/drug": drug,
 }
 
 DESCRIPTIONS = {
@@ -921,6 +948,12 @@ DESCRIPTIONS = {
         "params": ["url (the page URL, http or https)"],
         "sources": ["https://<page url> (the page itself, and each link target on it)"],
         "note": "Keyless. A link is dead on a final status of 400 or above; a request that fails is listed as a check failure, never as dead.",
+    },
+    "/drug": {
+        "tool": "tools/fda_drug_check.py",
+        "params": ["name (a drug brand or generic name, e.g. Lipitor)"],
+        "sources": [fd.BASE_URL],
+        "note": "Keyless. Label facts from the first returned record only; the report states the total matches the response reports. Not medical advice.",
     },
     "/safety": {
         "tool": "tools/safety_file.py",

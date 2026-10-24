@@ -36,6 +36,7 @@ environment and its header comment says so.
 | HHS OIG LEIE exclusion screen, persons and entities (docs/mcpize-tools/oig_screen.md) | `oig_screen.py` | none needed |
 | The page itself: every link on one page checked, dead ones listed with status codes (docs/mcpize-tools/broken_link_check.md) | `broken_link_check.py` | none needed |
 | SEC EDGAR insider activity, Forms 3, 4 and 5 as filed (docs/mcpize-tools/insider_check.md) | `insider_check.py` | none needed; an operator contact for the User-Agent is required (`--contact` or `EDGAR_CONTACT`) |
+| openFDA drug label check by brand or generic name (docs/mcpize-tools/fda_drug_check.md) | `fda_drug_check.py` | none needed |
 
 Not a fetcher: `pregate.py` is the offline review pre gate (secrets scan,
 honesty lint, fixture provenance check) from `REVIEW.md`. See
@@ -995,3 +996,43 @@ placeholder payout address. Their provenance and hashes are in
 python3 -m unittest discover -s tools/tests -p 'test_api_smoke.py' -v
 ```
 
+
+## fda_drug_check.py
+
+```sh
+python3 tools/fda_drug_check.py Lipitor
+python3 tools/fda_drug_check.py Tylenol
+python3 tools/fda_drug_check.py acetaminophen
+```
+
+Tool factory wave 1, issue #163. One drug name per run, looked up once
+with the openFDA drug label endpoint (`api.fda.gov/drug/label.json`, a
+phrase search over `openfda.brand_name` and `openfda.generic_name`,
+limit 1), keyless, through the capture path of `nhtsa_recalls.py`. The
+section shows the QUERY line with the HTTP status and the response's
+own total of matching label records, then the LABEL lines for the
+first returned record: brand and generic names, the maker
+(`openfda.manufacturer_name`), product type and route as shown, which
+of the `boxed_warning`, `warnings` and `warnings_and_cautions`
+sections are present, and the dosage form as the record carries it
+(a `dosage_form` field, else the `dosage_forms_and_strengths` text,
+else stated as not present; the gap is never filled). A name no label
+matches is answered by openFDA with HTTP 404 and a `NOT_FOUND` error
+body; the report quotes it and the complete raw HTTP response
+transcript directly beneath the source link proves it. A transport
+failure prints nothing on stdout and exits 2. Not medical advice.
+Docs page:
+[`docs/mcpize-tools/fda_drug_check.md`](../docs/mcpize-tools/fda_drug_check.md).
+
+### Verification
+
+```sh
+python3 -m unittest discover -s tools/tests -p 'test_fda_drug_check.py' -v
+```
+
+The tests need no network. They run on two real, keyless openFDA
+responses captured live by H6 on issue #163 (a Tylenol hit and the
+no match 404), plus labelled test bodies for the dosage form shapes
+and a mocked fetch for the source failure shape. Their URLs, body
+sizes and SHA-256 hashes are in `tests/fixtures/openfda/provenance.json`,
+and the hashes are checked.

@@ -34,6 +34,7 @@ from tools import domain_trust_check as dt  # noqa: E402
 from tools import edgar_formd as ef  # noqa: E402
 from tools import epa_screen as epa  # noqa: E402
 from tools import exchange_rate_check as fx  # noqa: E402
+from tools import fda_drug_check as fd  # noqa: E402
 from tools import fmcsa_carrier as fc  # noqa: E402
 from tools import pagespeed_snapshot as ps  # noqa: E402
 from tools import propublica_nonprofits as pp  # noqa: E402
@@ -60,7 +61,7 @@ class RoutingTests(unittest.TestCase):
     def test_descriptor_lists_every_endpoint_with_tool_params_and_sources(self):
         doc = recall_api.descriptor(WALLET)
         self.assertEqual(sorted(doc["endpoints"]),
-                         ["/app", "/awards", "/carrier", "/domain", "/epa", "/fda", "/flood", "/formd", "/fx", "/github",
+                         ["/app", "/awards", "/carrier", "/domain", "/drug", "/epa", "/fda", "/flood", "/formd", "/fx", "/github",
                           "/insider", "/links", "/litigation", "/meta", "/nonprofit", "/ofac", "/oig", "/pagespeed", "/recall",
                           "/safety", "/trials", "/vin"])
         for path, entry in doc["endpoints"].items():
@@ -100,9 +101,10 @@ class RoutingTests(unittest.TestCase):
             "/epa": ["", "name=BAYTOWN+OLEFINS", "state=TX", "name=BAYTOWN+OLEFINS&state=Texas",
                      "name=BAYTOWN+OLEFINS&state=TX&registry_id=abc"],
             "/links": ["", "url=notaurl", "url=ftp://example.com/", "url=https://a.example/&url=https://b.example/"],
+            "/drug": ["", "name=", "name=Lipitor&name=Tylenol", 'name=say%20"cheese"'],
         }
         patches = [patch.object(mod, "fetch", side_effect=AssertionError("no fetch expected"))
-                   for mod in (fc, cl, ua, pp, ps, ef, vd, fx, sf, epa, bl)]
+                   for mod in (fc, cl, ua, pp, ps, ef, vd, fx, sf, epa, bl, fd)]
         patches += [patch.object(dt, name, side_effect=AssertionError("no fetch expected"))
                     for name in ("fetch_doh", "fetch_site")]
         patches.append(patch.object(al, "fetch", side_effect=AssertionError("no fetch expected")))
@@ -644,6 +646,50 @@ class BrokenLinkTests(unittest.TestCase):
             status, _, text = get("/links", "url=https://example.com/")
         self.assertEqual(status, "502 Bad Gateway")
         self.assertNotIn("Dead links", text)
+
+
+# ----------------------------------------------------------------------
+# /drug
+# ----------------------------------------------------------------------
+
+class DrugLabelTests(unittest.TestCase):
+    """Served from H6's keyless live captures on issue #163
+    (tools/tests/fixtures/openfda, provenance there)."""
+
+    def served(self, name):
+        transcript = (FIXTURES / "openfda" / name).read_text(encoding="utf-8")
+        return "2026-10-24T04:59:59Z", transcript, transcript.partition("\n\n")[2]
+
+    def test_hit_renders_the_fetchers_section(self):
+        url = "https://api.fda.gov/drug/label.json?search=openfda.brand_name:%22Tylenol%22+OR+openfda.generic_name:%22Tylenol%22&limit=1"
+        cap = self.served("tylenol-hit.http")
+        with patch.object(fd, "fetch", side_effect=lambda u: cap if u == url else AssertionError(u)) as fetch:
+            status, headers, text = get("/drug", "name=Tylenol", WALLET)
+        self.assertEqual(status, "200 OK", text)
+        self.assertEqual(headers["Content-Type"], recall_api.TEXT_MD)
+        self.assertEqual(fetch.call_count, 1)
+        self.assertTrue(text.startswith("# FDA drug label: Tylenol\n"))
+        self.assertIn("tools/fda_drug_check.py", text)
+        self.assertIn("\n".join(fd.render_section("Tylenol", url, *cap)), text)
+        self.assertIn("- maker (openfda.manufacturer_name) as shown: Kenvue Brands LLC", text)
+        self.assertIn("- warnings present: the record carries warnings.", text)
+
+    def test_no_match_is_a_report_not_an_error(self):
+        cap = self.served("no-match-404.http")
+        with patch.object(fd, "fetch", return_value=cap) as fetch:
+            status, _, text = get("/drug", "name=Zqxwvnotadrug")
+        fetch.assert_called_once_with(
+            "https://api.fda.gov/drug/label.json?search=openfda.brand_name:%22Zqxwvnotadrug%22+OR+openfda.generic_name:%22Zqxwvnotadrug%22&limit=1")
+        self.assertEqual(status, "200 OK", text)
+        self.assertIn('LABEL: no drug label record matched "Zqxwvnotadrug".', text)
+        self.assertIn("HTTP/1.1 404 Not Found", text)
+
+    def test_failed_fetch_is_502_with_no_report(self):
+        import urllib.error
+        with patch.object(fd, "fetch", side_effect=urllib.error.URLError("refused (test)")):
+            status, _, text = get("/drug", "name=Lipitor")
+        self.assertEqual(status, "502 Bad Gateway")
+        self.assertNotIn("LABEL:", text)
 
 
 # ----------------------------------------------------------------------
