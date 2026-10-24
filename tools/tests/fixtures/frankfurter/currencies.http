@@ -1,0 +1,19 @@
+HTTP/1.1 200 OK
+Date: Sat, 24 Oct 2026 03:06:05 GMT
+Content-Type: application/json; charset=utf-8
+CF-RAY: a4f5c379184ae1e3-ORD
+Server: cloudflare
+cache-control: public, max-age=86400
+etag: "ddb2c31ee37226cd131c19d7d87ace78"
+vary: Origin
+x-robots-tag: noindex
+deprecation: @1779103800
+link: <https://api.frankfurter.dev/v2/currencies>; rel="successor-version"
+Age: 10784
+Accept-Ranges: bytes
+cf-cache-status: HIT
+Nel: {"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}
+Report-To: {"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=P9Tsen2Mew9MjFPbr%2FrgAkOPXp2Y4hAbjdF07fpfszzcaSBgU%2BhGwIBf4nzYWSM8CxZqLRzoUpnj2UDbPsrmDxKip2m4N0US1Iz%2FcWBtaYgDMJryHBZCijL7xDtU9W1KqQXrZv9Zx2eigzzvLscsyiA%3D"}]}
+Content-Length: 703
+
+{"AUD":"Australian Dollar","BRL":"Brazilian Real","CAD":"Canadian Dollar","CHF":"Swiss Franc","CNY":"Chinese Renminbi Yuan","CZK":"Czech Koruna","DKK":"Danish Krone","EUR":"Euro","GBP":"British Pound","HKD":"Hong Kong Dollar","HUF":"Hungarian Forint","IDR":"Indonesian Rupiah","ILS":"Israeli New Shekel","INR":"Indian Rupee","ISK":"Icelandic Króna","JPY":"Japanese Yen","KRW":"South Korean Won","MXN":"Mexican Peso","MYR":"Malaysian Ringgit","NOK":"Norwegian Krone","NZD":"New Zealand Dollar","PHP":"Philippine Peso","PLN":"Polish Złoty","RON":"Romanian Leu","SEK":"Swedish Krona","SGD":"Singapore Dollar","THB":"Thai Baht","TRY":"Turkish Lira","USD":"United States Dollar","ZAR":"South African Rand"}

@@ -1,0 +1,18 @@
+HTTP/1.1 200 OK
+Date: Sat, 24 Oct 2026 03:06:04 GMT
+Content-Type: application/json; charset=utf-8
+CF-RAY: a4f5c36e6998a724-SJC
+Server: cloudflare
+cache-control: public, max-age=86400
+etag: "323c5117b1edc8ae79283a7eb1ff9201"
+vary: Origin
+x-robots-tag: noindex
+deprecation: @1779103800
+link: <https://api.frankfurter.dev/v2/rates>; rel="successor-version"
+Accept-Ranges: bytes
+cf-cache-status: MISS
+Nel: {"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}
+Report-To: {"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=1xiyOy52EFK6NeNV%2FYyy1G%2BUnRLOuaTG7Q1c8c%2FlKo759ckJoVlgyWT2amnhtuaXzixbPTn7g%2BBGL%2B%2FOZwij8PlAaoUbZn3PesGohXeviPpClA6rws1fMtyMKle%2BFBS%2BaW5ZFEzU5cCZRt0GwiWTaz8%3D"}]}
+Content-Length: 71
+
+{"amount":1.0,"base":"USD","date":"2024-01-05","rates":{"EUR":0.91567}}
