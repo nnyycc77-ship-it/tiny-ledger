@@ -32,6 +32,7 @@ environment and its header comment says so.
 | OFAC SDN list name check, primary names and aliases (docs/ofac-sdn-check.md) | `ofac_sdn_check.py` | none needed |
 | GitHub repository check, keyless: stars, license, last push, archived (docs/mcpize-tools/github_repo_check.md) | `github_repo_check.py` | none needed; 60 requests per hour unauthenticated |
 | FDIC BankFind bank check, keyless: institutions whose FDIC name begins with the typed name, with certificate number, city, state and active status (docs/mcpize-tools/bank_check.md) | `bank_check.py` | none needed |
+| US address geocode check: matched address, coordinates and county from the Census Bureau geocoder (docs/mcpize-tools/address_geocode_check.md) | `address_geocode_check.py` | none needed |
 | Meta tag check: title, description and Open Graph tags present or missing on a page (docs/mcpize-tools/meta_tag_check.md) | `meta_tag_check.py` | none needed; the source is the page itself |
 | ClinicalTrials.gov API v2 studies search: trial count and top trials with status (docs/mcpize-tools/clinical_trial_check.md) | `clinical_trial_check.py` | none needed |
 | US Consolidated Screening List screen: name and alias match against the published CSL file, with list date and rows screened (docs/mcpize-tools/csl_screen.md) | `csl_screen.py` | none needed; the list file is cached locally for a day |

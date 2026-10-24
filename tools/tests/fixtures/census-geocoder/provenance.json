@@ -1,0 +1,18 @@
+{
+  "white-house.body": {
+    "kind": "REAL CAPTURE",
+    "url": "https://geocoding.geo.census.gov/geocoder/geographies/onelineaddress?address=1600%20Pennsylvania%20Ave%20NW%2C%20Washington%2C%20DC%2020500&benchmark=Public_AR_Current&vintage=Current_Current&format=json",
+    "retrieved": "2026-10-24T12:17:06Z",
+    "contents": "REAL CAPTURE: the complete raw response body for the White House address, one addressMatches entry, verbatim as returned.",
+    "sha256": "b799765122ef3286b36a539826732e2484eac7812f71a9456d1a67a45b997aa7",
+    "captured_by": "H6, with tools/address_geocode_check.py fetch(), live from geocoding.geo.census.gov for issue #319"
+  },
+  "no-match.body": {
+    "kind": "REAL CAPTURE",
+    "url": "https://geocoding.geo.census.gov/geocoder/geographies/onelineaddress?address=99999%20Zqxflorp%20Boulevard%2C%20Nowhere%2C%20ZZ%2000000&benchmark=Public_AR_Current&vintage=Current_Current&format=json",
+    "retrieved": "2026-10-24T12:17:07Z",
+    "contents": "REAL CAPTURE: the complete raw response body for an address the geocoder does not match, an empty addressMatches array, verbatim as returned.",
+    "sha256": "2bcec002b9f94ab9ea78a9b106cb6d642b7a4228bfda4d5647a496201a9e65a8",
+    "captured_by": "H6, with tools/address_geocode_check.py fetch(), live from geocoding.geo.census.gov for issue #319"
+  }
+}

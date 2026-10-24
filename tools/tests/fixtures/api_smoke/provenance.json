@@ -653,5 +653,30 @@
     "server_config": "PAYOUT_WALLET_ADDRESS=0x1111111111111111111111111111111111111111, a SYNTHETIC placeholder address chosen for the capture, not any real wallet; EDGAR_CONTACT set to a labelled test contact (Tiny Ledger Api Smoke smoke@example.com), as in the earlier captures; HTTP_PROXY, HTTPS_PROXY, http_proxy and https_proxy all set to http://127.0.0.1:9, a closed local port, and NO_PROXY empty, so every source fetch fails at transport and nothing leaves the machine; no X-PAYMENT header sent, so the facilitator was never contacted",
     "transcript_form": "status line, response headers in the order returned, a blank line, then the body exactly as returned, joined with newline characters",
     "note": "Replayed source failure: the query is valid, and the recorded proxy config makes the source fetch fail at transport; the 502 below is the server's own answer, captured verbatim. The descriptor and the payment gate are not affected."
+  },
+  "geocode.http": {
+    "url": "http://127.0.0.1:8765/geocode?address=1600+Pennsylvania+Ave+NW%2C+Washington%2C+DC+20500",
+    "retrieved_utc": "2026-10-24T12:20:51Z",
+    "sha256": "5ffa1e799735f7c56e86183d6859f07df3269fdd70f6dc8b313a506f13c4ffbb",
+    "captured_by": "H6, with tools/api_smoke.py fetch(), from the local gated server: python3 server.py at branch h6-address-geocode-check commit cd124e7 (main 6b77ba4 plus the issue #319 changes) (api.payment_gate:app), PORT=8765, for issue #319.",
+    "server_config": "PAYOUT_WALLET_ADDRESS=0x1111111111111111111111111111111111111111, a SYNTHETIC placeholder address chosen for the capture, not any real wallet; EDGAR_CONTACT set to a labelled test contact (Tiny Ledger Api Smoke smoke@example.com); FACILITATOR_URL, X402_PRICE_ATOMIC, X402_NETWORK and X402_ASSET at their defaults; no X-PAYMENT header sent, so the facilitator was never contacted",
+    "transcript_form": "status line, response headers in the order returned, a blank line, then the body exactly as returned, joined with newline characters"
+  },
+  "geocode-400.http": {
+    "url": "http://127.0.0.1:8765/geocode",
+    "retrieved_utc": "2026-10-24T12:20:52Z",
+    "sha256": "935af374dbe67574a32401c42a1b1e2251976ac61be581b21446b2c99cf2f9fa",
+    "captured_by": "H6, with tools/api_smoke.py fetch(), from the local gated server: python3 server.py at branch h6-address-geocode-check commit cd124e7 (main 6b77ba4 plus the issue #319 changes) (api.payment_gate:app), PORT=8765, for issue #319.",
+    "server_config": "PAYOUT_WALLET_ADDRESS=0x1111111111111111111111111111111111111111, a SYNTHETIC placeholder address chosen for the capture, not any real wallet; EDGAR_CONTACT set to a labelled test contact (Tiny Ledger Api Smoke smoke@example.com); FACILITATOR_URL, X402_PRICE_ATOMIC, X402_NETWORK and X402_ASSET at their defaults; no X-PAYMENT header sent, so the facilitator was never contacted",
+    "transcript_form": "status line, response headers in the order returned, a blank line, then the body exactly as returned, joined with newline characters"
+  },
+  "geocode-502.http": {
+    "url": "http://127.0.0.1:8765/geocode?address=1600+Pennsylvania+Ave+NW%2C+Washington%2C+DC+20500",
+    "retrieved_utc": "2026-10-24T12:21:32Z",
+    "sha256": "5b0c445e5251a1db7f61f2a260f4d47fd4c4663b00f6c6bd319b83fd16ccbe6f",
+    "captured_by": "H6, with tools/api_smoke.py fetch(), from the local gated server: python3 server.py at branch h6-address-geocode-check commit cd124e7 (main 6b77ba4 plus the issue #319 changes) (api.payment_gate:app), PORT=8765, for issue #319.",
+    "server_config": "PAYOUT_WALLET_ADDRESS=0x1111111111111111111111111111111111111111, a SYNTHETIC placeholder address chosen for the capture, not any real wallet; EDGAR_CONTACT set to a labelled test contact (Tiny Ledger Api Smoke smoke@example.com); HTTP_PROXY, HTTPS_PROXY, http_proxy and https_proxy all set to http://127.0.0.1:9, a closed local port, so every source fetch fails at transport; no X-PAYMENT header sent, so the facilitator was never contacted",
+    "transcript_form": "status line, response headers in the order returned, a blank line, then the body exactly as returned, joined with newline characters",
+    "note": "Replayed source failure: the query is valid, the same sample shape as the endpoint's 200 capture, and the recorded proxy config makes the source fetch fail at transport; the 502 below is the server's own answer, captured verbatim. The descriptor and the payment gate are not affected by the proxy config."
   }
 }

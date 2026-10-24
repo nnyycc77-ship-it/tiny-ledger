@@ -40,6 +40,15 @@ Which data is which:
   1784d43 run without EDGAR_CONTACT, so the endpoint answered 503 to
   a valid sample query before fetching anything. Its provenance entry
   records the missing contact as the capture config and the SHA-256.
+* REAL CAPTURE, GEOCODE SHAPES: the three fixtures added for issue
+  #319 (geocode.http, geocode-400.http and geocode-502.http) are
+  transcripts from the same local gated server at branch
+  h6-address-geocode-check commit cd124e7 (main 6b77ba4 plus that
+  issue's changes): a live 200 report for a White House address (the
+  server reached geocoding.geo.census.gov), the bare path answered
+  400, and a replayed 502 from the closed port proxy config of issue
+  #235. Their provenance entries record the configs and the SHA-256
+  of each.
 * LIVE LOCAL: the live mode tests run the real api.payment_gate app
   in process on 127.0.0.1, configured with the same SYNTHETIC placeholder
   address. No X-PAYMENT header is ever sent, so the facilitator is never
@@ -120,21 +129,22 @@ class OfflineMode(unittest.TestCase):
         self.assertTrue(all(ok for _, ok in results), results)
         self.assertEqual(self.caps["openapi"].status, 200)
 
-    def test_default_run_passes_all_440_with_the_raw_responses(self):
-        # 20 original assertions, 18 endpoint sections of 5, 26 bad
-        # query sections of 4, 28 bad query accounting lines, 26 source
-        # failure sections of 4, 28 source failure accounting lines,
-        # two unavailable sections of 5 (/formd and /insider), 28
-        # unavailable accounting lines, and 28 coverage lines, one per
+    def test_default_run_passes_all_457_with_the_raw_responses(self):
+        # 20 original assertions, 19 endpoint sections of 5, 27 bad
+        # query sections of 4, 29 bad query accounting lines, 27 source
+        # failure sections of 4, 29 source failure accounting lines,
+        # two unavailable sections of 5 (/formd and /insider), 29
+        # unavailable accounting lines, and 29 coverage lines, one per
         # GET path in api/openapi.json (seven paths added by issue #243,
         # with 400 and 502 captures, a 503 capture for /insider, and a
         # reasoned entry in NO_ENDPOINT_CAPTURE; /bank added by issue #320
         # with 200, 400 and 502 captures; /disaster added by issue #312
-        # with 400 and 502 captures and a reasoned 200, with no 503).
+        # with 400 and 502 captures and a reasoned 200, with no 503;
+        # /geocode added by issue #319 with 200, 400 and 502 captures).
         code, out, err = run_main([])
         self.assertEqual(code, 0, err)
         self.assertIn("Result: PASS, every assertion held.", out)
-        self.assertEqual(out.count("- PASS:"), 440)
+        self.assertEqual(out.count("- PASS:"), 457)
         self.assertNotIn("- FAIL:", out)
         self.assertIn("Source: <http://127.0.0.1:8765/openapi.json>", out)
         self.assertIn("Retrieved (UTC): 2026-10-23T14:51:26Z", out)

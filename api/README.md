@@ -24,6 +24,7 @@ Every merged fetcher in `tools/` is an endpoint with the same contract as `GET /
 | `GET /app` | `tools/app_lookup_check.py` | `name`; optional `country` (two letters, default `us`), `limit` (1 to 200, default 10) |
 | `GET /vin` | `tools/vin_decode.py` | `vin`; optional `model_year` |
 | `GET /fx` | `tools/exchange_rate_check.py` | `base`, `target`; optional `amount`, `date` |
+| `GET /geocode` | `tools/address_geocode_check.py` | `address` (a US street address) |
 | `GET /meta` | `tools/meta_tag_check.py` | `url` (a page URL, http or https) |
 | `GET /csl` | `tools/csl_screen.py` | `name` (a person or company name) |
 | `GET /flood` | `tools/flood_check.py` | `lat` and `lon`, or `address` (a US street address) |

@@ -26,6 +26,7 @@ if str(ROOT) not in sys.path:
 sys.path.insert(0, str(ROOT / "tools" / "tests"))
 
 from api import endpoints, recall_api  # noqa: E402
+from tools import address_geocode_check as ag  # noqa: E402
 from tools import app_lookup_check as al  # noqa: E402
 from tools import broken_link_check as bl  # noqa: E402
 from tools import clinical_trial_check as ct  # noqa: E402
@@ -64,9 +65,9 @@ class RoutingTests(unittest.TestCase):
         doc = recall_api.descriptor(WALLET)
         self.assertEqual(sorted(doc["endpoints"]),
                          ["/app", "/awards", "/bank", "/carrier", "/csl", "/disaster", "/domain", "/drug", "/epa",
-                          "/faa", "/fda", "/flood", "/formd", "/fx", "/github", "/insider", "/links", "/litigation",
-                          "/meta", "/nonprofit", "/npi", "/ofac", "/oig", "/pagespeed", "/recall", "/safety",
-                          "/trials", "/vin", "/weather"])
+                          "/faa", "/fda", "/flood", "/formd", "/fx", "/geocode", "/github", "/insider", "/links",
+                          "/litigation", "/meta", "/nonprofit", "/npi", "/ofac", "/oig", "/pagespeed", "/recall",
+                          "/safety", "/trials", "/vin", "/weather"])
         for path, entry in doc["endpoints"].items():
             self.assertEqual(entry["method"], "GET", path)
             self.assertTrue(entry["tool"].startswith("tools/"), path)
@@ -108,6 +109,7 @@ class RoutingTests(unittest.TestCase):
             "/faa": ["", "n_number=N", "n_number=N10-0Z", "n_number=N1234567", "n_number=N1&n_number=N2"],
             "/disaster": ["", "state=R", "state=RIX", "state=RI&state=CT", "state=RI&limit=0", "state=RI&limit=1001",
                           "state=RI&limit=x", "state=RI&county=Prince+George%27s+(County)"],
+            "/geocode": ["", "address=", "address=a&address=b", "address=" + "a" * 201],
         }
         patches = [patch.object(mod, "fetch", side_effect=AssertionError("no fetch expected"))
                    for mod in (fc, cl, ua, pp, ps, ef, vd, fx, sf, epa, bl, fd)]
@@ -117,6 +119,7 @@ class RoutingTests(unittest.TestCase):
         patches.append(patch.object(ct, "fetch", side_effect=AssertionError("no fetch expected")))
         patches.append(patch.object(faa, "download", side_effect=AssertionError("no fetch expected")))
         patches.append(patch.object(dh, "fetch", side_effect=AssertionError("no fetch expected")))
+        patches.append(patch.object(ag, "fetch", side_effect=AssertionError("no fetch expected")))
         for p in patches:
             p.start()
             self.addCleanup(p.stop)
