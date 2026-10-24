@@ -1,7 +1,7 @@
-# Offline suite census, 2026-10-24 (twelfth pass)
+# Offline suite census, 2026-10-24 (thirteenth pass)
 
 The census for issue
-[#375](https://github.com/nnyycc77-ship-it/tiny-ledger/issues/375). It
+[#385](https://github.com/nnyycc77-ship-it/tiny-ledger/issues/385). It
 refreshes the censuses filed under issues
 [#112](https://github.com/nnyycc77-ship-it/tiny-ledger/issues/112),
 [#200](https://github.com/nnyycc77-ship-it/tiny-ledger/issues/200),
@@ -12,44 +12,42 @@ refreshes the censuses filed under issues
 [#277](https://github.com/nnyycc77-ship-it/tiny-ledger/issues/277),
 [#286](https://github.com/nnyycc77-ship-it/tiny-ledger/issues/286),
 [#301](https://github.com/nnyycc77-ship-it/tiny-ledger/issues/301),
-[#344](https://github.com/nnyycc77-ship-it/tiny-ledger/issues/344) and
-[#350](https://github.com/nnyycc77-ship-it/tiny-ledger/issues/350).
+[#344](https://github.com/nnyycc77-ship-it/tiny-ledger/issues/344),
+[#350](https://github.com/nnyycc77-ship-it/tiny-ledger/issues/350) and
+[#375](https://github.com/nnyycc77-ship-it/tiny-ledger/issues/375).
 Every offline suite in the repo was run in one pass against merged
 main.
 
-The #350 census was pinned to 0a80737. Three PRs merged after it
-(#367, the #350 census itself; #373, the api_smoke census pin test;
-and #372, the Carrier Watch offer page and the OFAC and OIG standing
-watch types). This census is pinned to 96ab9af, the combined main
-the coordinator's start message on issue #375 names. This file
-replaces the #350 census in place, as each census replaced the one
-before. The numbers below are the counts the runs returned.
+The #375 census was pinned to 96ab9af. Six PRs merged after it, up to
+this pin (#377 and #379, the pricing drift pin refreshes; #374, the
+OpenAPI entries for /weather, /npi and /wallet; #382, the track record
+update; #381, the tools/README.md rows for four tools; and #380, the
+#375 census itself). This census is pinned to b040676, the merged main
+issue #385 names. This file replaces the #375 census in place, as each
+census replaced the one before. The numbers below are the counts the
+runs returned, for that tree only.
 
-- **Main commit:** `96ab9af06813088a88a585948baec7ef604a6b3f`
-  (96ab9af, "Merge pull request #372 from
-  nnyycc77-ship-it/h5-carrier-watch-offer-sanctions-332").
-- **Taken:** 2026-10-24, by H6, on a clean detached checkout of that
-  commit. Runs started at 14:53:17 UTC; the last started at 14:55:15
-  UTC.
-- **Interpreters:** python3.12 (3.12.3) is the only Python installed
-  in this environment, and `python3` here is python3.12.
-  - Every Python suite ran under python3.12, the interpreter the
-    `test` workflow pins, so the headline counts are the CI
-    interpreter's counts. Suite 11's workflow pins python3.11; its
-    count here is the python3.12 run.
-  - The interpreter cross check the #350 census made (python3.11,
-    python3.12 and python3.13, identical counts) could not be
-    repeated in this environment, because python3.11 and python3.13
-    are not installed in it.
-  - Node here is v24.22.1; the `test` workflow pins Node major 22.
-    The proof page tests pass on both, but the versions are not the
-    same and this census does not claim they are.
+- **Main commit:** `b04067632ddabf7837790013344028d0d74273b1`
+  (b040676, "Merge pull request #380 from
+  nnyycc77-ship-it/h6-suite-census-375").
+- **Taken:** 2026-10-24, by H4, on a clean detached checkout of that
+  commit (a git worktree outside the repo checkout). Runs started at
+  15:24:38 UTC; the last started at 15:28:53 UTC.
+- **Interpreters:** python3.11, python3.12 (3.12.3) and python3.13 are
+  all installed in this environment.
+  - Every Python suite ran under all three, with identical counts (see
+    the interpreter cross check below).
+  - The headline counts are the python3.12 run, the interpreter the
+    `test` workflow pins. Suite 11's workflow pins python3.11, and its
+    python3.11 count is the same.
+  - Node here is v22.22.0, the major version the `test` workflow pins.
 - **Network:** none used. Every suite ran in its default offline mode.
   Live checks are opt in by environment variable, and none was set (see
   Skips).
-- **How each suite was run:** from the repository root with the command
-  shown. `__pycache__` folders were removed before the pass, and
-  `PYTHONDONTWRITEBYTECODE=1` was set, so the tree stayed clean.
+- **How each suite was run:** from the root of the pinned checkout with
+  the command shown. The checkout was new, so it held no `__pycache__`
+  folders, and `PYTHONDONTWRITEBYTECODE=1` was set, so the tree stayed
+  clean (`git status --short` printed nothing after the pass).
 - **What wrote each log:** a small runner script, `run.sh`, kept
   outside the repo. It wrote the `$ command`, `# started <time> at
   <commit>` and `# exit <code>` lines around each command's own output.
@@ -59,9 +57,8 @@ before. The numbers below are the counts the runs returned.
 ## Result
 
 **No failures anywhere in the repo.** Every suite that ran locally is
-green. That includes the full tools suite and the api suite, which the
-acceptance asks for. No failure was found, so no QUEUE issue was
-filed.
+green, on all three interpreters. That includes the full tools suite
+and the api suite. No failure was found, so no QUEUE issue was filed.
 
 | | Python and Node tests run | Passed | Failed | Skipped |
 | --- | --- | --- | --- | --- |
@@ -116,11 +113,20 @@ and `fail 0`.
 
 ### Interpreter cross check
 
-Not repeated in this environment: python3.11 and python3.13 are not
-installed here, so suites ran under python3.12 only. The #350 census,
-run where all three interpreters exist, found identical counts under
-each; nothing in this pass either confirms or contradicts that, and
-this census claims only the python3.12 counts it measured.
+| # | python3.11 | python3.12 | python3.13 |
+| --- | --- | --- | --- |
+| 1 | 1349, OK (skipped=7) | 1349, OK (skipped=7) | 1349, OK (skipped=7) |
+| 2 | 100, OK | 100, OK | 100, OK |
+| 3 | 49, OK | 49, OK | 49, OK |
+| 4 | 50, OK (skipped=1) | 50, OK (skipped=1) | 50, OK (skipped=1) |
+| 5 | 29, OK | 29, OK | 29, OK |
+| 6 | 38, OK | 38, OK | 38, OK |
+| 7 | 27, OK | 27, OK | 27, OK |
+| 8 | 32, OK | 32, OK | 32, OK |
+| 9 | 28, OK | 28, OK | 28, OK |
+| 10 | 24, OK | 24, OK | 24, OK |
+| 11 | 18, OK (skipped=1) | 18, OK (skipped=1) | 18, OK (skipped=1) |
+| 14 | PASS, exit 0 | PASS, exit 0 | PASS, exit 0 |
 
 ### How the suites overlap
 
@@ -133,9 +139,9 @@ this census claims only the python3.12 counts it measured.
   Every standalone suite's full id set appears inside suite 1 with the
   same count, so suite 1 holds 277 shim tests and 1349 − 277 = 1072 of
   its own.
-- **Result words.** 1308 of suite 1's 1349 test lines carry their
-  result word on the same line: 1301 `ok` and 7 `skipped`. The other
-  41 do not, and none of them failed, because the run ended
+- **Result words.** 1307 of suite 1's 1349 test lines carry their
+  result word on the same line: 1300 `ok` and 7 `skipped`. The other
+  42 do not, and none of them failed, because the run ended
   `OK (skipped=7)`. They break down as follows:
   - **37 tests with a docstring.** unittest prints the docstring on
     the line after the name, and the result word follows it. These are
@@ -143,8 +149,9 @@ this census claims only the python3.12 counts it measured.
     `test_wave1_integration` (10), `test_wave2_integration` (8),
     `test_wave1_mcp_integration` (10) and `test_mcp_wave2_integration`
     (9).
-  - **4 tests that print output in the middle of their line:**
+  - **5 tests that print output in the middle of their line:**
     `test_fmcsa_carrier.FetchTests.test_main_argument_rules`,
+    `test_hosted_mcp_probe.ProbeCannotRunTests.test_main_returns_2_when_the_probe_cannot_run`,
     `test_nonprofit_pack.Inputs.test_no_entries_is_refused`,
     `test_rdap_discriminate.RenderTests.test_bad_input_is_refused_before_any_request`
     and
@@ -157,56 +164,57 @@ this census claims only the python3.12 counts it measured.
   1349 + 100 + 9 = 1458. The skips are suite 1's 7, which include the
   skips of suites 4 and 11. So 1458 − 7 = 1451 passed.
 
-## Changes since the #350 census
+## Changes since the #375 census
 
-- **Repo total:** 1443 → 1458 unique tests: 1451 passed, 0 failed, 7
-  skipped. The whole increase is suite 1's own tests (+15); every
-  other suite is unchanged.
-- **Suite 1:** 1334 → 1349. The before counts are from a rerun of
-  suite 1 at 0a80737 in this same pass (1334, `OK (skipped=7)`,
-  matching the #350 census), and the module counts of both runs'
-  verbose logs were compared across all 78 modules present in either
-  log. Exactly two modules changed:
-
-  | Module | Tests at 0a80737 | Tests at 96ab9af | Change |
-  | --- | --- | --- | --- |
-  | `test_api_smoke_census` (PR #373) | 0 | 9 | +9 |
-  | `test_standing_watch` (PR #372) | 16 | 22 | +6 |
-
-  9 + 6 = 15. `test_api_smoke_census` is the new offline test that
-  pins the api_smoke census figures in `tools/README.md` (issue
-  #368). The `test_standing_watch` growth is the OFAC and OIG watch
-  types PR #372 added to `tools/standing_watch.py` (issue #332). No
-  other suite 1 module changed its count. Own tests are 1072
-  (1057 + 15). The shim count is unchanged at 277, and every shim
-  suite's ids inside suite 1 match its standalone run.
-- **Suite 2 (api):** unchanged at 100, with the same per module
-  counts as the #350 census: `test_endpoints` 48, `test_recall_api`
-  25, `test_payment_gate` 22 and `test_openapi_alignment` 5.
-  48 + 25 + 22 + 5 = 100.
+- **Repo total:** unchanged at 1458 unique tests: 1451 passed, 0
+  failed, 7 skipped. No suite changed its count.
+- **Suite 1:** unchanged at 1349. The before counts are from a rerun
+  of suite 1 at 96ab9af in this same pass (1349, `OK (skipped=7)`,
+  matching the #375 census). The module counts of both runs' verbose
+  logs were compared across all 78 modules present in either log, and
+  none changed. The test id sets differ by one rename only:
+  `test_api_smoke.OfflineMode.test_default_run_passes_all_515_with_the_raw_responses`
+  became `test_default_run_passes_all_566_with_the_raw_responses`
+  (PR #374, which added the /weather, /npi and /wallet transcripts to
+  the api_smoke fixtures). Own tests stay 1072, and the shim count is
+  unchanged at 277.
+- **Suite 2 (api):** unchanged at 100, rerun at 96ab9af in this pass
+  as well, with the same per module counts: `test_endpoints` 48,
+  `test_recall_api` 25, `test_payment_gate` 22 and
+  `test_openapi_alignment` 5. 48 + 25 + 22 + 5 = 100. One rename:
+  `test_openapi_alignment.AlignmentTests.test_the_seven_routes_are_in_the_document_and_dispatched`
+  became `test_the_sampled_routes_are_in_the_document_and_dispatched`
+  (PR #374).
+- **Changed test files with no count change:** besides those two
+  renames, PRs #377 and #379 edited `tools/tests/test_hosted_probe_drift.py`
+  (the pin text) and PR #382 edited `tools/tests/test_pregate.py`
+  (the USDC amount pattern). Neither changed a test count.
 - **Suites 3 to 12:** unchanged counts.
-- **Result words:** 41 suite 1 lines carry no result word on the same
-  line, the same total as the #350 census, with a different
-  composition:
+- **Result words:** 42 suite 1 lines carry no result word on the same
+  line, against 41 in the #375 census.
   - The docstring group is the same 37.
-  - The print group is again 4, but
-    `test_standing_watch.SanctionsWatchTests.test_sanctions_fetch_failure_aborts`,
-    new with PR #372, takes the place of
-    `test_hosted_mcp_probe.ProbeCannotRunTests.test_main_returns_2_when_the_probe_cannot_run`,
-    which in this run carried its `ok` on the same line. The #350
-    census noted that which of these the log shows varies between
-    runs; this run shows the other side of that variation for the
-    probe test, plus one genuinely new print case.
+  - The print group is 5. In this run
+    `test_hosted_mcp_probe.ProbeCannotRunTests.test_main_returns_2_when_the_probe_cannot_run`
+    printed its expected error before its `ok`, as in the #350 census
+    and unlike the #375 census. The rerun at 96ab9af in this same pass
+    shows it the same way (1300 `ok` lines there too, against 1301 in
+    the #375 census), so the difference is the run, not the tree.
   - Every one of these tests passed: the run ended `OK (skipped=7)`.
-- **Interpreters:** the cross interpreter rerun the #344 census could
-  not make and the #350 census made again could not be repeated in
-  this environment (python3.11 and python3.13 absent); see the cross
-  check note above.
+- **Interpreters:** the cross interpreter check the #375 census could
+  not make (python3.11 and python3.13 absent there) is made again
+  here, with identical counts on all three.
+- **Node:** v22.22.0 here, the workflow's pinned major version; the
+  #375 census ran on v24.22.1.
 - **Skips:** unchanged at 7, the same seven tests with the same
   reasons, verified from this run's suite 1 log.
-- **Pregate:** reports 275 recorded provenance hashes on the clean
-  tree, unchanged from the #350 census; none of the three merges
-  since added a fixture.
+- **Pregate:** reports 284 recorded provenance hashes on the clean
+  tree, up from 275. The 9 new hashes are the 9 api_smoke transcripts
+  PR #374 added to `tools/tests/fixtures/api_smoke/provenance.json`
+  (`npi.http`, `npi-400.http`, `npi-502.http`, `wallet.http`,
+  `wallet-400.http`, `wallet-502.http`, `weather.http`,
+  `weather-400.http` and `weather-502.http`; 88 entries there before,
+  97 after). Pregate run on the 96ab9af checkout in this pass reports
+  275, matching the #375 census.
 
 ## Skips
 
@@ -226,15 +234,15 @@ log.
 
 ## CI on this commit
 
-**The `test` workflow** ran on 96ab9af (run 40104323791, push). All
+**The `test` workflow** ran on b040676 (run 40105791679, push). All
 three of its jobs ended in success:
 
-- `delivery-tool-tests` (job 120902745476);
-- `forge-test` (job 120902745273);
-- `proof-page-tests` (job 120902745320).
+- `delivery-tool-tests` (job 120907084048);
+- `forge-test` (job 120907083819);
+- `proof-page-tests` (job 120907083978).
 
-**The `USAspending fetcher tests` workflow** (run 40104323698, job
-120902744996) ended in success as well.
+**The `USAspending fetcher tests` workflow** (run 40105791606, job
+120907083550) ended in success as well.
 
 **One limit, stated plainly:** this census read the runs' and jobs'
 results only. No CI test or skip count is claimed. What the job
@@ -247,8 +255,8 @@ binary is not installed in this environment. The full log of the run:
 
 ```
 $ forge test -vvv
-# started 2026-10-24T14:55:05Z at 96ab9af06813088a88a585948baec7ef604a6b3f
-/tmp/census375-logs/run.sh: line 7: forge: command not found
+# started 2026-10-24T15:28:53Z at b04067632ddabf7837790013344028d0d74273b1
+/tmp/claude-0/-home-user-tiny-ledger/f93df76c-ca5d-58a0-b5ec-8e06d29d5672/scratchpad/census12/run.sh: line 4: forge: command not found
 # exit 127
 ```
 
@@ -256,7 +264,7 @@ No install was attempted, because this is a docs only task. The CI
 evidence stands in for the local run.
 
 **CI result on the same commit.** The `forge-test` job ran the suite
-on 96ab9af (job 120902745273 in run 40104323791) and completed with
+on b040676 (job 120907083819 in run 40105791679) and completed with
 success. `test/AgentTab.t.sol` declares 26 `function test` entries,
 matching the suite size every earlier census recorded. This census
 did not observe the job's log itself (see the limit under CI on this
@@ -265,22 +273,23 @@ commit), so suite 13 is not counted in the repo total.
 ## Notes on suites 14 and 15
 
 **Suite 14, `tools/api_smoke.py`.** It ran with no arguments, its
-default offline mode. In that mode it reads the captured transcripts
-in `tools/tests/fixtures/api_smoke/` and makes no connection. Its
-result line:
+default offline mode, under each of the three interpreters. In that
+mode it reads the captured transcripts in
+`tools/tests/fixtures/api_smoke/` and makes no connection. Its result
+line, the same in all three runs:
 
 ```
 Result: PASS, every assertion held.
 ```
 
 **Suite 15, pregate on the clean tree.** With no changes to gate, it
-checks no added lines. It still verifies the 275 recorded provenance
+checks no added lines. It still verifies the 284 recorded provenance
 hashes:
 
 ```
 PASS secrets: 0 added line(s) in 0 file(s)
 PASS honesty: 0 added line(s) in 0 file(s)
-PASS provenance: 275 recorded hash(es) verified
+PASS provenance: 284 recorded hash(es) verified
 ```
 
 ## How to retake this census
