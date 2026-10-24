@@ -32,6 +32,7 @@ nothing else to the fetchers' output.
     /insider     tools/insider_check.py        cik | issuer (max_filings optional)
     /drug        tools/fda_drug_check.py       name
     /faa         tools/faa_lookup.py           n_number
+    /weather     tools/weather_alert_check.py  lat, lon
 
 Each endpoint takes the fetcher's own command line inputs as query
 parameters under the same names (hyphens become underscores), validates
@@ -89,6 +90,7 @@ from tools import propublica_nonprofits as pp  # noqa: E402
 from tools import safety_file as sf  # noqa: E402
 from tools import usaspending_awards as ua  # noqa: E402
 from tools import vin_decode as vd  # noqa: E402
+from tools import weather_alert_check as wa  # noqa: E402
 
 SERVICE_NAME = "Hojo Research Agent"
 
@@ -669,6 +671,26 @@ def flood(query, env=None):
 
 
 # ----------------------------------------------------------------------
+# /weather
+# ----------------------------------------------------------------------
+
+def weather(query, env=None):
+    """US National Weather Service active alerts for a point via tools/weather_alert_check.py."""
+    lat, lon = _single(query, "lat"), _single(query, "lon")
+    try:
+        if lat is None or lon is None:
+            raise ValueError("give lat and lon")
+        la, lo = wa.check_point(lat, lon)
+    except ValueError as err:
+        raise BadRequest(str(err))
+    try:
+        lines = wa.report(la, lo, fetcher=wa.fetch)
+    except wa.FetchError as err:
+        raise FetchFailed(str(err))
+    return _fetcher_text(lines)
+
+
+# ----------------------------------------------------------------------
 # /safety
 # ----------------------------------------------------------------------
 
@@ -877,6 +899,7 @@ ROUTES = {
     "/insider": insider,
     "/drug": drug,
     "/faa": faa_lookup,
+    "/weather": weather,
 }
 
 DESCRIPTIONS = {
@@ -908,6 +931,12 @@ DESCRIPTIONS = {
         "sources": [fl.NFHL_URL.format(layer=fl.ZONES["layer"]), fl.NFHL_URL.format(layer=fl.PANELS["layer"]),
                     fl.GEOCODER_URL],
         "note": "Screening only: not a Standard Flood Hazard Determination. Keyless.",
+    },
+    "/weather": {
+        "tool": "tools/weather_alert_check.py",
+        "params": ["lat and lon (decimal degrees)"],
+        "sources": [wa.ALERTS_URL],
+        "note": "Keyless. US and territories coverage; an empty features array proves no active alerts at the retrieval time, never that conditions are safe.",
     },
     "/github": {
         "tool": "tools/github_repo_check.py",

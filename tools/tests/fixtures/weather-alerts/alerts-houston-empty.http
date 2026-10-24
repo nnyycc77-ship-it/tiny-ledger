@@ -1,0 +1,28 @@
+HTTP/1.1 200 OK
+Server: nginx/1.28.3
+Content-Type: application/geo+json
+ETag: W/"2d651732c17aa021589bcfd8bb6adac6"
+Access-Control-Allow-Origin: *
+Access-Control-Expose-Headers: X-Correlation-Id, X-Request-Id, X-Server-Id
+X-Request-ID: 01a16dd3-99f5-7774-9d2e-aa2dd5523b02
+X-Correlation-ID: 3731268
+X-Server-ID: vm-bldr-api-ops-app12.ncep.noaa.gov
+Vary: Accept-Encoding
+Vary: Accept,Feature-Flags,Accept-Language
+Cache-Control: public, max-age=5, s-maxage=5
+Expires: Sat, 24 Oct 2026 12:12:31 GMT
+Date: Sat, 24 Oct 2026 12:12:26 GMT
+Strict-Transport-Security: max-age=31536000 ; includeSubDomains ; preload
+X-Edge-Request-ID: 18891ab3
+Connection: close
+Content-Length: 233
+
+{
+    "@context": {
+        "@version": "1.1"
+    },
+    "type": "FeatureCollection",
+    "features": [],
+    "title": "Current watches, warnings, and advisories for 29.7604 N, 95.3698 W",
+    "updated": "2026-10-24T12:05:07+00:00"
+}
