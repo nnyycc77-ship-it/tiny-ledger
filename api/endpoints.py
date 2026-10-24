@@ -50,6 +50,7 @@ if str(ROOT) not in sys.path:
 from tools import courtlistener_recap as cl  # noqa: E402
 from tools import edgar_formd as ef  # noqa: E402
 from tools import fmcsa_carrier as fc  # noqa: E402
+from tools import ofac_sdn_check as ofac  # noqa: E402
 from tools import pagespeed_snapshot as ps  # noqa: E402
 from tools import propublica_nonprofits as pp  # noqa: E402
 from tools import usaspending_awards as ua  # noqa: E402
@@ -400,6 +401,23 @@ def pagespeed(query, env=None):
 
 
 # ----------------------------------------------------------------------
+# /ofac
+# ----------------------------------------------------------------------
+
+def ofac_sdn(query, env=None):
+    """OFAC SDN list name check (primary names and aliases) via tools/ofac_sdn_check.py."""
+    name = _single(query, "name")
+    if not name or ofac.significant(name) < ofac.MIN_QUERY_CHARS:
+        raise BadRequest("name is required, with at least %d letters or digits" % ofac.MIN_QUERY_CHARS)
+    try:
+        sdn = ofac.fetch(ofac.SDN_URL)
+        alt = ofac.fetch(ofac.ALT_URL)
+        return ofac.render(name, sdn, alt) + "\n"
+    except ofac.FetchError as err:
+        raise FetchFailed(str(err))
+
+
+# ----------------------------------------------------------------------
 # Registry and descriptor
 # ----------------------------------------------------------------------
 
@@ -410,9 +428,15 @@ ROUTES = {
     "/nonprofit": nonprofit,
     "/formd": formd,
     "/pagespeed": pagespeed,
+    "/ofac": ofac_sdn,
 }
 
 DESCRIPTIONS = {
+    "/ofac": {
+        "tool": "tools/ofac_sdn_check.py",
+        "params": ["name (person or company name; at least %d letters or digits)" % ofac.MIN_QUERY_CHARS],
+        "sources": [ofac.SDN_URL, ofac.ALT_URL],
+    },
     "/carrier": {
         "tool": "tools/fmcsa_carrier.py",
         "params": ["usdot (or name, not both)", "name (Census File name search)", "subject (optional heading)",

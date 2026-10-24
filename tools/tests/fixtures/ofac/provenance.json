@@ -1,0 +1,31 @@
+{
+  "_about": "EXCERPTS of the real OFAC SDN list files, not the complete files. Every line is verbatim from the coordinator captures on issue #160 (Option B; this build environment cannot reach any OFAC host), joined with LF line endings as posted and a final newline. The complete files' facts are recorded under each entry. Used by tools/tests/test_ofac_sdn_check.py.",
+  "sdn-excerpt.csv": {
+    "source_url": "https://sanctionslistservice.ofac.treas.gov/api/PublicationPreview/exports/SDN.CSV",
+    "retrieved_utc": "2026-10-24 about 01:36 UTC, as stated by the coordinator",
+    "posted_at": [
+      "https://github.com/nnyycc77-ship-it/tiny-ledger/issues/160#issuecomment-6378275074",
+      "https://github.com/nnyycc77-ship-it/tiny-ledger/issues/160#issuecomment-6378275367"
+    ],
+    "contents": "EXCERPT: the file's first 30 lines (comment 6378275074), then the ENT_NUM 2674 individual and 4238 vessel lines (comment 6378275367), which sit elsewhere in the real file; the ENT_NUM 306 line named in that comment is already line 3 here",
+    "complete_file_as_retrieved": {
+      "bytes": 5744136,
+      "lines": 19471,
+      "sha256": "96dade5a1cde8c9746937b4859ad75d8f2a34eed1a4046cc1f2240a830f70bda",
+      "last_modified": "Wed, 21 Oct 2026 16:35:23 GMT"
+    },
+    "sha256": "1053cafd2e20692599ef3ee79b0fe31ebb9975dd7be2dd93a1c59614930ac2f6"
+  },
+  "alt-excerpt.csv": {
+    "source_url": "https://sanctionslistservice.ofac.treas.gov/api/PublicationPreview/exports/ALT.CSV",
+    "retrieved_utc": "2026-10-24 about 01:36 UTC, as stated by the coordinator",
+    "posted_at": "https://github.com/nnyycc77-ship-it/tiny-ledger/issues/160#issuecomment-6378275367",
+    "contents": "EXCERPT: the file's first two lines, then the ALT lines for ENT_NUM 2674 and 306 (the vessel 4238 has none in the file as retrieved)",
+    "complete_file_as_retrieved": {
+      "bytes": 1063745,
+      "lines": 20192,
+      "sha256": "e489fe41709a1d38693c16be8448d55a05cd4b39c9c2ffa98fbcc76bb5ec8050"
+    },
+    "sha256": "c33ba26c9afb23c5dfd0a51849bb027235e5c474dcb164157d6bcd18f60bb0c2"
+  }
+}
