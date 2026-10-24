@@ -1,0 +1,23 @@
+HTTP/1.1 200 OK
+X-Fastly-Request-ID: a569de857c09a7ef60a071e922fe96f71e542067
+Vary: Accept-Encoding
+Server: GitHub.com
+Content-Type: text/html; charset=utf-8
+Last-Modified: Wed, 25 Jun 2025 19:40:07 GMT
+Access-Control-Allow-Origin: *
+ETag: "685c5097-5a5a"
+expires: Sat, 24 Oct 2026 04:06:35 GMT
+Cache-Control: max-age=600
+x-proxy-cache: REVALIDATED
+X-GitHub-Request-Id: DC48:7EA51:B5E642:CC728D:6ADC321A
+x-github-edge-region: iad
+Accept-Ranges: bytes
+Age: 0
+Date: Sat, 24 Oct 2026 04:55:59 GMT
+Via: 1.1 varnish
+X-Served-By: cache-iad-kiad7000188-IAD
+X-Cache: HIT
+X-Cache-Hits: 0
+X-Timer: S1792817760.590182,VS0,VE13
+Connection: close
+Content-Length: 23130
