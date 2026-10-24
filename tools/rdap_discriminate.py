@@ -16,8 +16,9 @@ For each name and TLD it sends the same RDAP URL
 (https://rdap.org/domain/<label>.<tld>, redirects followed) through each
 client, --rounds times, interleaved round by round:
 
-    tool         brand_name_checker.get(), exactly the tool's request
-                 (User-Agent tiny-ledger-brand-name-checker, Accept */*)
+    tool         one attempt of brand_name_checker's request, exactly as sent
+                 (User-Agent tiny-ledger-brand-name-checker, Accept */*), without
+                 the single retry get() adds, so each row is one attempt
     urllib       a plain urllib GET with urllib's default headers
     curl         curl -sS -L with curl's default User-Agent (when curl exists)
     curl-tool-ua curl -sS -L -A tiny-ledger-brand-name-checker (when curl exists)
@@ -56,8 +57,9 @@ MAX_ROUNDS = 10
 
 
 def tool_client(url):
-    """(status or None, error or None), through the brand checker's own request."""
-    result = bnc.get(url, True)
+    """(status or None, error or None): one attempt of the brand checker's own
+    request, without the retry get() adds, so every row is a single attempt."""
+    result, _ = bnc._attempt(url, True)
     return (None, result.error) if result.error else (result.status, None)
 
 

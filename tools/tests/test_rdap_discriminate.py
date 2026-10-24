@@ -135,6 +135,17 @@ class ClientTests(unittest.TestCase):
         self.assertIn("tiny-ledger-brand-name-checker", seen[0])
         self.assertEqual(seen[0][-1], URL)
 
+    def test_the_tool_client_is_one_attempt_without_the_checkers_retry(self):
+        import http.client
+        calls = []
+
+        def disconnect(request, timeout=None):  # SYNTHETIC
+            calls.append(request.get_header("User-agent"))
+            raise http.client.RemoteDisconnected(DISCONNECT)
+        with mock.patch("urllib.request.urlopen", disconnect):
+            self.assertEqual(rd.tool_client(URL), (None, DISCONNECT))
+        self.assertEqual(calls, ["tiny-ledger-brand-name-checker"])
+
     def test_urllib_client_maps_http_errors_and_transport_failures(self):
         import urllib.error
 

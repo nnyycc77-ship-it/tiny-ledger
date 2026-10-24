@@ -24,7 +24,9 @@ How each leg is judged (from the live checks recorded on issue #51):
   200 is registered; 404 is no registration found, and its body is never
   read (a 404 body can hang a chunked reader); any other status, or a
   failed request, is "could not confirm". A 200 row quotes ldhName and the
-  registration event from the body.
+  registration event from the body. A request that gets no response at
+  all is retried once (issue #201, see get()); two failures in a row are
+  still "could not confirm".
 * X: GET https://x.com/<handle>. 200 is a live account, 404 is no
   account. Any other status or a failed request is "could not confirm".
 * Instagram and TikTok answer real and invented names alike with a 200
@@ -83,7 +85,9 @@ USER_AGENT = "tiny-ledger-brand-name-checker"
 PLATFORMS = ("x", "instagram", "tiktok")
 VARIATION_PATTERNS = ("{}hq", "get{}", "{}app", "try{}", "{}co", "the{}")
 
-Result = namedtuple("Result", "url final_url checked status_line status headers body error")
+# first_error: set only when the request was retried after getting no response (issue #201).
+Result = namedtuple("Result", "url final_url checked status_line status headers body error first_error",
+                    defaults=(None,))
 
 REGISTERED = "registered"
 NOT_REGISTERED = "no registration found"
@@ -110,7 +114,24 @@ def header_lines(headers):
 def get(url, read_body):
     """GET url, following redirects. The body is read only when read_body
     is true and the status is 200. Never raises: a failed request comes
-    back with error set and status None."""
+    back with error set and status None.
+
+    A request that gets no response at all (the connection fails or closes
+    before any status line) is sent once more, straight away, and only once
+    (issue #201: the live discriminating check showed rdap.org answering the
+    same URL with a 404 on some attempts and closing the connection on
+    others). An HTTP status is never retried, and neither is a failed body
+    read after a response. When the second attempt fails too, its failure
+    is the result, so the check stays "could not confirm"."""
+    result, no_response = _attempt(url, read_body)
+    if not no_response:
+        return result
+    retried, _ = _attempt(url, read_body)
+    return retried._replace(first_error=result.error)
+
+
+def _attempt(url, read_body):
+    """(Result, True when no response arrived at all)."""
     checked = utc_now_iso()
     request = urllib.request.Request(url, headers={"User-Agent": USER_AGENT, "Accept": "*/*"})
     try:
@@ -119,9 +140,11 @@ def get(url, read_body):
         lines = header_lines(err.headers) if err.headers is not None else []
         final = err.geturl() or url
         err.close()  # the error body is never read
-        return Result(url, final, checked, "HTTP %s %s" % (err.code, err.reason), err.code, lines, None, None)
-    except (urllib.error.URLError, OSError, ValueError) as err:
-        return Result(url, url, checked, None, None, [], None, str(err))
+        return Result(url, final, checked, "HTTP %s %s" % (err.code, err.reason), err.code, lines, None, None), False
+    except ValueError as err:
+        return Result(url, url, checked, None, None, [], None, str(err)), False
+    except (urllib.error.URLError, OSError) as err:
+        return Result(url, url, checked, None, None, [], None, str(err)), True
     with response:
         version = {10: "HTTP/1.0", 11: "HTTP/1.1"}.get(getattr(response, "version", 11), "HTTP/1.1")
         status_line = "%s %s %s" % (version, response.status, response.reason)
@@ -132,8 +155,8 @@ def get(url, read_body):
                 body = response.read().decode("utf-8")
             except (UnicodeDecodeError, OSError) as err:
                 return Result(url, response.geturl(), checked, status_line, None, lines, None,
-                              "body could not be read: %s" % err)
-        return Result(url, response.geturl(), checked, status_line, response.status, lines, body, None)
+                              "body could not be read: %s" % err), False
+        return Result(url, response.geturl(), checked, status_line, response.status, lines, body, None), False
 
 
 # ----------------------------------------------------------------------
@@ -197,6 +220,8 @@ def transcript(result, body_note):
         lines.append(result.body)
     else:
         lines.append(body_note)
+    if result.first_error:
+        lines.append("[retried once: the first attempt got no response: %s]" % result.first_error)
     return "\n".join(lines)
 
 
