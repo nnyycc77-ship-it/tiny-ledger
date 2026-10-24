@@ -1,0 +1,61 @@
+{
+  "derived-tampa2-layer28.body": {
+    "kind": "DERIVED",
+    "url": "https://hazards.fema.gov/arcgis/rest/services/public/NFHL/MapServer/28/query?geometry=-82.4515%2C27.9235&geometryType=esriGeometryPoint&inSR=4326&spatialRel=esriSpatialRelIntersects&outFields=%2A&returnGeometry=false&f=json",
+    "retrieved": "2026-10-23T15:00:37Z",
+    "contents": "DERIVED, interim: the attributes lines are verbatim from the excerpt under this URL in deliveries/flood-screen-d4f252e4-8a3b-40dd-981e-befb2de63da0.md; the wrapper around them (the features array, the closing braces, and the comma dropped after the last attribute shown) is SYNTHETIC, in the shape shown in deliveries/site-diligence-12164581-c517-4e51-8d25-76b4f7f58ecd-rev1.md (S6 to S11). To be replaced by the coordinator's complete raw captures owed on issue #175.",
+    "sha256": "70610b8487ade08da8bbe5d5330a7a93ea486a23f3bd3b9ff246880d7a5b0568"
+  },
+  "derived-tampa2-layer3.body": {
+    "kind": "DERIVED",
+    "url": "https://hazards.fema.gov/arcgis/rest/services/public/NFHL/MapServer/3/query?geometry=-82.4515%2C27.9235&geometryType=esriGeometryPoint&inSR=4326&spatialRel=esriSpatialRelIntersects&outFields=%2A&returnGeometry=false&f=json",
+    "retrieved": "2026-10-23T15:00:38Z",
+    "contents": "DERIVED, interim: the attributes lines are verbatim from the excerpt under this URL in deliveries/flood-screen-d4f252e4-8a3b-40dd-981e-befb2de63da0.md; the wrapper around them (the features array, the closing braces, and the comma dropped after the last attribute shown) is SYNTHETIC, in the shape shown in deliveries/site-diligence-12164581-c517-4e51-8d25-76b4f7f58ecd-rev1.md (S6 to S11). To be replaced by the coordinator's complete raw captures owed on issue #175.",
+    "sha256": "ebd52ba6c825de1ca66d8a24939aca539037ba7782db3fe61b51642543de8967"
+  },
+  "derived-tampa1-layer28.body": {
+    "kind": "DERIVED",
+    "url": "https://hazards.fema.gov/arcgis/rest/services/public/NFHL/MapServer/28/query?geometry=-82.4572%2C27.9506&geometryType=esriGeometryPoint&inSR=4326&spatialRel=esriSpatialRelIntersects&outFields=%2A&returnGeometry=false&f=json",
+    "retrieved": "2026-10-23T14:57:42Z",
+    "contents": "DERIVED, interim: the attributes lines are verbatim from the excerpt under this URL in deliveries/flood-screen-d4f252e4-8a3b-40dd-981e-befb2de63da0.md; the wrapper around them (the features array, the closing braces, and the comma dropped after the last attribute shown) is SYNTHETIC, in the shape shown in deliveries/site-diligence-12164581-c517-4e51-8d25-76b4f7f58ecd-rev1.md (S6 to S11). To be replaced by the coordinator's complete raw captures owed on issue #175.",
+    "sha256": "22d773ef710bfafedf09645f2d38978d7df63b5862da5b821d6ae1b796df887e"
+  },
+  "derived-tampa1-layer3.body": {
+    "kind": "DERIVED",
+    "url": "https://hazards.fema.gov/arcgis/rest/services/public/NFHL/MapServer/3/query?geometry=-82.4572%2C27.9506&geometryType=esriGeometryPoint&inSR=4326&spatialRel=esriSpatialRelIntersects&outFields=%2A&returnGeometry=false&f=json",
+    "retrieved": "2026-10-23T14:57:43Z",
+    "contents": "DERIVED, interim: the attributes lines are verbatim from the excerpt under this URL in deliveries/flood-screen-d4f252e4-8a3b-40dd-981e-befb2de63da0.md; the wrapper around them (the features array, the closing braces, and the comma dropped after the last attribute shown) is SYNTHETIC, in the shape shown in deliveries/site-diligence-12164581-c517-4e51-8d25-76b4f7f58ecd-rev1.md (S6 to S11). To be replaced by the coordinator's complete raw captures owed on issue #175.",
+    "sha256": "88c824bb508a058559e2a914c8e458912fa6222ee0d662a5811c9c93f0478adb"
+  },
+  "synthetic-empty.body": {
+    "kind": "SYNTHETIC",
+    "contents": "SYNTHETIC, interim: an empty features array, standing in for the ocean-point capture owed on issue #175.",
+    "sha256": "6fa1fe1cd6debd64f7a9f93660a341684169fea401e63a3a11464b66d9de611a"
+  },
+  "geocoder-matched.body": {
+    "kind": "REAL CAPTURE",
+    "url": "https://geocoding.geo.census.gov/geocoder/locations/onelineaddress?address=1600%20Pennsylvania%20Ave%20NW%2C%20Washington%2C%20DC&benchmark=Public_AR_Current&format=json",
+    "retrieved": "2026-10-24 about 03:37 UTC",
+    "status": "HTTP 200",
+    "headers_stated": [
+      "Date: Sat, 24 Oct 2026 03:37:00 GMT",
+      "Content-Type: application/json",
+      "(a Set-Cookie header was returned and is not reproduced)"
+    ],
+    "contents": "REAL CAPTURE, matched: the complete body, verbatim from the coordinator capture on issue #175 (comment 6379402122, keyless plain curl); its SHA-256 matches the one posted there.",
+    "sha256": "a67be26972c35c8a327de6efae1ab4961fa386db5d75b82685d6b77e4a09a05a"
+  },
+  "geocoder-no-match.body": {
+    "kind": "REAL CAPTURE",
+    "url": "https://geocoding.geo.census.gov/geocoder/locations/onelineaddress?address=99999%20Zqxflorp%20Nonexistent%20Street%2C%20Nowhere%2C%20ZZ&benchmark=Public_AR_Current&format=json",
+    "retrieved": "2026-10-24 about 03:37 UTC",
+    "status": "HTTP 200",
+    "headers_stated": [
+      "Date: Sat, 24 Oct 2026 03:37:00 GMT",
+      "Content-Type: application/json",
+      "(a Set-Cookie header was returned and is not reproduced)"
+    ],
+    "contents": "REAL CAPTURE, no match: the complete body, verbatim from the coordinator capture on issue #175 (comment 6379402122, keyless plain curl); its SHA-256 matches the one posted there.",
+    "sha256": "6a7b12d09e844074aa252189696de7a2de1c3024dcbf6e763d108abe63ea199f"
+  }
+}

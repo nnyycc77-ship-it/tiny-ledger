@@ -20,6 +20,7 @@ nothing else to the fetchers' output.
     /github      tools/github_repo_check.py    owner, repo
     /vin         tools/vin_decode.py           vin
     /fx          tools/exchange_rate_check.py  base, target (amount, date optional)
+    /flood       tools/flood_check.py          lat, lon | address
 
 Each endpoint takes the fetcher's own command line inputs as query
 parameters under the same names (hyphens become underscores), validates
@@ -58,6 +59,7 @@ from tools import courtlistener_recap as cl  # noqa: E402
 from tools import domain_trust_check as dt  # noqa: E402
 from tools import edgar_formd as ef  # noqa: E402
 from tools import exchange_rate_check as fx  # noqa: E402
+from tools import flood_check as fl  # noqa: E402
 from tools import fmcsa_carrier as fc  # noqa: E402
 from tools import github_repo_check as gh  # noqa: E402
 from tools import ofac_sdn_check as ofac  # noqa: E402
@@ -550,6 +552,32 @@ def exchange_rate(query, env=None):
 
 
 # ----------------------------------------------------------------------
+# /flood
+# ----------------------------------------------------------------------
+
+def flood(query, env=None):
+    """FEMA NFHL flood zone check for a point or an address via tools/flood_check.py."""
+    lat, lon, address = _single(query, "lat"), _single(query, "lon"), _single(query, "address")
+    try:
+        if address is not None:
+            if lat is not None or lon is not None:
+                raise ValueError("give lat and lon, or address, not both")
+            args = {"address": fl.check_address(address)}
+        else:
+            if lat is None or lon is None:
+                raise ValueError("give lat and lon, or address")
+            la, lo = fl.check_point(lat, lon)
+            args = {"lat": la, "lon": lo}
+    except ValueError as err:
+        raise BadRequest(str(err))
+    try:
+        lines = fl.report(fetcher=fl.fetch, **args)
+    except fl.FetchError as err:
+        raise FetchFailed(str(err))
+    return _text([], lines)
+
+
+# ----------------------------------------------------------------------
 # Registry and descriptor
 # ----------------------------------------------------------------------
 
@@ -566,9 +594,17 @@ ROUTES = {
     "/github": github_repo,
     "/app": app,
     "/fx": exchange_rate,
+    "/flood": flood,
 }
 
 DESCRIPTIONS = {
+    "/flood": {
+        "tool": "tools/flood_check.py",
+        "params": ["lat and lon (decimal degrees), or address (a US street address)"],
+        "sources": [fl.NFHL_URL.format(layer=fl.ZONES["layer"]), fl.NFHL_URL.format(layer=fl.PANELS["layer"]),
+                    fl.GEOCODER_URL],
+        "note": "Screening only: not a Standard Flood Hazard Determination. Keyless.",
+    },
     "/github": {
         "tool": "tools/github_repo_check.py",
         "params": ["owner (GitHub user or organization)", "repo (repository name)"],

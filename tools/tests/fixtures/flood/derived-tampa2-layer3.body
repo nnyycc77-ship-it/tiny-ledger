@@ -1,0 +1,27 @@
+{
+  "features": [
+    {
+      "attributes": {
+        "OBJECTID": 835375,
+        "DFIRM_ID": "12057C",
+        "VERSION_ID": "2.4.3.5",
+        "FIRM_ID": "12057C_104",
+        "ST_FIPS": "12",
+        "PCOMM": "057C",
+        "PANEL": "0362",
+        "SUFFIX": "J",
+        "FIRM_PAN": "12057C0362J",
+        "PANEL_TYP": "Countywide, Panel Printed",
+        "PRE_DATE": 253392451200000,
+        "EFF_DATE": 1633564800000,
+        "SCALE": "6000",
+        "PNP_REASON": "",
+        "BASE_TYP": "Orthophoto",
+        "SOURCE_CIT": "12057C_STUDY7",
+        "GFID": "0aa9691f-7029-4198-bc41-0c92139fc0de",
+        "SHAPE.STArea()": 0.0009765720398121314,
+        "SHAPE.STLength()": 0.12500061054687397
+      }
+    }
+  ]
+}
