@@ -11,7 +11,11 @@ the fixed delivery format.
 
 The tool is `tools/standing_watch.py`. It reuses the existing
 fetchers (`tools/fmcsa_carrier.py`, `tools/cpsc_recalls.py`) and adds
-no new source and no new dependency.
+no new source and no new dependency. Since 2026-10-24 (issue #332)
+it also watches sanctions entries through `tools/ofac_sdn_check.py`
+and `tools/oig_screen.py`: a named subject on the OFAC SDN list or
+the HHS OIG LEIE database, rechecked the same way, with the match
+state and the matched record fields as shown as its fields.
 
 ## How a buyer list becomes a standing watch
 
@@ -51,6 +55,10 @@ JSON, one file per buyer list:
     {"label": "Peloton Tread+",
      "queries": [{"field": "RecallNumber", "value": "21-128"},
                  {"field": "ProductName", "value": "Tread+"}]}
+  ],
+  "sanctions": [
+    {"list": "OFAC SDN", "subject": "BANCO NACIONAL DE CUBA"},
+    {"list": "OIG LEIE", "subject": "1 BEST CARE, INC"}
   ]
 }
 ```
@@ -58,7 +66,9 @@ JSON, one file per buyer list:
 A carrier needs only its USDOT number; the label is an optional
 heading. A product needs a label and at least one query. Query fields
 are the ones the CPSC fetcher supports: `ProductName`, `RecallTitle`,
-`RecallNumber`. A worked example with its demo runs lives in
+`RecallNumber`. A sanctions entry needs a list (`OFAC SDN` or
+`OIG LEIE`) and a subject name; its label is optional and defaults
+to the subject. A worked example with its demo runs lives in
 `tools/examples/standing-watch/`.
 
 ## What is watched
@@ -86,6 +96,15 @@ Products, per entry: the set of recall numbers as shown across the
 entry's queries, and each query's record count. An entry with no
 recall today has the proven empty result as its baseline; the alert
 fires the day a recall number appears.
+
+Sanctions entries, per entry: only what the fetcher returns for the
+subject: the match state, and one line per matched record carrying
+the fields the fetcher itself shows (for OFAC, the entry number, the
+name and type as shown, and how the subject matched, aliases
+included; for OIG, the name as shown, the exclusion fields as
+published, and how the subject matched). The downloaded list file
+is stored whole in the snapshot, so an empty result is proven
+against the complete file exactly as read, by its SHA-256 first.
 
 ## Snapshots and provenance
 
