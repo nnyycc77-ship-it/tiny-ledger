@@ -8,17 +8,26 @@ script at the end from the repository root to reproduce every count.
 ## Counts
 
 Counted on main `dc077ef`, before the PR for #228, and on that PR's branch
-after it:
+after it. Refreshed for issue #252 on main
+`80e646427a625346c0dce4480412fa41c12549a7`, after the `faa_lookup`
+registration (issue #210, PR #213) and the registry listing drift check
+(issue #246), by running the script at the end of this file, unchanged,
+from the repository root of that tree:
 
-| | Before | After |
-| --- | --- | --- |
-| Tools registered (`tool_definitions()` in `mcp_server/recall_mcp.py`) | 25 | 25 |
-| Registered tools with a page in this folder | 15 | 18 |
-| Registered tools named in the services catalog | 16 | 19 |
-| Pages stating a route that differs from the server's dispatch | 0 | 0 |
-| Pages without the 0.25 USDC shelf price line | 0 | 0 |
-| Docs pages or catalog entries naming a tool that is not registered | 0 | 0 |
-| Registered tools whose route is in `api/openapi.json` | 18 | 18 |
+| | Before #228 | After #228 | Refresh #252 |
+| --- | --- | --- | --- |
+| Tools registered (`tool_definitions()` in `mcp_server/recall_mcp.py`) | 25 | 25 | 25 |
+| Registered tools with a page in this folder | 15 | 18 | 18 |
+| Registered tools named in the services catalog | 16 | 19 | 19 |
+| Pages stating a route that differs from the server's dispatch | 0 | 0 | 0 |
+| Pages without the 0.25 USDC shelf price line | 0 | 0 | 0 |
+| Docs pages or catalog entries naming a tool that is not registered | 0 | 0 | 0 |
+| Registered tools whose route is in `api/openapi.json` | 18 | 18 | 18 |
+
+No count moved between the #228 count and this refresh, and no census
+surface changed in between; the recomputation above, on the pinned
+commit, is the proof of that rather than any reading of the merge
+history.
 
 ## Drift found and fixed by the PR for #228
 
@@ -35,6 +44,18 @@ after it:
   (#160, whose full page stays at `docs/ofac-sdn-check.md`) and
   `app_lookup_check` (#167). Each now has a page here and an entry in
   catalog Part 5, Wave 1.
+
+## Refresh notes (issue #252)
+
+- The census file itself stands where the PR for #228 put it, in this
+  folder; the path named in issue #252 (`docs/mcp-tool-census-2026-10-24.md`)
+  does not exist in the tree, and no file was moved for this refresh.
+- `faa_lookup` is inside every count above: it is registered (the last
+  of the twenty five, in `tool_definitions()` order), it has a page in
+  this folder, it is named in the services catalog, and its route
+  `/faa` is in `api/openapi.json`.
+- Nothing in this refresh is taken from outside the tree: every line
+  reproduces from the script below on the pinned commit.
 
 ## Left open, on purpose
 
