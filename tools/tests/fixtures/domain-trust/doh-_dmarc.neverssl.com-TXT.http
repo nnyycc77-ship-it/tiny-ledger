@@ -1,0 +1,12 @@
+HTTP/1.1 200 OK
+Server: cloudflare
+Date: Sat, 24 Oct 2026 01:51:50 GMT
+Content-Type: application/dns-json
+alt-svc: h3=":443"; ma=86400
+Access-Control-Allow-Origin: *
+X-Content-Type-Options: nosniff
+CF-RAY: a4f556b25a20eb0c-ATL
+Connection: close
+Content-Length: 265
+
+{"Status":0,"TC":false,"RD":true,"RA":true,"AD":false,"CD":false,"Question":[{"name":"_dmarc.neverssl.com","type":16}],"Authority":[{"name":"neverssl.com","type":6,"TTL":900,"data":"ns-1716.awsdns-22.co.uk. awsdns-hostmaster.amazon.com. 1 7200 900 1209600 86400"}]}

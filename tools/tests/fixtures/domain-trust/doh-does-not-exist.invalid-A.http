@@ -1,0 +1,12 @@
+HTTP/1.1 200 OK
+Server: cloudflare
+Date: Sat, 24 Oct 2026 01:51:49 GMT
+Content-Type: application/dns-json
+alt-svc: h3=":443"; ma=86400
+Access-Control-Allow-Origin: *
+X-Content-Type-Options: nosniff
+CF-RAY: a4f556aeade15024-SJC
+Connection: close
+Content-Length: 253
+
+{"Status":3,"TC":false,"RD":true,"RA":true,"AD":true,"CD":false,"Question":[{"name":"does-not-exist.invalid","type":1}],"Authority":[{"name":"","type":6,"TTL":86400,"data":"a.root-servers.net. nstld.verisign-grs.com. 2026102303 1800 900 604800 86400"}]}

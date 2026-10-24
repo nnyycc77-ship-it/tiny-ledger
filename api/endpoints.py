@@ -14,6 +14,7 @@ nothing else to the fetchers' output.
     /nonprofit   tools/propublica_nonprofits.py  name | ein
     /formd       tools/edgar_formd.py          cik | issuer
     /pagespeed   tools/pagespeed_snapshot.py   url (repeatable, up to 5)
+    /domain      tools/domain_trust_check.py   domain
 
 Each endpoint takes the fetcher's own command line inputs as query
 parameters under the same names (hyphens become underscores), validates
@@ -48,6 +49,7 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from tools import courtlistener_recap as cl  # noqa: E402
+from tools import domain_trust_check as dt  # noqa: E402
 from tools import edgar_formd as ef  # noqa: E402
 from tools import fmcsa_carrier as fc  # noqa: E402
 from tools import ofac_sdn_check as ofac  # noqa: E402
@@ -418,6 +420,33 @@ def ofac_sdn(query, env=None):
 
 
 # ----------------------------------------------------------------------
+# /domain
+# ----------------------------------------------------------------------
+
+def domain(query, env=None):
+    """DNS mail and web posture via tools/domain_trust_check.py."""
+    name = _single(query, "domain")
+    if name is None:
+        raise BadRequest("give domain=<a bare domain>, for example domain=example.com")
+    try:
+        name = dt.check_domain(name)
+    except ValueError as err:
+        raise BadRequest(str(err))
+    try:
+        lines = dt.run(name)
+    except dt.FetchError as err:
+        raise _transport(err)
+    except (urllib.error.URLError, OSError) as err:
+        raise _transport(err)
+    head = _head("Domain trust check: %s" % name,
+                 "Observation only: this report records what the Cloudflare DNS over HTTPS API and "
+                 "the site itself returned at the retrieval times stated below; it is not a security "
+                 "audit or a mail delivery assessment.",
+                 "tools/domain_trust_check.py")
+    return _text(head, lines)
+
+
+# ----------------------------------------------------------------------
 # Registry and descriptor
 # ----------------------------------------------------------------------
 
@@ -429,6 +458,7 @@ ROUTES = {
     "/formd": formd,
     "/pagespeed": pagespeed,
     "/ofac": ofac_sdn,
+    "/domain": domain,
 }
 
 DESCRIPTIONS = {
@@ -478,6 +508,11 @@ DESCRIPTIONS = {
                    "strategy (optional: mobile or desktop, default mobile)", "exclude (optional, repeatable, URL=reason)"],
         "sources": [ps.API_URL],
         "note": "Uses %s from the server environment when set; without it the API answers 429 with quota 0 and that transcript is the report." % ps.KEY_ENV,
+    },
+    "/domain": {
+        "tool": "tools/domain_trust_check.py",
+        "params": ["domain (a bare domain, e.g. example.com)"],
+        "sources": [dt.DOH_URL, "https://<domain>/ (the site itself, redirects not followed, up to %d hops)" % dt.MAX_HOPS],
     },
 }
 
