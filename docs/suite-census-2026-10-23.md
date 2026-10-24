@@ -1,32 +1,28 @@
-# Offline suite census, 2026-10-24 (eighth pass)
+# Offline suite census, 2026-10-24 (ninth pass)
 
 The census for issue
-[#277](https://github.com/nnyycc77-ship-it/tiny-ledger/issues/277),
-refreshed on rebase to the merged main it lands on. It refreshes the
-censuses filed under issues
+[#301](https://github.com/nnyycc77-ship-it/tiny-ledger/issues/301). It
+refreshes the censuses filed under issues
 [#112](https://github.com/nnyycc77-ship-it/tiny-ledger/issues/112),
 [#200](https://github.com/nnyycc77-ship-it/tiny-ledger/issues/200),
 [#236](https://github.com/nnyycc77-ship-it/tiny-ledger/issues/236),
 [#247](https://github.com/nnyycc77-ship-it/tiny-ledger/issues/247),
 [#259](https://github.com/nnyycc77-ship-it/tiny-ledger/issues/259),
-[#269](https://github.com/nnyycc77-ship-it/tiny-ledger/issues/269) and
+[#269](https://github.com/nnyycc77-ship-it/tiny-ledger/issues/269),
+[#277](https://github.com/nnyycc77-ship-it/tiny-ledger/issues/277) and
 [#286](https://github.com/nnyycc77-ship-it/tiny-ledger/issues/286). Every
 offline suite in the repo was run in one pass against merged main.
 
-Issue #277 named 530f6dae. The first #277 census (PR #285, first head
-8579f46) was pinned there, but #283 and #293 merged census rewrites of
-this file while it was in review, and #293's census is pinned to the
-later 96a347f. So that the pin does not move backwards, this pass was
-rerun on merged main 2b86c90, which contains both 530f6dae and 96a347f.
-The #286 census was pinned to 96a347f. Four PRs merged after it (#290,
-#291, #292, #293). This file replaces the #286 census in place, as each
-census replaced the one before. The numbers below are the counts the runs
-returned.
+The #277 census was pinned to 2b86c90. Four PRs merged after it (#299,
+#298, #300, #285). This census is pinned to 65dde36, the commit issue #301
+names, which was also merged main when the run was taken. This file
+replaces the #277 census in place, as each census replaced the one before.
+The numbers below are the counts the runs returned.
 
-- **Main commit:** `2b86c90199ede1fbf3b31a0d39d6f9a4d3293e65` (2b86c90,
-  "Merge pull request #293 from nnyycc77-ship-it/h4-suite-census-5").
+- **Main commit:** `65dde3693bf3aeb601e783c78dcfc36472b895d8` (65dde36,
+  "Merge pull request #285 from nnyycc77-ship-it/h3-suite-census-277").
 - **Taken:** 2026-10-24, by H3, on a clean detached checkout of that
-  commit. Runs started at 11:26:43 UTC; the last started at 11:30:53 UTC.
+  commit. Runs started at 11:49:03 UTC; the last started at 11:53:10 UTC.
 - **Interpreters:** each suite ran first on the interpreter its workflow
   pins:
   - python3.12 for the `test` workflow's two suites;
@@ -162,14 +158,14 @@ the exit code:
   1165 + 94 + 9 = 1268. The skips are suite 1's 7, which include the
   skips of suites 4 and 11. So 1268 − 7 = 1261 passed.
 
-## Changes since the #286 census
+## Changes since the #277 census
 
 - **Repo total:** unchanged at 1268 unique tests: 1261 passed, 0 failed,
   7 skipped.
-- **No test changed between 96a347f and 2b86c90.** The four merges in
+- **No test changed between 2b86c90 and 65dde36.** The four merges in
   between changed `docs/mcpize-tools/CENSUS.md`, `tools/README.md`, this
   file, and the docstring of `tools/tests/test_hosted_probe_drift.py`
-  (a refreshed pin note, PR #290). That module still has 8 tests in the
+  (a refreshed pin note, PR #299). That module still has 8 tests in the
   suite 1 log.
 - **Suite 1:** unchanged at 1165 (888 own plus 277 shim). Every shim
   suite's per module counts inside suite 1 match its standalone run.
@@ -202,14 +198,14 @@ is set. The skip reasons below are copied from the suite 1 verbose log.
 
 ## CI on this commit
 
-**The `test` workflow** ran on 2b86c90 (run 40089709124, push). All three
+**The `test` workflow** ran on 65dde36 (run 40090684461, push). All three
 of its jobs ended in success:
-- `delivery-tool-tests` (job 120859717228);
-- `forge-test` (job 120859717548);
-- `proof-page-tests` (job 120859717377).
+- `delivery-tool-tests` (job 120862538021);
+- `forge-test` (job 120862537901);
+- `proof-page-tests` (job 120862538072).
 
-**The `USAspending fetcher tests` workflow** (run 40089709131, job
-120859717322) ended in success as well.
+**The `USAspending fetcher tests` workflow** (run 40090684514, job
+120862538067) ended in success as well.
 
 **One limit, stated plainly:** the job log download redirects to a
 storage host that this environment's proxy refuses (`CONNECT tunnel
@@ -224,8 +220,8 @@ binary is not installed in this environment. The full log of the run:
 
 ```
 $ forge test -vvv
-# started 2026-10-24T11:30:53Z at 2b86c90199ede1fbf3b31a0d39d6f9a4d3293e65
-/tmp/claude-0/-home-user-tiny-ledger/d94fbab0-d7b5-504d-9497-4233a266262c/scratchpad/census277b/run.sh: line 5: forge: command not found
+# started 2026-10-24T11:53:10Z at 65dde3693bf3aeb601e783c78dcfc36472b895d8
+/tmp/claude-0/-home-user-tiny-ledger/d94fbab0-d7b5-504d-9497-4233a266262c/scratchpad/census301/run.sh: line 5: forge: command not found
 # exit 127
 ```
 
@@ -233,7 +229,7 @@ No install was attempted, because this is a docs only task. The CI
 evidence stands in for the local run.
 
 **CI result on the same commit.** The `forge-test` job ran the suite on
-2b86c90 (job 120859717548 in run 40089709124) and completed with
+65dde36 (job 120862537901 in run 40090684461) and completed with
 success. `test/AgentTab.t.sol` declares 26 `function test` entries,
 matching the suite size every earlier census recorded. This census did
 not observe the job's log itself (see the limit under CI on this commit),
