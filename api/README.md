@@ -32,7 +32,8 @@ Every merged fetcher in `tools/` is an endpoint with the same contract as `GET /
 | `GET /oig` | `tools/oig_screen.py` | `name` (a person or entity name) |
 | `GET /trials` | `tools/clinical_trial_check.py` | `term`; optional `limit` (1 to 100, default 10) |
 | `GET /links` | `tools/broken_link_check.py` | `url` (the page URL) |
+| `GET /insider` | `tools/insider_check.py` | `cik` or `issuer`; optional `max_filings` (1 to 20, default 5); needs `EDGAR_CONTACT` |
 
-Server side values, read from the environment at call time and never printed or written: `COURTLISTENER_TOKEN` (optional, lifts the anonymous rate limit), `PAGESPEED_API_KEY` (optional; without it the API answers 429 with quota 0, and that transcript is the report), and `EDGAR_CONTACT` (required for `/formd` by EDGAR fair access: the operator's "Name address" contact for the User-Agent; `/formd` answers 503 and fetches nothing while it is unset). The x402 payment gate in `api/payment_gate.py` wraps `GET /recall` only as of this version; the other endpoints are served without payment until the gate is extended, which is a separate task.
+Server side values, read from the environment at call time and never printed or written: `COURTLISTENER_TOKEN` (optional, lifts the anonymous rate limit), `PAGESPEED_API_KEY` (optional; without it the API answers 429 with quota 0, and that transcript is the report), and `EDGAR_CONTACT` (required for `/formd` and `/insider` by EDGAR fair access: the operator's "Name address" contact for the User-Agent; each answers 503 and fetches nothing while it is unset). The x402 payment gate in `api/payment_gate.py` wraps `GET /recall` only as of this version; the other endpoints are served without payment until the gate is extended, which is a separate task.
 
 Verify: `python3 -m unittest discover -s api -v` runs the recall, payment gate and endpoint suites.

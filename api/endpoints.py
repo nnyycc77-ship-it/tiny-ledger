@@ -28,6 +28,7 @@ nothing else to the fetchers' output.
     /oig         tools/oig_screen.py           name
     /trials      tools/clinical_trial_check.py term (limit optional)
     /links       tools/broken_link_check.py    url
+    /insider     tools/insider_check.py        cik | issuer (max_filings optional)
 
 Each endpoint takes the fetcher's own command line inputs as query
 parameters under the same names (hyphens become underscores), validates
@@ -72,6 +73,7 @@ from tools import exchange_rate_check as fx  # noqa: E402
 from tools import fda_recall_check as fda  # noqa: E402
 from tools import flood_check as fl  # noqa: E402
 from tools import fmcsa_carrier as fc  # noqa: E402
+from tools import insider_check as ins  # noqa: E402
 from tools import github_repo_check as gh  # noqa: E402
 from tools import meta_tag_check as mt  # noqa: E402
 from tools import oig_screen as oig  # noqa: E402
@@ -717,6 +719,41 @@ def oig_exclusions(query, env=None):
 
 
 # ----------------------------------------------------------------------
+# /insider
+# ----------------------------------------------------------------------
+
+def insider(query, env=None):
+    """SEC EDGAR insider activity (Forms 3, 4 and 5) via tools/insider_check.py."""
+    env = os.environ if env is None else env
+    try:
+        contact = ef.contact_from(None, env)
+    except ValueError:
+        raise Unavailable(
+            "%s is not set on the server; EDGAR fair access needs the operator's "
+            "contact in the User-Agent, so this endpoint fetches nothing until it is set"
+            % ef.CONTACT_ENV)
+    cik = _single(query, "cik")
+    issuer = _single(query, "issuer")
+    max_filings = _int(query, "max_filings", ins.DEFAULT_MAX_FILINGS, minimum=1, maximum=ins.MAX_FILINGS)
+    if (cik is None) == (issuer is None):
+        raise BadRequest("give exactly one of cik or issuer")
+    try:
+        if cik is not None:
+            ef.cik10(cik)
+        elif not issuer.strip():
+            raise ValueError("issuer name must not be blank")
+    except ValueError as err:
+        raise BadRequest(str(err))
+    try:
+        lines = ins.run(contact, cik=cik, issuer=issuer, max_filings=max_filings)
+    except ins.FetchError as err:
+        raise _transport(err)
+    except (urllib.error.URLError, OSError) as err:
+        raise _transport(err)
+    return _text([], lines)
+
+
+# ----------------------------------------------------------------------
 # Registry and descriptor
 # ----------------------------------------------------------------------
 
@@ -756,9 +793,17 @@ ROUTES = {
     "/epa": epa_screen,
     "/oig": oig_exclusions,
     "/links": links,
+    "/insider": insider,
 }
 
 DESCRIPTIONS = {
+    "/insider": {
+        "tool": "tools/insider_check.py",
+        "params": ["cik (or issuer, not both)", "issuer (EDGAR company search by name)",
+                   "max_filings (optional, 1 to %d, default %d)" % (ins.MAX_FILINGS, ins.DEFAULT_MAX_FILINGS)],
+        "sources": [ef.SUBMISSIONS_URL, ef.ARCHIVE_URL, ef.COMPANY_SEARCH_URL],
+        "note": "Needs %s set on the server (EDGAR fair access); answers 503 without it." % ef.CONTACT_ENV,
+    },
     "/oig": {
         "tool": "tools/oig_screen.py",
         "params": ["name (person or entity name; at least %d letters or digits)" % oig.MIN_QUERY_CHARS],

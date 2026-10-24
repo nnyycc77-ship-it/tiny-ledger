@@ -125,8 +125,8 @@ def contact_from(value, env=None):
     return text
 
 
-def user_agent(contact):
-    return "%s %s" % (TOOL_NAME, contact)
+def user_agent(contact, tool=TOOL_NAME):
+    return "%s %s" % (tool, contact)
 
 
 _last_request_at = [0.0]
@@ -144,7 +144,7 @@ def utc_now_iso():
     return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 
 
-def fetch(url, contact):
+def fetch(url, contact, tool=TOOL_NAME):
     """GET the URL with the declared user agent, paced. Returns a Capture.
 
     The transcript is the complete raw HTTP response: status line, the
@@ -155,7 +155,7 @@ def fetch(url, contact):
     pace()
     retrieved = utc_now_iso()
     request = urllib.request.Request(url, headers={
-        "User-Agent": user_agent(contact),
+        "User-Agent": user_agent(contact, tool),
         "Accept-Encoding": "identity",
     })
     try:

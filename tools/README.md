@@ -35,6 +35,7 @@ environment and its header comment says so.
 | openFDA food and device enforcement recall search (docs/mcpize-tools/fda_recall_check.md) | `fda_recall_check.py` | none needed; keyless limits 240 per minute and 1,000 per day per IP address |
 | HHS OIG LEIE exclusion screen, persons and entities (docs/mcpize-tools/oig_screen.md) | `oig_screen.py` | none needed |
 | The page itself: every link on one page checked, dead ones listed with status codes (docs/mcpize-tools/broken_link_check.md) | `broken_link_check.py` | none needed |
+| SEC EDGAR insider activity, Forms 3, 4 and 5 as filed (docs/mcpize-tools/insider_check.md) | `insider_check.py` | none needed; an operator contact for the User-Agent is required (`--contact` or `EDGAR_CONTACT`) |
 
 Not a fetcher: `pregate.py` is the offline review pre gate (secrets scan,
 honesty lint, fixture provenance check) from `REVIEW.md`. See
