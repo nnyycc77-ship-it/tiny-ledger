@@ -23,6 +23,7 @@ environment and its header comment says so.
 | ProPublica Nonprofit Explorer (IRS Form 990 extracts) | `propublica_nonprofits.py` | none needed |
 | NHTSA vPIC VIN decode (DecodeVinValues) | `vin_decode.py` | none needed |
 | Frankfurter exchange rates (API v1) | `exchange_rate_check.py` | none needed |
+| NHTSA safety file: ratings, recalls, complaints | `safety_file.py` | none needed |
 | Brand name checks: RDAP domains, X / Instagram / TikTok handles, iTunes Search (trademarks not covered) | `brand_name_checker.py` | none needed |
 | Weekly brief: watchlist Form D filings and NAICS filtered contract awards for a seven day window (docs/weekly-brief.md) | `weekly_brief.py` | EDGAR contact |
 | OFAC SDN list name check, primary names and aliases (docs/ofac-sdn-check.md) | `ofac_sdn_check.py` | none needed |
@@ -491,6 +492,47 @@ code, and the currencies list. The coordinator captured them under
 Option B on issue #168, because this container cannot reach
 api.frankfurter.dev. Their URLs, body sizes and SHA-256 hashes are in
 `tests/fixtures/frankfurter/provenance.json`, and the hashes are checked.
+
+## safety_file.py
+
+```sh
+python3 tools/safety_file.py --make Hyundai --model Elantra --year 2021
+```
+
+Tool factory wave 2, issue #176. One combined safety file for a make,
+model and model year from three keyless NHTSA APIs on api.nhtsa.gov,
+fetched through the capture path of `nhtsa_recalls.py`. The safety
+ratings come from the variants list and then each variant's ratings
+(at most six variants are fetched). The recalls come from
+recallsByVehicle and the complaints from complaintsByVehicle. Each
+section states only what its own response shows, and its complete raw
+HTTP transcript sits directly beneath its own source link. The recalls
+and complaints sections state the response's own count field and the
+records in its results array. The complaints section adds this tool's
+own counts of the records shown (crash, fire, injuries, deaths), labelled
+as such. A cross check shows the counts the ratings record carries
+beside the records returned, neither adjusted.
+
+The HTTP status is checked first, because these endpoints can answer 400
+or 500 with a body that still reads "Results returned successfully". Any
+non-200 status, or a body without the expected results array, is a
+source failure: nothing is printed on stdout, the failed sources are
+named on stderr with their query, status and body, and the exit status
+is 2. A 200 with empty results is an empty result, proven by its
+transcript. Docs page:
+[`docs/mcpize-tools/safety_file.md`](../docs/mcpize-tools/safety_file.md).
+
+### Verification
+
+```sh
+python3 -m unittest discover -s tools/tests -p 'test_safety_file.py' -v
+```
+
+The tests need no network. They run on real, keyless NHTSA responses
+captured by the coordinator under Option B on issue #176, because this
+container cannot reach api.nhtsa.gov. Their URLs, body sizes and SHA-256
+hashes are in `tests/fixtures/nhtsa-safety/provenance.json`, and the
+hashes are checked.
 
 ## edgar_formd.py
 

@@ -1,0 +1,14 @@
+HTTP/1.1 200 OK
+Content-Type: application/json;charset=utf-8
+x-amzn-RequestId: 27b6d6cb-11a0-481c-8f04-4ef1523cda8b
+x-amzn-Remapped-Connection: keep-alive
+x-amz-apigw-id: FtacwHwBoAMFeuQ=
+x-amzn-Remapped-Date: Fri, 23 Oct 2026 18:15:45 GMT
+X-Application-Context: application:production
+Date: Sat, 24 Oct 2026 03:51:46 GMT
+Strict-Transport-Security: max-age=31536000 ; includeSubDomains ; preload
+X-Frame-Options: SAMEORIGIN
+X-Content-Type-Options: nosniff
+Content-Length: 1360
+
+{"Count":1,"Message":"Results returned successfully","Results":[{"OverallRating":"5","OverallFrontCrashRating":"4","FrontCrashDriversideRating":"5","FrontCrashPassengersideRating":"4","FrontCrashPicture":"https://static.nhtsa.gov/crashTest/images/2021/v11574P085.jpg","FrontCrashVideo":"https://static.nhtsa.gov/crashTest/videos/2021/v11574C019.wmv","OverallSideCrashRating":"5","SideCrashDriversideRating":"5","SideCrashPassengersideRating":"5","SideCrashPicture":"https://static.nhtsa.gov/crashTest/images/2021/v11576P105.JPG","SideCrashVideo":"https://static.nhtsa.gov/crashTest/videos/2021/v11576C013.wmv","combinedSideBarrierAndPoleRating-Front":"5","combinedSideBarrierAndPoleRating-Rear":"5","sideBarrierRating-Overall":"5","RolloverRating":"5","RolloverRating2":"Not Rated","RolloverPossibility":0.101,"RolloverPossibility2":0.0,"dynamicTipResult":"No Tip","SidePoleCrashRating":"5","SidePolePicture":"https://static.nhtsa.gov/crashTest/images/2021/v11577P075.jpg","SidePoleVideo":"https://static.nhtsa.gov/crashTest/videos/2021/v11577C013.wmv","NHTSAElectronicStabilityControl":"Standard","NHTSAForwardCollisionWarning":"No","NHTSALaneDepartureWarning":"Standard","ComplaintsCount":132,"RecallsCount":6,"InvestigationCount":2,"ModelYear":2021,"Make":"HYUNDAI","Model":"ELANTRA","VehicleDescription":"2021 Hyundai Elantra 4 DR FWD","VehicleId":15697}]}

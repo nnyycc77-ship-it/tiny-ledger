@@ -1,0 +1,14 @@
+HTTP/1.1 200 OK
+Content-Type: application/json;charset=utf-8
+x-amzn-RequestId: 0f01e1b5-e142-4655-94eb-738174438de6
+x-amzn-Remapped-Connection: keep-alive
+x-amz-apigw-id: Fuuv3G0fIAMFZTQ=
+x-amzn-Remapped-Date: Sat, 24 Oct 2026 03:51:13 GMT
+X-Application-Context: application:production
+Date: Sat, 24 Oct 2026 03:51:26 GMT
+Strict-Transport-Security: max-age=31536000 ; includeSubDomains ; preload
+X-Frame-Options: SAMEORIGIN
+X-Content-Type-Options: nosniff
+Content-Length: 138
+
+{"Count":1,"Message":"Results returned successfully","Results":[{"VehicleDescription":"2021 Hyundai Elantra 4 DR FWD","VehicleId":15697}]}

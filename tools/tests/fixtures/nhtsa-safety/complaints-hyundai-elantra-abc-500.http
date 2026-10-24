@@ -1,0 +1,15 @@
+HTTP/1.1 500 Internal Server Error
+Content-Type: application/json;charset=UTF-8
+Strict-Transport-Security: max-age=31536000 ; includeSubDomains ; preload
+x-amzn-RequestId: a6544af4-0285-4edb-8607-2370244dcb10
+Content-Language: en-US
+x-amzn-Remapped-Connection: keep-alive
+x-amz-apigw-id: FuuzPGp9oAMF8iQ=
+x-amzn-Remapped-Date: Sat, 24 Oct 2026 03:51:35 GMT
+X-Application-Context: application:production
+Date: Sat, 24 Oct 2026 03:51:35 GMT
+X-Frame-Options: SAMEORIGIN
+X-Content-Type-Options: nosniff
+Content-Length: 47
+
+{"message":"Internal server error","error":500}

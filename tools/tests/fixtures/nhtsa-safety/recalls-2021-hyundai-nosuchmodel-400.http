@@ -1,0 +1,17 @@
+HTTP/1.1 400 Bad Request
+Content-Type: application/json;charset=UTF-8
+Strict-Transport-Security: max-age=31536000 ; includeSubDomains ; preload
+x-amzn-RequestId: 3d33f56c-1871-4613-b9d3-0bccfa6d12cd
+x-amzn-Remapped-Connection: keep-alive
+x-amz-apigw-id: FuuynFProAMFrYw=
+x-amzn-Remapped-Date: Sat, 24 Oct 2026 03:51:31 GMT
+X-Application-Context: application:production
+Expires: Sat, 24 Oct 2026 03:51:31 GMT
+Cache-Control: max-age=0, no-cache
+Pragma: no-cache
+Date: Sat, 24 Oct 2026 03:51:31 GMT
+X-Frame-Options: SAMEORIGIN
+X-Content-Type-Options: nosniff
+Content-Length: 66
+
+{"Count":0,"Message":"Results returned successfully","results":[]}

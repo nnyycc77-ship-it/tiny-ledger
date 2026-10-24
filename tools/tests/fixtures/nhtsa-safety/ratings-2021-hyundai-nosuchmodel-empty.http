@@ -1,0 +1,14 @@
+HTTP/1.1 200 OK
+Content-Type: application/json;charset=utf-8
+x-amzn-RequestId: 1f1bcf0b-d143-46fa-86eb-3c7eff865f87
+x-amzn-Remapped-Connection: keep-alive
+x-amz-apigw-id: FuuyZHc7IAMFnDg=
+x-amzn-Remapped-Date: Sat, 24 Oct 2026 03:51:30 GMT
+X-Application-Context: application:production
+Date: Sat, 24 Oct 2026 03:51:30 GMT
+Strict-Transport-Security: max-age=31536000 ; includeSubDomains ; preload
+X-Frame-Options: SAMEORIGIN
+X-Content-Type-Options: nosniff
+Content-Length: 66
+
+{"Count":0,"Message":"Results returned successfully","Results":[]}
