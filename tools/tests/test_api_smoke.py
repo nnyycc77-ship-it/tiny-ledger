@@ -129,22 +129,23 @@ class OfflineMode(unittest.TestCase):
         self.assertTrue(all(ok for _, ok in results), results)
         self.assertEqual(self.caps["openapi"].status, 200)
 
-    def test_default_run_passes_all_457_with_the_raw_responses(self):
-        # 20 original assertions, 19 endpoint sections of 5, 27 bad
-        # query sections of 4, 29 bad query accounting lines, 27 source
-        # failure sections of 4, 29 source failure accounting lines,
-        # two unavailable sections of 5 (/formd and /insider), 29
-        # unavailable accounting lines, and 29 coverage lines, one per
+    def test_default_run_passes_all_469_with_the_raw_responses(self):
+        # 20 original assertions, 19 endpoint sections of 5, 28 bad
+        # query sections of 4, 30 bad query accounting lines, 28 source
+        # failure sections of 4, 30 source failure accounting lines,
+        # two unavailable sections of 5 (/formd and /insider), 30
+        # unavailable accounting lines, and 30 coverage lines, one per
         # GET path in api/openapi.json (seven paths added by issue #243,
         # with 400 and 502 captures, a 503 capture for /insider, and a
         # reasoned entry in NO_ENDPOINT_CAPTURE; /bank added by issue #320
         # with 200, 400 and 502 captures; /disaster added by issue #312
-        # with 400 and 502 captures and a reasoned 200, with no 503;
-        # /geocode added by issue #319 with 200, 400 and 502 captures).
+        # and /earthquake by issue #317, each with 400 and 502 captures
+        # and a reasoned 200, with no 503; /geocode added by issue #319
+        # with 200, 400 and 502 captures).
         code, out, err = run_main([])
         self.assertEqual(code, 0, err)
         self.assertIn("Result: PASS, every assertion held.", out)
-        self.assertEqual(out.count("- PASS:"), 457)
+        self.assertEqual(out.count("- PASS:"), 469)
         self.assertNotIn("- FAIL:", out)
         self.assertIn("Source: <http://127.0.0.1:8765/openapi.json>", out)
         self.assertIn("Retrieved (UTC): 2026-10-23T14:51:26Z", out)
@@ -161,6 +162,11 @@ class OfflineMode(unittest.TestCase):
         self.assertIn("- PASS: GET /flood has no captured 200 yet: the capture for issue #243 ran in a container "
                       "whose network policy refuses hazards.fema.gov", out)
         self.assertIn((FIX / "oig-502.http").read_text(encoding="utf-8"), out)
+        self.assertIn("- PASS: GET /earthquake with no valid input answers 400", out)
+        self.assertIn("- PASS: GET /earthquake with its source failing answers 502", out)
+        self.assertIn("- PASS: GET /earthquake has no captured 200 yet: the capture for issue #317 ran in a "
+                      "container whose network policy refuses earthquake.usgs.gov", out)
+        self.assertIn((FIX / "earthquake-502.http").read_text(encoding="utf-8"), out)
         self.assertIn("- PASS: GET /recall 502 shape not capturable offline:", out)
         self.assertIn((FIX / "csl-502.http").read_text(encoding="utf-8"), out)
         self.assertIn("- PASS: GET /formd unconfigured on the server answers 503", out)

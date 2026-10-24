@@ -1,0 +1,1 @@
+{"type":"FeatureCollection","metadata":{"generated":1792844542000,"url":"https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&latitude=28.5383&longitude=-81.3792&maxradiuskm=10&starttime=2016-10-24T00:00:00&endtime=2026-10-24T00:00:00&orderby=magnitude&limit=10","title":"USGS Earthquakes","status":200,"api":"2.8.2","limit":10,"offset":1},"features":[]}

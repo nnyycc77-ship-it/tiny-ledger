@@ -1,0 +1,9 @@
+HTTP/1.0 502 Bad Gateway
+Date: Sat, 24 Oct 2026 12:29:44 GMT
+Server: WSGIServer/0.2 CPython/3.13.16
+Content-Type: text/plain; charset=utf-8
+Content-Length: 274
+Cache-Control: no-store
+X-Payout-Wallet: 0x1111111111111111111111111111111111111111
+
+request to https://earthquake.usgs.gov/fdsnws/event/1/count?format=geojson&latitude=34.0522&longitude=-118.2437&maxradiuskm=25&starttime=2016-10-24T12:29:44&endtime=2026-10-24T12:29:44 failed: <urlopen error [Errno 111] Connection refused>; no report, the answer is unknown
