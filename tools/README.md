@@ -1096,6 +1096,19 @@ FAIL, so a check cannot pass vacuously. The video agents need ffmpeg (and
 its flite filter for dubbing). Without them their criteria are UNTESTABLE
 with that reason.
 
+## hosted_mcp_probe.py
+
+```sh
+python3 tools/hosted_mcp_probe.py     # the hosted MCP endpoint
+```
+
+The redeploy runbook's outside verification as one script (issue #218):
+an anonymous initialize, a tools/list, and one unpaid recall_check call
+against the hosted MCP endpoint, checked against the values on main
+(server version 0.3.0, twenty five tools in order, and the 402 x402
+demand matching mcpize.yaml's recipient). It never sends an X-PAYMENT
+header and never pays. Docs: docs/hosted-mcp-probe.md.
+
 ## api_smoke.py
 
 ```sh
