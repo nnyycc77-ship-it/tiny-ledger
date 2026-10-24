@@ -1211,6 +1211,65 @@ local server run without the contact, recorded in the
 capturable set off the document itself: every other GET endpoint is
 reasoned as declaring no 503.
 
+Coverage census (issue #258), taken on main
+af30eb423ef090bfd2adaff7db44ae4bfb4d50e5, the merged main that
+includes PR #249 (the /formd 503 pass) and PR #253 (the seven routes
+added to `api/openapi.json` for issue #243, whose captures extended
+the 400, 502 and 503 tables in the same run). Every figure below
+reproduces from that tree: the GET denominator is the 26 paths in
+`api/openapi.json` (`/`, `/app`, `/awards`, `/carrier`, `/csl`,
+`/domain`, `/drug`, `/epa`, `/faa`, `/fda`, `/flood`, `/formd`,
+`/fx`, `/github`, `/insider`, `/links`, `/litigation`, `/meta`,
+`/nonprofit`, `/ofac`, `/oig`, `/pagespeed`, `/recall`, `/safety`,
+`/trials`, `/vin`), and each shape counts every one of them exactly
+once.
+
+- 200 reports: 17 captured, one per wrapped endpoint (the first 17
+  named under the 400 shape below); the descriptor `/` and `/recall`
+  are covered by the original sections (descriptor 200, `/recall`
+  402 unpaid); 7 reasoned in the tool's `NO_ENDPOINT_CAPTURE` table
+  as having no captured 200 yet, each with the capture environment
+  reason recorded there: `/domain` (cloudflare-dns.com refused),
+  `/fda` (api.fda.gov refused), `/flood` (hazards.fema.gov refused),
+  `/github` (the only route to api.github.com adds credentials, so a
+  capture would not show the keyless answer), `/insider` (no declared
+  EDGAR fair access contact for live EDGAR requests), `/ofac`
+  (sanctionslistservice.ofac.treas.gov refused) and `/oig`
+  (oig.hhs.gov refused); a 200 transcript is owed for each from an
+  environment that can capture it.
+- 400 bad query: 24 captured (`/app`, `/awards`, `/carrier`, `/csl`,
+  `/domain`, `/drug`, `/epa`, `/faa`, `/fda`, `/flood`, `/formd`,
+  `/fx`, `/github`, `/insider`, `/links`, `/litigation`, `/meta`,
+  `/nonprofit`, `/ofac`, `/oig`, `/pagespeed`, `/safety`, `/trials`,
+  `/vin`); 2 reasoned: `/` (takes no query input, so it has no 400
+  shape) and `/recall` (the payment gate answers 402 to the smoke's
+  unpaid requests before any query validation, and the smoke never
+  pays).
+- 502 source failure: the same 24 captured; 2 reasoned: `/` (answers
+  from local state and fetches no source, so it has no 502 shape) and
+  `/recall` (the payment gate answers 402 before any source fetch,
+  and the smoke never pays).
+- 503 unavailable: 2 captured (`/formd` and `/insider`, the two
+  endpoints whose entries in `api/openapi.json` declare a 503, each
+  for its missing operator contact); 24 reasoned, each because its
+  entry declares no 503 response: `/`, `/app`, `/awards`, `/carrier`,
+  `/csl`, `/domain`, `/drug`, `/epa`, `/faa`, `/fda`, `/flood`,
+  `/fx`, `/github`, `/links`, `/litigation`, `/meta`, `/nonprofit`,
+  `/ofac`, `/oig`, `/pagespeed`, `/recall`, `/safety`, `/trials`,
+  `/vin`.
+
+The fixture folder holds 70 transcripts with 70 provenance entries:
+the 3 original captures (descriptor, OpenAPI document, `/recall`
+402), 17 endpoint 200 captures, 24 bad query captures, 24 source
+failure captures, and 2 unavailable captures. The offline run on the
+pinned tree prints 74 numbered sections and 411 PASS lines with no
+failures: 20 in the three original sections, 85 across the 17
+endpoint 200 sections (5 each), 96 across the 24 bad query sections
+(4 each), 26 in the 400 accounting, 96 across the 24 source failure
+sections (4 each), 26 in the 502 accounting, 10 across the 2
+unavailable sections (5 each), 26 in the 503 accounting, and 26 in
+the closing coverage section.
+
 Output is one Markdown section in the delivery format: a PASS or FAIL claim
 line per assertion, the source link, the UTC time, and the complete raw
 transcript beneath. Exit codes:
