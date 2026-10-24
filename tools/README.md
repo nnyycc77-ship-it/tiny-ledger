@@ -1301,9 +1301,8 @@ capturable set off the document itself: every other GET endpoint is
 reasoned as declaring no 503.
 
 Coverage census (issue #258, pin refreshed for issues #270, #279,
-#288, #295, #303, #310, #351, #354 and #370), taken on main
-96ab9af06813088a88a585948baec7ef604a6b3f plus the three OpenAPI
-entries and captures of PR #374 (issue #370) itself; the merged
+#288, #295, #303, #310, #351, #354, #370 and #386), taken on main
+b04067632ddabf7837790013344028d0d74273b1; the merged
 main named includes PR #249 (the /formd 503 pass), PR #253 (the seven routes
 added to `api/openapi.json` for issue #243, whose captures extended
 the 400, 502 and 503 tables in the same run), PR #261 (which
@@ -1316,7 +1315,7 @@ with a reasoned 200), PR #345 (/upc captures), PR #346
 (/uksanctions, 400 and 502 captures with a reasoned 200), PR #341
 (/email 200, 400 and 502 captures) and PR #374 itself (/weather,
 /npi and /wallet 200, 400 and 502 captures, with the three routes'
-OpenAPI entries). Every figure below reproduces from the PR #374
+OpenAPI entries). Every figure below reproduces from that
 tree: the GET denominator is the 36 paths in
 `api/openapi.json` (`/`, `/app`, `/awards`, `/bank`, `/carrier`,
 `/csl`, `/disaster`, `/domain`, `/drug`, `/earthquake`, `/email`,
@@ -1377,7 +1376,7 @@ The fixture folder holds 97 transcripts with 97 provenance entries:
 the 3 original captures (descriptor, OpenAPI document, `/recall`
 402), 24 endpoint 200 captures, 34 bad query captures, 34 source
 failure captures, and 2 unavailable captures. The offline run on
-the PR #374 tree prints 101 numbered sections and 566 PASS lines with no
+that tree prints 101 numbered sections and 566 PASS lines with no
 failures: 20 in the three original sections, 120 across the 24
 endpoint 200 sections (5 each), 136 across the 34 bad query sections
 (4 each), 36 in the 400 accounting, 136 across the 34 source failure
