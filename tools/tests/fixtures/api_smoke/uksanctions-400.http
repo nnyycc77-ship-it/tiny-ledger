@@ -1,0 +1,9 @@
+HTTP/1.0 400 Bad Request
+Date: Sat, 24 Oct 2026 13:24:27 GMT
+Server: WSGIServer/0.2 CPython/3.13.16
+Content-Type: text/plain; charset=utf-8
+Content-Length: 65
+Cache-Control: no-store
+X-Payout-Wallet: 0x1111111111111111111111111111111111111111
+
+Bad request: name is required, with at least 3 letters or digits

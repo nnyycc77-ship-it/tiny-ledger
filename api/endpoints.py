@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """The remaining fetchers as paid API endpoints (issue #65).
 
-Thirty-two GET endpoints beside GET /recall, each wrapping one merged fetcher in
+Thirty-three GET endpoints beside GET /recall, each wrapping one merged fetcher in
 tools/ as library code and returning that fetcher's own rendered Markdown
 in the delivery format from AGENT-BRIEF.md: the claim lines, the exact
 query, the UTC retrieval time, the source link, and the complete raw
@@ -40,6 +40,7 @@ nothing else to the fetchers' output.
     /disaster    tools/disaster_history_check.py  state (county, limit optional)
     /wallet      tools/wallet_check.py         address
     /earthquake  tools/earthquake_check.py     lat, lon, radius_km
+    /uksanctions tools/uk_sanctions_check.py   name
 
 Each endpoint takes the fetcher's own command line inputs as query
 parameters under the same names (hyphens become underscores), validates
@@ -105,6 +106,7 @@ from tools import weather_alert_check as wa  # noqa: E402
 from tools import wallet_check as wc  # noqa: E402
 from tools import npi_check as npi  # noqa: E402
 from tools import upc_lookup as ul  # noqa: E402
+from tools import uk_sanctions_check as uks  # noqa: E402
 
 SERVICE_NAME = "Hojo Research Agent"
 
@@ -973,6 +975,21 @@ def disaster_history(query, env=None):
 
 
 # ----------------------------------------------------------------------
+# /uksanctions
+# ----------------------------------------------------------------------
+
+def uk_sanctions(query, env=None):
+    """UK consolidated sanctions list name check via tools/uk_sanctions_check.py."""
+    name = _single(query, "name")
+    if not name or uks.ofac.significant(name) < uks.MIN_QUERY_CHARS:
+        raise BadRequest("name is required, with at least %d letters or digits" % uks.MIN_QUERY_CHARS)
+    try:
+        return uks.render(name, uks.fetch(uks.LIST_URL)) + "\n"
+    except uks.FetchError as err:
+        raise FetchFailed(str(err))
+
+
+# ----------------------------------------------------------------------
 # Registry and descriptor
 # ----------------------------------------------------------------------
 
@@ -1054,6 +1071,7 @@ ROUTES = {
     "/disaster": disaster_history,
     "/wallet": wallet,
     "/earthquake": earthquake,
+    "/uksanctions": uk_sanctions,
 }
 
 DESCRIPTIONS = {
@@ -1279,6 +1297,14 @@ DESCRIPTIONS = {
         "note": "Distinct disasterNumber values are listed, since one disaster appears once per designated area. "
                 "Any non-200 answer, a failed fetch or an unreadable body is a source failure (502, no report); "
                 "an empty result is reported only for the exact filter sent, never as no disasters.",
+    },
+    "/uksanctions": {
+        "tool": "tools/uk_sanctions_check.py",
+        "params": ["name (person or company name; at least %d letters or digits)" % uks.MIN_QUERY_CHARS],
+        "sources": [uks.LIST_URL],
+        "note": "Keyless: one public CSV file read per call and matched locally under the OFAC tool's rule. A no match "
+                "is proven by the file's bytes, SHA-256, record count and list date line; a failed fetch or a file "
+                "not in the captured shape is a source failure (502, no report).",
     },
 }
 

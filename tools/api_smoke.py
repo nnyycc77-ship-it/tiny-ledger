@@ -138,6 +138,9 @@ ENDPOINT_FIXTURES = {
 _REFUSED = ("the capture for issue #243 ran in a container whose network policy refuses %s, so no "
             "200 report could be captured; a 200 transcript is owed from an environment that reaches it")
 NO_ENDPOINT_CAPTURE = {
+    "/uksanctions": ("the endpoint was added by issue #342 in a container whose network policy refuses "
+                     "ofsistorage.blob.core.windows.net, so no 200 report could be captured; a 200 transcript "
+                     "is owed from an environment that reaches it"),
     "/disaster": ("the endpoint was added by issue #312 in a container whose network policy refuses "
                   "www.fema.gov, so no 200 report could be captured; a 200 transcript is owed from an "
                   "environment that reaches it"),
@@ -193,6 +196,7 @@ BAD_QUERY_FIXTURES = {
     "/pagespeed": "pagespeed-400.http",
     "/safety": "safety-400.http",
     "/trials": "trials-400.http",
+    "/uksanctions": "uksanctions-400.http",
     "/vin": "vin-400.http",
 }
 
@@ -241,6 +245,7 @@ SOURCE_FAILURE_FIXTURES = {
     "/pagespeed": "pagespeed-502.http",
     "/safety": "safety-502.http",
     "/trials": "trials-502.http",
+    "/uksanctions": "uksanctions-502.http",
     "/vin": "vin-502.http",
 }
 

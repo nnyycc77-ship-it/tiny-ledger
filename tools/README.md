@@ -28,6 +28,7 @@ environment and its header comment says so.
 | FAA aircraft registry (releasable aircraft download) | `faa_lookup.py` | none needed; the archive is cached once per day outside the repo |
 | FEMA disaster declarations (OpenFEMA API v2) | `disaster_history_check.py` | none needed |
 | Open Food Facts product lookup (API v2) | `upc_lookup.py` | none needed |
+| UK consolidated list of financial sanctions targets (ConList.csv) | `uk_sanctions_check.py` | none needed |
 | Brand name checks: RDAP domains, X / Instagram / TikTok handles, iTunes Search (trademarks not covered) | `brand_name_checker.py` | none needed |
 | Weekly brief: watchlist Form D filings and NAICS filtered contract awards for a seven day window (docs/weekly-brief.md) | `weekly_brief.py` | EDGAR contact |
 | OFAC SDN list name check, primary names and aliases (docs/ofac-sdn-check.md) | `ofac_sdn_check.py` | none needed |
@@ -694,6 +695,44 @@ cannot reach www.fema.gov. The captures are bodies only, so the status
 lines in the test transcripts are a labelled test harness. The fixtures'
 SHA-256 hashes are in `tests/fixtures/openfema/provenance.json`, and the
 hashes are checked.
+
+## uk_sanctions_check.py
+
+```sh
+python3 tools/uk_sanctions_check.py "Gazprom Neft"
+```
+
+Tool factory wave 3, issue #342. It checks a person or company name
+against the UK consolidated list of financial sanctions targets. That is
+the public `ConList.csv` file linked from the GOV.UK page "Consolidated
+list of targets", read keyless and matched locally under the OFAC tool's
+rule.
+
+- **Name forms.** A row's name is formed from `Name 1` to `Name 6` in two
+  orderings, the file's column order and `Name 1` to `Name 5` then
+  `Name 6`, and both are checked.
+- **Grouping.** Rows are grouped into list entries by `Group ID`, and each
+  matching entry is printed with all of its rows verbatim.
+- **No match.** It is proven by the file as read: bytes, SHA-256, physical
+  lines, records, entries and the list date line.
+
+A failed fetch, a non-200 answer or a file not in the captured shape is a
+source failure: nothing is printed on stdout and the exit status is 2.
+Docs page:
+[`docs/mcpize-tools/uk_sanctions_check.md`](../docs/mcpize-tools/uk_sanctions_check.md).
+
+### Verification
+
+```sh
+python3 -m unittest discover -s tools/tests -p 'test_uk_sanctions_check.py' -v
+```
+
+The tests need no network. They use an excerpt assembled from four
+verbatim lines of the coordinator's Option B capture on issue #342,
+because this container cannot reach the list file. The excerpt holds the
+date line, the header, one Individual row and one Entity row. Cases the
+captures do not show are labelled SYNTHETIC. The excerpt's SHA-256 is in
+`tests/fixtures/uk-sanctions/provenance.json`, and the hash is checked.
 
 ## edgar_formd.py
 

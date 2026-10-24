@@ -1,0 +1,23 @@
+{
+  "conlist-excerpt.csv": {
+    "sha256": "6e682ff4997ffcbbdec40c89cc83a8002e1a2e068a36908e684158bb71b6f6b9",
+    "bytes": 2198,
+    "what": "An excerpt assembled from four verbatim lines of the coordinator's ConList.csv capture on issue #342, joined with newline characters (a test arrangement, labelled): line 1 (the list date line) and line 2 (the header row) from capture 1, the first data row (Group Type Individual, Group ID 15672) from capture 2, and the GAZPROM NEFT row (Group Type Entity, Group ID 16736) from capture 3. The lines are verbatim; their order and the newline joins are this test's, not the file's.",
+    "source_url": "https://ofsistorage.blob.core.windows.net/publishlive/2022format/ConList.csv",
+    "linked_from": "https://www.gov.uk/government/publications/financial-sanctions-consolidated-list-of-targets/consolidated-list-of-targets",
+    "retrieved_utc": "2026-10-24, about 13:07 UTC",
+    "full_file_as_captured": {
+      "status": "HTTP 200",
+      "bytes": 16641139,
+      "sha256": "9585695391b51f72ca9eae1b6671e1f81fb1fa6e21a1661dad346636f2320c7f",
+      "physical_lines": 19763,
+      "records_after_header": 19761
+    },
+    "captured_by": "coordinator, Option B captures on issue #342 (no response headers were captured)",
+    "comments": [
+      "https://github.com/nnyycc77-ship-it/tiny-ledger/issues/342#issuecomment-6384612039",
+      "https://github.com/nnyycc77-ship-it/tiny-ledger/issues/342#issuecomment-6384614609",
+      "https://github.com/nnyycc77-ship-it/tiny-ledger/issues/342#issuecomment-6384614890"
+    ]
+  }
+}
