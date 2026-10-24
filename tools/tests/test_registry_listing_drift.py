@@ -1,5 +1,14 @@
 """Drift check for the MCP Registry listing (issue #246).
 
+Pinned tree: refreshed for issue #387 on merged main
+`b04067632ddabf7837790013344028d0d74273b1` (the merge of PR #380), by
+rerunning this suite on a clean checkout of that exact tree
+unmodified first: all five tests green and no disagreement between
+server.json and the sources this suite pins it against, so only this
+pin moved. The pin records the tree the suite was last verified
+against; the comparisons below read the live files, so a later drift
+fails on its own merits wherever it lands.
+
 Offline only: no network. The MCP Registry listing added by issue #186
 lives at packaging/mcp-registry/server.json (the merged PR #203 placed
 it there, not at the repo root). Nothing else in the suite pinned it, so
