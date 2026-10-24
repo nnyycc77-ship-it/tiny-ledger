@@ -34,6 +34,7 @@ from tools import domain_trust_check as dt  # noqa: E402
 from tools import edgar_formd as ef  # noqa: E402
 from tools import epa_screen as epa  # noqa: E402
 from tools import exchange_rate_check as fx  # noqa: E402
+from tools import disaster_history_check as dh  # noqa: E402
 from tools import faa_lookup as faa  # noqa: E402
 from tools import fda_drug_check as fd  # noqa: E402
 from tools import fmcsa_carrier as fc  # noqa: E402
@@ -62,10 +63,10 @@ class RoutingTests(unittest.TestCase):
     def test_descriptor_lists_every_endpoint_with_tool_params_and_sources(self):
         doc = recall_api.descriptor(WALLET)
         self.assertEqual(sorted(doc["endpoints"]),
-                         ["/app", "/awards", "/bank", "/carrier", "/csl", "/domain", "/drug", "/epa", "/faa", "/fda",
-                          "/flood", "/formd", "/fx", "/github", "/insider", "/links", "/litigation", "/meta",
-                          "/nonprofit", "/npi", "/ofac", "/oig", "/pagespeed", "/recall", "/safety", "/trials",
-                          "/vin", "/weather"])
+                         ["/app", "/awards", "/bank", "/carrier", "/csl", "/disaster", "/domain", "/drug", "/epa",
+                          "/faa", "/fda", "/flood", "/formd", "/fx", "/github", "/insider", "/links", "/litigation",
+                          "/meta", "/nonprofit", "/npi", "/ofac", "/oig", "/pagespeed", "/recall", "/safety",
+                          "/trials", "/vin", "/weather"])
         for path, entry in doc["endpoints"].items():
             self.assertEqual(entry["method"], "GET", path)
             self.assertTrue(entry["tool"].startswith("tools/"), path)
@@ -105,6 +106,8 @@ class RoutingTests(unittest.TestCase):
             "/links": ["", "url=notaurl", "url=ftp://example.com/", "url=https://a.example/&url=https://b.example/"],
             "/drug": ["", "name=", "name=Lipitor&name=Tylenol", 'name=say%20"cheese"'],
             "/faa": ["", "n_number=N", "n_number=N10-0Z", "n_number=N1234567", "n_number=N1&n_number=N2"],
+            "/disaster": ["", "state=R", "state=RIX", "state=RI&state=CT", "state=RI&limit=0", "state=RI&limit=1001",
+                          "state=RI&limit=x", "state=RI&county=Prince+George%27s+(County)"],
         }
         patches = [patch.object(mod, "fetch", side_effect=AssertionError("no fetch expected"))
                    for mod in (fc, cl, ua, pp, ps, ef, vd, fx, sf, epa, bl, fd)]
@@ -113,6 +116,7 @@ class RoutingTests(unittest.TestCase):
         patches.append(patch.object(al, "fetch", side_effect=AssertionError("no fetch expected")))
         patches.append(patch.object(ct, "fetch", side_effect=AssertionError("no fetch expected")))
         patches.append(patch.object(faa, "download", side_effect=AssertionError("no fetch expected")))
+        patches.append(patch.object(dh, "fetch", side_effect=AssertionError("no fetch expected")))
         for p in patches:
             p.start()
             self.addCleanup(p.stop)
@@ -818,6 +822,54 @@ class FaaTests(unittest.TestCase):
             status, _, text = get("/faa", "n_number=N100ZT")
         self.assertEqual(status, "502 Bad Gateway")
         self.assertIn("source failure, no report emitted", text)
+
+
+# ----------------------------------------------------------------------
+# /disaster
+# ----------------------------------------------------------------------
+
+class DisasterTests(unittest.TestCase):
+    """Served from the coordinator's Option B captures on issue #312
+    (tools/tests/fixtures/openfema, provenance there). They carry bodies
+    only, so the status line here is a test harness, not a recording."""
+
+    PROV = json.loads((FIXTURES / "openfema" / "provenance.json").read_text(encoding="utf-8"))
+
+    def served(self, name, status=200, url=None):
+        want = url or self.PROV[name]["url"]
+        text = (FIXTURES / "openfema" / name).read_bytes().decode("utf-8")
+
+        def fetch(asked):
+            if asked != want:
+                raise AssertionError("unexpected fetch: %s" % asked)
+            return "2026-10-24T12:10:00Z", status, "HTTP/1.1 %d (test harness line)\n\n%s" % (status, text), text
+        return fetch
+
+    def test_state_query_renders_the_fetchers_section(self):
+        with patch.object(dh, "fetch", self.served("state-RI-top5-count.json")):
+            status, headers, text = get("/disaster", "state=ri&limit=5", WALLET)
+        self.assertEqual(status, "200 OK", text[:500])
+        self.assertEqual(headers["Content-Type"], recall_api.TEXT_MD)
+        self.assertTrue(text.startswith("# Disaster declarations: RI\n"))
+        self.assertIn("tools/disaster_history_check.py", text)
+        self.assertIn("FEMA's total of matching rows (metadata count, $count=true) as shown: 123.", text)
+        self.assertIn("DISASTERS: 2 distinct disasterNumber values among the 5 rows returned", text)
+
+    def test_county_goes_into_the_filter(self):
+        url = dh.build_url("RI", "Kent (County)", 5)
+        with patch.object(dh, "fetch", self.served("county-RI-Kent-top5.json", url=url)):
+            status, _, text = get("/disaster", "state=RI&county=Kent+(County)&limit=5")
+        self.assertEqual(status, "200 OK", text[:500])
+        self.assertTrue(text.startswith("# Disaster declarations: Kent (County), RI\n"))
+
+    def test_a_400_answer_is_502_with_no_report(self):
+        url = dh.build_url("RI", None, 5)
+        with patch.object(dh, "fetch", self.served("bad-field-400.json", status=400, url=url)):
+            status, _, text = get("/disaster", "state=RI&limit=5")
+        self.assertEqual(status, "502 Bad Gateway")
+        self.assertIn("source failure, no report emitted", text)
+        self.assertIn("the answer is unknown", text)
+        self.assertNotIn("DISASTERS", text)
 
 
 if __name__ == "__main__":

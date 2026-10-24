@@ -1,0 +1,9 @@
+HTTP/1.0 502 Bad Gateway
+Date: Sat, 24 Oct 2026 12:25:02 GMT
+Server: WSGIServer/0.2 CPython/3.13.16
+Content-Type: text/plain; charset=utf-8
+Content-Length: 235
+Cache-Control: no-store
+X-Payout-Wallet: 0x1111111111111111111111111111111111111111
+
+source failure, no report emitted: https://www.fema.gov/api/open/v2/DisasterDeclarationsSummaries?$filter=state+eq+%27RI%27&$orderby=declarationDate+desc&$top=5&$count=true: fetch failed: <urlopen error [Errno 111] Connection refused>

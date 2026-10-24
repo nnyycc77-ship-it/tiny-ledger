@@ -635,5 +635,23 @@
     "server_config": "PAYOUT_WALLET_ADDRESS=0x1111111111111111111111111111111111111111, a SYNTHETIC placeholder address chosen for the capture, not any real wallet; EDGAR_CONTACT set to a labelled test contact (Tiny Ledger Api Smoke smoke@example.com), which /formd checks before fetching, so without it the server answers 503 and no 502 can be captured; HTTP_PROXY, HTTPS_PROXY, http_proxy and https_proxy all set to http://127.0.0.1:9, a closed local port, so every source fetch fails at transport; no X-PAYMENT header sent, so the facilitator was never contacted",
     "transcript_form": "status line, response headers in the order returned, a blank line, then the body exactly as returned, joined with newline characters",
     "note": "Replayed source failure: the query is valid, the same sample shape as the endpoint's 200 capture, and the recorded proxy config makes the source fetch fail at transport; the 502 below is the server's own answer, captured verbatim. The descriptor and the payment gate are not affected by the proxy config."
+  },
+  "disaster-400.http": {
+    "url": "http://127.0.0.1:8765/disaster",
+    "retrieved_utc": "2026-10-24T12:25:02Z",
+    "sha256": "8f33f4c941f773a5e37b58cf2956d13ece8febee542176a0d094d76818fc1fb0",
+    "captured_by": "H4, with tools/api_smoke.py fetch(), from the local gated server: python3 server.py at commit c6140360 (this PR's first commit as first built on main 44507b5, later rebased onto main 9dfc490 and then 7505a5b (as 84df53f) with tools/disaster_history_check.py and the /disaster dispatcher unchanged; api.payment_gate:app), PORT=8765, for issue #312.",
+    "server_config": "PAYOUT_WALLET_ADDRESS=0x1111111111111111111111111111111111111111, a SYNTHETIC placeholder address chosen for the capture, not any real wallet; EDGAR_CONTACT set to a labelled test contact (Tiny Ledger Api Smoke smoke@example.com), as in the earlier captures; HTTP_PROXY, HTTPS_PROXY, http_proxy and https_proxy all set to http://127.0.0.1:9, a closed local port, and NO_PROXY empty, so every source fetch fails at transport and nothing leaves the machine; no X-PAYMENT header sent, so the facilitator was never contacted",
+    "transcript_form": "status line, response headers in the order returned, a blank line, then the body exactly as returned, joined with newline characters",
+    "note": "The request names no valid input (the bare endpoint path, no query string), so the server answers 400 before any source fetch; the api endpoint suite proves the same cases return 400 with its fetch functions patched to raise."
+  },
+  "disaster-502.http": {
+    "url": "http://127.0.0.1:8765/disaster?state=RI&limit=5",
+    "retrieved_utc": "2026-10-24T12:25:02Z",
+    "sha256": "176cabc59cf65c5add976895b46b93e9dc2dd34984275ed475a449b12ca88ce3",
+    "captured_by": "H4, with tools/api_smoke.py fetch(), from the local gated server: python3 server.py at commit c6140360 (this PR's first commit as first built on main 44507b5, later rebased onto main 9dfc490 and then 7505a5b (as 84df53f) with tools/disaster_history_check.py and the /disaster dispatcher unchanged; api.payment_gate:app), PORT=8765, for issue #312.",
+    "server_config": "PAYOUT_WALLET_ADDRESS=0x1111111111111111111111111111111111111111, a SYNTHETIC placeholder address chosen for the capture, not any real wallet; EDGAR_CONTACT set to a labelled test contact (Tiny Ledger Api Smoke smoke@example.com), as in the earlier captures; HTTP_PROXY, HTTPS_PROXY, http_proxy and https_proxy all set to http://127.0.0.1:9, a closed local port, and NO_PROXY empty, so every source fetch fails at transport and nothing leaves the machine; no X-PAYMENT header sent, so the facilitator was never contacted",
+    "transcript_form": "status line, response headers in the order returned, a blank line, then the body exactly as returned, joined with newline characters",
+    "note": "Replayed source failure: the query is valid, and the recorded proxy config makes the source fetch fail at transport; the 502 below is the server's own answer, captured verbatim. The descriptor and the payment gate are not affected."
   }
 }
