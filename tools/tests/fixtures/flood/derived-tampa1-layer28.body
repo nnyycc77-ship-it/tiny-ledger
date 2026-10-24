@@ -1,0 +1,25 @@
+{
+  "features": [
+    {
+      "attributes": {
+        "GFID": "0aa9691f-7029-4198-bc41-0c92139fc0de",
+        "OBJECTID": 28124129,
+        "DFIRM_ID": "12057C",
+        "VERSION_ID": "1.1.1.0",
+        "FLD_AR_ID": "12057C_9452",
+        "STUDY_TYP": "NP",
+        "FLD_ZONE": "X",
+        "ZONE_SUBTY": "AREA OF MINIMAL FLOOD HAZARD",
+        "SFHA_TF": "F",
+        "STATIC_BFE": -9999.0,
+        "V_DATUM": "",
+        "DEPTH": -9999.0,
+        "LEN_UNIT": "",
+        "VELOCITY": -9999.0,
+        "VEL_UNIT": "",
+        "AR_REVERT": "",
+        "AR_SUBTRV": ""
+      }
+    }
+  ]
+}
