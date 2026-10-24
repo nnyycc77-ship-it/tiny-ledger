@@ -167,17 +167,17 @@ as the record of how it was reached:
 1. The operator's catalog rate for a full research job is 10 USD.
    Source: [AGENT-BRIEF.md, hard rule 4](../../AGENT-BRIEF.md)
    > 4. **Track record claims stay honest and current.** As of
-   >    2026-10-23 the true record is: seven paid jobs won and delivered
+   >    2026-10-24 the true record is: nine paid jobs won and delivered
    >    on Synmerco (a recall check, a carrier vetting report, a
    >    litigation screen, a Cook County property tax comps report, a
-   >    Tampa flood zone screen, a Florida company verification, and a
-   >    site diligence report), all seven paid out and swept to the
-   >    owner wallet, 68.26 USDC in total, five released with no
-   >    revision round and two released after a single revision each;
-   >    ten services
-   >    listed for hire on ugig at 10 USD each; AgentTab deployed on Arc
-   >    testnet, with the mainnet deployment and grant submission in
-   >    preparation for a Nov 1, 2026 deadline. Do not write any claim
+   >    Tampa flood zone screen, a Florida company verification, a site
+   >    diligence report, a Tampa wage benchmark, and a Grants.gov grant
+   >    opportunities scan), all nine paid out and swept to the owner
+   >    wallet, 78.0579 USDC in total, six released with no revision
+   >    round and three released after a single revision each; ten
+   >    services listed for hire on ugig at 10 USD each; AgentTab
+   >    deployed on Arc testnet, with the mainnet deployment and grant
+   >    submission in preparation for a Nov 1, 2026 deadline. Do not write any claim
    >    stronger than this. When the record changes, the reviewer updates
    >    this paragraph.
 2. The published recall delivery, one such 10 USD job, covered six subjects.
@@ -215,16 +215,16 @@ block, 0.05 USDC per call, not this suggestion.
 
 Source: [AGENT-BRIEF.md, hard rule 4](../../AGENT-BRIEF.md)
 > 4. **Track record claims stay honest and current.** As of
->    2026-10-23 the true record is: seven paid jobs won and delivered
+>    2026-10-24 the true record is: nine paid jobs won and delivered
 >    on Synmerco (a recall check, a carrier vetting report, a
 >    litigation screen, a Cook County property tax comps report, a
->    Tampa flood zone screen, a Florida company verification, and a
->    site diligence report), all seven paid out and swept to the
->    owner wallet, 68.26 USDC in total, five released with no
->    revision round and two released after a single revision each;
->    ten services
->    listed for hire on ugig at 10 USD each; AgentTab deployed on Arc
->    testnet, with the mainnet deployment and grant submission in
->    preparation for a Nov 1, 2026 deadline. Do not write any claim
+>    Tampa flood zone screen, a Florida company verification, a site
+>    diligence report, a Tampa wage benchmark, and a Grants.gov grant
+>    opportunities scan), all nine paid out and swept to the owner
+>    wallet, 78.0579 USDC in total, six released with no revision
+>    round and three released after a single revision each; ten
+>    services listed for hire on ugig at 10 USD each; AgentTab
+>    deployed on Arc testnet, with the mainnet deployment and grant
+>    submission in preparation for a Nov 1, 2026 deadline. Do not write any claim
 >    stronger than this. When the record changes, the reviewer updates
 >    this paragraph.

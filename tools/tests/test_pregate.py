@@ -205,7 +205,7 @@ class Honesty(GateCase):
         # the record, rather than naming the figures of one date.
         sentence = " ".join(l.strip() for l in self.brief_lines())
         count = re.search(r"\b([a-z]+) paid jobs\b", sentence)
-        total = re.search(r"\b(\d+\.\d{2}) USDC\b", sentence)
+        total = re.search(r"\b(\d+\.\d+) USDC\b", sentence)
         self.assertIsNotNone(count, "no '<count> paid jobs' phrase in the brief paragraph")
         self.assertIsNotNone(total, "no '<amount> USDC' figure in the brief paragraph")
         other_count = "twelve" if count.group(1) != "twelve" else "thirteen"
