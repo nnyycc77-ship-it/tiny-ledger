@@ -85,7 +85,7 @@ python3 -m unittest discover -s tools/tests -p 'test_github_repo_check.py' -v
 
 The tests run offline:
 - **Fixtures:** the coordinator's four keyless captures from #166, verbatim
-  in  with their hashes: a licensed repo,
+  in `tools/tests/fixtures/github-repo/` with their hashes: a licensed repo,
   an archived repo, a repo with no license, and a 404.
 - **Coordinator live run:** the coordinator's keyless live smoke run is
   owed at review.
