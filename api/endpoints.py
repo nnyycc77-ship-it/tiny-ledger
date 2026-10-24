@@ -427,7 +427,7 @@ def domain(query, env=None):
     """DNS mail and web posture via tools/domain_trust_check.py."""
     name = _single(query, "domain")
     if name is None:
-        raise BadRequest("give domain=<a bare domain such as example.com>")
+        raise BadRequest("give domain=<a bare domain>, for example domain=example.com")
     try:
         name = dt.check_domain(name)
     except ValueError as err:

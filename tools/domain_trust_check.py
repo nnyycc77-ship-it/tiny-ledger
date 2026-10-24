@@ -42,7 +42,7 @@ Fail closed: a DNS answer that is not HTTP 200, a body that is not the
 API's JSON object, or a transport failure on the DNS leg prints nothing
 on stdout and exits 2. No certificate check is made in this version.
 
-Usage:
+Usage, with the reserved example domain as the example input:
 
     python3 tools/domain_trust_check.py example.com
 
@@ -84,7 +84,7 @@ def check_domain(value):
     path, a port, or a label the DNS cannot carry."""
     text = str(value or "").strip().lower().rstrip(".")
     if not text or "/" in text or ":" in text or "@" in text or " " in text:
-        raise ValueError("give a bare domain such as example.com, got %r" % value)
+        raise ValueError("give a bare domain, for example example.com, got %r" % value)
     try:
         text = text.encode("idna").decode("ascii")
     except UnicodeError:
