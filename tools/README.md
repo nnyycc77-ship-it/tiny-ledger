@@ -32,6 +32,7 @@ environment and its header comment says so.
 | Meta tag check: title, description and Open Graph tags present or missing on a page (docs/mcpize-tools/meta_tag_check.md) | `meta_tag_check.py` | none needed; the source is the page itself |
 | FEMA NFHL flood zone check for a point or a US address (Census Geocoder), screening only (docs/mcpize-tools/flood_check.md) | `flood_check.py` | none needed |
 | openFDA food and device enforcement recall search (docs/mcpize-tools/fda_recall_check.md) | `fda_recall_check.py` | none needed; keyless limits 240 per minute and 1,000 per day per IP address |
+| HHS OIG LEIE exclusion screen, persons and entities (docs/mcpize-tools/oig_screen.md) | `oig_screen.py` | none needed |
 
 Not a fetcher: `pregate.py` is the offline review pre gate (secrets scan,
 honesty lint, fixture provenance check) from `REVIEW.md`. See

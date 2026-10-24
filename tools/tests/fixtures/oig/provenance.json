@@ -1,0 +1,29 @@
+{
+  "leie-excerpt.csv": {
+    "kind": "EXCERPT",
+    "contents": "EXCERPT of the complete LEIE database file UPDATED.csv: 23 lines, each byte verbatim from the coordinator's captures on issue #180. The header row and the first 10 data rows (entities) and 10 rows with LASTNAME SMITH are from Capture B (comment 6380711049); the two rows with a non-zero WAIVERDATE (MIRANDA and WAHIB) are from the byte verbatim correction (comment 6380713028), which supersedes the retyped versions in Capture B. Order here: the header, the first 10 data rows of the file, then the selected rows by LASTNAME. Lines end in LF here; the captures do not state the complete file's line terminator.",
+    "sha256": "a705d952c78ac6d183a8249ba38300cc85792d0e25415264b7c384ba7abd7188",
+    "bytes": 2903,
+    "complete_file_as_retrieved": {
+      "url": "https://oig.hhs.gov/exclusions/downloadables/UPDATED.csv",
+      "retrieved": "2026-10-24 about 06:05 UTC",
+      "status": "HTTP 200 OK",
+      "headers_stated": [
+        "Content-Type: text/csv",
+        "Content-Disposition: attachment; filename=\"UPDATED.csv\"",
+        "Last-Modified: Fri, 09 Oct 2026 12:51:03 GMT",
+        "Content-Length: 10802977"
+      ],
+      "bytes": 10802977,
+      "lines": 84094,
+      "data_rows": 84093,
+      "sha256": "7483d47bc48734f7955095d51d13dd1111b11cc8a60f54ebe894806e6c293c03",
+      "zqxflorp_occurrences": 0,
+      "rows_with_lastname_smith": 692,
+      "rows_with_lastname": 80627,
+      "rows_without_lastname_with_busname": 3466,
+      "rows_with_nonzero_reindate": 0,
+      "rows_with_nonzero_waiverdate": 2
+    }
+  }
+}
