@@ -36,7 +36,7 @@ Source: `api/payment_gate.py` (module docstring and `payment_requirements`),
 | Asset | USDC on Base, `0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913` | `payment_gate.py` `DEFAULT_ASSET` |
 | Price per call | 0.05 USDC (`maxAmountRequired` `50000`, 6 decimals) | `payment_gate.py` `DEFAULT_PRICE`; `api/openapi.json` |
 | payTo | the value of `PAYOUT_WALLET_ADDRESS` on the host. The gate refuses to run without it. | `payment_gate.py`; `api/recall_api.py` `payout_wallet` |
-| Payout wallet value | **to confirm at submission.** The repo records no value for the API host; it is set in the host's environment, never in a file. The one payout address recorded in the repo is the MCPize recipient in `mcpize.yaml`, `0xA7bc0f1B812081c691Ac17828C96f81C1FC6cbfF`. Whether the API host uses the same address is not recorded. | `api/README.md` step 4; `mcpize.yaml` `pricing.recipient` |
+| Payout wallet value | **to confirm at submission.** The repo records no value for the API host; it is set in the host's environment, never in a file. The one payout address recorded in the repo is the MCPize recipient, at `pricing.recipient` in `mcpize.yaml`. Whether the API host uses the same address is not recorded. | `api/README.md` step 4; `mcpize.yaml` `pricing.recipient` |
 | Facilitator | PayAI by default (`https://facilitator.payai.network`), changeable with `FACILITATOR_URL` | `payment_gate.py` `DEFAULT_FACILITATOR` |
 | Settle receipt | returned in the `X-PAYMENT-RESPONSE` header, base64 JSON | `payment_gate.py`; `api/openapi.json` |
 | Failed source fetch | HTTP 502 with no report, never an empty result | `api/README.md` step 6; `api/openapi.json` `/recall` 502 |
