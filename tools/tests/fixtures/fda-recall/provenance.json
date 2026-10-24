@@ -1,0 +1,42 @@
+{
+  "food-hit.http": {
+    "kind": "REAL CAPTURE",
+    "url": "https://api.fda.gov/food/enforcement.json?search=product_description:%22peanut+butter%22&limit=3",
+    "retrieved": "2026-10-24 about 04:40 UTC",
+    "contents": "REAL CAPTURE, food hit, 200, total 606: the complete raw response (status line, CRLF headers, body), verbatim from the coordinator's keyless capture on issue #177 (comment 6379964176); its SHA-256 and its body's SHA-256 match the ones posted there.",
+    "sha256": "95f8a7a8632c71587a2dc9137799ee59e7edddf19d01b175683fb2c402ae93b7",
+    "bytes": 5315,
+    "body_sha256": "1db0cd0d40eebd812bec0a70e7f2d177ad60a8a5e76ec78ceb29721e1e710392",
+    "body_bytes": 4346
+  },
+  "device-hit.http": {
+    "kind": "REAL CAPTURE",
+    "url": "https://api.fda.gov/device/enforcement.json?search=product_description:%22catheter%22&limit=3",
+    "retrieved": "2026-10-24 about 04:40 UTC",
+    "contents": "REAL CAPTURE, device hit, 200, total 2634: the complete raw response (status line, CRLF headers, body), verbatim from the coordinator's keyless capture on issue #177 (comment 6379964462); its SHA-256 and its body's SHA-256 match the ones posted there.",
+    "sha256": "a8a52b1c2d09ca2facf36b04e39f2c8cb0df6315dad46c7fa83642e6a429cb58",
+    "bytes": 6604,
+    "body_sha256": "a5bd9f094ec47d2b5e299dd895cfa935d37cf4d74fe1b323a53ac350f229a68f",
+    "body_bytes": 5640
+  },
+  "food-empty-404.http": {
+    "kind": "REAL CAPTURE",
+    "url": "https://api.fda.gov/food/enforcement.json?search=product_description:%22zqxflorp%22&limit=3",
+    "retrieved": "2026-10-24 about 04:40 UTC",
+    "contents": "REAL CAPTURE, empty result, 404 NOT_FOUND: the complete raw response (status line, CRLF headers, body), verbatim from the coordinator's keyless capture on issue #177 (comment 6379964741); its SHA-256 and its body's SHA-256 match the ones posted there.",
+    "sha256": "9973a48c66dd48a40b6ca2543812f4b2b8046ec4b6eb81c051ac53fefaf7934b",
+    "bytes": 818,
+    "body_sha256": "57b1e7534d003e4246182162fd2469cdf038de39405056f44fc006715e5496da",
+    "body_bytes": 80
+  },
+  "food-error-500.http": {
+    "kind": "REAL CAPTURE",
+    "url": "https://api.fda.gov/food/enforcement.json?search=product_description:%5Bbad&limit=3",
+    "retrieved": "2026-10-24 about 04:40 UTC",
+    "contents": "REAL CAPTURE, malformed search, 500 SERVER_ERROR: the complete raw response (status line, CRLF headers, body), verbatim from the coordinator's keyless capture on issue #177 (comment 6379964994); its SHA-256 and its body's SHA-256 match the ones posted there.",
+    "sha256": "7078bd94f756cdce96bd1a6852e46d7e8ef7d78d97f6f10e943d1a6dee4c94a8",
+    "bytes": 978,
+    "body_sha256": "9c3bd4586e63659a0f742c41c407cd66f6507f3d923a7902ff6ef1af8e8c743a",
+    "body_bytes": 250
+  }
+}

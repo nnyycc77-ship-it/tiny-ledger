@@ -23,6 +23,7 @@ nothing else to the fetchers' output.
     /fx          tools/exchange_rate_check.py  base, target (amount, date optional)
     /flood       tools/flood_check.py          lat, lon | address
     /safety      tools/safety_file.py          make, model, year
+    /fda         tools/fda_recall_check.py     name (field, category, limit optional)
 
 Each endpoint takes the fetcher's own command line inputs as query
 parameters under the same names (hyphens become underscores), validates
@@ -61,6 +62,7 @@ from tools import courtlistener_recap as cl  # noqa: E402
 from tools import domain_trust_check as dt  # noqa: E402
 from tools import edgar_formd as ef  # noqa: E402
 from tools import exchange_rate_check as fx  # noqa: E402
+from tools import fda_recall_check as fda  # noqa: E402
 from tools import flood_check as fl  # noqa: E402
 from tools import fmcsa_carrier as fc  # noqa: E402
 from tools import github_repo_check as gh  # noqa: E402
@@ -624,6 +626,24 @@ def safety(query, env=None):
 
 
 # ----------------------------------------------------------------------
+# /fda
+# ----------------------------------------------------------------------
+
+def fda_recall(query, env=None):
+    """Keyless openFDA food and device enforcement search via tools/fda_recall_check.py."""
+    try:
+        args = fda.check_inputs(_single(query, "name", ""), _single(query, "field", "product"),
+                                _single(query, "category", "both"), _int(query, "limit", fda.DEFAULT_LIMIT))
+    except ValueError as err:
+        raise BadRequest(str(err))
+    try:
+        lines = fda.report(*args, fetcher=fda.fetch)
+    except fda.FetchError as err:
+        raise FetchFailed(str(err))
+    return _text([], lines)
+
+
+# ----------------------------------------------------------------------
 # Registry and descriptor
 # ----------------------------------------------------------------------
 
@@ -643,9 +663,19 @@ ROUTES = {
     "/fx": exchange_rate,
     "/flood": flood,
     "/safety": safety,
+    "/fda": fda_recall,
 }
 
 DESCRIPTIONS = {
+    "/fda": {
+        "tool": "tools/fda_recall_check.py",
+        "params": ["name (product, device or firm name, %d to %d characters)" % (fda.MIN_TERM_CHARS, fda.MAX_TERM_CHARS),
+                   "field (optional: product or firm, default product)",
+                   "category (optional: food, device or both, default both)",
+                   "limit (optional, 1 to %d, default %d)" % (fda.MAX_LIMIT, fda.DEFAULT_LIMIT)],
+        "sources": [fda.API_URL.format(category=c) for c in fda.CATEGORIES],
+        "note": "Keyless: no api_key is sent. An empty result is openFDA's 404 NOT_FOUND, shown in full; never a clearance.",
+    },
     "/flood": {
         "tool": "tools/flood_check.py",
         "params": ["lat and lon (decimal degrees), or address (a US street address)"],

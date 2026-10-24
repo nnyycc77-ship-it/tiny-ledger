@@ -1,0 +1,27 @@
+HTTP/1.1 500 Internal Server Error
+Date: Sat, 24 Oct 2026 04:39:23 GMT
+Content-Type: application/json; charset=utf-8
+X-Frame-Options: deny
+X-Xss-Protection: 1; mode=block
+Access-Control-Allow-Credentials: true
+Access-Control-Allow-Origin: *
+Age: 1
+Cache-Control: no-cache, no-store, must-revalidate
+Content-Security-Policy: default-src 'none'
+Etag: W/"fa-EJIBfLToOyKtDqZLy2PnBIdM9P8"
+Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
+Vary: Accept-Encoding
+Via: https/1.1 api-umbrella (ApacheTrafficServer [cMsSf ])
+X-Api-Umbrella-Request-Id: d1dgqcs4pb0mub335pf0
+X-Cache: MISS
+X-Content-Type-Options: nosniff
+X-Vcap-Request-Id: 0a288388-b125-483f-6c2c-86a5835bb1b0
+Content-Length: 250
+
+{
+  "error": {
+    "code": "SERVER_ERROR",
+    "message": "Check your request and try again",
+    "details": "[parse_exception] parse_exception: Encountered \" <RANGE_GOOP> \"AND \"\" at line 1, column 25.\nWas expecting:\n    \"TO\" ...\n    "
+  }
+}

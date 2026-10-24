@@ -1,0 +1,116 @@
+HTTP/1.1 200 OK
+Date: Sat, 24 Oct 2026 04:39:20 GMT
+Content-Type: application/json; charset=utf-8
+X-Frame-Options: deny
+X-Xss-Protection: 1; mode=block
+Vary: Accept-Encoding
+Vary: Accept-Encoding
+Vary: Accept-Encoding
+Access-Control-Allow-Credentials: true
+Access-Control-Allow-Origin: *
+Age: 0
+Cache-Control: no-cache, no-store, must-revalidate
+Content-Security-Policy: default-src 'none'
+Etag: W/"1608-jZwxIq7pnxgkWTiLH0DH2SJBVq0"
+Link: <https://api.fda.gov/device/enforcement.json?search=product_description%3A%22catheter%22&limit=3&skip=0&search_after=0%3D0012c77350948bc9502e70a482b427ed2b1e2b42659fd77f25acb86920a26732>; rel="next"
+Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
+Via: https/1.1 api-umbrella (ApacheTrafficServer [cMsSf ])
+X-Api-Umbrella-Request-Id: d1dgqc9oqsf6go2osnn0
+X-Cache: MISS
+X-Content-Type-Options: nosniff
+X-Vcap-Request-Id: 8b807831-723a-4064-793e-008fc5b800ba
+Content-Length: 5640
+
+{
+  "meta": {
+    "disclaimer": "Do not rely on openFDA to make decisions regarding medical care. While we make every effort to ensure that data is accurate, you should assume all results are unvalidated. We may limit or otherwise restrict your access to the API in line with our Terms of Service.",
+    "terms": "https://open.fda.gov/terms/",
+    "license": "https://open.fda.gov/license/",
+    "last_updated": "2026-10-14",
+    "results": {
+      "skip": 0,
+      "limit": 3,
+      "total": 2634
+    }
+  },
+  "results": [
+    {
+      "status": "Ongoing",
+      "city": "Mansfield",
+      "state": "MA",
+      "country": "United States",
+      "classification": "Class I",
+      "openfda": {},
+      "product_type": "Devices",
+      "event_id": "92660",
+      "recalling_firm": "Covidien LP",
+      "address_1": "15 Hampshire St",
+      "address_2": "",
+      "postal_code": "02048-1113",
+      "voluntary_mandated": "Voluntary: Firm initiated",
+      "initial_firm_notification": "Letter",
+      "distribution_pattern": "US Nationwide - Worldwide Distribution  Foreign:  Argentina Austria Bahrain Bangladesh Belgium Brazil Brunei Darussalam Canada Cayman Islands China Costa Rica Czech Republic Denmark Dominican Republic Finland France French Polynesia Germany Greece Hungary India Iran, Islamic Republic Of Ireland Italy Kuwait Malaysia Maldives Mauritius Mexico Nepal Netherlands New Caledonia Nicaragua Norway Philippines Poland Portugal Puerto Rico Saudi Arabia Singapore Slovakia South Africa Spain Sri Lanka Sweden Switzerland Thailand Turkey United Arab Emirates United Kingdom",
+      "recall_number": "Z-2372-2023",
+      "product_description": "MAHURKAR 12 Fr High Pressure Triple Lumen Acute Dialysis Catheter, 24 cm, Straight Extensions, IC Tray    REF: 8888102004HP",
+      "product_quantity": "685 units",
+      "reason_for_recall": "Catheter center lumen was found to have an occlusion in the tip of the catheter; the source of the occlusion an excessive MDX, a silicone-based lubricant which coats the catheter tip. An occluded, partially or fully, and/or uncured or excessive MDX may dislodge from the catheter lead to  full catheter obstruction resulting in delay to treatment and partial obstruction resulting in reduced flow, or particulate dislodgement that may result in delay to treatment, hemolysis, embolism/embolus or thrombosis/thrombus",
+      "recall_initiation_date": "20230628",
+      "center_classification_date": "20230811",
+      "report_date": "20230823",
+      "code_info": "GTIN: 20884521128009  LOT Numbers: 2200400154",
+      "more_code_info": ""
+    },
+    {
+      "status": "Terminated",
+      "city": "San Clemente",
+      "state": "CA",
+      "country": "United States",
+      "classification": "Class II",
+      "openfda": {},
+      "product_type": "Devices",
+      "event_id": "86054",
+      "recalling_firm": "ICU Medical, Inc.",
+      "address_1": "951 Calle Amanecer",
+      "address_2": "N/A",
+      "postal_code": "92673-6212",
+      "voluntary_mandated": "Voluntary: Firm initiated",
+      "initial_firm_notification": "Letter",
+      "distribution_pattern": "Worldwide Distribution: US (nationwide): AL, AZ, CA, CO, DE, FL,GA,ID, IL,IN, KY, LA, MA, MD, MI, MN, MO, MS, NC, NE, NH,NJ,NM,NV, NY, OH, OK, OR, PA,RI, TN, TX, UT, VA, WA, WI, and WV; and OUS countries of: Belgium, Brazil, Canada, France, Germany, Ireland, Japan, Martinique, Mexico, Poland, and Saudi Arabia.",
+      "recall_number": "Z-0272-2021",
+      "product_description": "APPX 0.75ml, 6-Port NanoClave Manifold (Glow, Red, Blue, Purple, Yellow Rings)BCV. 1 unit per pouch, 50 pouches per case.  UDI: (01)10840619083929(17)241201(30)50(10)4496182.    Administration sets and their accessories are single use, pre-sterilized devices that provide access for the administration of fluids from a container to a patients vascular system through the administrations set needle or catheter, which is inserted into the vein",
+      "product_quantity": "Total of all products (Listed #1 thru 101) = 304735 units",
+      "reason_for_recall": "Identification of a  potential  manufacturing defect on the internal surface of the NanoClave within specific lots of NanoClave sets, which may inhibit a proper seal with the NanoClave spike.",
+      "recall_initiation_date": "20200706",
+      "center_classification_date": "20201022",
+      "termination_date": "20230511",
+      "report_date": "20201028",
+      "code_info": "Lot Number:4496182."
+    },
+    {
+      "status": "Ongoing",
+      "city": "Maple Grove",
+      "state": "MN",
+      "country": "United States",
+      "classification": "Class II",
+      "openfda": {},
+      "product_type": "Devices",
+      "event_id": "95186",
+      "recalling_firm": "Boston Scientific Corporation",
+      "address_1": "1 Scimed Pl",
+      "address_2": "",
+      "postal_code": "55311-1565",
+      "voluntary_mandated": "Voluntary: Firm initiated",
+      "initial_firm_notification": "Letter",
+      "distribution_pattern": "US, Colombia, Philippines, Russia",
+      "recall_number": "Z-3151-2024",
+      "product_description": "VTC Regular Kit Nephrostomy Catheter System Kit, Material Number REF M001245300; to provide external drainage of the urinary tract.",
+      "product_quantity": "5 units",
+      "reason_for_recall": "There is the potential for holes in the clear sterile barrier of the device pouch which may impact device sterility.",
+      "recall_initiation_date": "20240718",
+      "center_classification_date": "20240913",
+      "report_date": "20240925",
+      "code_info": "GTIN/UDI 0871472904856, Lot # 33751204, exp. 04/03/2027",
+      "more_code_info": ""
+    }
+  ]
+}
