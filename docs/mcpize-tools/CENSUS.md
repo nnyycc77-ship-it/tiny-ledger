@@ -14,25 +14,33 @@ registration (issue #210, PR #213) and the registry listing drift check
 (issue #246), by running the script at the end of this file, unchanged,
 from the repository root of that tree. Refreshed again for issue #265 on
 main `af30eb423ef090bfd2adaff7db44ae4bfb4d50e5`, after PR #253 added the
-seven missing routes to `api/openapi.json`, by the same method:
+seven missing routes to `api/openapi.json`, by the same method.
+Refreshed again for issue #272 on main
+`e5035f36a116feddc6243787cfacf951705b9067`, by the same method:
 
-| | Before #228 | After #228 | Refresh #252 | Refresh #265 |
-| --- | --- | --- | --- | --- |
-| Tools registered (`tool_definitions()` in `mcp_server/recall_mcp.py`) | 25 | 25 | 25 | 25 |
-| Registered tools with a page in this folder | 15 | 18 | 18 | 18 |
-| Registered tools named in the services catalog | 16 | 19 | 19 | 19 |
-| Pages stating a route that differs from the server's dispatch | 0 | 0 | 0 | 0 |
-| Pages without the 0.25 USDC shelf price line | 0 | 0 | 0 | 0 |
-| Docs pages or catalog entries naming a tool that is not registered | 0 | 0 | 0 | 0 |
-| Registered tools whose route is in `api/openapi.json` | 18 | 18 | 18 | 25 |
+| | Before #228 | After #228 | Refresh #252 | Refresh #265 | Refresh #272 |
+| --- | --- | --- | --- | --- | --- |
+| Tools registered (`tool_definitions()` in `mcp_server/recall_mcp.py`) | 25 | 25 | 25 | 25 | 25 |
+| Registered tools with a page in this folder | 15 | 18 | 18 | 18 | 18 |
+| Registered tools named in the services catalog | 16 | 19 | 19 | 19 | 19 |
+| Pages stating a route that differs from the server's dispatch | 0 | 0 | 0 | 0 | 0 |
+| Pages without the 0.25 USDC shelf price line | 0 | 0 | 0 | 0 | 0 |
+| Docs pages or catalog entries naming a tool that is not registered | 0 | 0 | 0 | 0 | 0 |
+| Registered tools whose route is in `api/openapi.json` | 18 | 18 | 18 | 25 | 25 |
 
-One count moved at this refresh: the `api/openapi.json` row, from 18 to
-25. PR #253 (issue #243) added the seven routes the earlier censuses
-reported missing, `/domain`, `/ofac`, `/github`, `/flood`, `/fda`,
-`/oig` and `/insider`, so every registered tool's route now stands in
-`api/openapi.json`, which carries 26 paths in all (the twenty five tool
-routes plus `/`). Every other count is unchanged, and the recomputation
-on the pinned commit, not the merge history, is the proof.
+One count moved at the #265 refresh: the `api/openapi.json` row, from
+18 to 25. PR #253 (issue #243) added the seven routes the earlier
+censuses reported missing, `/domain`, `/ofac`, `/github`, `/flood`,
+`/fda`, `/oig` and `/insider`, so every registered tool's route now
+stands in `api/openapi.json`, which carries 26 paths in all (the twenty
+five tool routes plus `/`).
+
+No count moved at the #272 refresh. Between the #265 pin and this one
+the merges were PR #261 (api smoke coverage census), PR #266 (suite
+census), PR #267 (the #265 census refresh itself) and PR #268 (OFAC
+normalise test coverage, issue #264); none of them touched a census
+surface, and the recomputation on the pinned commit, not the merge
+history, is the proof.
 
 ## Drift found and fixed by the PR for #228
 
@@ -49,6 +57,14 @@ on the pinned commit, not the merge history, is the proof.
   (#160, whose full page stays at `docs/ofac-sdn-check.md`) and
   `app_lookup_check` (#167). Each now has a page here and an entry in
   catalog Part 5, Wave 1.
+
+## Refresh notes (issue #272)
+
+- No count moved; the Refresh #272 column repeats the #265 figures
+  because the tree's census surfaces are byte identical in effect, as
+  the reproduce script's output on the pinned commit shows.
+- The seven original tools listed under Left open still have no page
+  in this folder; that is the only item left open on this census.
 
 ## Refresh notes (issue #265)
 
