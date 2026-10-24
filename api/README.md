@@ -25,6 +25,7 @@ Every merged fetcher in `tools/` is an endpoint with the same contract as `GET /
 | `GET /vin` | `tools/vin_decode.py` | `vin`; optional `model_year` |
 | `GET /fx` | `tools/exchange_rate_check.py` | `base`, `target`; optional `amount`, `date` |
 | `GET /meta` | `tools/meta_tag_check.py` | `url` (a page URL, http or https) |
+| `GET /csl` | `tools/csl_screen.py` | `name` (a person or company name) |
 | `GET /flood` | `tools/flood_check.py` | `lat` and `lon`, or `address` (a US street address) |
 | `GET /safety` | `tools/safety_file.py` | `make`, `model`, `year` |
 | `GET /fda` | `tools/fda_recall_check.py` | `name`; optional `field` (product or firm), `category` (food, device or both), `limit` (1 to 100, default 10) |

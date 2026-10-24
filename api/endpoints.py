@@ -19,6 +19,7 @@ nothing else to the fetchers' output.
     /app         tools/app_lookup_check.py     name (country, limit optional)
     /github      tools/github_repo_check.py    owner, repo
     /meta        tools/meta_tag_check.py       url
+    /csl         tools/csl_screen.py           name
     /vin         tools/vin_decode.py           vin
     /fx          tools/exchange_rate_check.py  base, target (amount, date optional)
     /flood       tools/flood_check.py          lat, lon | address
@@ -77,6 +78,7 @@ from tools import flood_check as fl  # noqa: E402
 from tools import fmcsa_carrier as fc  # noqa: E402
 from tools import insider_check as ins  # noqa: E402
 from tools import github_repo_check as gh  # noqa: E402
+from tools import csl_screen as cs  # noqa: E402
 from tools import meta_tag_check as mt  # noqa: E402
 from tools import oig_screen as oig  # noqa: E402
 from tools import ofac_sdn_check as ofac  # noqa: E402
@@ -537,6 +539,21 @@ def meta_tags(query, env=None):
 
 
 # ----------------------------------------------------------------------
+# /csl
+# ----------------------------------------------------------------------
+
+def csl(query, env=None):
+    """US Consolidated Screening List screen via tools/csl_screen.py."""
+    name = _single(query, "name")
+    if not name or cs.significant(name) < cs.MIN_QUERY_CHARS:
+        raise BadRequest("name is required, with at least %d letters or digits" % cs.MIN_QUERY_CHARS)
+    try:
+        return cs.render(name, cs.load()) + "\n"
+    except cs.FetchError as err:
+        raise FetchFailed(str(err))
+
+
+# ----------------------------------------------------------------------
 # /app
 # ----------------------------------------------------------------------
 
@@ -810,6 +827,7 @@ ROUTES = {
     "/vin": vin,
     "/github": github_repo,
     "/meta": meta_tags,
+    "/csl": csl,
     "/app": app,
     "/trials": clinical_trials,
     "/fx": exchange_rate,
@@ -922,6 +940,12 @@ DESCRIPTIONS = {
         "params": ["url (the page URL, http or https)"],
         "sources": ["https://<page>/ (the page itself, at the exact URL given by the caller)"],
         "note": "Keyless: the source is the page itself, fetched once. A source failure is 502, never a page with no tags.",
+    },
+    "/csl": {
+        "tool": "tools/csl_screen.py",
+        "params": ["name (person or company name; at least %d letters or digits)" % cs.MIN_QUERY_CHARS],
+        "sources": [cs.CSL_URL],
+        "note": "Keyless: the published list file is downloaded and cached locally for a day; every report states the list publication date and the rows screened.",
     },
     "/app": {
         "tool": "tools/app_lookup_check.py",

@@ -1,0 +1,19 @@
+{
+  "_note": "EXCERPT of the complete file: the header line plus the data lines listed, each verbatim from the complete file as retrieved; the complete file itself is 16 MB and is not committed.",
+  "consolidated-excerpt.csv": {
+    "url": "https://data.trade.gov/downloadable_consolidated_screening_list/v1/consolidated.csv",
+    "contents": "EXCERPT: header line 1 plus data lines 2, 3, 10, 11, 1047, 2610, 8905 of the complete file, verbatim, in file order",
+    "lines_in_excerpt": 8,
+    "bytes": 4464,
+    "sha256": "ad9c046f535229c356dd370781ee60dc7bf1910d01033b762b36c79dc7001db8",
+    "complete_file_as_retrieved": {
+      "retrieved_utc": "2026-10-24T05:15:38Z (GET response Date header); file fetched twice with identical SHA-256",
+      "bytes": 16832471,
+      "sha256": "1091be6f588e5a3cc67a88cf748724a9621dff849d56a1f5a3c58d701af5a325",
+      "lines": 26174,
+      "data_rows": 26173,
+      "last_modified_header": "Sat, 24 Oct 2026 04:30:32 GMT",
+      "content_type_header": "text/csv"
+    }
+  }
+}
