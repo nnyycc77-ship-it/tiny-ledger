@@ -141,6 +141,9 @@ NO_ENDPOINT_CAPTURE = {
                   "www.fema.gov, so no 200 report could be captured; a 200 transcript is owed from an "
                   "environment that reaches it"),
     "/domain": _REFUSED % "cloudflare-dns.com",
+    "/earthquake": ("the capture for issue #317 ran in a container whose network policy refuses "
+                    "earthquake.usgs.gov, so no 200 report could be captured; a 200 transcript is owed "
+                    "from an environment that reaches it"),
     "/fda": _REFUSED % "api.fda.gov",
     "/flood": _REFUSED % "hazards.fema.gov",
     "/github": ("the capture container's only route to api.github.com adds credentials, so a 200 "
@@ -169,6 +172,7 @@ BAD_QUERY_FIXTURES = {
     "/disaster": "disaster-400.http",
     "/domain": "domain-400.http",
     "/drug": "drug-400.http",
+    "/earthquake": "earthquake-400.http",
     "/epa": "epa-400.http",
     "/faa": "faa-400.http",
     "/fda": "fda-400.http",
@@ -215,6 +219,7 @@ SOURCE_FAILURE_FIXTURES = {
     "/disaster": "disaster-502.http",
     "/domain": "domain-502.http",
     "/drug": "drug-502.http",
+    "/earthquake": "earthquake-502.http",
     "/epa": "epa-502.http",
     "/faa": "faa-502.http",
     "/fda": "fda-502.http",

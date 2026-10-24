@@ -38,6 +38,7 @@ nothing else to the fetchers' output.
     /npi         tools/npi_check.py            query (NPI number or provider name)
     /disaster    tools/disaster_history_check.py  state (county, limit optional)
     /wallet      tools/wallet_check.py         address
+    /earthquake  tools/earthquake_check.py     lat, lon, radius_km
 
 Each endpoint takes the fetcher's own command line inputs as query
 parameters under the same names (hyphens become underscores), validates
@@ -78,6 +79,7 @@ from tools import broken_link_check as bl  # noqa: E402
 from tools import clinical_trial_check as ct  # noqa: E402
 from tools import courtlistener_recap as cl  # noqa: E402
 from tools import domain_trust_check as dt  # noqa: E402
+from tools import earthquake_check as eq  # noqa: E402
 from tools import edgar_formd as ef  # noqa: E402
 from tools import epa_screen as epa  # noqa: E402
 from tools import exchange_rate_check as fx  # noqa: E402
@@ -758,6 +760,27 @@ def wallet(query, env=None):
 
 
 # ----------------------------------------------------------------------
+# /earthquake
+# ----------------------------------------------------------------------
+
+def earthquake(query, env=None):
+    """USGS earthquake catalog check for a circle around a point via tools/earthquake_check.py."""
+    lat, lon, radius = _single(query, "lat"), _single(query, "lon"), _single(query, "radius_km")
+    try:
+        if lat is None or lon is None or radius is None:
+            raise ValueError("give lat, lon and radius_km")
+        lat, lon = eq.check_point(lat, lon)
+        radius = eq.check_radius(radius)
+    except ValueError as err:
+        raise BadRequest(str(err))
+    try:
+        lines = eq.report(lat, lon, radius, fetcher=eq.fetch)
+    except eq.FetchError as err:
+        raise FetchFailed(str(err))
+    return _fetcher_text(lines)
+
+
+# ----------------------------------------------------------------------
 # /safety
 # ----------------------------------------------------------------------
 
@@ -1014,6 +1037,7 @@ ROUTES = {
     "/npi": npi_lookup,
     "/disaster": disaster_history,
     "/wallet": wallet,
+    "/earthquake": earthquake,
 }
 
 DESCRIPTIONS = {
@@ -1038,6 +1062,14 @@ DESCRIPTIONS = {
                    "limit (optional, 1 to %d, default %d)" % (fda.MAX_LIMIT, fda.DEFAULT_LIMIT)],
         "sources": [fda.API_URL.format(category=c) for c in fda.CATEGORIES],
         "note": "Keyless: no api_key is sent. An empty result is openFDA's 404 NOT_FOUND, shown in full; never a clearance.",
+    },
+    "/earthquake": {
+        "tool": "tools/earthquake_check.py",
+        "params": ["lat and lon (decimal degrees)",
+                   "radius_km (%d to %d kilometres)" % (eq.MIN_RADIUS_KM, eq.MAX_RADIUS_KM)],
+        "sources": [eq.COUNT_URL, eq.QUERY_URL],
+        "note": "Keyless. Events in the past %d years inside the circle: the count, and the %d largest by "
+                "magnitude. No event listed is the catalog's answer, never a hazard clearance." % (eq.YEARS, eq.LARGEST),
     },
     "/flood": {
         "tool": "tools/flood_check.py",
