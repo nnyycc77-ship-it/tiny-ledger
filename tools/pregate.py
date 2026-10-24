@@ -138,11 +138,37 @@ that is not 64 hex characters fails. A provenance file with no hash passes
 (there is nothing to verify; usaspending meta files are of this kind).
 What this cannot catch: a fixture edited together with its recorded hash.
 That is why the reviewer still reads provenance changes in the diff.
+
+Accepted capture findings (issue #198)
+--------------------------------------
+A verbatim capture can contain words the lints look for: a third party's
+"guarantee" in an app description, a consumer's "guaranteed" in a complaint,
+or keys_url and license key field names in a GitHub response body. Before
+this rule each such finding had to be accepted per PR by coordinator ruling
+(PR #173, PR #185, and PR #174 under the #166 ruling). Now a secrets or
+honesty finding is accepted when its file is a fixture listed in a
+provenance file whose recorded SHA-256 matches the file's bytes in this
+run. An accepted finding does not fail its check. It is printed, never
+dropped, in an "ACCEPTED capture findings" section after the three result
+lines, one "file:line: check: reason" line each, so the reviewer still
+reads it.
+
+Not accepted:
+* the same line in any file that is not such a fixture;
+* a fixture whose hash does not verify (the provenance check fails too), or
+  a fixture no provenance file lists;
+* the always fail credential shapes and seed phrases above, in any file:
+  no context excuses them, a verified capture included.
+
+The hashes are read from the working tree, as the provenance check always
+has been. With --committed and a working tree that differs from HEAD, the
+gate's NOTE line applies here too.
 """
 
 import argparse
 import hashlib
 import json
+import os
 import re
 import subprocess
 import sys
@@ -464,7 +490,9 @@ def recorded_hashes(prov):
     return out
 
 
-def verify_provenance(root):
+def verify_provenance(root, verified=None):
+    """(findings, hashes checked). When `verified` is a set, the repo relative
+    path of every fixture whose bytes match its recorded hash is added to it."""
     findings, checked = [], 0
     for prov in provenance_files(root):
         rel = str(prov.relative_to(root))
@@ -480,7 +508,28 @@ def verify_provenance(root):
                 actual = hashlib.sha256(fixture.read_bytes()).hexdigest()
                 if actual != recorded.lower():
                     findings.append((rel, 0, "sha256 mismatch for %s: recorded %s, actual %s" % (name, recorded, actual)))
+                elif verified is not None:
+                    verified.add(Path(os.path.relpath(fixture, root)).as_posix())
     return findings, checked
+
+
+# ---------------------------------------------------------------- verbatim captures
+
+NEVER_ACCEPTED = {label for label, _ in ALWAYS} | {"seed phrase shaped value"}
+
+
+def split_accepted(findings, verified):
+    """(failing, accepted). A finding is accepted when its file is a fixture
+    whose provenance hash verified, unless it is one of the always fail
+    credential shapes, which no context excuses."""
+    failing, accepted = [], []
+    for finding in findings:
+        path, _, reason = finding
+        if Path(os.path.normpath(path)).as_posix() in verified and reason not in NEVER_ACCEPTED:
+            accepted.append(finding)
+        else:
+            failing.append(finding)
+    return failing, accepted
 
 
 # ---------------------------------------------------------------- report
@@ -539,9 +588,10 @@ def run(argv=None):
                           % (git_short(root, git_run(root, "merge-base", base, "HEAD").decode().strip()),
                              base, len(extra)))
         n_lines = sum(len(v) for v in added.values())
-        secrets = scan_secrets(added)
-        honesty = lint_honesty(added, root, read_lines)
-        prov, checked = verify_provenance(root)
+        verified = set()
+        prov, checked = verify_provenance(root, verified)
+        secrets, accepted_secrets = split_accepted(scan_secrets(added), verified)
+        honesty, accepted_honesty = split_accepted(lint_honesty(added, root, read_lines), verified)
     except GateError as exc:
         print("ERROR pregate could not run: %s" % exc)
         return 2
@@ -552,6 +602,12 @@ def run(argv=None):
     ok = report("secrets", secrets, scope)
     ok = report("honesty", honesty, scope) and ok
     ok = report("provenance", prov, "%d recorded hash(es) verified" % checked) and ok
+    accepted = [("secrets",) + f for f in accepted_secrets] + [("honesty",) + f for f in accepted_honesty]
+    if accepted:
+        print("ACCEPTED capture findings: %d, in fixture files whose provenance hash verified; listed for the "
+              "reviewer, not failing the gate" % len(accepted))
+        for check, path, no, reason in accepted:
+            print("  %s:%d: %s: %s" % (path, no, check, reason))
     return 0 if ok else 1
 
 

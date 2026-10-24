@@ -310,6 +310,81 @@ class Provenance(GateCase):
         self.assertGreaterEqual(checked, 3)
 
 
+class CaptureFindings(GateCase):
+    """Issue #198: findings inside verbatim captures whose provenance hash verifies."""
+
+    GUARANTEE_LINE = "Our widgets are guaranteed to arrive."  # SYNTHETIC third party words
+    # SYNTHETIC response field, assembled at run time so this file holds no such literal.
+    KEY_LINE = '"keys' + '_url": "' + "https://api.host.invalid/repos/o/r/keys{/key_id}" + '",'
+
+    def capture(self, lines, listed=True, name="reply.http"):
+        """A SYNTHETIC capture file under fixtures/, recorded in provenance.json when listed."""
+        d = self.root / "tools" / "tests" / "fixtures" / "cap"
+        d.mkdir(parents=True, exist_ok=True)
+        data = ("\n".join(lines) + "\n").encode("utf-8")
+        (d / name).write_bytes(data)
+        if listed:
+            (d / "provenance.json").write_text(__import__("json").dumps(
+                {name: {"sha256": __import__("hashlib").sha256(data).hexdigest()}}), encoding="utf-8")
+        return "tools/tests/fixtures/cap/" + name, d / name
+
+    def test_verbatim_capture_finding_is_accepted_and_listed(self):
+        rel, _ = self.capture(["HTTP/1.1 200 OK", "", self.GUARANTEE_LINE, self.KEY_LINE])
+        code, out = self.gate("--files", rel)
+        self.assertEqual(code, 0, out)
+        self.assertTrue(self.result(out, "honesty").startswith("PASS"), out)
+        self.assertTrue(self.result(out, "secrets").startswith("PASS"), out)
+        self.assertIn("ACCEPTED capture findings: 2, in fixture files whose provenance hash verified", out)
+        self.assertIn("  %s:3: honesty: guarantee language: 'guaranteed'" % rel, out)
+        self.assertIn("  %s:4: secrets: literal value assigned to secret named 'keys_url'" % rel, out)
+
+    def test_the_identical_line_outside_a_fixture_still_fails(self):
+        self.capture(["HTTP/1.1 200 OK", "", self.GUARANTEE_LINE, self.KEY_LINE])
+        code, out = self.gate(diff=make_diff("docs/copy.md", [self.GUARANTEE_LINE, self.KEY_LINE], start=3))
+        self.assertEqual(code, 1, out)
+        self.assertIn("docs/copy.md:3: guarantee language", out)
+        self.assertIn("docs/copy.md:4: literal value assigned to secret named 'keys_url'", out)
+        self.assertNotIn("ACCEPTED", out)
+
+    def test_a_tampered_capture_fails_on_provenance_and_its_findings_count(self):
+        rel, path = self.capture(["HTTP/1.1 200 OK", "", self.GUARANTEE_LINE])
+        path.write_bytes(path.read_bytes() + b"tampered\n")
+        code, out = self.gate("--files", rel)
+        self.assertEqual(code, 1, out)
+        self.assertIn("sha256 mismatch for reply.http", out)
+        self.assertTrue(self.result(out, "honesty").startswith("FAIL"), out)
+        self.assertNotIn("ACCEPTED", out)
+
+    def test_a_fixture_not_listed_in_provenance_is_not_accepted(self):
+        rel, _ = self.capture(["HTTP/1.1 200 OK", "", self.GUARANTEE_LINE], listed=False)
+        code, out = self.gate("--files", rel)
+        self.assertEqual(code, 1, out)
+        self.assertIn("%s:3: guarantee language" % rel, out)
+
+    def test_always_fail_credential_shapes_are_never_accepted(self):
+        planted = "AKIA" + "Q" * 16  # SYNTHETIC, assembled at run time
+        rel, _ = self.capture(["HTTP/1.1 200 OK", "", "id=" + planted])
+        code, out = self.gate("--files", rel)
+        self.assertEqual(code, 1, out)
+        self.assertTrue(self.result(out, "secrets").startswith("FAIL"), out)
+        self.assertNotIn("ACCEPTED", out)
+
+    def test_the_repo_captures_from_the_review_record_are_accepted(self):
+        # REAL CAPTURES: the three cases the issue names (PR #174 on #166, PR #173, PR #185), unmodified.
+        files = ["tools/tests/fixtures/github-repo/psf-requests.body",
+                 "tools/tests/fixtures/app-lookup/search-zqxflorp-us-5.http",
+                 "tools/tests/fixtures/nhtsa-safety/complaints-2021-hyundai-elantra.http"]
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out):
+            code = pregate.run(["--root", str(REPO), "--files"] + files)
+        out = out.getvalue()
+        self.assertEqual(code, 0, out)
+        self.assertIn("psf-requests.body:33: secrets: literal value assigned to secret named 'keys_url'", out)
+        self.assertIn("psf-requests.body:92: secrets: literal value assigned to secret named 'key'", out)
+        self.assertIn("search-zqxflorp-us-5.http:78: honesty: guarantee language: 'guarantee'", out)
+        self.assertIn("complaints-2021-hyundai-elantra.http:14: honesty: guarantee language: 'guaranteed'", out)
+
+
 class FailClosed(GateCase):
     def test_missing_brief_is_an_error_not_a_pass(self):
         (self.root / "AGENT-BRIEF.md").unlink()
