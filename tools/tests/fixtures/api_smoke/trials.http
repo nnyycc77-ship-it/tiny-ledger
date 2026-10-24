@@ -1,0 +1,80 @@
+HTTP/1.0 200 OK
+Date: Sat, 24 Oct 2026 08:15:59 GMT
+Server: WSGIServer/0.2 CPython/3.12.3
+Content-Type: text/markdown; charset=utf-8
+Content-Length: 5471
+Cache-Control: no-store
+X-Payout-Wallet: 0x1111111111111111111111111111111111111111
+
+# Clinical trial search: asthma
+
+Observation only: this report records what the public ClinicalTrials.gov API v2 returned for this search at the retrieval time stated below, in the order returned; trial statuses and listings change, and it is not a review of any trial, drug, or sponsor.
+
+Produced by the Hojo Research Agent API from tools/clinical_trial_check.py. The query, the retrieval time, the source link, and the complete raw response are below.
+
+## Clinical trial search: asthma
+
+Observation only: the trials below are what the public ClinicalTrials.gov API v2 returned for this search at the stated time, in the order returned. Trial statuses and listings change; this is not a review of any trial, drug, or sponsor.
+
+QUERY: ClinicalTrials.gov API v2 studies search, query.term = `asthma`, countTotal = true, pageSize = 3, fields = NCTId,BriefTitle,OverallStatus,LeadSponsorName,Condition,Phase, format = json (retrieved 2026-10-24T08:15:58Z; source S1). HTTP status as returned: 200 OK.
+Trial count (totalCount) as shown: 7479. Studies in this response: 3.
+
+### Trial 1 of 3
+
+- NCTId (identificationModule.nctId) as shown: `NCT04240522`
+- Brief title (identificationModule.briefTitle) as shown: `Prospective Longitudinal Observational Research in Atopic Dermatitis`
+- Overall status (statusModule.overallStatus) as shown: `RECRUITING`
+- Lead sponsor (sponsorCollaboratorsModule.leadSponsor.name) as shown: `University of Zurich`
+- Conditions (conditionsModule.conditions) as shown: `Atopic Dermatitis, Asthma, Atopic Dermatitis and Related Conditions`
+- Phases (designModule.phases) as shown: `not shown`
+
+### Trial 2 of 3
+
+- NCTId (identificationModule.nctId) as shown: `NCT02532283`
+- Brief title (identificationModule.briefTitle) as shown: `A Study to Evaluate the Pharmacokinetics, Safety, and Antiviral Activity of JNJ-63623872 in Combination With Oseltamivir in Adult, and Elderly Hospitalized Participants With Influenza A Infection`
+- Overall status (statusModule.overallStatus) as shown: `COMPLETED`
+- Lead sponsor (sponsorCollaboratorsModule.leadSponsor.name) as shown: `Janssen Research & Development, LLC`
+- Conditions (conditionsModule.conditions) as shown: `Influenza A Virus`
+- Phases (designModule.phases) as shown: `PHASE2`
+
+### Trial 3 of 3
+
+- NCTId (identificationModule.nctId) as shown: `NCT06931405`
+- Brief title (identificationModule.briefTitle) as shown: `Study of BLU-808 in Chronic Inducible Urticaria (CIndU) and Chronic Spontaneous Urticaria (CSU)`
+- Overall status (statusModule.overallStatus) as shown: `ACTIVE_NOT_RECRUITING`
+- Lead sponsor (sponsorCollaboratorsModule.leadSponsor.name) as shown: `Blueprint Medicines Corporation`
+- Conditions (conditionsModule.conditions) as shown: `Chronic Inducible Urticaria, Chronic Spontaneous Urticaria`
+- Phases (designModule.phases) as shown: `PHASE2`
+
+Trials shown are the first 3 of the 7479 the count reports, in the order returned. The response carries a nextPageToken: yes (source S1).
+
+## Sources
+
+### Source. S1. ClinicalTrials.gov API v2 studies search, term `asthma`
+- Request URL: https://clinicaltrials.gov/api/v2/studies?query.term=asthma&countTotal=true&pageSize=3&fields=NCTId%2CBriefTitle%2COverallStatus%2CLeadSponsorName%2CCondition%2CPhase&format=json
+- Retrieved (UTC): 2026-10-24T08:15:58Z
+Excerpt (complete raw HTTP response transcript for the request above: status line, headers in the order returned, a blank line, then the body exactly as returned):
+```
+HTTP/1.1 200 OK
+Date: Sat, 24 Oct 2026 08:16:00 GMT
+Server: istio-envoy
+Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
+X-Frame-Options: SAMEORIGIN
+content-type: application/json
+etag: "0/0.34.1/mvkqolr4"
+x-envoy-upstream-service-time: 15
+set-cookie: ncbi_sid=ED7F4BF7B10B8545_A397SID; Max-Age=31536000; Domain=clinicaltrials.gov; Path=/; $x-enc=URI_ENCODING
+Vary: Accept-Encoding
+X-UA-Compatible: IE=Edge
+X-XSS-Protection: 1; mode=block
+Via: 1.1 google
+Alt-Svc: clear
+connection: close
+Transfer-Encoding: chunked
+
+{"totalCount":7479,"studies":[
+{"protocolSection":{"identificationModule":{"nctId":"NCT04240522","briefTitle":"Prospective Longitudinal Observational Research in Atopic Dermatitis"},"statusModule":{"overallStatus":"RECRUITING"},"sponsorCollaboratorsModule":{"leadSponsor":{"name":"University of Zurich"}},"conditionsModule":{"conditions":["Atopic Dermatitis","Asthma","Atopic Dermatitis and Related Conditions"]},"designModule":{}}},
+{"protocolSection":{"identificationModule":{"nctId":"NCT02532283","briefTitle":"A Study to Evaluate the Pharmacokinetics, Safety, and Antiviral Activity of JNJ-63623872 in Combination With Oseltamivir in Adult, and Elderly Hospitalized Participants With Influenza A Infection"},"statusModule":{"overallStatus":"COMPLETED"},"sponsorCollaboratorsModule":{"leadSponsor":{"name":"Janssen Research & Development, LLC"}},"conditionsModule":{"conditions":["Influenza A Virus"]},"designModule":{"phases":["PHASE2"]}}},
+{"protocolSection":{"identificationModule":{"nctId":"NCT06931405","briefTitle":"Study of BLU-808 in Chronic Inducible Urticaria (CIndU) and Chronic Spontaneous Urticaria (CSU)"},"statusModule":{"overallStatus":"ACTIVE_NOT_RECRUITING"},"sponsorCollaboratorsModule":{"leadSponsor":{"name":"Blueprint Medicines Corporation"}},"conditionsModule":{"conditions":["Chronic Inducible Urticaria","Chronic Spontaneous Urticaria"]},"designModule":{"phases":["PHASE2"]}}}
+],"nextPageToken":"ZVNj7o2Elu8o3lpzV8ikv62tmpOQJJxtYPGi0A"}
+```

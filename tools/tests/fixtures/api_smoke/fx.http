@@ -1,0 +1,52 @@
+HTTP/1.0 200 OK
+Date: Sat, 24 Oct 2026 08:15:48 GMT
+Server: WSGIServer/0.2 CPython/3.12.3
+Content-Type: text/markdown; charset=utf-8
+Content-Length: 2039
+Cache-Control: no-store
+X-Payout-Wallet: 0x1111111111111111111111111111111111111111
+
+# Exchange rate: USD to EUR
+
+Observation only: this report records what the public Frankfurter API returned at the retrieval time stated below; the rate, its date and any converted amount are the API's own figures as shown, not a quote to trade at.
+
+Produced by the Hojo Research Agent API from tools/exchange_rate_check.py. The query, the retrieval time, the source link, and the complete raw response are below.
+
+## Subject: USD to EUR
+
+Database: Frankfurter API v1 (api.frankfurter.dev), latest rates, queried by base and target currency.
+
+QUERY: base = USD, symbols = EUR, date = latest answered HTTP/1.1 200 OK (retrieved 2026-10-24T08:15:47Z).
+
+RATE: 1.0 USD = 0.89342 EUR, rate date 2026-10-23 (each as shown in the response).
+- amount as shown: 1.0
+- base as shown: USD
+- date as shown: 2026-10-23
+- rates.EUR as shown: 0.89342
+
+### Source. Frankfurter API v1 (api.frankfurter.dev)
+- Query URL: https://api.frankfurter.dev/v1/latest?base=USD&symbols=EUR
+- Retrieved (UTC): 2026-10-24T08:15:47Z
+Excerpt (complete raw HTTP response transcript for the query above: status line, headers in the order returned, a blank line, then the complete body exactly as returned):
+```
+HTTP/1.1 200 OK
+Date: Sat, 24 Oct 2026 08:15:49 GMT
+Content-Type: application/json; charset=utf-8
+CF-RAY: a4f7892e7e05bea9-ATL
+Server: cloudflare
+cache-control: public, max-age=86400
+etag: "ddb2c31ee37226cd131c19d7d87ace78"
+vary: Origin
+x-robots-tag: noindex
+deprecation: @1779103800
+link: <https://api.frankfurter.dev/v2/rates>; rel="successor-version"
+Age: 11071
+Accept-Ranges: bytes
+cf-cache-status: HIT
+Nel: {"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}
+Report-To: {"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=v1S%2FYIka2VOLaRMEcLnO5bHfocLMN4Kfd2aoixw0oUsc89GSxA1JWLNJd%2Fky7owOPZZ9mGsH5OE7jVSWNm4yEDIRfT8sVFkfouA3E0LM%2B2ErIXGEzt1f859wEWeiuU44m18YIZr7Ld7FCTnVIk8mXIc%3D"}]}
+Connection: close
+Content-Length: 71
+
+{"amount":1.0,"base":"USD","date":"2026-10-23","rates":{"EUR":0.89342}}
+```

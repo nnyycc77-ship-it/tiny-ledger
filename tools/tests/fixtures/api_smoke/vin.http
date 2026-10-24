@@ -1,0 +1,91 @@
+HTTP/1.0 200 OK
+Date: Sat, 24 Oct 2026 08:16:00 GMT
+Server: WSGIServer/0.2 CPython/3.12.3
+Content-Type: text/markdown; charset=utf-8
+Content-Length: 7066
+Cache-Control: no-store
+X-Payout-Wallet: 0x1111111111111111111111111111111111111111
+
+# VIN decode: 1HGCM82633A004352
+
+Observation only: this report records what the public NHTSA vPIC API returned for this VIN at the retrieval time stated below; the values and the error codes are vPIC's as shown, not an inspection of the vehicle.
+
+Produced by the Hojo Research Agent API from tools/vin_decode.py. The query, the retrieval time, the source link, and the complete raw response are below.
+
+## Subject: VIN 1HGCM82633A004352
+
+Database: NHTSA vPIC API, DecodeVinValues (flat format), queried by VIN.
+
+QUERY: VIN = 1HGCM82633A004352 returned 1 result (retrieved 2026-10-24T08:15:59Z).
+
+VPIC STATUS: ErrorCode as shown: "0"; ErrorText as shown: "0 - VIN decoded clean. Check Digit (9th position) is correct"
+
+DECODE: vehicle as shown: 2003 HONDA Accord EX-V6
+
+Fields with a value, in response order (43):
+- AirBagLocCurtain: 1st and 2nd Rows
+- AirBagLocFront: 1st Row (Driver and Passenger)
+- AirBagLocSide: 1st Row (Driver and Passenger)
+- BedType: Not Applicable
+- BodyCabType: Not Applicable
+- BodyClass: Coupe
+- BusFloorConfigType: Not Applicable
+- BusType: Not Applicable
+- CustomMotorcycleType: Not Applicable
+- DisplacementCC: 2998.832712
+- DisplacementCI: 183
+- DisplacementL: 2.998832712
+- Doors: 2
+- EngineConfiguration: V-Shaped
+- EngineCylinders: 6
+- EngineHP: 240
+- EngineModel: J30A4
+- FuelTypePrimary: Gasoline
+- GVWR: Class 1C: 4,001 - 5,000 lb (1,814 - 2,268 kg)
+- GVWR_to: Class 1: 6,000 lb or less (2,722 kg or less)
+- Make: HONDA
+- MakeID: 474
+- Manufacturer: AMERICAN HONDA MOTOR CO., INC.
+- ManufacturerId: 988
+- Model: Accord
+- ModelID: 1861
+- ModelYear: 2003
+- MotorcycleChassisType: Not Applicable
+- MotorcycleSuspensionType: Not Applicable
+- OtherRestraintSystemInfo: Seat Belt (Rr center position)
+- PlantCity: MARYSVILLE
+- PlantCountry: UNITED STATES (USA)
+- PlantState: OHIO
+- SeatBeltsAll: Manual
+- TrailerBodyType: Not Applicable
+- TrailerType: Not Applicable
+- TransmissionSpeeds: 5
+- TransmissionStyle: Automatic
+- Trim: EX-V6
+- VIN: 1HGCM82633A004352
+- ValveTrainDesign: Single Overhead Cam (SOHC)
+- VehicleDescriptor: 1HGCM826*3A
+- VehicleType: PASSENGER CAR
+
+109 other fields came back empty. The response's own Message says: "Results returned successfully. NOTE: Any missing decoded values should be interpreted as NHTSA does not have data on the specific variable. Missing value should NOT be interpreted as an indication that a feature or technology is unavailable for a vehicle."
+
+### Source. NHTSA vPIC API (vpic.nhtsa.dot.gov DecodeVinValues)
+- Query URL: https://vpic.nhtsa.dot.gov/api/vehicles/DecodeVinValues/1HGCM82633A004352?format=json
+- Retrieved (UTC): 2026-10-24T08:15:59Z
+Excerpt (complete raw HTTP response transcript for the query above: status line, headers in the order returned, a blank line, then the complete body exactly as returned):
+```
+HTTP/1.1 200 OK
+Content-Type: application/json
+Cache-Control: no-cache
+Expires: -1
+Pragma: no-cache
+Vary: Accept-Encoding
+Date: Sat, 24 Oct 2026 08:16:01 GMT
+X-Frame-Options: SAMEORIGIN
+X-Content-Type-Options: nosniff
+Strict-Transport-Security: max-age=31536000 ; includeSubDomains ; preload
+Connection: close
+Content-Length: 3921
+
+{"Count":1,"Message":"Results returned successfully. NOTE: Any missing decoded values should be interpreted as NHTSA does not have data on the specific variable. Missing value should NOT be interpreted as an indication that a feature or technology is unavailable for a vehicle.","SearchCriteria":"VIN(s): 1HGCM82633A004352","Results":[{"ABS":"","ActiveSafetySysNote":"","AdaptiveCruiseControl":"","AdaptiveDrivingBeam":"","AdaptiveHeadlights":"","AdditionalErrorText":"","AirBagLocCurtain":"1st and 2nd Rows","AirBagLocFront":"1st Row (Driver and Passenger)","AirBagLocKnee":"","AirBagLocSeatCushion":"","AirBagLocSide":"1st Row (Driver and Passenger)","AutoReverseSystem":"","AutomaticPedestrianAlertingSound":"","AxleConfiguration":"","Axles":"","BasePrice":"","BatteryA":"","BatteryA_to":"","BatteryCells":"","BatteryInfo":"","BatteryKWh":"","BatteryKWh_to":"","BatteryModules":"","BatteryPacks":"","BatteryType":"","BatteryV":"","BatteryV_to":"","BedLengthIN":"","BedType":"Not Applicable","BlindSpotIntervention":"","BlindSpotMon":"","BodyCabType":"Not Applicable","BodyClass":"Coupe","BrakeSystemDesc":"","BrakeSystemType":"","BusFloorConfigType":"Not Applicable","BusLength":"","BusType":"Not Applicable","CAN_AACN":"","CIB":"","CashForClunkers":"","ChargerLevel":"","ChargerPowerKW":"","CombinedBrakingSystem":"","CoolingType":"","CurbWeightLB":"","CustomMotorcycleType":"Not Applicable","DaytimeRunningLight":"","DestinationMarket":"","DisplacementCC":"2998.832712","DisplacementCI":"183","DisplacementL":"2.998832712","Doors":"2","DriveType":"","DriverAssist":"","DynamicBrakeSupport":"","EDR":"","ESC":"","EVDriveUnit":"","ElectrificationLevel":"","EngineConfiguration":"V-Shaped","EngineCycles":"","EngineCylinders":"6","EngineHP":"240","EngineHP_to":"","EngineKW":"","EngineManufacturer":"","EngineModel":"J30A4","EntertainmentSystem":"","ErrorCode":"0","ErrorText":"0 - VIN decoded clean. Check Digit (9th position) is correct","ForwardCollisionWarning":"","FuelInjectionType":"","FuelTankMaterial":"","FuelTankType":"","FuelTypePrimary":"Gasoline","FuelTypeSecondary":"","GCWR":"","GCWR_to":"","GVWR":"Class 1C: 4,001 - 5,000 lb (1,814 - 2,268 kg)","GVWR_to":"Class 1: 6,000 lb or less (2,722 kg or less)","KeylessIgnition":"","LaneCenteringAssistance":"","LaneDepartureWarning":"","LaneKeepSystem":"","LowerBeamHeadlampLightSource":"","Make":"HONDA","MakeID":"474","Manufacturer":"AMERICAN HONDA MOTOR CO., INC.","ManufacturerId":"988","Model":"Accord","ModelID":"1861","ModelYear":"2003","MotorcycleChassisType":"Not Applicable","MotorcycleSuspensionType":"Not Applicable","NCSABodyType":"","NCSAMake":"","NCSAMapExcApprovedBy":"","NCSAMapExcApprovedOn":"","NCSAMappingException":"","NCSAModel":"","NCSANote":"","NonLandUse":"","Note":"","OtherBusInfo":"","OtherEngineInfo":"","OtherMotorcycleInfo":"","OtherRestraintSystemInfo":"Seat Belt (Rr center position)","OtherTrailerInfo":"","ParkAssist":"","PedestrianAutomaticEmergencyBraking":"","PlantCity":"MARYSVILLE","PlantCompanyName":"","PlantCountry":"UNITED STATES (USA)","PlantState":"OHIO","PossibleValues":"","Pretensioner":"","RearAutomaticEmergencyBraking":"","RearCrossTrafficAlert":"","RearVisibilitySystem":"","SAEAutomationLevel":"","SAEAutomationLevel_to":"","SeatBeltsAll":"Manual","SeatRows":"","Seats":"","SemiautomaticHeadlampBeamSwitching":"","Series":"","Series2":"","SteeringLocation":"","SuggestedVIN":"","TPMS":"","TopSpeedMPH":"","TrackWidth":"","TractionControl":"","TrailerBodyType":"Not Applicable","TrailerLength":"","TrailerType":"Not Applicable","TransmissionSpeeds":"5","TransmissionStyle":"Automatic","Trim":"EX-V6","Trim2":"","Turbo":"","VIN":"1HGCM82633A004352","ValveTrainDesign":"Single Overhead Cam (SOHC)","VehicleDescriptor":"1HGCM826*3A","VehicleType":"PASSENGER CAR","WheelBaseLong":"","WheelBaseShort":"","WheelBaseType":"","WheelSizeFront":"","WheelSizeRear":"","WheelieMitigation":"","Wheels":"","Windows":""}]}
+```

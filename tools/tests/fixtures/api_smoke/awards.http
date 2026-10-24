@@ -1,0 +1,72 @@
+HTTP/1.0 200 OK
+Date: Sat, 24 Oct 2026 08:15:41 GMT
+Server: WSGIServer/0.2 CPython/3.12.3
+Content-Type: text/markdown; charset=utf-8
+Content-Length: 6289
+Cache-Control: no-store
+X-Payout-Wallet: 0x1111111111111111111111111111111111111111
+
+# Contract awards: Lockheed Martin
+
+Observation only: this report records one page of what the public USAspending API returned at the retrieval time stated below; Award Amount is the API field as returned, not a payment or revenue estimate.
+
+Produced by the Hojo Research Agent API from tools/usaspending_awards.py. The query, the retrieval time, the source link, and the complete raw response are below.
+## USAspending prime contract awards
+
+Scope: one requested page; no assertion of an exhaustive recipient or award search.
+Award Amount is the API field as returned, not a payment or revenue estimate.
+
+Exact query: POST https://api.usaspending.gov/api/v2/search/spending_by_award/
+Content-Type: application/json
+Exact request body:
+```
+{"filters":{"award_type_codes":["A","B","C","D"],"recipient_search_text":["Lockheed Martin"]},"fields":["Award ID","Recipient Name","Award Amount","Awarding Agency","Description","Start Date","End Date","NAICS","generated_internal_id"],"page":1,"limit":3,"sort":"Award Amount","order":"desc","subawards":false}
+```
+Retrieved (UTC): 2026-10-24T08:15:41Z
+
+USAspending returned 3 record(s) on requested page 1.
+API page_metadata.hasNext: true.
+More pages are reported by the API; this section does not include them.
+
+### Returned award
+
+- Award ID as shown: "DEAC0494AL85000"
+- Recipient Name as shown: "LOCKHEED MARTIN CORP"
+- Award Amount as shown: 48063737196\.35
+- Awarding Agency as shown: "Department of Energy"
+- Description as shown: not supplied by source
+- Start Date as shown: "1993\-10\-15"
+- End Date as shown: "2017\-04\-30"
+- NAICS as shown: \{"code": "561210", "description": "FACILITIES SUPPORT SERVICES"\}
+- generated_internal_id as shown: "CONT\_AWD\_DEAC0494AL85000\_8900\_\-NONE\-\_\-NONE\-"
+
+### Returned award
+
+- Award ID as shown: "N0001917C0001"
+- Recipient Name as shown: "LOCKHEED MARTIN CORPORATION"
+- Award Amount as shown: 35135514910\.2
+- Awarding Agency as shown: "Department of Defense"
+- Description as shown: "LRIP LOT 12 ADVANCE ACQUISITION CONTRACT"
+- Start Date as shown: "2017\-11\-17"
+- End Date as shown: "2031\-03\-31"
+- NAICS as shown: \{"code": "336411", "description": "AIRCRAFT MANUFACTURING"\}
+- generated_internal_id as shown: "CONT\_AWD\_N0001917C0001\_9700\_\-NONE\-\_\-NONE\-"
+
+### Returned award
+
+- Award ID as shown: "N0001902C3002"
+- Recipient Name as shown: "LOCKHEED MARTIN CORPORATION"
+- Award Amount as shown: 34173959111\.96
+- Awarding Agency as shown: "Department of Defense"
+- Description as shown: "200204\!008532\!1700\!AF600 \!NAVAL AIR SYSTEMS COMMAND       \!N0001902C3002  \!A\!N\! \!N\!                   \!20011026\!20120430\!008016958\!008016958\!834951691\!N\!LOCKHEED MARTIN CORPORATION   \!LOCKHEED BLVD             \!FORT WORTH          \!TX\!76108\!27000\!439\!48\!FORT WORTH          \!TARRANT               \!TEXAS     \!\+000026000000\!N\!N\!018981928201\!AC15\!RDTE/AIRCRAFT\-ENG/MANUF DEVELOP                   \!A1A\!AIRFRAMES AND SPARES          \!2AMA\!JAST/JSF                      \!336411\!E\! \!3\! \! \! \! \! \!99990909\!B\! \! \!A\! \!A\!N\!R\!2\!002\!N\!1A\!A\!N\!Z\!  \!  \!N\!C\!N\! \! \! \!A\!A\!A\!A\!000\!A\!C\!N\! \! \! \!Y\!    \!N00019\!0001\!"
+- Start Date as shown: "2001\-10\-26"
+- End Date as shown: "2022\-12\-16"
+- NAICS as shown: \{"code": "336411", "description": "AIRCRAFT MANUFACTURING"\}
+- generated_internal_id as shown: "CONT\_AWD\_N0001902C3002\_9700\_\-NONE\-\_\-NONE\-"
+
+API messages as returned: \["For searches, time period start and end dates are currently limited to an earliest date of 2007\-10\-01\.  For data going back to 2000\-10\-01, use either the Custom Award Download feature on the website or one of our download or bulk\_download API endpoints as listed on https://api\.usaspending\.gov/docs/endpoints\. "\]
+
+Source: <https://api.usaspending.gov/api/v2/search/spending_by_award/>
+```
+{"spending_level":"awards","limit":3,"results":[{"internal_id":295476065,"Award ID":"DEAC0494AL85000","Recipient Name":"LOCKHEED MARTIN CORP","Award Amount":48063737196.35,"Awarding Agency":"Department of Energy","Description":null,"Start Date":"1993-10-15","End Date":"2017-04-30","NAICS":{"code":"561210","description":"FACILITIES SUPPORT SERVICES"},"generated_internal_id":"CONT_AWD_DEAC0494AL85000_8900_-NONE-_-NONE-","awarding_agency_id":930,"agency_slug":"department-of-energy"},{"internal_id":309494502,"Award ID":"N0001917C0001","Recipient Name":"LOCKHEED MARTIN CORPORATION","Award Amount":35135514910.2,"Awarding Agency":"Department of Defense","Description":"LRIP LOT 12 ADVANCE ACQUISITION CONTRACT","Start Date":"2017-11-17","End Date":"2031-03-31","NAICS":{"code":"336411","description":"AIRCRAFT MANUFACTURING"},"generated_internal_id":"CONT_AWD_N0001917C0001_9700_-NONE-_-NONE-","awarding_agency_id":1173,"agency_slug":"department-of-defense"},{"internal_id":309493328,"Award ID":"N0001902C3002","Recipient Name":"LOCKHEED MARTIN CORPORATION","Award Amount":34173959111.96,"Awarding Agency":"Department of Defense","Description":"200204!008532!1700!AF600 !NAVAL AIR SYSTEMS COMMAND       !N0001902C3002  !A!N! !N!                   !20011026!20120430!008016958!008016958!834951691!N!LOCKHEED MARTIN CORPORATION   !LOCKHEED BLVD             !FORT WORTH          !TX!76108!27000!439!48!FORT WORTH          !TARRANT               !TEXAS     !+000026000000!N!N!018981928201!AC15!RDTE/AIRCRAFT-ENG/MANUF DEVELOP                   !A1A!AIRFRAMES AND SPARES          !2AMA!JAST/JSF                      !336411!E! !3! ! ! ! ! !99990909!B! ! !A! !A!N!R!2!002!N!1A!A!N!Z!  !  !N!C!N! ! ! !A!A!A!A!000!A!C!N! ! ! !Y!    !N00019!0001!","Start Date":"2001-10-26","End Date":"2022-12-16","NAICS":{"code":"336411","description":"AIRCRAFT MANUFACTURING"},"generated_internal_id":"CONT_AWD_N0001902C3002_9700_-NONE-_-NONE-","awarding_agency_id":1173,"agency_slug":"department-of-defense"}],"page_metadata":{"page":1,"hasNext":true,"last_record_unique_id":309493328,"last_record_sort_value":"3417395911196"},"messages":["For searches, time period start and end dates are currently limited to an earliest date of 2007-10-01.  For data going back to 2000-10-01, use either the Custom Award Download feature on the website or one of our download or bulk_download API endpoints as listed on https://api.usaspending.gov/docs/endpoints. "]}
+```

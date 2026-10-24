@@ -1,0 +1,350 @@
+HTTP/1.0 200 OK
+Date: Sat, 24 Oct 2026 08:15:46 GMT
+Server: WSGIServer/0.2 CPython/3.12.3
+Content-Type: text/markdown; charset=utf-8
+Content-Length: 10536
+Cache-Control: no-store
+X-Payout-Wallet: 0x1111111111111111111111111111111111111111
+
+# EPA compliance screen: BAYTOWN OLEFINS, TX
+
+Observation only: this report records what the public EPA ECHO facility search returned at the retrieval times stated below; the status fields are ECHO's as shown, not a compliance finding of this service.
+
+Produced by the Hojo Research Agent API from tools/epa_screen.py. The query, the retrieval time, the source link, and the complete raw response are below.
+
+## Subject: BAYTOWN OLEFINS, TX
+
+Database: EPA ECHO facility search web service (echodata.epa.gov), searched by facility name and state.
+
+QUERY: p_fn = BAYTOWN OLEFINS, p_st = TX. The search answered QueryRows "4" (retrieved 2026-10-24T08:15:45Z and 2026-10-24T08:15:45Z).
+
+ANSWER, as the source states it (FacComplianceStatus, FacSNCFlg and FacQtrsWithNC quoted from each row; null where the row carries none):
+- BAYTOWN OLEFINS PLANT (RegistryID 110071719785, BAYTOWN, TX): FacComplianceStatus null; FacSNCFlg "N"; FacQtrsWithNC null
+- BAYTOWN OLEFINS PLANT (RegistryID 110000463178, BAYTOWN, TX): FacComplianceStatus "Significant Violation"; FacSNCFlg "Y"; FacQtrsWithNC "12"
+- EXXON - OLEFINS PLANT BAYTOWN (RegistryID 110052964315, TX): FacComplianceStatus "Inactive"; FacSNCFlg "N"; FacQtrsWithNC "0"
+- EXXON MOBIL CHEMICAL BAYTOWN OLEFINS PLANT (RegistryID 110070735154, BAYTOWN, TX): FacComplianceStatus null; FacSNCFlg "N"; FacQtrsWithNC null
+
+These are 4 different facility records returned for the search. Which one is the facility meant is the caller's call; give a RegistryID to select one.
+
+### Source. EPA ECHO get_facilities (search summary)
+- Query URL: https://echodata.epa.gov/echo/echo_rest_services.get_facilities?output=JSON&p_fn=BAYTOWN+OLEFINS&p_st=TX
+- Retrieved (UTC): 2026-10-24T08:15:45Z
+Excerpt (complete raw HTTP response transcript for the query above: status line, headers in the order returned, a blank line, then the complete body exactly as returned):
+```
+HTTP/1.1 200 200
+Date: Sat, 24 Oct 2026 08:15:46 GMT
+Server: Apache
+Cache-Control: private, max-age=0, must-revalidate
+Strict-Transport-Security: max-age=63072000; includeSubdomains; preload
+Strict-Transport-Security: max-age=63072000; includeSubDomains; preload
+Access-Control-Allow-Methods: GET,OPTIONS,POST,PUT
+Access-Control-Max-Age: 86400
+Access-Control-Allow-Credentials: true
+X-Frame-Options: SAMEORIGIN
+X-Content-Type-Options: nosniff
+Content-Type: application/json
+Vary: Accept-Encoding
+connection: close
+Transfer-Encoding: chunked
+
+{
+"Results":{
+"Message":"Success",
+"Version":"ALL DATA v2017-06-16 0923",
+"QueryRows":"4",
+"IndianCountryRows":"0",
+"SVRows":"1",
+"CVRows":"1",
+"V3Rows":"1",
+"FEARows":"1",
+"InfFEARows":"1",
+"INSPRows":"1",
+"TotalPenalties":"$2,204,913",
+"CAARows":"1",
+"CWARows":"1",
+"RCRRows":"1",
+"TRIRows":"1",
+"BadSystemIDs":null,
+"QueryID":"191"
+}
+}
+
+```
+
+### Source. EPA ECHO get_qid (facility rows)
+- Query URL: https://echodata.epa.gov/echo/echo_rest_services.get_qid?output=JSON&qid=191
+- Retrieved (UTC): 2026-10-24T08:15:45Z
+Excerpt (complete raw HTTP response transcript for the query above: status line, headers in the order returned, a blank line, then the complete body exactly as returned):
+```
+HTTP/1.1 200 200
+Date: Sat, 24 Oct 2026 08:15:47 GMT
+Server: Apache
+Cache-Control: private, max-age=0, must-revalidate
+Strict-Transport-Security: max-age=63072000; includeSubdomains; preload
+Strict-Transport-Security: max-age=63072000; includeSubDomains; preload
+Access-Control-Allow-Methods: GET,OPTIONS,POST,PUT
+Access-Control-Max-Age: 86400
+Access-Control-Allow-Credentials: true
+X-Frame-Options: SAMEORIGIN
+X-Content-Type-Options: nosniff
+Content-Type: application/json
+Vary: Accept-Encoding
+connection: close
+Transfer-Encoding: chunked
+
+{
+"Results":{
+"Message":"Working",
+"QueryRows":"4",
+"QueryID":"191",
+"PageNo":"1",
+"Facilities":[
+{
+"FacName":"BAYTOWN OLEFINS PLANT",
+"FacStreet":"3525 DECKER DR",
+"FacCity":"BAYTOWN",
+"FacState":"TX",
+"FacZip":"77520",
+"RegistryID":"110071719785",
+"FacCounty":"HARRIS",
+"FacFederalFlg":null,
+"FacSICCodes":null,
+"FacSICDescs":null,
+"FacNAICSCodes":"325110",
+"TRIIDs":null,
+"CWAPermitTypes":null,
+"RCRAPermitTypes":null,
+"SDWASystemTypes":null,
+"FacSNCFlg":"N",
+"FacQtrsWithNC":null,
+"FacComplianceStatus":null,
+"CAAComplianceStatus":null,
+"CWAComplianceStatus":null,
+"RCRAComplianceStatus":null,
+"SDWAComplianceStatus":null,
+"FacInspectionCount":"0",
+"FacDaysLastInspection":null,
+"FacDateLastInspection":null,
+"CAAEvaluationCount":null,
+"CWAInspectionCount":null,
+"SDWAInformalCount":null,
+"FacFormalActionCount":"0",
+"CWAFormalActionCount":null,
+"SDWAFormalActionCount":null,
+"FacTotalPenalties":"$0",
+"FacDateLastPenalty":null,
+"RCRAPenalties":null,
+"FacDerivedWBDHu8":"12040104",
+"FacDerivedWBDHu8Name":"Buffalo-San Jacinto",
+"FacDateLastInformalAction":null,
+"CAA3yrComplQtrsHistory":null,
+"CWA13qtrsComplHistory":null,
+"SDWA3yrComplQtrsHistory":null,
+"FacChesapeakeBayFlg":null,
+"FacAccuracyMeters":"17600",
+"FacDerivedHuc":"12040203",
+"FacDerivedStctyFIPS":"48201",
+"FacDerivedCd113":"36",
+"FacDerivedCb2010":"482012534001051",
+"FacMyrtkUniverse":"NNN",
+"SDWISFlag":"N",
+"GHGFlag":"N",
+"CAANAICS":null,
+"CAANAICSDescs":null,
+"CAASICs":null,
+"CAASICDescs":null,
+"CAADateLastFormalAction":null,
+"CAALastPenaltyDate":null,
+"CWAComplianceTracking":null,
+"CWADaysLastInspection":null,
+"RCRADaysLastEvaluation":null,
+"Insp5yrFlag":"0"
+}
+,{
+"FacName":"BAYTOWN OLEFINS PLANT",
+"FacStreet":"3525 DECKER DR",
+"FacCity":"BAYTOWN",
+"FacState":"TX",
+"FacZip":"77520",
+"RegistryID":"110000463178",
+"FacCounty":"HARRIS",
+"FacFederalFlg":null,
+"FacSICCodes":"1542 1629 1795 2813 2821 2822 2869 8731",
+"FacSICDescs":"1542: Nonresidential Construction, 1629: Heavy Construction, 1795: Wrecking And Demolition Work, 2813: Industrial Gases, 2821: Plastics Materials And Resins, 2822: Synthetic Rubber, 2869: Industrial Organic Chemicals, 8731: Commercial Physical Research",
+"FacNAICSCodes":"324110 32511 325110 325120 325199 32521 325211 325212 326113 447110 541710 541712 541715",
+"TRIIDs":"77522XXNCH3525D 77522XXNCH5000B",
+"CWAPermitTypes":"Non-M",
+"RCRAPermitTypes":"LQG",
+"SDWASystemTypes":null,
+"FacSNCFlg":"Y",
+"FacQtrsWithNC":"12",
+"FacComplianceStatus":"Significant Violation",
+"CAAComplianceStatus":"Violation Addressed; EPA Has Lead Enforcement",
+"CWAComplianceStatus":"No Violation Identified",
+"RCRAComplianceStatus":"No Violation Identified",
+"SDWAComplianceStatus":null,
+"FacInspectionCount":"11",
+"FacDaysLastInspection":"348",
+"FacDateLastInspection":"11/04/2025",
+"CAAEvaluationCount":"2",
+"CWAInspectionCount":"7",
+"SDWAInformalCount":null,
+"FacFormalActionCount":"4",
+"CWAFormalActionCount":null,
+"SDWAFormalActionCount":null,
+"FacTotalPenalties":"$2,204,913",
+"FacDateLastPenalty":"06/12/2024",
+"RCRAPenalties":null,
+"FacDerivedWBDHu8":"12040104",
+"FacDerivedWBDHu8Name":"Buffalo-San Jacinto",
+"FacDateLastInformalAction":"11/12/2021",
+"CAA3yrComplQtrsHistory":"SSSSSSSSSSSS",
+"CWA13qtrsComplHistory":"USSSS__VV____",
+"SDWA3yrComplQtrsHistory":null,
+"FacChesapeakeBayFlg":null,
+"FacAccuracyMeters":"1945",
+"FacDerivedHuc":"12040104",
+"FacDerivedStctyFIPS":"48201",
+"FacDerivedCd113":"36",
+"FacDerivedCb2010":"482012545002000",
+"FacMyrtkUniverse":"YNY",
+"SDWISFlag":"N",
+"GHGFlag":"Y",
+"CAANAICS":null,
+"CAANAICSDescs":null,
+"CAASICs":null,
+"CAASICDescs":null,
+"CAADateLastFormalAction":"06/12/2024",
+"CAALastPenaltyDate":"06/12/2024",
+"CWAComplianceTracking":"On",
+"CWADaysLastInspection":"7395",
+"RCRADaysLastEvaluation":"7398",
+"Insp5yrFlag":"1"
+}
+,{
+"FacName":"EXXON - OLEFINS PLANT BAYTOWN",
+"FacStreet":null,
+"FacCity":null,
+"FacState":"TX",
+"FacZip":null,
+"RegistryID":"110052964315",
+"FacCounty":null,
+"FacFederalFlg":null,
+"FacSICCodes":null,
+"FacSICDescs":null,
+"FacNAICSCodes":null,
+"TRIIDs":null,
+"CWAPermitTypes":null,
+"RCRAPermitTypes":null,
+"SDWASystemTypes":"Non-Transient non-community system",
+"FacSNCFlg":"N",
+"FacQtrsWithNC":"0",
+"FacComplianceStatus":"Inactive",
+"CAAComplianceStatus":null,
+"CWAComplianceStatus":null,
+"RCRAComplianceStatus":null,
+"SDWAComplianceStatus":"Inactive",
+"FacInspectionCount":"0",
+"FacDaysLastInspection":null,
+"FacDateLastInspection":null,
+"CAAEvaluationCount":null,
+"CWAInspectionCount":null,
+"SDWAInformalCount":null,
+"FacFormalActionCount":"0",
+"CWAFormalActionCount":null,
+"SDWAFormalActionCount":null,
+"FacTotalPenalties":"$0",
+"FacDateLastPenalty":null,
+"RCRAPenalties":null,
+"FacDerivedWBDHu8":null,
+"FacDerivedWBDHu8Name":null,
+"FacDateLastInformalAction":"04/01/1985",
+"CAA3yrComplQtrsHistory":null,
+"CWA13qtrsComplHistory":null,
+"SDWA3yrComplQtrsHistory":"",
+"FacChesapeakeBayFlg":null,
+"FacAccuracyMeters":"100000",
+"FacDerivedHuc":null,
+"FacDerivedStctyFIPS":null,
+"FacDerivedCd113":null,
+"FacDerivedCb2010":null,
+"FacMyrtkUniverse":"NNN",
+"SDWISFlag":"Y",
+"GHGFlag":"N",
+"CAANAICS":null,
+"CAANAICSDescs":null,
+"CAASICs":null,
+"CAASICDescs":null,
+"CAADateLastFormalAction":null,
+"CAALastPenaltyDate":null,
+"CWAComplianceTracking":null,
+"CWADaysLastInspection":null,
+"RCRADaysLastEvaluation":null,
+"Insp5yrFlag":"0"
+}
+,{
+"FacName":"EXXON MOBIL CHEMICAL BAYTOWN OLEFINS PLANT",
+"FacStreet":"3525 DECKER DR",
+"FacCity":"BAYTOWN",
+"FacState":"TX",
+"FacZip":"77520",
+"RegistryID":"110070735154",
+"FacCounty":"HARRIS",
+"FacFederalFlg":null,
+"FacSICCodes":null,
+"FacSICDescs":null,
+"FacNAICSCodes":null,
+"TRIIDs":null,
+"CWAPermitTypes":null,
+"RCRAPermitTypes":null,
+"SDWASystemTypes":null,
+"FacSNCFlg":"N",
+"FacQtrsWithNC":null,
+"FacComplianceStatus":null,
+"CAAComplianceStatus":null,
+"CWAComplianceStatus":null,
+"RCRAComplianceStatus":null,
+"SDWAComplianceStatus":null,
+"FacInspectionCount":"0",
+"FacDaysLastInspection":null,
+"FacDateLastInspection":null,
+"CAAEvaluationCount":null,
+"CWAInspectionCount":null,
+"SDWAInformalCount":null,
+"FacFormalActionCount":"0",
+"CWAFormalActionCount":null,
+"SDWAFormalActionCount":null,
+"FacTotalPenalties":"$0",
+"FacDateLastPenalty":null,
+"RCRAPenalties":null,
+"FacDerivedWBDHu8":"12040104",
+"FacDerivedWBDHu8Name":"Buffalo-San Jacinto",
+"FacDateLastInformalAction":null,
+"CAA3yrComplQtrsHistory":null,
+"CWA13qtrsComplHistory":null,
+"SDWA3yrComplQtrsHistory":null,
+"FacChesapeakeBayFlg":null,
+"FacAccuracyMeters":"50",
+"FacDerivedHuc":"12040203",
+"FacDerivedStctyFIPS":"48201",
+"FacDerivedCd113":"36",
+"FacDerivedCb2010":"482012534001063",
+"FacMyrtkUniverse":"NNN",
+"SDWISFlag":"N",
+"GHGFlag":"N",
+"CAANAICS":null,
+"CAANAICSDescs":null,
+"CAASICs":null,
+"CAASICDescs":null,
+"CAADateLastFormalAction":null,
+"CAALastPenaltyDate":null,
+"CWAComplianceTracking":null,
+"CWADaysLastInspection":null,
+"RCRADaysLastEvaluation":null,
+"Insp5yrFlag":"0"
+}
+]
+}
+}
+
+```

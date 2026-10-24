@@ -1,0 +1,70 @@
+HTTP/1.0 200 OK
+Date: Sat, 24 Oct 2026 08:15:42 GMT
+Server: WSGIServer/0.2 CPython/3.12.3
+Content-Type: text/markdown; charset=utf-8
+Content-Length: 3582
+Cache-Control: no-store
+X-Payout-Wallet: 0x1111111111111111111111111111111111111111
+
+# Carrier vetting: USDOT 2046
+
+Observation only: this report records what the public FMCSA sources returned at the retrieval times stated below; nothing about the carrier was inspected or verified beyond those records.
+
+Produced by the Hojo Research Agent API from tools/fmcsa_carrier.py. The query, the retrieval time, the source link, and the complete raw response are below.
+
+## Carrier: USDOT 2046
+
+Databases: FMCSA Company Census File (DOT open data portal, dataset az4n-8mr2), queried by USDOT number 2046.
+
+### Census record (FMCSA Company Census File, DOT open data dataset az4n-8mr2)
+
+QUERY: dot_number = 2046 returned 1 record (retrieved 2026-10-24T08:15:41Z).
+
+- dot_number as shown: 2046
+- legal_name as shown: GARDA CL CENTRAL INC
+- dba_name: not present in the record
+- phy_city as shown: BOCA RATON
+- phy_state as shown: FL
+- power_units as shown: 137
+- total_drivers as shown: 84
+- docket1prefix as shown: MC
+- docket1 as shown: 65419
+- docket1_status_code as shown: A
+- safety_rating as shown: S
+- safety_rating_date as shown: 20220817
+- mcs150_mileage as shown: 1420000
+- mcs150_mileage_year as shown: 2026
+- mcs150_date as shown: 20260601
+- business_org_desc as shown: CORPORATION
+- carship as shown: C
+- carrier_operation as shown: A
+- status_code as shown: A
+- classdef as shown: AUTHORIZED FOR HIRE
+
+Source. FMCSA Company Census File record, USDOT 2046
+- Query URL: https://data.transportation.gov/resource/az4n-8mr2.json?dot_number=2046&$select=dot_number,legal_name,dba_name,phy_city,phy_state,power_units,total_drivers,docket1prefix,docket1,docket1_status_code,safety_rating,safety_rating_date,mcs150_mileage,mcs150_mileage_year,mcs150_date,business_org_desc,carship,carrier_operation,status_code,classdef
+- Retrieved (UTC): 2026-10-24T08:15:41Z
+Excerpt (complete raw HTTP response transcript for the query above: status line, headers in the order returned, a blank line, then the complete body exactly as returned):
+```
+HTTP/1.1 200 OK
+Server: nginx
+Date: Sat, 24 Oct 2026 08:15:43 GMT
+Content-Type: application/json;charset=utf-8
+Strict-Transport-Security: max-age=31536000; includeSubDomains
+X-Socrata-RequestId: 61ad55957280d5306d312d73057a33e2
+Access-Control-Allow-Origin: *
+ETag: W/"aW5kaWEuMzM1NTNfNF8xMDQxN2FPTUhjeFc5YVVCYWsyZWxQVDZTZ1QzN2tZ---gzipU2vSq4r72iL54Lr2HlcdSnuoSj0--gzip--gzip"
+X-SODA2-Fields: ["dot_number","legal_name","dba_name","phy_city","phy_state","power_units","total_drivers","docket1prefix","docket1","docket1_status_code","safety_rating","safety_rating_date","mcs150_mileage","mcs150_mileage_year","mcs150_date","business_org_desc","carship","carrier_operation","status_code","classdef"]
+X-SODA2-Types: ["number","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text"]
+X-SODA2-Data-Out-Of-Date: false
+X-SODA2-Truth-Last-Modified: Fri, 23 Oct 2026 10:31:13 GMT
+X-SODA2-Secondary-Last-Modified: Fri, 23 Oct 2026 10:31:13 GMT
+Last-Modified: Fri, 23 Oct 2026 10:31:13 GMT
+Vary: Accept-Encoding
+X-Socrata-Region: aws-us-east-1-fedramp-prod
+Connection: close
+Transfer-Encoding: chunked
+
+[{"dot_number":"2046","legal_name":"GARDA CL CENTRAL INC","phy_city":"BOCA RATON","phy_state":"FL","power_units":"137","total_drivers":"84","docket1prefix":"MC","docket1":"65419","docket1_status_code":"A","safety_rating":"S","safety_rating_date":"20220817","mcs150_mileage":"1420000","mcs150_mileage_year":"2026","mcs150_date":"20260601","business_org_desc":"CORPORATION","carship":"C","carrier_operation":"A","status_code":"A","classdef":"AUTHORIZED FOR HIRE"}]
+
+```

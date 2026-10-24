@@ -1,0 +1,49 @@
+HTTP/1.0 200 OK
+Date: Sat, 24 Oct 2026 08:15:51 GMT
+Server: WSGIServer/0.2 CPython/3.12.3
+Content-Type: text/markdown; charset=utf-8
+Content-Length: 1942
+Cache-Control: no-store
+X-Payout-Wallet: 0x1111111111111111111111111111111111111111
+
+# Meta tag check: https://example.com/
+
+Observation only: this report records what the page at the URL below printed in its own HTML at the retrieval time stated below; present and missing mean present or absent in that HTML, nothing more.
+
+Exact query: GET https://example.com/
+Retrieved (UTC): 2026-10-24T08:15:50Z
+
+- Title: present, as shown: Example Domain
+- Description (meta name="description"): missing
+- Open Graph tags checked:
+  - og:title: missing
+  - og:type: missing
+  - og:url: missing
+  - og:image: missing
+  - og:description: missing
+- Further Open Graph tags: none present
+
+The head of the page, verbatim:
+```
+<!doctype html><html lang=en><head><meta charset=utf-8><link rel=icon href=data:,><meta name=viewport content="width=device-width,initial-scale=1"><title>Example Domain</title><style>html{color-scheme:light dark;background:light-dark(#eee,#222)}body{font:16px/1.6 system-ui,sans-serif;max-width:26em;margin:auto;padding:25vh 2em 2em;text-align:center}</style></head>
+```
+
+Source: <https://example.com/>
+```
+HTTP/1.1 200 OK
+Date: Sat, 24 Oct 2026 08:15:52 GMT
+Content-Type: text/html; charset=utf-8
+alt-svc: h3=":443"; ma=86400
+CF-RAY: a4f7893e2b2d8984-DEN
+Server: cloudflare
+last-modified: Sat, 24 Oct 2026 06:00:47 GMT
+allow: GET, HEAD
+Accept-Ranges: bytes
+Age: 61
+cf-cache-status: HIT
+Connection: close
+Transfer-Encoding: chunked
+
+<!doctype html><html lang=en><head><meta charset=utf-8><link rel=icon href=data:,><meta name=viewport content="width=device-width,initial-scale=1"><title>Example Domain</title><style>html{color-scheme:light dark;background:light-dark(#eee,#222)}body{font:16px/1.6 system-ui,sans-serif;max-width:26em;margin:auto;padding:25vh 2em 2em;text-align:center}</style></head><body><p>This domain is for use in documentation examples without needing permission. This is not a service; avoid relying on it for testing and monitoring purposes.</p><script src=/s.js></script></body></html>
+
+```

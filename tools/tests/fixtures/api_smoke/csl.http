@@ -1,0 +1,37 @@
+HTTP/1.0 200 OK
+Date: Sat, 24 Oct 2026 08:15:43 GMT
+Server: WSGIServer/0.2 CPython/3.12.3
+Content-Type: text/markdown; charset=utf-8
+Content-Length: 1759
+Cache-Control: no-store
+X-Payout-Wallet: 0x1111111111111111111111111111111111111111
+
+# Consolidated Screening List screen: Carlos Smith
+
+Observation only: this report records what the Consolidated Screening List file contained when read at the time below. A name match is not a determination that a party is the listed person or entity, and no match is not a screening clearance.
+
+## Matching rule
+
+Names are compared after folding case and replacing every character that is not a letter or digit with a space. An exact match is the whole normalised query equal to the whole normalised name; a contains match is the normalised query appearing inside the normalised name as whole words. The name column and every alt_names entry are both checked. No fuzzy or phonetic score is computed or claimed.
+
+## File read
+
+Exact query: GET https://data.trade.gov/downloadable_consolidated_screening_list/v1/consolidated.csv
+Retrieved (UTC): 2026-10-24T08:14:12Z
+Read from the local cache at /tmp/tiny-ledger-h6/tools/.csl_cache: the file exactly as downloaded at the retrieval time above.
+List publication date as published (the file's Last-Modified header): Sat, 24 Oct 2026 07:30:33 GMT
+File as read: 16832471 bytes, SHA-256 f8c7e5572b1c3e4b73810344b6aba31a590456f7eff0c2e1a536733bb3bb5d51, 26174 lines, decoded as UTF-8; 26173 rows screened.
+
+Response headers as returned (the ones listed in the tool):
+```
+Date: Sat, 24 Oct 2026 08:14:14 GMT
+Content-Type: text/csv
+Last-Modified: Sat, 24 Oct 2026 07:30:33 GMT
+ETag: 0x8DF31A0B0A6A7B2
+Content-Length: 16832471
+```
+
+## Result
+
+No name or alias matched Carlos Smith under the rule above. Screened: 26173 rows of the Consolidated Screening List as published on Sat, 24 Oct 2026 07:30:33 GMT (file SHA-256 f8c7e5572b1c3e4b73810344b6aba31a590456f7eff0c2e1a536733bb3bb5d51), the file exactly as read above.
+
