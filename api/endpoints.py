@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """The remaining fetchers as paid API endpoints (issue #65).
 
-Twelve GET endpoints beside GET /recall, each wrapping one merged fetcher in
+Fourteen GET endpoints beside GET /recall, each wrapping one merged fetcher in
 tools/ as library code and returning that fetcher's own rendered Markdown
 in the delivery format from AGENT-BRIEF.md: the claim lines, the exact
 query, the UTC retrieval time, the source link, and the complete raw
@@ -21,6 +21,7 @@ nothing else to the fetchers' output.
     /vin         tools/vin_decode.py           vin
     /fx          tools/exchange_rate_check.py  base, target (amount, date optional)
     /flood       tools/flood_check.py          lat, lon | address
+    /safety      tools/safety_file.py          make, model, year
 
 Each endpoint takes the fetcher's own command line inputs as query
 parameters under the same names (hyphens become underscores), validates
@@ -65,6 +66,7 @@ from tools import github_repo_check as gh  # noqa: E402
 from tools import ofac_sdn_check as ofac  # noqa: E402
 from tools import pagespeed_snapshot as ps  # noqa: E402
 from tools import propublica_nonprofits as pp  # noqa: E402
+from tools import safety_file as sf  # noqa: E402
 from tools import usaspending_awards as ua  # noqa: E402
 from tools import vin_decode as vd  # noqa: E402
 
@@ -578,6 +580,31 @@ def flood(query, env=None):
 
 
 # ----------------------------------------------------------------------
+# /safety
+# ----------------------------------------------------------------------
+
+def safety(query, env=None):
+    """NHTSA safety file (ratings, recalls, complaints) via tools/safety_file.py."""
+    try:
+        make, model, year = sf.check_query(_single(query, "make", ""), _single(query, "model", ""),
+                                           _single(query, "year", ""))
+    except ValueError as err:
+        raise BadRequest(str(err))
+    try:
+        lines = sf.render(make, model, year, sf.gather(make, model, year))
+    except sf.SourceFailed as err:
+        raise FetchFailed("source failure, no report emitted: %s" % err)
+    except (urllib.error.URLError, OSError) as err:
+        raise _transport(err)
+    head = _head("Safety file: %s %s %s" % (year, make, model),
+                 "Observation only: this report records what the public NHTSA APIs returned for this "
+                 "model year at the retrieval times stated below; ratings, recalls and complaints are "
+                 "NHTSA's records as shown, not an inspection or a judgement of any vehicle.",
+                 "tools/safety_file.py")
+    return _text(head, lines)
+
+
+# ----------------------------------------------------------------------
 # Registry and descriptor
 # ----------------------------------------------------------------------
 
@@ -595,6 +622,7 @@ ROUTES = {
     "/app": app,
     "/fx": exchange_rate,
     "/flood": flood,
+    "/safety": safety,
 }
 
 DESCRIPTIONS = {
@@ -681,6 +709,15 @@ DESCRIPTIONS = {
                    "amount (optional, a positive number; the API converts it)",
                    "date (optional, YYYY-MM-DD; default latest)"],
         "sources": [fx.BASE_URL],
+    },
+    "/safety": {
+        "tool": "tools/safety_file.py",
+        "params": ["make (e.g. Hyundai)", "model (e.g. Elantra)", "year (model year, four digits)"],
+        "sources": [sf.BASE_URL + "SafetyRatings/modelyear/<year>/make/<make>/model/<model>",
+                    sf.BASE_URL + "SafetyRatings/VehicleId/<id>",
+                    sf.BASE_URL + "recalls/recallsByVehicle?make=<make>&model=<model>&modelYear=<year>",
+                    sf.BASE_URL + "complaints/complaintsByVehicle?make=<make>&model=<model>&modelYear=<year>"],
+        "note": "Any source answering other than HTTP 200 is a source failure (502, no report), never an empty result.",
     },
 }
 

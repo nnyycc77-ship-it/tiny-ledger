@@ -34,6 +34,7 @@ from tools import exchange_rate_check as fx  # noqa: E402
 from tools import fmcsa_carrier as fc  # noqa: E402
 from tools import pagespeed_snapshot as ps  # noqa: E402
 from tools import propublica_nonprofits as pp  # noqa: E402
+from tools import safety_file as sf  # noqa: E402
 from tools import usaspending_awards as ua  # noqa: E402
 from tools import vin_decode as vd  # noqa: E402
 import test_courtlistener_recap as cl_fixtures  # noqa: E402
@@ -56,8 +57,8 @@ class RoutingTests(unittest.TestCase):
     def test_descriptor_lists_every_endpoint_with_tool_params_and_sources(self):
         doc = recall_api.descriptor(WALLET)
         self.assertEqual(sorted(doc["endpoints"]),
-                         ["/app", "/awards", "/carrier", "/domain", "/flood", "/formd", "/fx", "/github", "/litigation",
-                          "/nonprofit", "/ofac", "/pagespeed", "/recall", "/vin"])
+                         ["/app", "/awards", "/carrier", "/domain", "/flood", "/formd", "/fx", "/github",
+                          "/litigation", "/nonprofit", "/ofac", "/pagespeed", "/recall", "/safety", "/vin"])
         for path, entry in doc["endpoints"].items():
             self.assertEqual(entry["method"], "GET", path)
             self.assertTrue(entry["tool"].startswith("tools/"), path)
@@ -88,9 +89,11 @@ class RoutingTests(unittest.TestCase):
                      "vin=1HGCM82633A004352&vin=1HGCM82643A004352"],
             "/fx": ["", "base=USD", "target=EUR", "base=US&target=EUR", "base=USD&target=usd",
                     "base=USD&target=EUR&amount=0", "base=USD&target=EUR&date=2024-13-01"],
+            "/safety": ["", "make=Hyundai&model=Elantra", "make=Hyundai&year=2021", "model=Elantra&year=2021",
+                        "make=Hyundai&model=Elantra&year=21", "make=Hyundai&model=Elan/tra&year=2021"],
         }
         patches = [patch.object(mod, "fetch", side_effect=AssertionError("no fetch expected"))
-                   for mod in (fc, cl, ua, pp, ps, ef, vd, fx)]
+                   for mod in (fc, cl, ua, pp, ps, ef, vd, fx, sf)]
         patches += [patch.object(dt, name, side_effect=AssertionError("no fetch expected"))
                     for name in ("fetch_doh", "fetch_site")]
         patches.append(patch.object(al, "fetch", side_effect=AssertionError("no fetch expected")))
@@ -533,6 +536,52 @@ class ExchangeRateTests(unittest.TestCase):
             status, _, text = get("/fx", "base=USD&target=EUR")
         self.assertEqual(status, "502 Bad Gateway")
         self.assertNotIn("RATE:", text)
+
+
+
+# ----------------------------------------------------------------------
+# /safety
+# ----------------------------------------------------------------------
+
+class SafetyTests(unittest.TestCase):
+    """Served from the coordinator's keyless Option B captures on issue #176
+    (tools/tests/fixtures/nhtsa-safety, provenance there)."""
+
+    PROV = json.loads((FIXTURES / "nhtsa-safety" / "provenance.json").read_text(encoding="utf-8"))
+
+    def served(self, *names):
+        by_url = {self.PROV[n]["url"]: n for n in names}
+
+        def fetch(url):
+            if url not in by_url:
+                raise AssertionError("unexpected fetch: %s" % url)
+            transcript = (FIXTURES / "nhtsa-safety" / by_url[url]).read_text(encoding="utf-8")
+            return "2026-10-24T03:51:27Z", transcript, transcript.partition("\n\n")[2]
+        return fetch
+
+    def test_elantra_file_renders_every_section(self):
+        fetch = self.served("ratings-2021-hyundai-elantra.http", "ratings-vehicle-15697.http",
+                            "recalls-2021-hyundai-elantra.http", "complaints-2021-hyundai-elantra.http")
+        with patch.object(sf, "fetch", fetch):
+            status, headers, text = get("/safety", "make=Hyundai&model=Elantra&year=2021", WALLET)
+        self.assertEqual(status, "200 OK", text[:500])
+        self.assertEqual(headers["Content-Type"], recall_api.TEXT_MD)
+        self.assertTrue(text.startswith("# Safety file: 2021 Hyundai Elantra\n"))
+        self.assertIn("tools/safety_file.py", text)
+        self.assertIn("- OverallRating as shown: 5", text)
+        self.assertIn("RECALLS: 6 campaigns in the results array", text)
+        self.assertIn("COMPLAINTS: 132 complaint records in the results array", text)
+
+    def test_http_400_with_a_success_message_is_502_with_no_report(self):
+        fetch = self.served("ratings-2021-hyundai-nosuchmodel-empty.http", "recalls-2021-hyundai-nosuchmodel-400.http",
+                            "complaints-2021-hyundai-nosuchmodel-400.http")
+        with patch.object(sf, "fetch", fetch):
+            status, _, text = get("/safety", "make=Hyundai&model=Nosuchmodel&year=2021")
+        self.assertEqual(status, "502 Bad Gateway")
+        self.assertIn("source failure, no report emitted", text)
+        self.assertIn("Recalls source failed: %s answered HTTP/1.1 400 Bad Request"
+                      % self.PROV["recalls-2021-hyundai-nosuchmodel-400.http"]["url"], text)
+        self.assertNotIn("RATINGS:", text)
 
 
 if __name__ == "__main__":

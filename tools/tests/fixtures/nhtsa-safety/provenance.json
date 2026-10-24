@@ -1,0 +1,87 @@
+{
+  "ratings-2021-hyundai-elantra.http": {
+    "url": "https://api.nhtsa.gov/SafetyRatings/modelyear/2021/make/Hyundai/model/Elantra",
+    "retrieved_utc": "2026-10-24, about 03:51 to 03:53 UTC (response Date header: Sat, 24 Oct 2026 03:51:26 GMT)",
+    "method": "GET, keyless (plain curl, no Authorization header), by the coordinator under Option B",
+    "comment": "https://github.com/nnyycc77-ship-it/tiny-ledger/issues/176#issuecomment-6379527903",
+    "transcript_form": "the posted headers block (status line and headers in the order returned, Set-Cookie omitted by the coordinator), a blank line, then the posted body block exactly; joined with newline characters",
+    "body_bytes": 138,
+    "body_sha256": "0c1e8f8bcde74155f58930a4e64822d231d95b2323bc43ffc260019a0f423a0a",
+    "sha256": "f5d31d11308c9e2b01219e9018177422a49d125e7d4fc9215beb67123fbc0959"
+  },
+  "ratings-vehicle-15697.http": {
+    "url": "https://api.nhtsa.gov/SafetyRatings/VehicleId/15697",
+    "retrieved_utc": "2026-10-24, about 03:51 to 03:53 UTC (response Date header: Sat, 24 Oct 2026 03:51:46 GMT)",
+    "method": "GET, keyless (plain curl, no Authorization header), by the coordinator under Option B",
+    "comment": "https://github.com/nnyycc77-ship-it/tiny-ledger/issues/176#issuecomment-6379528154",
+    "transcript_form": "the posted headers block (status line and headers in the order returned, Set-Cookie omitted by the coordinator), a blank line, then the posted body block exactly; joined with newline characters",
+    "body_bytes": 1360,
+    "body_sha256": "73882ec247d8cba40f081fdbcfb4ff393cde306dfe987f6f49737156550c1e84",
+    "sha256": "d236693aaaf3b9260f2c105b2ce5cd643d7454b492ec6d0664d4722401d0cd03"
+  },
+  "recalls-2021-hyundai-elantra.http": {
+    "url": "https://api.nhtsa.gov/recalls/recallsByVehicle?make=Hyundai&model=Elantra&modelYear=2021",
+    "retrieved_utc": "2026-10-24, about 03:51 to 03:53 UTC (response Date header: Sat, 24 Oct 2026 03:51:27 GMT)",
+    "method": "GET, keyless (plain curl, no Authorization header), by the coordinator under Option B",
+    "comment": "https://github.com/nnyycc77-ship-it/tiny-ledger/issues/176#issuecomment-6379528454",
+    "transcript_form": "the posted headers block (status line and headers in the order returned, Set-Cookie omitted by the coordinator), a blank line, then the posted body block exactly; joined with newline characters",
+    "body_bytes": 7350,
+    "body_sha256": "deba9f686b793cdfaac0ea51a5e40981515cbe4d3d186e015ec2e51ce7baad7f",
+    "sha256": "985b58d1824cd0c7a5c5b8eb51cdd86455b12a8f49fb785f4caa445f06dee14e"
+  },
+  "ratings-2021-hyundai-nosuchmodel-empty.http": {
+    "url": "https://api.nhtsa.gov/SafetyRatings/modelyear/2021/make/Hyundai/model/Nosuchmodel",
+    "retrieved_utc": "2026-10-24, about 03:51 to 03:53 UTC (response Date header: Sat, 24 Oct 2026 03:51:30 GMT)",
+    "method": "GET, keyless (plain curl, no Authorization header), by the coordinator under Option B",
+    "comment": "https://github.com/nnyycc77-ship-it/tiny-ledger/issues/176#issuecomment-6379529145",
+    "transcript_form": "the posted headers block (status line and headers in the order returned, Set-Cookie omitted by the coordinator), a blank line, then the posted body block exactly; joined with newline characters",
+    "body_bytes": 66,
+    "body_sha256": "513d4b093adfc73cb2b7e708964efc458de8aead3e9ca63bcc617fc4f6b124d1",
+    "sha256": "306aa998df5fe9b6da06bca02c97438bfe1ae38632e557e1067e5bce15825366"
+  },
+  "recalls-2021-hyundai-nosuchmodel-400.http": {
+    "url": "https://api.nhtsa.gov/recalls/recallsByVehicle?make=Hyundai&model=Nosuchmodel&modelYear=2021",
+    "retrieved_utc": "2026-10-24, about 03:51 to 03:53 UTC (response Date header: Sat, 24 Oct 2026 03:51:31 GMT)",
+    "method": "GET, keyless (plain curl, no Authorization header), by the coordinator under Option B",
+    "comment": "https://github.com/nnyycc77-ship-it/tiny-ledger/issues/176#issuecomment-6379529145",
+    "transcript_form": "the posted headers block (status line and headers in the order returned, Set-Cookie omitted by the coordinator), a blank line, then the posted body block exactly; joined with newline characters",
+    "body_bytes": 66,
+    "body_sha256": "74147c27e8c00a68fa4708025f0aa95a3dbb3bea68b4d5417efb2bef19d1e786",
+    "sha256": "f6cd179f6fef0333524fc8e1872d194d12480bfb987a1ca5220d8c74f0b53d6a"
+  },
+  "complaints-2021-hyundai-nosuchmodel-400.http": {
+    "url": "https://api.nhtsa.gov/complaints/complaintsByVehicle?make=Hyundai&model=Nosuchmodel&modelYear=2021",
+    "retrieved_utc": "2026-10-24, about 03:51 to 03:53 UTC (response Date header: Sat, 24 Oct 2026 03:51:33 GMT)",
+    "method": "GET, keyless (plain curl, no Authorization header), by the coordinator under Option B",
+    "comment": "https://github.com/nnyycc77-ship-it/tiny-ledger/issues/176#issuecomment-6379529145",
+    "transcript_form": "the posted headers block (status line and headers in the order returned, Set-Cookie omitted by the coordinator), a blank line, then the posted body block exactly; joined with newline characters",
+    "body_bytes": 66,
+    "body_sha256": "14614809c0b6f8c0eae087cf0f0e1f7e825b00bae8f60d5e26cbf06415e89334",
+    "sha256": "49872cb48410862d2622ea4f4edc05388e48eb700419fea62515946671b34f11"
+  },
+  "complaints-hyundai-elantra-abc-500.http": {
+    "url": "https://api.nhtsa.gov/complaints/complaintsByVehicle?make=Hyundai&model=Elantra&modelYear=abc",
+    "retrieved_utc": "2026-10-24, about 03:51 to 03:53 UTC (response Date header: Sat, 24 Oct 2026 03:51:35 GMT)",
+    "method": "GET, keyless (plain curl, no Authorization header), by the coordinator under Option B",
+    "comment": "https://github.com/nnyycc77-ship-it/tiny-ledger/issues/176#issuecomment-6379529145",
+    "transcript_form": "the posted headers block (status line and headers in the order returned, Set-Cookie omitted by the coordinator), a blank line, then the posted body block exactly; joined with newline characters",
+    "body_bytes": 47,
+    "body_sha256": "44ae9697b242bce5958e3c0dbb9a00514325ebabfc34f1b02b0a10484afde534",
+    "sha256": "a57349c492abbf107910f7fa2ef8e4cff4ec4df8bbd0a880f63c3135ad5803a0"
+  },
+  "complaints-2021-hyundai-elantra.http": {
+    "url": "https://api.nhtsa.gov/complaints/complaintsByVehicle?make=Hyundai&model=Elantra&modelYear=2021",
+    "retrieved_utc": "2026-10-24, about 03:51 UTC (response Date header: Sat, 24 Oct 2026 03:51:28 GMT)",
+    "method": "GET, keyless (plain curl, no Authorization header), by the coordinator under Option B",
+    "comment": "https://github.com/nnyycc77-ship-it/tiny-ledger/issues/176#issuecomment-6379528783",
+    "body_parts": [
+      "https://github.com/nnyycc77-ship-it/tiny-ledger/issues/176#issuecomment-6379821322",
+      "https://github.com/nnyycc77-ship-it/tiny-ledger/issues/176#issuecomment-6379821800",
+      "https://github.com/nnyycc77-ship-it/tiny-ledger/issues/176#issuecomment-6379822339"
+    ],
+    "transcript_form": "the posted headers block (status line and headers in the order returned, Set-Cookie omitted by the coordinator), a blank line, then the body joined from the three posted parts in order and checked against the posted whole-body sha256",
+    "body_bytes": 130279,
+    "body_sha256": "5b9b87e615e64a3c69235a251a99f71ed9780848089773d81804335e57f2dd78",
+    "sha256": "2a91d4c47ccc5126e49e3d4473b663ba51b41ea6fa358a4368720f7a59706bd2"
+  }
+}
