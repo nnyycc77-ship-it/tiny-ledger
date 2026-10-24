@@ -31,9 +31,12 @@ ALT line shows. The full column specification is a separate OFAC document
 not captured here, so no other column is named: each matching entry's
 lines are printed whole instead.
 
-Matching rule (approved on issue #160), stated in every report: names are
-compared after folding case and replacing every character that is not a
-letter or digit with a space. An exact match is the whole normalised query
+Matching rule (approved on issue #160, accent folding added on issue
+#251), stated in every report: names are compared after folding case,
+removing accents where Unicode decomposition splits them off (é becomes
+e; a letter with no such decomposition is still replaced), and replacing
+every character that is not a letter or digit with a space. An exact
+match is the whole normalised query
 equal to the whole normalised name; a contains match is the normalised
 query appearing inside the normalised name as whole words. Primary names
 and aliases are both checked. No fuzzy or phonetic score is computed or
@@ -57,6 +60,7 @@ import csv
 import hashlib
 import re
 import sys
+import unicodedata
 import urllib.error
 import urllib.request
 from datetime import datetime, timezone
@@ -72,8 +76,10 @@ MAX_OTHER_LINES = 3
 # showed on the final 200 answer (issue #160, comment 6378275074).
 SHOWN_HEADERS = ("Content-Type", "Content-Length", "Content-Disposition", "Last-Modified", "ETag",
                  "x-amz-meta-preview-description", "x-amz-meta-preview-date")
-RULE = ("Names are compared after folding case and replacing every character that is not a letter or "
-        "digit with a space. An exact match is the whole normalised query equal to the whole normalised "
+RULE = ("Names are compared after folding case, removing accents where Unicode decomposition splits "
+        "them off (é becomes e; a letter with no such decomposition is still replaced), and replacing "
+        "every character that is not a letter or digit with a space. An exact match is the whole "
+        "normalised query equal to the whole normalised "
         "name; a contains match is the normalised query appearing inside the normalised name as whole "
         "words. Primary names (SDN.CSV) and aliases (ALT.CSV) are both checked. No fuzzy or phonetic score "
         "is computed or claimed.")
@@ -122,9 +128,18 @@ def fetch(url):
     return Download(url, retrieved, headers, data, redirected)
 
 
+def fold_accents(text):
+    """Accents removed where Unicode decomposition splits them off: the
+    decomposed form with its combining marks dropped, so é becomes e and
+    ü becomes u. A letter with no such decomposition (for example ł) is
+    left as it is, and so still acts as a separator in normalise."""
+    return "".join(c for c in unicodedata.normalize("NFKD", text)
+                   if not unicodedata.combining(c))
+
+
 def normalise(text):
-    """Case folded, every non letter or digit a single space, trimmed."""
-    return " ".join(re.sub(r"[^0-9a-z]+", " ", text.casefold()).split())
+    """Case and accents folded, every non letter or digit a single space, trimmed."""
+    return " ".join(re.sub(r"[^0-9a-z]+", " ", fold_accents(text.casefold())).split())
 
 
 def significant(text):
