@@ -24,6 +24,7 @@ environment and its header comment says so.
 | NHTSA vPIC VIN decode (DecodeVinValues) | `vin_decode.py` | none needed |
 | Frankfurter exchange rates (API v1) | `exchange_rate_check.py` | none needed |
 | NHTSA safety file: ratings, recalls, complaints | `safety_file.py` | none needed |
+| EPA ECHO facility compliance screen | `epa_screen.py` | none needed |
 | Brand name checks: RDAP domains, X / Instagram / TikTok handles, iTunes Search (trademarks not covered) | `brand_name_checker.py` | none needed |
 | Weekly brief: watchlist Form D filings and NAICS filtered contract awards for a seven day window (docs/weekly-brief.md) | `weekly_brief.py` | EDGAR contact |
 | OFAC SDN list name check, primary names and aliases (docs/ofac-sdn-check.md) | `ofac_sdn_check.py` | none needed |
@@ -535,6 +536,39 @@ captured by the coordinator under Option B on issue #176, because this
 container cannot reach api.nhtsa.gov. Their URLs, body sizes and SHA-256
 hashes are in `tests/fixtures/nhtsa-safety/provenance.json`, and the
 hashes are checked.
+
+## epa_screen.py
+
+```sh
+python3 tools/epa_screen.py --name "BAYTOWN OLEFINS" --city BAYTOWN --state TX
+python3 tools/epa_screen.py --name "BAYTOWN OLEFINS" --state TX --registry-id 110000463178
+```
+
+Tool factory wave 2, issue #178. It searches the EPA ECHO facility search
+web service by facility name and state (city optional), keyless, through
+the capture path of `nhtsa_recalls.py`, in the two steps the coordinator's
+captures show: `get_facilities` for the summary and QueryID, then `get_qid`
+for the rows. The answer quotes each row's `FacComplianceStatus`,
+`FacSNCFlg` and `FacQtrsWithNC` as shown. `--registry-id` selects one row
+from the results; no single-facility route is verified. QueryRows `"0"`
+is an empty result, proven by its transcript and never called clean.
+Any non-200 answer, or an `Error` in `Results` (ECHO also answers HTTP 200
+with one), is a source failure: nothing is printed on stdout, and the exit
+status is 2. Docs page:
+[`docs/mcpize-tools/epa_screen.md`](../docs/mcpize-tools/epa_screen.md).
+
+### Verification
+
+```sh
+python3 -m unittest discover -s tools/tests -p 'test_epa_screen.py' -v
+```
+
+The tests need no network. They run on eight real, keyless ECHO responses
+captured by the coordinator under Option B on issue #178, because this
+container cannot reach echodata.epa.gov. They are posted byte for byte and
+saved as curl output with CRLF line ends, and the tests read them as
+bytes. Their URLs, sizes and SHA-256 hashes are in
+`tests/fixtures/epa-echo/provenance.json`, and the hashes are checked.
 
 ## edgar_formd.py
 

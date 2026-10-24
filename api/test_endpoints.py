@@ -30,6 +30,7 @@ from tools import app_lookup_check as al  # noqa: E402
 from tools import courtlistener_recap as cl  # noqa: E402
 from tools import domain_trust_check as dt  # noqa: E402
 from tools import edgar_formd as ef  # noqa: E402
+from tools import epa_screen as epa  # noqa: E402
 from tools import exchange_rate_check as fx  # noqa: E402
 from tools import fmcsa_carrier as fc  # noqa: E402
 from tools import pagespeed_snapshot as ps  # noqa: E402
@@ -57,7 +58,7 @@ class RoutingTests(unittest.TestCase):
     def test_descriptor_lists_every_endpoint_with_tool_params_and_sources(self):
         doc = recall_api.descriptor(WALLET)
         self.assertEqual(sorted(doc["endpoints"]),
-                         ["/app", "/awards", "/carrier", "/domain", "/fda", "/flood", "/formd", "/fx", "/github",
+                         ["/app", "/awards", "/carrier", "/domain", "/epa", "/fda", "/flood", "/formd", "/fx", "/github",
                           "/litigation", "/meta", "/nonprofit", "/ofac", "/pagespeed", "/recall", "/safety", "/vin"])
         for path, entry in doc["endpoints"].items():
             self.assertEqual(entry["method"], "GET", path)
@@ -91,9 +92,11 @@ class RoutingTests(unittest.TestCase):
                     "base=USD&target=EUR&amount=0", "base=USD&target=EUR&date=2024-13-01"],
             "/safety": ["", "make=Hyundai&model=Elantra", "make=Hyundai&year=2021", "model=Elantra&year=2021",
                         "make=Hyundai&model=Elantra&year=21", "make=Hyundai&model=Elan/tra&year=2021"],
+            "/epa": ["", "name=BAYTOWN+OLEFINS", "state=TX", "name=BAYTOWN+OLEFINS&state=Texas",
+                     "name=BAYTOWN+OLEFINS&state=TX&registry_id=abc"],
         }
         patches = [patch.object(mod, "fetch", side_effect=AssertionError("no fetch expected"))
-                   for mod in (fc, cl, ua, pp, ps, ef, vd, fx, sf)]
+                   for mod in (fc, cl, ua, pp, ps, ef, vd, fx, sf, epa)]
         patches += [patch.object(dt, name, side_effect=AssertionError("no fetch expected"))
                     for name in ("fetch_doh", "fetch_site")]
         patches.append(patch.object(al, "fetch", side_effect=AssertionError("no fetch expected")))
@@ -582,6 +585,48 @@ class SafetyTests(unittest.TestCase):
         self.assertIn("Recalls source failed: %s answered HTTP/1.1 400 Bad Request"
                       % self.PROV["recalls-2021-hyundai-nosuchmodel-400.http"]["url"], text)
         self.assertNotIn("RATINGS:", text)
+
+
+
+# ----------------------------------------------------------------------
+# /epa
+# ----------------------------------------------------------------------
+
+class EpaTests(unittest.TestCase):
+    """Served from the coordinator's keyless Option B captures on issue #178
+    (tools/tests/fixtures/epa-echo, provenance there), read as bytes so their
+    CRLF line ends stay as recorded."""
+
+    PROV = json.loads((FIXTURES / "epa-echo" / "provenance.json").read_text(encoding="utf-8"))
+
+    def served(self, *names, as_url=None):
+        by_url = {(as_url or self.PROV[n]["url"]): n for n in names}
+
+        def fetch(url):
+            if url not in by_url:
+                raise AssertionError("unexpected fetch: %s" % url)
+            text = (FIXTURES / "epa-echo" / by_url[url]).read_bytes().decode("utf-8")
+            return "2026-10-24T05:10:25Z", text, text.split("\r\n\r\n", 2)[2]
+        return fetch
+
+    def test_registry_filter_answers_the_row_as_shown(self):
+        fetch = self.served("search-baytown-olefins.http", "qid-baytown-olefins.http")
+        with patch.object(epa, "fetch", fetch):
+            status, headers, text = get("/epa", "name=BAYTOWN+OLEFINS&city=BAYTOWN&state=TX&registry_id=110000463178",
+                                        WALLET)
+        self.assertEqual(status, "200 OK", text[:500])
+        self.assertEqual(headers["Content-Type"], recall_api.TEXT_MD)
+        self.assertTrue(text.startswith("# EPA compliance screen: BAYTOWN OLEFINS, TX\n"))
+        self.assertIn('FacComplianceStatus "Significant Violation"; FacSNCFlg "Y"; FacQtrsWithNC "12"', text)
+
+    def test_200_with_an_error_body_is_502_with_no_report(self):
+        url = epa.search_url("BAYTOWN OLEFINS", "TX")
+        with patch.object(epa, "fetch", self.served("facilities-by-id.http", as_url=url)):
+            status, _, text = get("/epa", "name=BAYTOWN+OLEFINS&state=TX")
+        self.assertEqual(status, "502 Bad Gateway")
+        self.assertIn("source failure, no report emitted", text)
+        self.assertIn("(Results carries an Error)", text)
+        self.assertNotIn("ANSWER", text)
 
 
 if __name__ == "__main__":

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """The remaining fetchers as paid API endpoints (issue #65).
 
-Fifteen GET endpoints beside GET /recall, each wrapping one merged fetcher in
+Seventeen GET endpoints beside GET /recall, each wrapping one merged fetcher in
 tools/ as library code and returning that fetcher's own rendered Markdown
 in the delivery format from AGENT-BRIEF.md: the claim lines, the exact
 query, the UTC retrieval time, the source link, and the complete raw
@@ -24,6 +24,7 @@ nothing else to the fetchers' output.
     /flood       tools/flood_check.py          lat, lon | address
     /safety      tools/safety_file.py          make, model, year
     /fda         tools/fda_recall_check.py     name (field, category, limit optional)
+    /epa         tools/epa_screen.py           name, state (city, registry_id optional)
 
 Each endpoint takes the fetcher's own command line inputs as query
 parameters under the same names (hyphens become underscores), validates
@@ -61,6 +62,7 @@ from tools import app_lookup_check as al  # noqa: E402
 from tools import courtlistener_recap as cl  # noqa: E402
 from tools import domain_trust_check as dt  # noqa: E402
 from tools import edgar_formd as ef  # noqa: E402
+from tools import epa_screen as epa  # noqa: E402
 from tools import exchange_rate_check as fx  # noqa: E402
 from tools import fda_recall_check as fda  # noqa: E402
 from tools import flood_check as fl  # noqa: E402
@@ -644,6 +646,31 @@ def fda_recall(query, env=None):
 
 
 # ----------------------------------------------------------------------
+# /epa
+# ----------------------------------------------------------------------
+
+def epa_screen(query, env=None):
+    """EPA ECHO facility compliance screen via tools/epa_screen.py."""
+    try:
+        name, state, city, registry_id = epa.check_query(_single(query, "name", ""), _single(query, "state", ""),
+                                                         _single(query, "city"), _single(query, "registry_id"))
+    except ValueError as err:
+        raise BadRequest(str(err))
+    try:
+        lines = epa.render(name, state, city, registry_id, epa.gather(name, state, city))
+    except epa.SourceFailed as err:
+        raise FetchFailed("source failure, no report emitted: %s" % err)
+    except (urllib.error.URLError, OSError) as err:
+        raise _transport(err)
+    head = _head("EPA compliance screen: %s, %s" % (name, state),
+                 "Observation only: this report records what the public EPA ECHO facility search returned "
+                 "at the retrieval times stated below; the status fields are ECHO's as shown, not a "
+                 "compliance finding of this service.",
+                 "tools/epa_screen.py")
+    return _text(head, lines)
+
+
+# ----------------------------------------------------------------------
 # Registry and descriptor
 # ----------------------------------------------------------------------
 
@@ -664,6 +691,7 @@ ROUTES = {
     "/flood": flood,
     "/safety": safety,
     "/fda": fda_recall,
+    "/epa": epa_screen,
 }
 
 DESCRIPTIONS = {
@@ -774,6 +802,15 @@ DESCRIPTIONS = {
                     sf.BASE_URL + "recalls/recallsByVehicle?make=<make>&model=<model>&modelYear=<year>",
                     sf.BASE_URL + "complaints/complaintsByVehicle?make=<make>&model=<model>&modelYear=<year>"],
         "note": "Any source answering other than HTTP 200 is a source failure (502, no report), never an empty result.",
+    },
+    "/epa": {
+        "tool": "tools/epa_screen.py",
+        "params": ["name (facility name to search for)", "state (two letter code)", "city (optional)",
+                   "registry_id (optional: selects that row from the search results)"],
+        "sources": [epa.BASE_URL + "get_facilities?output=JSON&p_fn=<name>&p_cty=<city>&p_st=<state>",
+                    epa.BASE_URL + "get_qid?output=JSON&qid=<QueryID>"],
+        "note": "Any non-200 answer or an Error in Results is a source failure (502, no report); QueryRows 0 is "
+                "an empty result, never a finding that a facility is free of violations.",
     },
 }
 

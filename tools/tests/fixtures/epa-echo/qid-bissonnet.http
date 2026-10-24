@@ -1,0 +1,88 @@
+HTTP/1.1 200 Connection Established
+
+HTTP/1.1 200 200
+Date: Sat, 24 Oct 2026 05:10:45 GMT
+Server: Apache
+Cache-Control: private, max-age=0, must-revalidate
+Strict-Transport-Security: max-age=63072000; includeSubdomains; preload
+Strict-Transport-Security: max-age=63072000; includeSubDomains; preload
+Access-Control-Allow-Methods: GET,OPTIONS,POST,PUT
+Access-Control-Max-Age: 86400
+Access-Control-Allow-Credentials: true
+X-Frame-Options: SAMEORIGIN
+X-Content-Type-Options: nosniff
+Content-Type: application/json
+Vary: Accept-Encoding
+Transfer-Encoding: chunked
+
+{
+"Results":{
+"Message":"Working",
+"QueryRows":"1",
+"QueryID":"158",
+"PageNo":"1",
+"Facilities":[
+{
+"FacName":"BISSONNET EXXON 62017",
+"FacStreet":"9322 BISSONNET",
+"FacCity":"HOUSTON",
+"FacState":"TX",
+"FacZip":"77074",
+"RegistryID":"110005129100",
+"FacCounty":"HARRIS",
+"FacFederalFlg":null,
+"FacSICCodes":null,
+"FacSICDescs":null,
+"FacNAICSCodes":"42471",
+"TRIIDs":null,
+"CWAPermitTypes":null,
+"RCRAPermitTypes":"Other",
+"SDWASystemTypes":null,
+"FacSNCFlg":"N",
+"FacQtrsWithNC":"0",
+"FacComplianceStatus":"No Violation Identified",
+"CAAComplianceStatus":null,
+"CWAComplianceStatus":null,
+"RCRAComplianceStatus":"No Violation Identified",
+"SDWAComplianceStatus":null,
+"FacInspectionCount":"0",
+"FacDaysLastInspection":null,
+"FacDateLastInspection":null,
+"CAAEvaluationCount":null,
+"CWAInspectionCount":null,
+"SDWAInformalCount":null,
+"FacFormalActionCount":"0",
+"CWAFormalActionCount":null,
+"SDWAFormalActionCount":null,
+"FacTotalPenalties":"$0",
+"FacDateLastPenalty":null,
+"RCRAPenalties":null,
+"FacDerivedWBDHu8":"12040104",
+"FacDerivedWBDHu8Name":"Buffalo-San Jacinto",
+"FacDateLastInformalAction":null,
+"CAA3yrComplQtrsHistory":null,
+"CWA13qtrsComplHistory":null,
+"SDWA3yrComplQtrsHistory":null,
+"FacChesapeakeBayFlg":null,
+"FacAccuracyMeters":"30",
+"FacDerivedHuc":"12040104",
+"FacDerivedStctyFIPS":"48201",
+"FacDerivedCd113":"09",
+"FacDerivedCb2010":"482014229002043",
+"FacMyrtkUniverse":"NNN",
+"SDWISFlag":"N",
+"GHGFlag":"N",
+"CAANAICS":null,
+"CAANAICSDescs":null,
+"CAASICs":null,
+"CAASICDescs":null,
+"CAADateLastFormalAction":null,
+"CAALastPenaltyDate":null,
+"CWAComplianceTracking":null,
+"CWADaysLastInspection":null,
+"RCRADaysLastEvaluation":null,
+"Insp5yrFlag":"0"
+}
+]
+}
+}
