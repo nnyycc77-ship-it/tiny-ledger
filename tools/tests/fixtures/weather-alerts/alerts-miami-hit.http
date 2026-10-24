@@ -1,0 +1,301 @@
+HTTP/1.1 200 OK
+Server: nginx/1.28.3
+Content-Type: application/geo+json
+ETag: W/"3cf787625b3271943d06ca3e8957bafd"
+Access-Control-Allow-Origin: *
+Access-Control-Expose-Headers: X-Correlation-Id, X-Request-Id, X-Server-Id
+X-Request-ID: 01a16dd3-94b1-7035-9559-749bef6bffb6
+X-Correlation-ID: 3730548
+X-Server-ID: vm-bldr-api-ops-app8.ncep.noaa.gov
+Vary: Accept-Encoding
+Vary: Accept,Feature-Flags,Accept-Language
+Cache-Control: public, max-age=5, s-maxage=5
+Expires: Sat, 24 Oct 2026 12:12:30 GMT
+Date: Sat, 24 Oct 2026 12:12:25 GMT
+Strict-Transport-Security: max-age=31536000 ; includeSubDomains ; preload
+X-Edge-Request-ID: 4333e23
+Connection: close
+Content-Length: 18194
+
+{
+    "@context": [
+        "https://geojson.org/geojson-ld/geojson-context.jsonld",
+        {
+            "@version": "1.1",
+            "wx": "https://api.weather.gov/ontology#",
+            "@vocab": "https://api.weather.gov/ontology#"
+        }
+    ],
+    "type": "FeatureCollection",
+    "features": [
+        {
+            "id": "https://api.weather.gov/alerts/urn:oid:2.49.0.1.840.0.5eb9d2f3eeede2e2238452b29f7fbaf2c07eb122.002.2",
+            "type": "Feature",
+            "geometry": null,
+            "properties": {
+                "@id": "https://api.weather.gov/alerts/urn:oid:2.49.0.1.840.0.5eb9d2f3eeede2e2238452b29f7fbaf2c07eb122.002.2",
+                "@type": "wx:Alert",
+                "id": "urn:oid:2.49.0.1.840.0.5eb9d2f3eeede2e2238452b29f7fbaf2c07eb122.002.2",
+                "areaDesc": "Coastal Broward County; Coastal Miami Dade County",
+                "geocode": {
+                    "SAME": [
+                        "012011",
+                        "012086"
+                    ],
+                    "UGC": [
+                        "FLZ172",
+                        "FLZ173"
+                    ]
+                },
+                "affectedZones": [
+                    "https://api.weather.gov/zones/forecast/FLZ172",
+                    "https://api.weather.gov/zones/forecast/FLZ173"
+                ],
+                "references": [
+                    {
+                        "@id": "https://api.weather.gov/alerts/urn:oid:2.49.0.1.840.0.873e6693b03c1c1944de78fe53dd2b7a064c4ed8.002.1",
+                        "identifier": "urn:oid:2.49.0.1.840.0.873e6693b03c1c1944de78fe53dd2b7a064c4ed8.002.1",
+                        "sender": "w-nws.webmaster@noaa.gov",
+                        "sent": "2026-10-23T14:25:00-04:00"
+                    }
+                ],
+                "sent": "2026-10-24T01:07:00-04:00",
+                "effective": "2026-10-24T01:07:00-04:00",
+                "onset": "2026-10-25T02:00:00-04:00",
+                "expires": "2026-10-24T16:00:00-04:00",
+                "ends": "2026-10-26T20:00:00-04:00",
+                "status": "Actual",
+                "messageType": "Update",
+                "category": "Met",
+                "severity": "Moderate",
+                "certainty": "Possible",
+                "urgency": "Future",
+                "event": "Coastal Flood Watch",
+                "sender": "w-nws.webmaster@noaa.gov",
+                "senderName": "NWS Miami FL",
+                "headline": "Coastal Flood Watch issued October 24 at 1:07AM EDT until October 26 at 8:00PM EDT by NWS Miami FL",
+                "description": "* WHAT...For the Coastal Flood Advisory, moderate coastal\nflooding. For the High Rip Current Risk, dangerous rip\ncurrents. For the Coastal Flood Watch, significant coastal\nflooding possible.\n\n* WHERE...Coastal Broward County and Coastal Miami Dade County.\n\n* WHEN...For the Coastal Flood Advisory, until 2 AM EDT Sunday.\nFor the High Rip Current Risk, through Monday evening. For the\nCoastal Flood Watch, from late Saturday night through Monday\nevening.\n\n* IMPACTS...Numerous roads may be closed. Low lying property\nincluding homes, businesses, and some critical infrastructure\nmay be inundated. Some shoreline erosion may occur. Rip\ncurrents can sweep even the best swimmers away from shore into\ndeeper water.",
+                "instruction": "If travel is required, allow extra time as some roads may be\nclosed. Do not drive around barricades or through water of\nunknown depth. Take the necessary actions to protect flood-prone\nproperty.\n\nSwim near a lifeguard. If caught in a rip current, relax and\nfloat. Don't swim against the current. If able, swim in a\ndirection following the shoreline. If unable to escape, face the\nshore and call or wave for help.",
+                "response": "Prepare",
+                "note": null,
+                "parameters": {
+                    "AWIPSidentifier": [
+                        "CFWMFL"
+                    ],
+                    "WMOidentifier": [
+                        "WHUS42 KMFL 240507"
+                    ],
+                    "NWSheadline": [
+                        "COASTAL FLOOD ADVISORY REMAINS IN EFFECT UNTIL 2 AM EDT SUNDAY... ...HIGH RIP CURRENT RISK REMAINS IN EFFECT THROUGH MONDAY EVENING... ...COASTAL FLOOD WATCH REMAINS IN EFFECT FROM LATE TONIGHT THROUGH MONDAY EVENING"
+                    ],
+                    "BLOCKCHANNEL": [
+                        "EAS",
+                        "NWEM",
+                        "CMAS"
+                    ],
+                    "EAS-ORG": [
+                        "WXR"
+                    ],
+                    "VTEC": [
+                        "/O.CON.KMFL.CF.A.0001.261025T0600Z-261027T0000Z/"
+                    ],
+                    "eventEndingTime": [
+                        "2026-10-26T20:00:00-04:00"
+                    ]
+                },
+                "scope": "Public",
+                "code": "IPAWSv1.0",
+                "language": "en-US",
+                "web": "http://www.weather.gov",
+                "eventCode": {
+                    "SAME": [
+                        "CFA"
+                    ],
+                    "NationalWeatherService": [
+                        "CFA"
+                    ]
+                }
+            }
+        },
+        {
+            "id": "https://api.weather.gov/alerts/urn:oid:2.49.0.1.840.0.5eb9d2f3eeede2e2238452b29f7fbaf2c07eb122.002.1",
+            "type": "Feature",
+            "geometry": null,
+            "properties": {
+                "@id": "https://api.weather.gov/alerts/urn:oid:2.49.0.1.840.0.5eb9d2f3eeede2e2238452b29f7fbaf2c07eb122.002.1",
+                "@type": "wx:Alert",
+                "id": "urn:oid:2.49.0.1.840.0.5eb9d2f3eeede2e2238452b29f7fbaf2c07eb122.002.1",
+                "areaDesc": "Coastal Broward County; Coastal Miami Dade County",
+                "geocode": {
+                    "SAME": [
+                        "012011",
+                        "012086"
+                    ],
+                    "UGC": [
+                        "FLZ172",
+                        "FLZ173"
+                    ]
+                },
+                "affectedZones": [
+                    "https://api.weather.gov/zones/forecast/FLZ172",
+                    "https://api.weather.gov/zones/forecast/FLZ173"
+                ],
+                "references": [
+                    {
+                        "@id": "https://api.weather.gov/alerts/urn:oid:2.49.0.1.840.0.873e6693b03c1c1944de78fe53dd2b7a064c4ed8.002.2",
+                        "identifier": "urn:oid:2.49.0.1.840.0.873e6693b03c1c1944de78fe53dd2b7a064c4ed8.002.2",
+                        "sender": "w-nws.webmaster@noaa.gov",
+                        "sent": "2026-10-23T14:25:00-04:00"
+                    }
+                ],
+                "sent": "2026-10-24T01:07:00-04:00",
+                "effective": "2026-10-24T01:07:00-04:00",
+                "onset": "2026-10-24T01:07:00-04:00",
+                "expires": "2026-10-24T16:00:00-04:00",
+                "ends": "2026-10-25T02:00:00-04:00",
+                "status": "Actual",
+                "messageType": "Update",
+                "category": "Met",
+                "severity": "Minor",
+                "certainty": "Likely",
+                "urgency": "Expected",
+                "event": "Coastal Flood Advisory",
+                "sender": "w-nws.webmaster@noaa.gov",
+                "senderName": "NWS Miami FL",
+                "headline": "Coastal Flood Advisory issued October 24 at 1:07AM EDT until October 25 at 2:00AM EDT by NWS Miami FL",
+                "description": "* WHAT...For the Coastal Flood Advisory, moderate coastal\nflooding. For the High Rip Current Risk, dangerous rip\ncurrents. For the Coastal Flood Watch, significant coastal\nflooding possible.\n\n* WHERE...Coastal Broward County and Coastal Miami Dade County.\n\n* WHEN...For the Coastal Flood Advisory, until 2 AM EDT Sunday.\nFor the High Rip Current Risk, through Monday evening. For the\nCoastal Flood Watch, from late Saturday night through Monday\nevening.\n\n* IMPACTS...Numerous roads may be closed. Low lying property\nincluding homes, businesses, and some critical infrastructure\nmay be inundated. Some shoreline erosion may occur. Rip\ncurrents can sweep even the best swimmers away from shore into\ndeeper water.",
+                "instruction": "If travel is required, allow extra time as some roads may be\nclosed. Do not drive around barricades or through water of\nunknown depth. Take the necessary actions to protect flood-prone\nproperty.\n\nSwim near a lifeguard. If caught in a rip current, relax and\nfloat. Don't swim against the current. If able, swim in a\ndirection following the shoreline. If unable to escape, face the\nshore and call or wave for help.",
+                "response": "Monitor",
+                "note": null,
+                "parameters": {
+                    "AWIPSidentifier": [
+                        "CFWMFL"
+                    ],
+                    "WMOidentifier": [
+                        "WHUS42 KMFL 240507"
+                    ],
+                    "NWSheadline": [
+                        "COASTAL FLOOD ADVISORY REMAINS IN EFFECT UNTIL 2 AM EDT SUNDAY... ...HIGH RIP CURRENT RISK REMAINS IN EFFECT THROUGH MONDAY EVENING... ...COASTAL FLOOD WATCH REMAINS IN EFFECT FROM LATE TONIGHT THROUGH MONDAY EVENING"
+                    ],
+                    "BLOCKCHANNEL": [
+                        "EAS",
+                        "NWEM",
+                        "CMAS"
+                    ],
+                    "VTEC": [
+                        "/O.CON.KMFL.CF.Y.0002.000000T0000Z-261025T0600Z/"
+                    ],
+                    "eventEndingTime": [
+                        "2026-10-25T02:00:00-04:00"
+                    ],
+                    "expiredReferences": [
+                        "w-nws.webmaster@noaa.gov,urn:oid:2.49.0.1.840.0.9ec9c08f8ca732aefe6a3814470969ef4b7c9657.002.1,2026-10-23T00:36:00-04:00 w-nws.webmaster@noaa.gov,urn:oid:2.49.0.1.840.0.9f5a6e7c84ac5ba1f2b78beccde5d2bb6d2c6a25.002.1,2026-10-22T15:54:00-04:00 w-nws.webmaster@noaa.gov,urn:oid:2.49.0.1.840.0.26989b8d8954f0e99fbaeeb5e772c519d8948184.002.1,2026-10-21T23:58:00-04:00 w-nws.webmaster@noaa.gov,urn:oid:2.49.0.1.840.0.1b0b599054b1ca8bc34f987b3388cb64a8a4485d.002.2,2026-10-21T14:41:00-04:00"
+                    ]
+                },
+                "scope": "Public",
+                "code": "IPAWSv1.0",
+                "language": "en-US",
+                "web": "http://www.weather.gov",
+                "eventCode": {
+                    "SAME": [
+                        "NWS"
+                    ],
+                    "NationalWeatherService": [
+                        "CFY"
+                    ]
+                }
+            }
+        },
+        {
+            "id": "https://api.weather.gov/alerts/urn:oid:2.49.0.1.840.0.5eb9d2f3eeede2e2238452b29f7fbaf2c07eb122.002.3",
+            "type": "Feature",
+            "geometry": null,
+            "properties": {
+                "@id": "https://api.weather.gov/alerts/urn:oid:2.49.0.1.840.0.5eb9d2f3eeede2e2238452b29f7fbaf2c07eb122.002.3",
+                "@type": "wx:Alert",
+                "id": "urn:oid:2.49.0.1.840.0.5eb9d2f3eeede2e2238452b29f7fbaf2c07eb122.002.3",
+                "areaDesc": "Coastal Broward County; Coastal Miami Dade County",
+                "geocode": {
+                    "SAME": [
+                        "012011",
+                        "012086"
+                    ],
+                    "UGC": [
+                        "FLZ172",
+                        "FLZ173"
+                    ]
+                },
+                "affectedZones": [
+                    "https://api.weather.gov/zones/forecast/FLZ172",
+                    "https://api.weather.gov/zones/forecast/FLZ173"
+                ],
+                "references": [
+                    {
+                        "@id": "https://api.weather.gov/alerts/urn:oid:2.49.0.1.840.0.873e6693b03c1c1944de78fe53dd2b7a064c4ed8.002.3",
+                        "identifier": "urn:oid:2.49.0.1.840.0.873e6693b03c1c1944de78fe53dd2b7a064c4ed8.002.3",
+                        "sender": "w-nws.webmaster@noaa.gov",
+                        "sent": "2026-10-23T14:25:00-04:00"
+                    }
+                ],
+                "sent": "2026-10-24T01:07:00-04:00",
+                "effective": "2026-10-24T01:07:00-04:00",
+                "onset": "2026-10-24T01:07:00-04:00",
+                "expires": "2026-10-24T16:00:00-04:00",
+                "ends": "2026-10-26T20:00:00-04:00",
+                "status": "Actual",
+                "messageType": "Update",
+                "category": "Met",
+                "severity": "Moderate",
+                "certainty": "Likely",
+                "urgency": "Expected",
+                "event": "Rip Current Statement",
+                "sender": "w-nws.webmaster@noaa.gov",
+                "senderName": "NWS Miami FL",
+                "headline": "Rip Current Statement issued October 24 at 1:07AM EDT until October 26 at 8:00PM EDT by NWS Miami FL",
+                "description": "* WHAT...For the Coastal Flood Advisory, moderate coastal\nflooding. For the High Rip Current Risk, dangerous rip\ncurrents. For the Coastal Flood Watch, significant coastal\nflooding possible.\n\n* WHERE...Coastal Broward County and Coastal Miami Dade County.\n\n* WHEN...For the Coastal Flood Advisory, until 2 AM EDT Sunday.\nFor the High Rip Current Risk, through Monday evening. For the\nCoastal Flood Watch, from late Saturday night through Monday\nevening.\n\n* IMPACTS...Numerous roads may be closed. Low lying property\nincluding homes, businesses, and some critical infrastructure\nmay be inundated. Some shoreline erosion may occur. Rip\ncurrents can sweep even the best swimmers away from shore into\ndeeper water.",
+                "instruction": "If travel is required, allow extra time as some roads may be\nclosed. Do not drive around barricades or through water of\nunknown depth. Take the necessary actions to protect flood-prone\nproperty.\n\nSwim near a lifeguard. If caught in a rip current, relax and\nfloat. Don't swim against the current. If able, swim in a\ndirection following the shoreline. If unable to escape, face the\nshore and call or wave for help.",
+                "response": "Avoid",
+                "note": null,
+                "parameters": {
+                    "AWIPSidentifier": [
+                        "CFWMFL"
+                    ],
+                    "WMOidentifier": [
+                        "WHUS42 KMFL 240507"
+                    ],
+                    "NWSheadline": [
+                        "COASTAL FLOOD ADVISORY REMAINS IN EFFECT UNTIL 2 AM EDT SUNDAY... ...HIGH RIP CURRENT RISK REMAINS IN EFFECT THROUGH MONDAY EVENING... ...COASTAL FLOOD WATCH REMAINS IN EFFECT FROM LATE TONIGHT THROUGH MONDAY EVENING"
+                    ],
+                    "BLOCKCHANNEL": [
+                        "EAS",
+                        "NWEM",
+                        "CMAS"
+                    ],
+                    "VTEC": [
+                        "/O.CON.KMFL.RP.S.0032.000000T0000Z-261027T0000Z/"
+                    ],
+                    "eventEndingTime": [
+                        "2026-10-26T20:00:00-04:00"
+                    ],
+                    "expiredReferences": [
+                        "w-nws.webmaster@noaa.gov,urn:oid:2.49.0.1.840.0.9ec9c08f8ca732aefe6a3814470969ef4b7c9657.002.2,2026-10-23T00:36:00-04:00 w-nws.webmaster@noaa.gov,urn:oid:2.49.0.1.840.0.9f5a6e7c84ac5ba1f2b78beccde5d2bb6d2c6a25.002.2,2026-10-22T15:54:00-04:00 w-nws.webmaster@noaa.gov,urn:oid:2.49.0.1.840.0.26989b8d8954f0e99fbaeeb5e772c519d8948184.002.2,2026-10-21T23:58:00-04:00 w-nws.webmaster@noaa.gov,urn:oid:2.49.0.1.840.0.1b0b599054b1ca8bc34f987b3388cb64a8a4485d.002.3,2026-10-21T14:41:00-04:00 w-nws.webmaster@noaa.gov,urn:oid:2.49.0.1.840.0.e6d43ebc73d2149c7b48a25c2c9a50128ce0f5e9.002.2,2026-10-20T21:52:00-04:00 w-nws.webmaster@noaa.gov,urn:oid:2.49.0.1.840.0.46f19cb44c176a6c8c88022bcbf4be0085f7d3bd.003.1,2026-10-20T15:56:00-04:00 w-nws.webmaster@noaa.gov,urn:oid:2.49.0.1.840.0.46f19cb44c176a6c8c88022bcbf4be0085f7d3bd.002.2,2026-10-20T15:56:00-04:00 w-nws.webmaster@noaa.gov,urn:oid:2.49.0.1.840.0.79bf28f1179992e781a0af2af0be524ff920fc1d.003.1,2026-10-20T02:19:00-04:00 w-nws.webmaster@noaa.gov,urn:oid:2.49.0.1.840.0.79bf28f1179992e781a0af2af0be524ff920fc1d.002.2,2026-10-20T02:19:00-04:00 w-nws.webmaster@noaa.gov,urn:oid:2.49.0.1.840.0.ed5148c074e8a21898a74e652d77c1f4292b31d2.003.1,2026-10-19T01:40:00-04:00 w-nws.webmaster@noaa.gov,urn:oid:2.49.0.1.840.0.ed5148c074e8a21898a74e652d77c1f4292b31d2.002.2,2026-10-19T01:40:00-04:00 w-nws.webmaster@noaa.gov,urn:oid:2.49.0.1.840.0.18531233706601bc6f8502012fe664e92cb97832.003.1,2026-10-18T01:36:00-04:00 w-nws.webmaster@noaa.gov,urn:oid:2.49.0.1.840.0.18531233706601bc6f8502012fe664e92cb97832.002.2,2026-10-18T01:36:00-04:00 w-nws.webmaster@noaa.gov,urn:oid:2.49.0.1.840.0.b63d50b627f64f46519e84641aee03ec8656738d.001.1,2026-10-17T03:40:00-04:00 w-nws.webmaster@noaa.gov,urn:oid:2.49.0.1.840.0.54428db780a69fd63ac082ab4ea7ea2e156b5118.003.1,2026-10-17T19:32:00-04:00 w-nws.webmaster@noaa.gov,urn:oid:2.49.0.1.840.0.54428db780a69fd63ac082ab4ea7ea2e156b5118.002.2,2026-10-17T19:32:00-04:00 w-nws.webmaster@noaa.gov,urn:oid:2.49.0.1.840.0.26f974678632581d40c83ec09cfea317573b98f6.003.1,2026-10-17T12:39:00-04:00 w-nws.webmaster@noaa.gov,urn:oid:2.49.0.1.840.0.26f974678632581d40c83ec09cfea317573b98f6.002.2,2026-10-17T12:39:00-04:00"
+                    ]
+                },
+                "scope": "Public",
+                "code": "IPAWSv1.0",
+                "language": "en-US",
+                "web": "http://www.weather.gov",
+                "eventCode": {
+                    "SAME": [
+                        "NWS"
+                    ],
+                    "NationalWeatherService": [
+                        "RPS"
+                    ]
+                }
+            }
+        }
+    ],
+    "title": "Current watches, warnings, and advisories for 25.7617 N, 80.1918 W",
+    "updated": "2026-10-24T12:05:07+00:00"
+}
