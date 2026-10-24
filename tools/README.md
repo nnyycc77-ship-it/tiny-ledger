@@ -45,6 +45,10 @@ environment and its header comment says so.
 | The page itself: every link on one page checked, dead ones listed with status codes (docs/mcpize-tools/broken_link_check.md) | `broken_link_check.py` | none needed |
 | SEC EDGAR insider activity, Forms 3, 4 and 5 as filed (docs/mcpize-tools/insider_check.md) | `insider_check.py` | none needed; an operator contact for the User-Agent is required (`--contact` or `EDGAR_CONTACT`) |
 | openFDA drug label check by brand or generic name (docs/mcpize-tools/fda_drug_check.md) | `fda_drug_check.py` | none needed |
+| USGS earthquake catalog check, keyless: how many events the FDSN event web service lists within a radius of one point in the past 10 years, and the 10 largest (docs/mcpize-tools/earthquake_check.md) | `earthquake_check.py` | none needed |
+| US National Weather Service active alerts at one point: each alert's event, severity and expiry as shown, from api.weather.gov (docs/mcpize-tools/weather_alert_check.md) | `weather_alert_check.py` | none needed; an identifying User-Agent is sent, as the API asks |
+| CMS NPI Registry (NPPES API, version 2.1) lookup by provider name or 10 digit NPI number: number, name, status, taxonomies and practice state (docs/mcpize-tools/npi_check.md) | `npi_check.py` | none needed |
+| Bitcoin address facts from the mempool.space public API, a third party explorer: transaction count, total received, total sent and balance in satoshis, facts only (docs/mcpize-tools/wallet_check.md) | `wallet_check.py` | none needed |
 
 Not a fetcher: `pregate.py` is the offline review pre gate (secrets scan,
 honesty lint, fixture provenance check) from `REVIEW.md`. See
