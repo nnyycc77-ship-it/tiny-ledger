@@ -82,9 +82,11 @@ The name needs at least 3 letters or digits.
 the owner's ruling on issue #147 (comment 6377953191), which sets every
 shelf tool at 0.25 USDC.
 
-**Not on the shelf yet.** Under the wave registration ruling on #158, the
-MCP registration lands in the wave's shared surface PR. The tool goes
-live only with the owner's redeploy step.
+**Registered on the MCP server, not live yet.** The server on main lists
+it as `ofac_sanctions_check` (`tool_definitions()` in
+`mcp_server/recall_mcp.py`). It was added by PR #208 (issue #204), the
+shared surface step the #158 ruling called for. The tool goes live only
+with the owner's redeploy step.
 
 ## Verification
 

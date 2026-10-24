@@ -3,10 +3,10 @@
 A tool factory wave 1 tool (issue #168, parent #158). The fetcher is
 [`tools/exchange_rate_check.py`](../../tools/exchange_rate_check.py), and it is served as
 `GET /fx` by the pay per call API ([`api/endpoints.py`](../../api/endpoints.py)).
-It is not on the MCP server yet. Every wave 1 tool that passes review is
-registered on the server in one shared surface PR at the end of the wave
-(coordinator ruling on issue #158), and going live is one owner redeploy
-step after that.
+It is registered on the MCP server: the server on main lists it
+(`tool_definitions()` in `mcp_server/recall_mcp.py`). It was added by
+PR #208 (issue #204), the shared surface step the #158 ruling called for.
+Going live still waits on the owner redeploy step.
 
 - **What it answers:** The exchange rate the public Frankfurter API gives for one currency pair, latest or for a date, with the rate's own date, and with the API's own converted figure when an amount is given.
 - **Source:** Frankfurter API v1, `https://api.frankfurter.dev/v1/latest?base=<FROM>&symbols=<TO>` (plus `&amount=<N>` when given), or `/v1/<YYYY-MM-DD>?...` for a date. Keyless. The Frankfurter homepage says: "You don't need an API key." The v1 page describes v1 as serving European Central Bank data, with "the latest working day's rates, updated daily around 16:00 CET" (both quoted by the coordinator on #168).

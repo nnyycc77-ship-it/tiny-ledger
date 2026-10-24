@@ -5,10 +5,10 @@ A tool factory wave 2 tool (issue #182).
   [`tools/insider_check.py`](../../tools/insider_check.py). The pay per call
   API serves it as `GET /insider?cik=...` or `GET /insider?issuer=...`
   ([`api/endpoints.py`](../../api/endpoints.py)).
-- **Not on the MCP server yet.** Under the wave registration ruling on
-  #158, confirmed for this tool on #182, every wave tool that passes review
-  is registered on the server in one shared surface PR at the end of the
-  wave. Going live is one owner redeploy step after that.
+- **Registered on the MCP server.** The server on main lists it
+  (`tool_definitions()` in `mcp_server/recall_mcp.py`). It was added by
+  PR #208 (issue #204), the shared surface step the #158 ruling called for.
+  Going live still waits on the owner redeploy step.
 
 ## The tool at a glance
 

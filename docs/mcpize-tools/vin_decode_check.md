@@ -3,10 +3,10 @@
 A tool factory wave 1 tool (issue #161, parent #158). The fetcher is
 [`tools/vin_decode.py`](../../tools/vin_decode.py), and it is served as
 `GET /vin` by the pay per call API ([`api/endpoints.py`](../../api/endpoints.py)).
-It is not on the MCP server yet. Every wave 1 tool that passes review is
-registered on the server in one shared surface PR at the end of the wave
-(coordinator ruling on issue #158), and going live is one owner redeploy
-step after that.
+It is registered on the MCP server: the server on main lists it
+(`tool_definitions()` in `mcp_server/recall_mcp.py`). It was added by
+PR #208 (issue #204), the shared surface step the #158 ruling called for.
+Going live still waits on the owner redeploy step.
 
 - **What it answers:** What the public NHTSA vPIC API decodes from one VIN: model year, make, model, trim, manufacturer, plant and every other field vPIC returns with a value, plus vPIC's own error code and text for the VIN (check digit wrong, incomplete VIN, and so on).
 - **Source:** NHTSA vPIC API, `DecodeVinValues` (flat format), `https://vpic.nhtsa.dot.gov/api/vehicles/DecodeVinValues/<VIN>?format=json`, with `&modelyear=<year>` when a model year is given. Keyless.
