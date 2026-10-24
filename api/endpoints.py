@@ -37,6 +37,7 @@ nothing else to the fetchers' output.
     /weather     tools/weather_alert_check.py  lat, lon
     /npi         tools/npi_check.py            query (NPI number or provider name)
     /disaster    tools/disaster_history_check.py  state (county, limit optional)
+    /wallet      tools/wallet_check.py         address
 
 Each endpoint takes the fetcher's own command line inputs as query
 parameters under the same names (hyphens become underscores), validates
@@ -98,6 +99,7 @@ from tools import safety_file as sf  # noqa: E402
 from tools import usaspending_awards as ua  # noqa: E402
 from tools import vin_decode as vd  # noqa: E402
 from tools import weather_alert_check as wa  # noqa: E402
+from tools import wallet_check as wc  # noqa: E402
 from tools import npi_check as npi  # noqa: E402
 
 SERVICE_NAME = "Hojo Research Agent"
@@ -736,6 +738,26 @@ def npi_lookup(query, env=None):
 
 
 # ----------------------------------------------------------------------
+# /wallet
+# ----------------------------------------------------------------------
+
+def wallet(query, env=None):
+    """Bitcoin address facts via tools/wallet_check.py."""
+    raw = _single(query, "address")
+    try:
+        if raw is None:
+            raise ValueError("give a Bitcoin address")
+        address = wc.check_address(raw)
+    except ValueError as err:
+        raise BadRequest(str(err))
+    try:
+        lines = wc.report(address, fetcher=wc.fetch)
+    except wc.FetchError as err:
+        raise FetchFailed(str(err))
+    return _fetcher_text(lines)
+
+
+# ----------------------------------------------------------------------
 # /safety
 # ----------------------------------------------------------------------
 
@@ -991,6 +1013,7 @@ ROUTES = {
     "/weather": weather,
     "/npi": npi_lookup,
     "/disaster": disaster_history,
+    "/wallet": wallet,
 }
 
 DESCRIPTIONS = {
@@ -1034,6 +1057,12 @@ DESCRIPTIONS = {
         "params": ["query (an NPI number, 10 digits, or a provider name)"],
         "sources": [npi.API_URL],
         "note": "Keyless. A name is read as an individual and as an organization; result_count is paged, never read as a total.",
+    },
+    "/wallet": {
+        "tool": "tools/wallet_check.py",
+        "params": ["address (a Bitcoin address)"],
+        "sources": [wc.API_URL],
+        "note": "Keyless. Public address facts in satoshis; confirmed and unconfirmed figures are reported separately and never added together.",
     },
     "/github": {
         "tool": "tools/github_repo_check.py",

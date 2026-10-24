@@ -1,0 +1,23 @@
+{
+  "wallet-genesis.http": {
+    "contents": "Complete raw response (status line, headers, body) to the tool's own query for the genesis block address, captured live by H5 for issue #337 with the tool's User-Agent. chain_stats: 67,114 transactions, funded_txo_sum 5768738760 satoshis, spent 0; mempool_stats separate (1 unconfirmed transaction, 3672 satoshis).",
+    "kind": "LIVE CAPTURE",
+    "retrieved": "2026-10-24T12:43:29Z",
+    "sha256": "58714f2bd4655bd23b15b212b90b59eff94788a16c3a0b94343461de8f665208",
+    "url": "https://mempool.space/api/address/1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa"
+  },
+  "wallet-invalid.http": {
+    "contents": "Complete raw response to a query for the genesis address with its last character changed (a bad checksum), captured live by H5 for issue #337. The source answers HTTP 400 with the plain text body 'Invalid Bitcoin address': the refusal shape the tool reports as a failed fetch, never as figures.",
+    "kind": "LIVE CAPTURE",
+    "retrieved": "2026-10-24T12:43:30Z",
+    "sha256": "b91156226833977c58fd38227707b99fd8bdaa501c9191b94e62dec79e1062d3",
+    "url": "https://mempool.space/api/address/1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNb"
+  },
+  "wallet-unused-empty.http": {
+    "contents": "Complete raw response to the tool's own query for a never used address, captured live by H5 for issue #337. The address was constructed locally by H5 (base58check over a hash160 derived from a fixture seed string; no one holds a key for it in this project) and the capture verifies the empty shape against the live source: every figure in chain_stats and mempool_stats is 0.",
+    "kind": "LIVE CAPTURE",
+    "retrieved": "2026-10-24T12:43:29Z",
+    "sha256": "2b52871b3ace27b3b903e5f5f24bd211f4f6f28e8d34faa9db20bf8c96552618",
+    "url": "https://mempool.space/api/address/1FFPELMBGpG36ANkH62XZxs4tKwEpc4jqu"
+  }
+}
