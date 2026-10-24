@@ -1,0 +1,37 @@
+{
+  "npi-errors-bad-version.http": {
+    "contents": "Complete raw response to a query with an unsupported version parameter, captured live by H5 for issue #326. The registry answers an Errors document (Unsupported Version) at HTTP 200: the shape the tool must refuse, never read as an empty result. The tool itself always sends version 2.1; this capture pins the error shape.",
+    "kind": "LIVE CAPTURE",
+    "retrieved": "2026-10-24T12:26:33Z",
+    "sha256": "c8a5e3b684099e75532d8af2f3f8b63c7539c84caeaeaef87c71bcaf26bd4c5e",
+    "url": "https://npiregistry.cms.hhs.gov/api/?version=9.9&number=1740584747&limit=200&skip=0"
+  },
+  "npi-name-individual-hit.http": {
+    "contents": "Complete raw response to the tool's own individual name query (first_name Brian, last_name Aalbers), captured live by H5 for issue #326. One result, the same provider as the number capture.",
+    "kind": "LIVE CAPTURE",
+    "retrieved": "2026-10-24T12:26:31Z",
+    "sha256": "fe3e786a4c72679671eac5ab5b6458596c7ea7957d8cc7c4024ae440f03658be",
+    "url": "https://npiregistry.cms.hhs.gov/api/?version=2.1&first_name=Brian&last_name=Aalbers&limit=200&skip=0"
+  },
+  "npi-name-org-empty.http": {
+    "contents": "Complete raw response to the tool's own organization name query for the same name, captured live by H5 for issue #326. result_count 0 with an empty results array: the proven no match shape for the organization interpretation.",
+    "kind": "LIVE CAPTURE",
+    "retrieved": "2026-10-24T12:26:32Z",
+    "sha256": "dd7598daa8e23dc3806e972be71e20170baab3b1b068a742d22e278751f8b8a9",
+    "url": "https://npiregistry.cms.hhs.gov/api/?version=2.1&organization_name=Brian%20Aalbers&limit=200&skip=0"
+  },
+  "npi-number-empty.http": {
+    "contents": "Complete raw response to the tool's own number query for the well formed but unassigned NPI 9999999999, captured live by H5 for issue #326. result_count 0 with an empty results array: the proven no match shape.",
+    "kind": "LIVE CAPTURE",
+    "retrieved": "2026-10-24T12:26:32Z",
+    "sha256": "5cebbff51f1d918ab50b496071a58a30cd2fe2daa3563dd04fa721bea2e4c629",
+    "url": "https://npiregistry.cms.hhs.gov/api/?version=2.1&number=9999999999&limit=200&skip=0"
+  },
+  "npi-number-hit.http": {
+    "contents": "Complete raw response (status line, headers, body) to the tool's own number query for NPI 1740584747, captured live by H5 for issue #326 with the tool's User-Agent. One result: an individual provider (NPI-1), status A, three taxonomies with the third flagged primary, LOCATION and MAILING addresses in MO.",
+    "kind": "LIVE CAPTURE",
+    "retrieved": "2026-10-24T12:26:30Z",
+    "sha256": "3fee342ec99082f95a794510f6f64acce574b68d5520b164495ca29cd1a12849",
+    "url": "https://npiregistry.cms.hhs.gov/api/?version=2.1&number=1740584747&limit=200&skip=0"
+  }
+}
