@@ -27,6 +27,7 @@ sys.path.insert(0, str(ROOT / "tools" / "tests"))
 
 from api import endpoints, recall_api  # noqa: E402
 from tools import courtlistener_recap as cl  # noqa: E402
+from tools import domain_trust_check as dt  # noqa: E402
 from tools import edgar_formd as ef  # noqa: E402
 from tools import fmcsa_carrier as fc  # noqa: E402
 from tools import pagespeed_snapshot as ps  # noqa: E402
@@ -52,7 +53,7 @@ class RoutingTests(unittest.TestCase):
     def test_descriptor_lists_every_endpoint_with_tool_params_and_sources(self):
         doc = recall_api.descriptor(WALLET)
         self.assertEqual(sorted(doc["endpoints"]),
-                         ["/awards", "/carrier", "/formd", "/litigation", "/nonprofit", "/ofac", "/pagespeed", "/recall"])
+                         ["/awards", "/carrier", "/domain", "/formd", "/litigation", "/nonprofit", "/ofac", "/pagespeed", "/recall"])
         for path, entry in doc["endpoints"].items():
             self.assertEqual(entry["method"], "GET", path)
             self.assertTrue(entry["tool"].startswith("tools/"), path)
@@ -77,9 +78,12 @@ class RoutingTests(unittest.TestCase):
             "/nonprofit": ["", "exclude=1=x", "ein=12"],
             "/pagespeed": ["", "url=notaurl", "url=https://a.example/&strategy=tablet",
                            "url=https://a.example/&exclude=https://b.example/=reason"],
+            "/domain": ["", "domain=https://example.com/", "domain=example", "domain=a.example&domain=b.example"],
         }
         patches = [patch.object(mod, "fetch", side_effect=AssertionError("no fetch expected"))
                    for mod in (fc, cl, ua, pp, ps, ef)]
+        patches += [patch.object(dt, name, side_effect=AssertionError("no fetch expected"))
+                    for name in ("fetch_doh", "fetch_site")]
         for p in patches:
             p.start()
             self.addCleanup(p.stop)
