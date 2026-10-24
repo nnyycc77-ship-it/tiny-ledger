@@ -1,0 +1,38 @@
+{
+  "index-040540.json": {
+    "kind": "REAL CAPTURE",
+    "url": "https://www.sec.gov/Archives/edgar/data/320193/000114036126040540/index.json",
+    "status": "HTTP 200",
+    "retrieved": "2026-10-24 about 07:07 UTC",
+    "contents": "REAL CAPTURE, Capture 1, the filing folder index: it lists form4.xml in the folder: the complete body, verbatim from the coordinator's capture on issue #182 (comment 6381275960), fetched with a plain declared EDGAR contact that is not recorded; its SHA-256 matches the one posted there. The response headers were not posted, so tests give it its posted status line and this body only.",
+    "sha256": "6a574b86fcd58f0840a7dd08ef29123d23e5afe6e70f0dbe9f01e9663b7d9264",
+    "bytes": 555
+  },
+  "form4-040540.xml": {
+    "kind": "REAL CAPTURE",
+    "url": "https://www.sec.gov/Archives/edgar/data/320193/000114036126040540/form4.xml",
+    "status": "HTTP 200",
+    "retrieved": "2026-10-24 about 07:07 UTC",
+    "contents": "REAL CAPTURE, Capture 2, the raw ownership XML: Form 4, Newstead Jennifer, one non-derivative sale: the complete body, verbatim from the coordinator's capture on issue #182 (comment 6381275960), fetched with a plain declared EDGAR contact that is not recorded; its SHA-256 matches the one posted there. The response headers were not posted, so tests give it its posted status line and this body only.",
+    "sha256": "dc6c562d2414f8e5218fd73fb87ae1390f3037ecc45699ef44fe09ba3cc7c8fc",
+    "bytes": 3294
+  },
+  "form4-040127.xml": {
+    "kind": "REAL CAPTURE",
+    "url": "https://www.sec.gov/Archives/edgar/data/320193/000114036126040127/form4.xml",
+    "status": "HTTP 200",
+    "retrieved": "2026-10-24 about 07:07 UTC",
+    "contents": "REAL CAPTURE, Capture 3, the raw ownership XML: Form 4, Borders Ben, 7 non-derivative and 8 derivative transactions, footnote-referenced prices: the complete body, verbatim from the coordinator's capture on issue #182 (comment 6381276226), fetched with a plain declared EDGAR contact that is not recorded; its SHA-256 matches the one posted there. The response headers were not posted, so tests give it its posted status line and this body only.",
+    "sha256": "63d65b6e17d6566bbdccfdb96db267169bc6984a0e552bb363c87739b9cc8dac",
+    "bytes": 23004
+  },
+  "missing-404.xml": {
+    "kind": "REAL CAPTURE",
+    "url": "https://www.sec.gov/Archives/edgar/data/320193/000114036126999999/form4.xml",
+    "status": "HTTP 404",
+    "retrieved": "2026-10-24 about 07:07 UTC",
+    "contents": "REAL CAPTURE, Capture 4, the failure answer for a wrong accession folder: the complete body, verbatim from the coordinator's capture on issue #182 (comment 6381276451), fetched with a plain declared EDGAR contact that is not recorded; its SHA-256 matches the one posted there. The response headers were not posted, so tests give it its posted status line and this body only.",
+    "sha256": "e7c8e0946214e047a0cdc9efdd82ac60edee9bacf0075efb9fee174aef508b6c",
+    "bytes": 337
+  }
+}

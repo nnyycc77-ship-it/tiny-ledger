@@ -61,7 +61,8 @@ class RoutingTests(unittest.TestCase):
         doc = recall_api.descriptor(WALLET)
         self.assertEqual(sorted(doc["endpoints"]),
                          ["/app", "/awards", "/carrier", "/domain", "/epa", "/fda", "/flood", "/formd", "/fx", "/github",
-                          "/links", "/litigation", "/meta", "/nonprofit", "/ofac", "/oig", "/pagespeed", "/recall", "/safety", "/trials", "/vin"])
+                          "/insider", "/links", "/litigation", "/meta", "/nonprofit", "/ofac", "/oig", "/pagespeed", "/recall",
+                          "/safety", "/trials", "/vin"])
         for path, entry in doc["endpoints"].items():
             self.assertEqual(entry["method"], "GET", path)
             self.assertTrue(entry["tool"].startswith("tools/"), path)
