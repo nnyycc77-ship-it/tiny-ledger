@@ -25,6 +25,7 @@ environment and its header comment says so.
 | Frankfurter exchange rates (API v1) | `exchange_rate_check.py` | none needed |
 | NHTSA safety file: ratings, recalls, complaints | `safety_file.py` | none needed |
 | EPA ECHO facility compliance screen | `epa_screen.py` | none needed |
+| FAA aircraft registry (releasable aircraft download) | `faa_lookup.py` | none needed; the archive is cached once per day outside the repo |
 | Brand name checks: RDAP domains, X / Instagram / TikTok handles, iTunes Search (trademarks not covered) | `brand_name_checker.py` | none needed |
 | Weekly brief: watchlist Form D filings and NAICS filtered contract awards for a seven day window (docs/weekly-brief.md) | `weekly_brief.py` | EDGAR contact |
 | OFAC SDN list name check, primary names and aliases (docs/ofac-sdn-check.md) | `ofac_sdn_check.py` | none needed |
@@ -612,6 +613,42 @@ that carries the dead link is synthetic and is labelled as such where
 it appears. Their URLs, sizes and SHA-256 hashes are in
 `tests/fixtures/broken-links/provenance.json`, and the hashes are
 checked.
+
+## faa_lookup.py
+
+```sh
+python3 tools/faa_lookup.py N100ZT
+python3 tools/faa_lookup.py N100ZT --refresh
+```
+
+Tool factory wave 2, issue #181. It looks up one N number in the FAA
+releasable aircraft database: the keyless `ReleasableAircraft.zip`
+download, about 73 MB, which the FAA refreshes daily. The archive is
+downloaded at most once per UTC day into `$TINY_LEDGER_CACHE/faa` (or
+`~/.cache/tiny-ledger/faa`), never into the repo, with its URL, retrieval
+time, headers, size and SHA-256 kept beside it. The report names make and
+model (ACFTREF `MFR`, `MODEL`), year (`YEAR MFR`) and registrant name
+(`NAME`) as the record states them. It states the archive `Last-Modified`
+and SHA-256, and prints the matched MASTER and ACFTREF rows exactly as
+stored. A no match is proven by MASTER.txt's bytes, line count and
+SHA-256. A failed or redirected download, a non-200 answer, or an archive
+not in the captured shape is a source failure: nothing is printed on
+stdout and the exit status is 2. Docs page:
+[`docs/mcpize-tools/faa_lookup.md`](../docs/mcpize-tools/faa_lookup.md).
+
+### Verification
+
+```sh
+python3 -m unittest discover -s tools/tests -p 'test_faa_lookup.py' -v
+```
+
+The tests need no network. They use the verbatim header lines and rows
+the coordinator captured under Option B on issue #181, because this
+container cannot reach registry.faa.gov. They assemble a small archive
+from those lines (a test arrangement, labelled in the test file), and
+they run the downloader against a local server on 127.0.0.1. The
+fixtures' SHA-256 hashes are in `tests/fixtures/faa-registry/provenance.json`,
+and the hashes are checked.
 
 ## edgar_formd.py
 

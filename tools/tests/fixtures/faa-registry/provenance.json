@@ -1,0 +1,60 @@
+{
+  "archive-200-headers.http": {
+    "what": "Capture B: the archive response's status line and headers, as posted (the 73,006,950 byte body is not stored)",
+    "comment": "https://github.com/nnyycc77-ship-it/tiny-ledger/issues/181#issuecomment-6381130407",
+    "retrieved_utc": "2026-10-24, about 06:51 to 06:52 UTC",
+    "sha256": "051fc7daef803c2b09da8611f2c58789cbb5b8ac9aea0a65b3d254b53e611089",
+    "url": "https://registry.faa.gov/database/ReleasableAircraft.zip",
+    "archive_bytes": 73006950,
+    "archive_sha256": "40b3a90b708906d52a629ec7d0b7b323390a0e6af839fc30ebc1f22d5aefcb9d"
+  },
+  "archive-members.txt": {
+    "what": "Capture B: the archive's member names and uncompressed sizes, as posted",
+    "comment": "https://github.com/nnyycc77-ship-it/tiny-ledger/issues/181#issuecomment-6381130407",
+    "retrieved_utc": "2026-10-24, about 06:51 to 06:52 UTC",
+    "sha256": "e435c9510d587dbd4bfe27f619b28626cf6f62c1e9b04a94d320d826be7d780e"
+  },
+  "master-header.csv": {
+    "what": "Capture B: MASTER.txt header line, as posted; the coordinator states a BOM precedes the first name in the raw file, not included here",
+    "comment": "https://github.com/nnyycc77-ship-it/tiny-ledger/issues/181#issuecomment-6381130407",
+    "retrieved_utc": "2026-10-24, about 06:51 to 06:52 UTC",
+    "sha256": "fd6f4383fb1cc554faff82453d0c41ab30ca9e079eb9704524341b995ed030a1",
+    "master_txt": {
+      "bytes": 195251786,
+      "lines": 318000,
+      "sha256": "75f530621374af0b635b7e7ccd06190a9d9b06f750c66ebf6db1ab4748126c6c"
+    }
+  },
+  "acftref-header.csv": {
+    "what": "Capture B: ACFTREF.txt header line, as posted; same BOM note",
+    "comment": "https://github.com/nnyycc77-ship-it/tiny-ledger/issues/181#issuecomment-6381130407",
+    "retrieved_utc": "2026-10-24, about 06:51 to 06:52 UTC",
+    "sha256": "8868ea605a36382a6978c454d994ffe2c6591e9640ffe346814c2db138a6adea",
+    "acftref_txt": {
+      "bytes": 14874716,
+      "lines": 94144,
+      "sha256": "44d105467422de1f21fcc2b2ce9bbac8255bab3b1024db811ae7d4e8d8763ca9"
+    }
+  },
+  "master-row-100ZT.csv": {
+    "what": "Capture C: the complete raw MASTER.txt row for N-NUMBER 100ZT, padding included",
+    "comment": "https://github.com/nnyycc77-ship-it/tiny-ledger/issues/181#issuecomment-6381130638",
+    "retrieved_utc": "2026-10-24, about 06:51 to 06:52 UTC",
+    "sha256": "db99a69a79a1a40be44b4887f62fd0dd4d1a735b28497554fbcf1e979c431dde"
+  },
+  "acftref-row-2076628.csv": {
+    "what": "Capture C: the complete raw ACFTREF.txt row for code 2076628, padding included",
+    "comment": "https://github.com/nnyycc77-ship-it/tiny-ledger/issues/181#issuecomment-6381130638",
+    "retrieved_utc": "2026-10-24, about 06:51 to 06:52 UTC",
+    "sha256": "7caa41f5d3bfb55c1d7109e51d08d3b4aaa83d10945e9ab2f92122267fac96ea"
+  },
+  "bad-url-302.http": {
+    "what": "Capture D failure 1: ReleasableAircraftX.zip answered 302, status line, headers, blank line, body",
+    "comment": "https://github.com/nnyycc77-ship-it/tiny-ledger/issues/181#issuecomment-6381130873",
+    "retrieved_utc": "2026-10-24, about 06:51 to 06:52 UTC",
+    "sha256": "31e918dba42a341ba200641e968dfd2aba1c67660369d7b57d72b54e2d6b17f9",
+    "url": "https://registry.faa.gov/database/ReleasableAircraftX.zip",
+    "body_bytes": 207,
+    "body_sha256": "61f77e397737f9f549b02fc1e902ceb0d67dac1b10a4297a1eb09f391fbcb9b1"
+  }
+}

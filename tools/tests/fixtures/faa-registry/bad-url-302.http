@@ -1,0 +1,9 @@
+HTTP/1.1 302 Moved Temporarily
+Content-Type: text/html; charset=UTF-8
+Location: https://www.faa.gov/about/office_org/headquarters_offices/avs/offices/afx/afb/afb700
+Server: Microsoft-IIS/10.0
+Date: Sat, 24 Oct 2026 06:52:11 GMT
+Content-Length: 207
+
+<head><title>Document Moved</title></head>
+<body><h1>Object Moved</h1>This document may be found <a HREF="https://www.faa.gov/about/office_org/headquarters_offices/avs/offices/afx/afb/afb700">here</a></body>
