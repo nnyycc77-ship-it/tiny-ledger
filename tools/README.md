@@ -1212,12 +1212,12 @@ capturable set off the document itself: every other GET endpoint is
 reasoned as declaring no 503.
 
 Coverage census (issue #258, pin refreshed for issues #270, #279,
-#288, #295 and #303), taken on main
-65dde3693bf3aeb601e783c78dcfc36472b895d8, the merged main that
+#288, #295, #303 and #310), taken on main
+44507b55d1b65d260471c6180689194f5cf40d46, the merged main that
 includes PR #249 (the /formd 503 pass), PR #253 (the seven routes
 added to `api/openapi.json` for issue #243, whose captures extended
 the 400, 502 and 503 tables in the same run) and PR #261 (which
-landed this census; the pin was last refreshed by PR #298). Every
+landed this census; the pin was last refreshed by PR #306). Every
 figure below reproduces from that tree: the GET denominator is
 the 26 paths in
 `api/openapi.json` (`/`, `/app`, `/awards`, `/carrier`, `/csl`,
