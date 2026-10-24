@@ -1,7 +1,7 @@
-# Offline suite census, 2026-10-24 (eleventh pass)
+# Offline suite census, 2026-10-24 (twelfth pass)
 
 The census for issue
-[#350](https://github.com/nnyycc77-ship-it/tiny-ledger/issues/350). It
+[#375](https://github.com/nnyycc77-ship-it/tiny-ledger/issues/375). It
 refreshes the censuses filed under issues
 [#112](https://github.com/nnyycc77-ship-it/tiny-ledger/issues/112),
 [#200](https://github.com/nnyycc77-ship-it/tiny-ledger/issues/200),
@@ -11,33 +11,39 @@ refreshes the censuses filed under issues
 [#269](https://github.com/nnyycc77-ship-it/tiny-ledger/issues/269),
 [#277](https://github.com/nnyycc77-ship-it/tiny-ledger/issues/277),
 [#286](https://github.com/nnyycc77-ship-it/tiny-ledger/issues/286),
-[#301](https://github.com/nnyycc77-ship-it/tiny-ledger/issues/301) and
-[#344](https://github.com/nnyycc77-ship-it/tiny-ledger/issues/344).
+[#301](https://github.com/nnyycc77-ship-it/tiny-ledger/issues/301),
+[#344](https://github.com/nnyycc77-ship-it/tiny-ledger/issues/344) and
+[#350](https://github.com/nnyycc77-ship-it/tiny-ledger/issues/350).
 Every offline suite in the repo was run in one pass against merged
 main.
 
-The #344 census was pinned to aa39a75. Nine PRs merged after it (#347,
-#339, #348, #345, #349, #346, #352, #353 and #341). This census is pinned
-to 0a80737, the commit the coordinator's pin update on issue #350
-(comment 6385343449) names; it replaced the issue body's first pin,
-62f8eee. This file replaces the #344 census in place, as
-each census replaced the one before. The numbers below are the counts
-the runs returned.
+The #350 census was pinned to 0a80737. Three PRs merged after it
+(#367, the #350 census itself; #373, the api_smoke census pin test;
+and #372, the Carrier Watch offer page and the OFAC and OIG standing
+watch types). This census is pinned to 96ab9af, the combined main
+the coordinator's start message on issue #375 names. This file
+replaces the #350 census in place, as each census replaced the one
+before. The numbers below are the counts the runs returned.
 
-- **Main commit:** `0a8073736359aded333af0d29215f80588f9805b`
-  (0a80737, "Merge pull request #341 from
-  nnyycc77-ship-it/h8-email-check").
-- **Taken:** 2026-10-24, by H4, on a clean detached checkout of that
-  commit. Runs started at 14:33:25 UTC; the last started at 14:37:32
+- **Main commit:** `96ab9af06813088a88a585948baec7ef604a6b3f`
+  (96ab9af, "Merge pull request #372 from
+  nnyycc77-ship-it/h5-carrier-watch-offer-sanctions-332").
+- **Taken:** 2026-10-24, by H6, on a clean detached checkout of that
+  commit. Runs started at 14:53:17 UTC; the last started at 14:55:15
   UTC.
-- **Interpreters:** python3.11, python3.12 (3.12.3) and python3.13 are
-  all installed in this environment (`python3` here is python3.13).
-  - Every Python suite ran under all three, with identical counts (see
-    the interpreter cross check below).
-  - The headline counts are the python3.12 run, the interpreter the
-    `test` workflow pins. Suite 11's workflow pins python3.11, and its
-    python3.11 count is the same.
-  - Node here is v22.22.0, the major version the `test` workflow pins.
+- **Interpreters:** python3.12 (3.12.3) is the only Python installed
+  in this environment, and `python3` here is python3.12.
+  - Every Python suite ran under python3.12, the interpreter the
+    `test` workflow pins, so the headline counts are the CI
+    interpreter's counts. Suite 11's workflow pins python3.11; its
+    count here is the python3.12 run.
+  - The interpreter cross check the #350 census made (python3.11,
+    python3.12 and python3.13, identical counts) could not be
+    repeated in this environment, because python3.11 and python3.13
+    are not installed in it.
+  - Node here is v24.22.1; the `test` workflow pins Node major 22.
+    The proof page tests pass on both, but the versions are not the
+    same and this census does not claim they are.
 - **Network:** none used. Every suite ran in its default offline mode.
   Live checks are opt in by environment variable, and none was set (see
   Skips).
@@ -59,19 +65,19 @@ filed.
 
 | | Python and Node tests run | Passed | Failed | Skipped |
 | --- | --- | --- | --- | --- |
-| **Repo total, unique tests** | 1443 | 1436 | 0 | 7 |
+| **Repo total, unique tests** | 1458 | 1451 | 0 | 7 |
 
 The total counts each test once, on python3.12, the CI version.
 
 | Suite (unique tests) | Tests |
 | --- | --- |
-| `tools/tests` (own tests) | 1057 |
+| `tools/tests` (own tests) | 1072 |
 | Seven agent suites | 228 |
 | `near-agent/tests` | 49 |
 | `api` | 100 |
 | Node proof page tests | 9 |
 
-1057 + 228 + 49 + 100 + 9 = 1443.
+1072 + 228 + 49 + 100 + 9 = 1458.
 
 Not in the total:
 
@@ -83,12 +89,11 @@ Not in the total:
 ## Per suite
 
 Counts are from the python3.12 run. The commands are written with
-`python3`, as the workflows write them; each was run as
-`python3.11 ...`, `python3.12 ...` and `python3.13 ...`.
+`python3`, as the workflows write them.
 
 | # | Suite | Command | Tests | Passed | Failed | Skipped | Exit |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| 1 | Delivery tooling, as CI runs it | `python3 -m unittest discover -s tools/tests -v` | 1334 | 1327 | 0 | 7 | 0 |
+| 1 | Delivery tooling, as CI runs it | `python3 -m unittest discover -s tools/tests -v` | 1349 | 1342 | 0 | 7 | 0 |
 | 2 | Recall API | `python3 -m unittest discover -s api -v` | 100 | 100 | 0 | 0 | 0 |
 | 3 | NEAR worker | `python3 -m unittest discover -s near-agent/tests -v` | 49 | 49 | 0 | 0 | 0 |
 | 4 | Agent: call-for-me | `python3 -m unittest discover -s agents/call-for-me/tests -t agents/call-for-me/tests -v` | 50 | 49 | 0 | 1 | 0 |
@@ -111,38 +116,25 @@ and `fail 0`.
 
 ### Interpreter cross check
 
-Suites 1 to 11 and suite 14 were each run under python3.11, python3.12
-and python3.13. Every log agreed on the tests run, the skips and the
-exit code:
-
-| # | python3.11 | python3.12 | python3.13 |
-| --- | --- | --- | --- |
-| 1 | 1334, OK (skipped=7) | 1334, OK (skipped=7) | 1334, OK (skipped=7) |
-| 2 | 100, OK | 100, OK | 100, OK |
-| 3 | 49, OK | 49, OK | 49, OK |
-| 4 | 50, OK (skipped=1) | 50, OK (skipped=1) | 50, OK (skipped=1) |
-| 5 | 29, OK | 29, OK | 29, OK |
-| 6 | 38, OK | 38, OK | 38, OK |
-| 7 | 27, OK | 27, OK | 27, OK |
-| 8 | 32, OK | 32, OK | 32, OK |
-| 9 | 28, OK | 28, OK | 28, OK |
-| 10 | 24, OK | 24, OK | 24, OK |
-| 11 | 18, OK (skipped=1) | 18, OK (skipped=1) | 18, OK (skipped=1) |
-| 14 | PASS, exit 0 | PASS, exit 0 | PASS, exit 0 |
+Not repeated in this environment: python3.11 and python3.13 are not
+installed here, so suites ran under python3.12 only. The #350 census,
+run where all three interpreters exist, found identical counts under
+each; nothing in this pass either confirms or contradicts that, and
+this census claims only the python3.12 counts it measured.
 
 ### How the suites overlap
 
-- **Suite 1 is the CI suite.** Its 1334 tests are 1057 of its own, plus
+- **Suite 1 is the CI suite.** Its 1349 tests are 1072 of its own, plus
   all 277 tests of suites 3 to 10. The `load_tests` shims in
   `tools/tests/test_<name>.py` pull those in: 50 + 29 + 38 + 27 + 32 +
   28 + 24 = 228 agent tests, plus 49 NEAR worker tests.
-- **Splitting 1334 into 1057 and 277.** The test ids in each standalone
+- **Splitting 1349 into 1072 and 277.** The test ids in each standalone
   log for suites 3 to 10 were matched against the suite 1 verbose log.
   Every standalone suite's full id set appears inside suite 1 with the
-  same count, so suite 1 holds 277 shim tests and 1334 − 277 = 1057 of
+  same count, so suite 1 holds 277 shim tests and 1349 − 277 = 1072 of
   its own.
-- **Result words.** 1293 of suite 1's 1334 test lines carry their
-  result word on the same line: 1286 `ok` and 7 `skipped`. The other
+- **Result words.** 1308 of suite 1's 1349 test lines carry their
+  result word on the same line: 1301 `ok` and 7 `skipped`. The other
   41 do not, and none of them failed, because the run ended
   `OK (skipped=7)`. They break down as follows:
   - **37 tests with a docstring.** unittest prints the docstring on
@@ -153,58 +145,68 @@ exit code:
     (9).
   - **4 tests that print output in the middle of their line:**
     `test_fmcsa_carrier.FetchTests.test_main_argument_rules`,
-    `test_hosted_mcp_probe.ProbeCannotRunTests.test_main_returns_2_when_the_probe_cannot_run`,
-    `test_nonprofit_pack.Inputs.test_no_entries_is_refused` and
-    `test_rdap_discriminate.RenderTests.test_bad_input_is_refused_before_any_request`.
+    `test_nonprofit_pack.Inputs.test_no_entries_is_refused`,
+    `test_rdap_discriminate.RenderTests.test_bad_input_is_refused_before_any_request`
+    and
+    `test_standing_watch.SanctionsWatchTests.test_sanctions_fetch_failure_aborts`.
     They print argparse usage or an error message they expect, so the
     result word moves later in the line.
 - **Suite 11** is the `usaspending-test.yml` workflow. Its 18 tests
-  are part of suite 1's own 1057.
+  are part of suite 1's own 1072.
 - **The unique repo total** is suite 1, plus suite 2, plus suite 12:
-  1334 + 100 + 9 = 1443. The skips are suite 1's 7, which include the
-  skips of suites 4 and 11. So 1443 − 7 = 1436 passed.
+  1349 + 100 + 9 = 1458. The skips are suite 1's 7, which include the
+  skips of suites 4 and 11. So 1458 − 7 = 1451 passed.
 
-## Changes since the #344 census
+## Changes since the #350 census
 
-- **Repo total:** 1369 → 1443 unique tests: 1436 passed, 0 failed, 7
-  skipped. The whole increase is suite 1 (+71) and suite 2 (+3).
-- **Suite 1:** 1263 → 1334. The +71 is exactly the four wave 3 tool
-  suites that merged after aa39a75. The before counts are from a rerun
-  of suite 1 at aa39a75 (1263, matching the #344 census) and the after
-  counts from this run's log, grouped by module:
+- **Repo total:** 1443 → 1458 unique tests: 1451 passed, 0 failed, 7
+  skipped. The whole increase is suite 1's own tests (+15); every
+  other suite is unchanged.
+- **Suite 1:** 1334 → 1349. The before counts are from a rerun of
+  suite 1 at 0a80737 in this same pass (1334, `OK (skipped=7)`,
+  matching the #350 census), and the module counts of both runs'
+  verbose logs were compared across all 78 modules present in either
+  log. Exactly two modules changed:
 
-  | Module | Tests at aa39a75 | Tests at 0a80737 | Change |
+  | Module | Tests at 0a80737 | Tests at 96ab9af | Change |
   | --- | --- | --- | --- |
-  | `test_earthquake_check` (PR #339) | 0 | 19 | +19 |
-  | `test_upc_lookup` (PR #345) | 0 | 28 | +28 |
-  | `test_uk_sanctions_check` (PR #346) | 0 | 16 | +16 |
-  | `test_email_check` (PR #341) | 0 | 8 | +8 |
+  | `test_api_smoke_census` (PR #373) | 0 | 9 | +9 |
+  | `test_standing_watch` (PR #372) | 16 | 22 | +6 |
 
-  19 + 28 + 16 + 8 = 71. No other suite 1 module changed its count:
-  `test_api_smoke`, which PR #341 also changed, keeps its test count.
-  Own tests are 1057 (986 + 71). The shim count is unchanged at 277, and
-  every shim suite's ids inside suite 1 match its standalone run.
-- **Suite 2 (api):** 97 → 100, all of it in `test_endpoints` (45 → 48),
-  from the suite 2 logs of both commits. PR #341 changed the endpoint
-  tests without changing their count. `test_recall_api` 25,
-  `test_payment_gate` 22 and `test_openapi_alignment` 5 are unchanged.
+  9 + 6 = 15. `test_api_smoke_census` is the new offline test that
+  pins the api_smoke census figures in `tools/README.md` (issue
+  #368). The `test_standing_watch` growth is the OFAC and OIG watch
+  types PR #372 added to `tools/standing_watch.py` (issue #332). No
+  other suite 1 module changed its count. Own tests are 1072
+  (1057 + 15). The shim count is unchanged at 277, and every shim
+  suite's ids inside suite 1 match its standalone run.
+- **Suite 2 (api):** unchanged at 100, with the same per module
+  counts as the #350 census: `test_endpoints` 48, `test_recall_api`
+  25, `test_payment_gate` 22 and `test_openapi_alignment` 5.
   48 + 25 + 22 + 5 = 100.
-- **Suites 3 to 12:** unchanged counts. Nothing changed under
-  `near-agent`, `agents`, `app` or `test` between the two pins.
+- **Suites 3 to 12:** unchanged counts.
 - **Result words:** 41 suite 1 lines carry no result word on the same
-  line, against 40 in the #344 census.
+  line, the same total as the #350 census, with a different
+  composition:
   - The docstring group is the same 37.
-  - The print group is 4. In this run
-    `test_hosted_mcp_probe.ProbeCannotRunTests.test_main_returns_2_when_the_probe_cannot_run`
-    printed its expected error before its `ok`, as it did in censuses
-    before #344. Which of the two the log shows varies between runs.
+  - The print group is again 4, but
+    `test_standing_watch.SanctionsWatchTests.test_sanctions_fetch_failure_aborts`,
+    new with PR #372, takes the place of
+    `test_hosted_mcp_probe.ProbeCannotRunTests.test_main_returns_2_when_the_probe_cannot_run`,
+    which in this run carried its `ok` on the same line. The #350
+    census noted that which of these the log shows varies between
+    runs; this run shows the other side of that variation for the
+    probe test, plus one genuinely new print case.
   - Every one of these tests passed: the run ended `OK (skipped=7)`.
 - **Interpreters:** the cross interpreter rerun the #344 census could
-  not make is made again here (three interpreters, identical counts).
+  not make and the #350 census made again could not be repeated in
+  this environment (python3.11 and python3.13 absent); see the cross
+  check note above.
 - **Skips:** unchanged at 7, the same seven tests with the same
-  reasons.
+  reasons, verified from this run's suite 1 log.
 - **Pregate:** reports 275 recorded provenance hashes on the clean
-  tree, up from 237, as the wave 3 fixture sets landed.
+  tree, unchanged from the #350 census; none of the three merges
+  since added a fixture.
 
 ## Skips
 
@@ -224,15 +226,15 @@ log.
 
 ## CI on this commit
 
-**The `test` workflow** ran on 0a80737 (run 40102121657, push). All
+**The `test` workflow** ran on 96ab9af (run 40104323791, push). All
 three of its jobs ended in success:
 
-- `delivery-tool-tests` (job 120896249559);
-- `forge-test` (job 120896249587);
-- `proof-page-tests` (job 120896249619).
+- `delivery-tool-tests` (job 120902745476);
+- `forge-test` (job 120902745273);
+- `proof-page-tests` (job 120902745320).
 
-**The `USAspending fetcher tests` workflow** (run 40102121655, job
-120896249297) ended in success as well.
+**The `USAspending fetcher tests` workflow** (run 40104323698, job
+120902744996) ended in success as well.
 
 **One limit, stated plainly:** this census read the runs' and jobs'
 results only. No CI test or skip count is claimed. What the job
@@ -245,8 +247,8 @@ binary is not installed in this environment. The full log of the run:
 
 ```
 $ forge test -vvv
-# started 2026-10-24T14:37:32Z at 0a8073736359aded333af0d29215f80588f9805b
-/tmp/claude-0/-home-user-tiny-ledger/f93df76c-ca5d-58a0-b5ec-8e06d29d5672/scratchpad/census11/run.sh: line 4: forge: command not found
+# started 2026-10-24T14:55:05Z at 96ab9af06813088a88a585948baec7ef604a6b3f
+/tmp/census375-logs/run.sh: line 7: forge: command not found
 # exit 127
 ```
 
@@ -254,7 +256,7 @@ No install was attempted, because this is a docs only task. The CI
 evidence stands in for the local run.
 
 **CI result on the same commit.** The `forge-test` job ran the suite
-on 0a80737 (job 120896249587 in run 40102121657) and completed with
+on 96ab9af (job 120902745273 in run 40104323791) and completed with
 success. `test/AgentTab.t.sol` declares 26 `function test` entries,
 matching the suite size every earlier census recorded. This census
 did not observe the job's log itself (see the limit under CI on this
@@ -265,7 +267,7 @@ commit), so suite 13 is not counted in the repo total.
 **Suite 14, `tools/api_smoke.py`.** It ran with no arguments, its
 default offline mode. In that mode it reads the captured transcripts
 in `tools/tests/fixtures/api_smoke/` and makes no connection. Its
-result line, under each of the three interpreters:
+result line:
 
 ```
 Result: PASS, every assertion held.
