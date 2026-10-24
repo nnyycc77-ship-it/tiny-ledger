@@ -676,6 +676,19 @@ closed cases, and the shelf price: [`domain-trust-check-README.md`](domain-trust
 python3 tools/domain_trust_check.py example.com   # the reserved example domain, as the example input
 ```
 
+## app_lookup_check.py
+
+An app name in, the App Store apps the iTunes Search API returns for it
+out: seller, rating as shown, store link, and whether the name matches
+exactly. Every response is printed in full beneath its request URL. The
+search matches loosely, so "none found" means zero exact name matches.
+Full documentation, with the source, the failures and the shelf price:
+[`app-lookup-check-README.md`](app-lookup-check-README.md).
+
+```sh
+python3 tools/app_lookup_check.py "Nike"   # example app name
+```
+
 ## Cross agent offline integration pass (`tests/test_agents_integration.py`)
 
 Issue #100. It runs every agent in `agents/` plus the brand checker through

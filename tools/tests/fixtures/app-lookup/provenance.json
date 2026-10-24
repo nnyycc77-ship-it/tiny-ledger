@@ -1,0 +1,25 @@
+{
+ "_about": "Captures for tools/app_lookup_check.py (issue #167). Each response was captured live by the coordinator from a working environment, keyless, and posted verbatim on issue #167 (Option B: H1's environment could not reach itunes.apple.com). Each fixture is the response as a transcript: the status line, the headers one per line in the order posted, a blank line, then the body. The sha256 under each file name is the hash of the fixture file, checked by tools/pregate.py; body_sha256_as_posted and body_bytes are the coordinator's recorded values for the body alone, and the body in each file matches both byte for byte.",
+ "search-Nike-us-5.http": {
+  "url": "https://itunes.apple.com/search?term=Nike&country=us&entity=software&limit=5",
+  "retrieved_utc": "2026-10-24 about 02:36 UTC, as stated by the coordinator",
+  "date_header_as_returned": "Sat, 24 Oct 2026 02:36:12 GMT",
+  "posted_at": "https://github.com/nnyycc77-ship-it/tiny-ledger/issues/167#issuecomment-6378882369",
+  "status_line_as_posted": "HTTP/1.1 HTTP/1.1 200 OK",
+  "transcript_form": "status line and headers exactly as posted (the posted header lines ended in CRLF; here they are one per line), a blank line, then the body exactly as posted",
+  "body_sha256_as_posted": "44c0c8f28919340c48b4dc3d0f910b2a6cf22b9938ceaeecf4fc2c73dfabc8ac",
+  "body_bytes": 53623,
+  "sha256": "7e19e8a8a42795a874826bfa1c9a8bd6a9c5495b93ce677decf45cb1a64d00ac"
+ },
+ "search-zqxflorp-us-5.http": {
+  "url": "https://itunes.apple.com/search?term=zqxflorp&country=us&entity=software&limit=5",
+  "retrieved_utc": "2026-10-24 about 02:36 UTC, as stated by the coordinator",
+  "date_header_as_returned": "Sat, 24 Oct 2026 02:36:13 GMT",
+  "posted_at": "https://github.com/nnyycc77-ship-it/tiny-ledger/issues/167#issuecomment-6378882616",
+  "status_line_as_posted": "HTTP/1.1 HTTP/1.1 200 OK",
+  "transcript_form": "status line and headers exactly as posted (the posted header lines ended in CRLF; here they are one per line), a blank line, then the body exactly as posted",
+  "body_sha256_as_posted": "0697967ad7e348f328949e19ac5ac3fe70029211c59e267e6290148e37337771",
+  "body_bytes": 44719,
+  "sha256": "d65fa8d5e3d5c83274f758fb5003d0b2d4a5941ef0b6d181bb44504e9ceb3517"
+ }
+}

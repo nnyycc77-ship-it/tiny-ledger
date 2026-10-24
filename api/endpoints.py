@@ -16,6 +16,7 @@ nothing else to the fetchers' output.
     /pagespeed   tools/pagespeed_snapshot.py   url (repeatable, up to 5)
     /ofac        tools/ofac_sdn_check.py       name
     /domain      tools/domain_trust_check.py   domain
+    /app         tools/app_lookup_check.py     name (country, limit optional)
     /vin         tools/vin_decode.py           vin
 
 Each endpoint takes the fetcher's own command line inputs as query
@@ -50,6 +51,7 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
+from tools import app_lookup_check as al  # noqa: E402
 from tools import courtlistener_recap as cl  # noqa: E402
 from tools import domain_trust_check as dt  # noqa: E402
 from tools import edgar_formd as ef  # noqa: E402
@@ -495,6 +497,31 @@ def github_repo(query, env=None):
 
 
 # ----------------------------------------------------------------------
+# /app
+# ----------------------------------------------------------------------
+
+def app(query, env=None):
+    """App Store apps matching a name via tools/app_lookup_check.py."""
+    try:
+        term, country, limit = al.check_inputs(_single(query, "name", ""), _single(query, "country", al.DEFAULT_COUNTRY),
+                                                _int(query, "limit", al.DEFAULT_LIMIT))
+    except ValueError as err:
+        raise BadRequest(str(err))
+    try:
+        lines = al.render(term, country, limit, al.fetch(al.search_url(term, country, limit)))
+    except al.FetchError as err:
+        raise _transport(err)
+    except (urllib.error.URLError, OSError) as err:
+        raise _transport(err)
+    head = _head("App lookup: %s" % term,
+                 "Observation only: this report records what the public iTunes Search API returned for "
+                 "this search at the retrieval time stated below, in the order returned; it is not a "
+                 "review of any app.",
+                 "tools/app_lookup_check.py")
+    return _text(head, lines)
+
+
+# ----------------------------------------------------------------------
 # Registry and descriptor
 # ----------------------------------------------------------------------
 
@@ -509,6 +536,7 @@ ROUTES = {
     "/domain": domain,
     "/vin": vin,
     "/github": github_repo,
+    "/app": app,
 }
 
 DESCRIPTIONS = {
@@ -575,6 +603,12 @@ DESCRIPTIONS = {
         "params": ["vin (17 characters, or fewer with * for unknown ones)",
                    "model_year (optional, four digits; vPIC recommends sending it)"],
         "sources": [vd.BASE_URL],
+    },
+    "/app": {
+        "tool": "tools/app_lookup_check.py",
+        "params": ["name (the app name to search for)", "country (optional, two letter store code, default us)",
+                   "limit (optional, 1 to %d, default %d)" % (al.MAX_LIMIT, al.DEFAULT_LIMIT)],
+        "sources": [al.SEARCH_URL],
     },
 }
 
