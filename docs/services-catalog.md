@@ -283,6 +283,18 @@ Source: [`docs/mcpize-tools/epa_screen.md`](mcpize-tools/epa_screen.md)
 - Served as: `GET /epa` by the pay per call API.
 - Price: 0.25 USDC per call, as stated above for this part.
 
+#### `faa_lookup`: FAA aircraft registration lookup
+
+Source: [`docs/mcpize-tools/faa_lookup.md`](mcpize-tools/faa_lookup.md)
+
+- What it checks: what aircraft is registered under one N number, and
+  whose name is on the registration. It gives the make and model, the
+  year, and the registrant name, exactly as the FAA record states them,
+  followed by the matched rows in full. It is not a title search or an
+  ownership finding, as the docs page states.
+- Served as: `GET /faa` by the pay per call API.
+- Price: 0.25 USDC per call, as stated above for this part.
+
 #### `fda_recall_check`: FDA enforcement recall check
 
 Source: [`docs/mcpize-tools/fda_recall_check.md`](mcpize-tools/fda_recall_check.md)
