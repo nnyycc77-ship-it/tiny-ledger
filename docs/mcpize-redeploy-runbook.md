@@ -21,14 +21,14 @@ on MCPize, because auto deploy is off by design:
    [#204](https://github.com/nnyycc77-ship-it/tiny-ledger/issues/204)).
    The seventeen tool factory wave tools whose fetchers and API
    endpoints are already on `main` are registered on the same server
-   surface, so the server lists twenty four tools: the seven above plus
+   surface, so the server lists twenty five tools: the seven above plus
    `domain_trust_check`, `ofac_sanctions_check`, `vin_decode_check`,
    `clinical_trial_check`, `fda_drug_check`, `broken_link_check`,
    `meta_tag_check`, `github_repo_check`, `app_lookup_check`,
    `exchange_rate_check`, `flood_check`, `safety_file`,
-   `fda_recall_check`, `epa_screen`, `csl_screen`, `oig_screen` and
-   `insider_check`. `faa_lookup` is not among them; it joins the
-   surface in a later change, after its own pull request merges.
+   `fda_recall_check`, `epa_screen`, `csl_screen`, `oig_screen`,
+   `insider_check` and `faa_lookup` (registered in the follow up change
+   for issue #210, after its own pull request merged).
 
 This file is repo work only. Nothing here was done on the dashboard,
 deployed, or paid for. Every dashboard step is the owner's, taken when the
@@ -89,7 +89,7 @@ Every box is checked before the owner acts.
   CI on that commit is green too: the `test` and `USAspending fetcher
   tests` workflows.
 
-- [ ] **The local server lists twenty four tools** on that commit:
+- [ ] **The local server lists twenty five tools** on that commit:
 
   ```sh
   printf '%s\n' \
@@ -105,8 +105,8 @@ Every box is checked before the owner acts.
   'vin_decode_check', 'clinical_trial_check', 'fda_drug_check',
   'broken_link_check', 'meta_tag_check', 'github_repo_check',
   'app_lookup_check', 'exchange_rate_check', 'flood_check', 'safety_file',
-  'fda_recall_check', 'epa_screen', 'csl_screen', 'oig_screen',
-  'insider_check']`.
+  'fda_recall_check', 'epa_screen', 'csl_screen', 'oig_screen', 'insider_check',
+  'faa_lookup']`.
 
 - [ ] **The live server lists one tool** before the redeploy. The
   coordinator's probe on 2026-10-23 at about 18:36 UTC (#123, comment
@@ -227,7 +227,7 @@ probe on 2026-10-23 at about 18:36 UTC (#123, comment 6372123142):
 | Step | Before the redeploy (observed) | After the redeploy (expected) | Fails when |
 | --- | --- | --- | --- |
 | `initialize` (anonymous) | HTTP 200; `serverInfo` name "hojo-recall-check via MCPize", version "0.1.0", title "Tiny Ledger"; instructions name one tool, `recall_check` | HTTP 200; `serverInfo` version "0.3.0", the server version on `main` since PR #102, under the gateway's name form | It is not 200, or the version is still 0.1.0, which means the old build is live. |
-| `tools/list` | One tool, `recall_check` | Twenty four tools, in the order listed under Preconditions | Any other count or order. |
+| `tools/list` | One tool, `recall_check` | Twenty five tools, in the order listed under Preconditions | Any other count or order. |
 | `tools/call recall_check`, unpaid | HTTP 402 with a JSON body, not a JSON-RPC error: `x402Version` 1, one `accepts` entry with `scheme` "exact", `network` "base", `maxAmountRequired` "50000" (0.05 USDC at 6 decimals), and `payTo` equal to the `recipient` in `mcpize.yaml` | The same 402 with the same values | Any status other than 402, a different amount or network, or a `payTo` that differs from `mcpize.yaml`. |
 
 The observed 402 body is quoted verbatim in the coordinator's comment. It
@@ -243,7 +243,7 @@ Vornado report (recalls 18-136 and 18-199 for `{"product": "VH101"}`, as
 the coordinator's local run on PR #121 showed) or a named failure under
 the new format. Either answers the open question on #118.
 
-## Listing copy for the twenty four tools
+## Listing copy for the twenty five tools
 
 This copy is pasted where the dashboard takes it after the outside
 verification passes, replacing the one-tool copy in
@@ -256,7 +256,7 @@ authority, and nothing here goes beyond it.
 Form D, nonprofit, contract award, PageSpeed and public records screening
 lookups
 
-**Short description:** Twenty four tools that each return a Markdown report in
+**Short description:** Twenty five tools that each return a Markdown report in
 one fixed evidence format: the exact query, the UTC retrieval time, the
 source link, and the complete raw response beneath the link. An empty
 result is proven by that raw response, never asserted. A failed fetch is
@@ -328,8 +328,11 @@ an error that names the source, never an empty result.
 - `insider_check`: SEC EDGAR insider filings (Forms 3, 4 and 5) for a
   company, by CIK or by company name search. It works only when the
   server has `EDGAR_CONTACT` set; until then it answers an error.
+- `faa_lookup`: an FAA aircraft registry lookup by N number, showing
+  the make, model, year and registrant name as registered, from the
+  daily registry archive, whose Last-Modified every report states.
 
-`recall_check` is the one priced tool. The other twenty three are unpriced at this
+`recall_check` is the one priced tool. The other twenty four are unpriced at this
 redeploy (coordinator, #123), and the listing names no price for them
 until the owner sets one in the Payments tab.
 

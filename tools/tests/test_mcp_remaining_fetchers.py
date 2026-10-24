@@ -43,7 +43,7 @@ WAVE_TOOLS = ["domain_trust_check", "ofac_sanctions_check", "vin_decode_check",
               "clinical_trial_check", "fda_drug_check", "broken_link_check",
               "meta_tag_check", "github_repo_check", "app_lookup_check",
               "exchange_rate_check", "flood_check", "safety_file", "fda_recall_check",
-              "epa_screen", "csl_screen", "oig_screen", "insider_check"]
+              "epa_screen", "csl_screen", "oig_screen", "insider_check", "faa_lookup"]
 
 
 def rpc(messages, wallet=None):
@@ -74,7 +74,7 @@ def text_of(result):
 # ----------------------------------------------------------------------
 
 class ListingTests(unittest.TestCase):
-    def test_twenty_four_tools_listed_first_three_unchanged(self):
+    def test_twenty_five_tools_listed_first_three_unchanged(self):
         responses, _ = rpc([{"jsonrpc": "2.0", "id": 1, "method": "tools/list"}], wallet=WALLET)
         tools = responses[0]["result"]["tools"]
         self.assertEqual([t["name"] for t in tools], ["recall_check", "carrier_check", "litigation_screen"] + NEW_TOOLS + WAVE_TOOLS)
@@ -102,13 +102,13 @@ class ListingTests(unittest.TestCase):
         self.assertEqual(by_name["pagespeed_snapshot"]["inputSchema"]["required"], ["url"])
         self.assertEqual(by_name["pagespeed_snapshot"]["inputSchema"]["properties"]["strategy"]["enum"], ["mobile", "desktop"])
 
-    def test_instructions_name_all_twenty_four_tools(self):
+    def test_instructions_name_all_twenty_five_tools(self):
         responses, _ = rpc([{"jsonrpc": "2.0", "id": 1, "method": "initialize", "params": {"protocolVersion": "2025-06-18"}}])
         text = responses[0]["result"]["instructions"]
-        self.assertTrue(text.startswith("Twenty four tools"))
+        self.assertTrue(text.startswith("Twenty five tools"))
         for name in recall_mcp.TOOL_NAMES:
             self.assertIn(name, text)
-        self.assertEqual(len(recall_mcp.TOOL_NAMES), 24)
+        self.assertEqual(len(recall_mcp.TOOL_NAMES), 25)
 
 
 # ----------------------------------------------------------------------
