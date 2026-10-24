@@ -21,6 +21,7 @@ from unittest import mock
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 import brand_check_dryrun as dry  # noqa: E402
+import brand_name_checker as bnc  # noqa: E402
 import uspto_trademarks  # noqa: E402
 
 CASES = json.loads(dry.CASES_FILE.read_text(encoding="utf-8"))["cases"]
@@ -59,8 +60,9 @@ class ProvenanceTests(unittest.TestCase):
                 if "synthetic" in route and not route["synthetic"].endswith(".json"):
                     self.assertTrue(route["synthetic"].startswith("SYNTHETIC"), route)
 
-    def test_the_three_required_cases_exist(self):
-        self.assertEqual([c["case"] for c in CASES], ["taken", "free", "mixed"])
+    def test_the_required_cases_exist(self):
+        # taken, free and mixed from issue #137; retry from issue #220.
+        self.assertEqual([c["case"] for c in CASES], ["taken", "free", "mixed", "retry"])
         taken = next(c for c in CASES if c["case"] == "taken")
         self.assertTrue(all("synthetic" not in r for r in taken["routes"].values()))
 
@@ -69,15 +71,16 @@ class DryRunTests(unittest.TestCase):
     def test_every_verdict_matches_offline(self):
         code, out, err = run()
         self.assertEqual((code, err), (0, ""))
-        self.assertIn("Result: 15 of 15 verdicts matched.", out)
+        # 15 verdicts from issue #137, plus 12 for the retry case (issue #220).
+        self.assertIn("Result: 27 of 27 verdicts matched.", out)
         self.assertNotIn("MISMATCH", out)
 
     def test_no_key_trademark_leg_keeps_the_unconfirmed_wording(self):
         code, out, _ = run(["--report"])
         self.assertEqual(code, 0)
         self.assertEqual(out.count("| trademark | not covered (unconfirmed wording) | not covered (unconfirmed "
-                                   "wording) | match |"), 3)
-        self.assertEqual(out.count("### Trademarks\n\n" + UNCONFIRMED + "\n"), 3)
+                                   "wording) | match |"), 4)
+        self.assertEqual(out.count("### Trademarks\n\n" + UNCONFIRMED + "\n"), 4)
 
     def test_rendered_reports_carry_the_replayed_evidence(self):
         _, out, _ = run(["--report"])
@@ -94,7 +97,7 @@ class DryRunTests(unittest.TestCase):
         with mock.patch.object(dry.uspto_trademarks, "section", changed):
             code, out, _ = run()
         self.assertEqual(code, 1)
-        self.assertEqual(out.count("| trademark | not covered (unconfirmed wording) | WORDING CHANGED | MISMATCH |"), 3)
+        self.assertEqual(out.count("| trademark | not covered (unconfirmed wording) | WORDING CHANGED | MISMATCH |"), 4)
 
     def test_a_wrong_expectation_is_reported_as_a_mismatch(self):
         cases = json.loads(dry.CASES_FILE.read_text(encoding="utf-8"))
@@ -106,7 +109,7 @@ class DryRunTests(unittest.TestCase):
                 code, out, _ = run()
         self.assertEqual(code, 1)
         self.assertIn("| x | taken (live account) | no account found | MISMATCH |", out)
-        self.assertIn("14 of 15 verdicts matched; 1 MISMATCH", out)
+        self.assertIn("26 of 27 verdicts matched; 1 MISMATCH", out)
 
     def test_an_altered_fixture_or_unrecorded_url_stops_the_run(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -129,6 +132,68 @@ class DryRunTests(unittest.TestCase):
         replay = dry.Replay({}, {}, {})
         with self.assertRaises(dry.HarnessError):
             replay("https://rdap.org/domain/unrecorded.com", True)
+
+
+class RetryCaseTests(unittest.TestCase):
+    """Issue #220: the single retry on no response (issue #201), through the checker's real get()."""
+
+    def retry_section(self, argv=()):
+        code, out, err = run(argv)
+        self.assertEqual((code, err), (0, ""))
+        return out.split("## Case retry")[1]
+
+    def test_no_response_then_404_is_retried_once(self):
+        section = self.retry_section()
+        self.assertIn("| domain com | no registration found | no registration found | match |", section)
+        self.assertIn("| domain com requests | 2 | 2 | match |", section)
+        self.assertIn("| domain com retry note | present | present | match |", section)
+
+    def test_no_response_twice_is_could_not_confirm_never_free(self):
+        section = self.retry_section()
+        self.assertIn("| domain io | could not confirm | could not confirm | match |", section)
+        self.assertIn("| domain io requests | 2 | 2 | match |", section)
+
+    def test_an_http_status_is_answered_once_with_no_retry(self):
+        section = self.retry_section()
+        self.assertIn("| domain net | could not confirm | could not confirm | match |", section)
+        self.assertIn("| domain net requests | 1 | 1 | match |", section)
+        self.assertIn("| domain net retry note | absent | absent | match |", section)
+
+    def test_the_rendered_report_carries_the_retried_once_line(self):
+        section = self.retry_section(["--report"])
+        self.assertIn("| retryvexa.com | no registration found | HTTP 404 Not Found | replayed |", section)
+        self.assertIn("request failed: SYNTHETIC: Remote end closed connection without response\n"
+                      "[retried once: the first attempt got no response: SYNTHETIC: Remote end closed", section)
+        self.assertEqual(section.count("[retried once:"), 2)  # com and io; net was not retried
+
+    def test_a_checker_without_the_retry_would_be_caught(self):
+        single = lambda url, read_body: bnc._attempt(url, read_body)[0]  # get() as it was before #201
+        with mock.patch.object(bnc, "get", single):
+            code, out, _ = run()
+        self.assertEqual(code, 1)
+        self.assertIn("| domain com | no registration found | could not confirm | MISMATCH |", out)
+        self.assertIn("| domain com requests | 2 | 1 | MISMATCH |", out)
+
+    def test_more_requests_than_recorded_stop_the_run(self):
+        replay = dry.Replay({"https://rdap.org/domain/once.com": {
+            "synthetic": "SYNTHETIC", "attempts": [{"no_response": "SYNTHETIC: closed"}]}}, {}, {})
+        with mock.patch("urllib.request.urlopen", no_network), self.assertRaises(dry.HarnessError):
+            replay("https://rdap.org/domain/once.com", True)
+
+    def test_an_attempt_that_is_not_no_response_or_an_error_status_is_refused(self):
+        for attempt in ({"status": 200}, {"status": "404"}, {}):  # SYNTHETIC malformed recordings
+            replay = dry.Replay({"https://rdap.org/domain/bad.com": {"synthetic": "SYNTHETIC", "attempts": [
+                attempt]}}, {}, {})
+            with mock.patch("urllib.request.urlopen", no_network), self.assertRaises(dry.HarnessError):
+                replay("https://rdap.org/domain/bad.com", True)
+
+    def test_the_stub_is_removed_after_each_call(self):
+        replay = dry.Replay({"https://rdap.org/domain/x.com": {"synthetic": "SYNTHETIC", "attempts": [
+            {"status": 503}]}}, {}, {})
+        with mock.patch("urllib.request.urlopen", no_network):
+            replay("https://rdap.org/domain/x.com", True)
+            import urllib.request
+            self.assertIs(urllib.request.urlopen, no_network)
 
 
 if __name__ == "__main__":

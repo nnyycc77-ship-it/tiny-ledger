@@ -15,6 +15,14 @@ expected for it:
 It then renders the full report through brand_name_checker.report() with
 the same recorded responses, so the whole pipeline runs end to end.
 
+A domain route may instead record its answers attempt by attempt
+("attempts", issue #220). Those routes run the checker's real get(), so the
+single retry on no response added in issue #201 is exercised, not
+re-implemented: urlopen is replaced, for that one call only, by a stub that
+answers each attempt in turn (no response, or an HTTP error status) and
+counts the requests. Such a domain gets two more checked rows: the number of
+requests made, and whether its transcript carries the "retried once" line.
+
 The cases and their recorded responses are in
 tools/tests/fixtures/brandcheck-dryrun/cases.json. A route is a real
 capture (a body the coordinator captured live on issue #51), a real status
@@ -34,8 +42,11 @@ URL). Standard library only.
 
 import argparse
 import hashlib
+import http.client
 import json
 import sys
+import urllib.error
+import urllib.request
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
@@ -55,7 +66,8 @@ APP_MATCH = "exact name match"
 APP_NONE = "no exact name match"
 TRADEMARK_OK = "not covered (unconfirmed wording)"
 TRADEMARK_BAD = "WORDING CHANGED"
-REASONS = {"200": "OK", "404": "Not Found"}
+REASONS = {"200": "OK", "404": "Not Found", "503": "Service Unavailable"}
+RETRY_LINE = "[retried once: the first attempt got no response:"
 
 
 class HarnessError(Exception):
@@ -92,12 +104,15 @@ class Replay:
         self.hashes = hashes
         self.status_records = status_records
         self.asked = []
+        self.requests = {}  # url -> requests the checker made, for attempt routes
 
     def __call__(self, url, read_body_flag):
         self.asked.append(url)
         route = self.routes.get(url)
         if route is None:
             raise HarnessError("no recorded response for %s; a dry run never goes to the network" % url)
+        if "attempts" in route:
+            return self.replay_attempts(url, read_body_flag, route["attempts"])
         final = route.get("final_url", url)
         if "error" in route:
             return bnc.Result(url, final, "replayed", None, None, [], None, route["error"])
@@ -118,13 +133,44 @@ class Replay:
         return bnc.Result(url, final, "replayed", line, status, [], body, None)
 
 
+    def replay_attempts(self, url, read_body_flag, attempts):
+        """The checker's real get(), with urlopen answering the recorded attempts in turn."""
+        queue = list(attempts)
+        self.requests[url] = 0
+
+        def stub(request, timeout=None):
+            self.requests[url] += 1
+            if not queue:
+                raise HarnessError("%s: the checker made more requests than the %d recorded"
+                                   % (url, len(attempts)))
+            attempt = queue.pop(0)
+            if "no_response" in attempt:
+                raise http.client.RemoteDisconnected(attempt["no_response"])
+            status = attempt.get("status")
+            if isinstance(status, int) and status >= 400:
+                raise urllib.error.HTTPError(url, status, REASONS.get(str(status), ""), {}, None)
+            raise HarnessError("%s: an attempt is no_response or an HTTP error status, got %r" % (url, attempt))
+
+        saved = urllib.request.urlopen
+        urllib.request.urlopen = stub
+        try:
+            result = bnc.get(url, read_body_flag)
+        finally:
+            urllib.request.urlopen = saved
+        return result._replace(checked="replayed")
+
+
 def run_case(case, hashes, status_records):
     """[(leg, expected, actual)] and the rendered report for one case."""
     fetch = Replay(case["routes"], hashes, status_records)
     name, rows = case["name"], []
     for tld in case["tlds"]:
-        _, verdict, _ = bnc.check_domain(name, tld, fetch)
+        result, verdict, _ = bnc.check_domain(name, tld, fetch)
         rows.append(("domain %s" % tld, verdict))
+        if result.url in fetch.requests:  # an attempt route: the retry rows
+            rows.append(("domain %s requests" % tld, str(fetch.requests[result.url])))
+            rows.append(("domain %s retry note" % tld,
+                         "present" if RETRY_LINE in bnc.transcript(result, "") else "absent"))
     for platform in case["platforms"]:
         _, verdict = bnc.check_handle(platform, name, fetch)
         rows.append((platform, verdict))

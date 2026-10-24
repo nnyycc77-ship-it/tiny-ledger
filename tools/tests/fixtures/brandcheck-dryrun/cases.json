@@ -39,6 +39,20 @@
         "https://itunes.apple.com/search?term=Quillvexa&entity=software&limit=2": {"synthetic": "brandcheck-dryrun/synthetic-itunes-quillvexa.json", "status": 200}
       },
       "expect": {"domain com": "registered", "domain io": "no registration found", "x": "no account found", "instagram": "could not confirm", "tiktok": "could not confirm", "app store": "exact name match", "trademark": "not covered (unconfirmed wording)"}
+    },
+    {
+      "case": "retry",
+      "name": "Retryvexa",
+      "about": "SYNTHETIC attempt by attempt answers for the single retry on no response (issues #201 and #220), run through the checker's real get(): com gets no response then a 404, io gets no response twice, net gets an HTTP 503 on the first attempt and is never retried.",
+      "tlds": ["com", "io", "net"], "platforms": ["x"], "app_limit": 2,
+      "routes": {
+        "https://rdap.org/domain/retryvexa.com": {"synthetic": "SYNTHETIC attempts: no response, then HTTP 404", "attempts": [{"no_response": "SYNTHETIC: Remote end closed connection without response"}, {"status": 404}]},
+        "https://rdap.org/domain/retryvexa.io": {"synthetic": "SYNTHETIC attempts: no response twice", "attempts": [{"no_response": "SYNTHETIC: Remote end closed connection without response"}, {"no_response": "SYNTHETIC: Remote end closed connection without response"}]},
+        "https://rdap.org/domain/retryvexa.net": {"synthetic": "SYNTHETIC attempts: HTTP 503 on the first attempt", "attempts": [{"status": 503}]},
+        "https://x.com/retryvexa": {"synthetic": "SYNTHETIC status 404, no body", "status": 404},
+        "https://itunes.apple.com/search?term=Retryvexa&entity=software&limit=2": {"synthetic": "SYNTHETIC transport failure", "error": "SYNTHETIC: connection reset"}
+      },
+      "expect": {"domain com": "no registration found", "domain com requests": "2", "domain com retry note": "present", "domain io": "could not confirm", "domain io requests": "2", "domain io retry note": "present", "domain net": "could not confirm", "domain net requests": "1", "domain net retry note": "absent", "x": "no account found", "app store": "could not confirm", "trademark": "not covered (unconfirmed wording)"}
     }
   ]
 }
