@@ -1,0 +1,86 @@
+HTTP/1.0 200 OK
+Date: Sat, 24 Oct 2026 12:47:42 GMT
+Server: WSGIServer/0.2 CPython/3.12.3
+Content-Type: text/markdown; charset=utf-8
+Content-Length: 3968
+Cache-Control: no-store
+X-Payout-Wallet: 0x1111111111111111111111111111111111111111
+
+# Email check: someone@gmail.com
+
+Observation only: this report records what Cloudflare's DNS over HTTPS resolver returned for this domain's records at the retrieval times stated below, without any key. DNS records change; this is not a delivery test, and no mail server was contacted.
+
+Well formed: yes. The address has one @, a well formed local part, and the domain gmail.com is made of valid DNS labels. This is a statement about shape only; no mailbox was tested.
+
+Readings: DNS Status 3 (NXDOMAIN) means the name does not exist; Status 0 with no Answer section (NODATA) means the name exists and publishes no record of that type. A single MX answer of "0 ." is a null MX (RFC 7505): the domain declares it accepts no email at all.
+
+- MX: 5 record(s) as shown:
+  - 10 alt1.gmail-smtp-in.l.google.com.
+  - 30 alt3.gmail-smtp-in.l.google.com.
+  - 20 alt2.gmail-smtp-in.l.google.com.
+  - 5 gmail-smtp-in.l.google.com.
+  - 40 alt4.gmail-smtp-in.l.google.com.
+- SPF record as shown:
+  - v=spf1 redirect=_spf.google.com
+- DMARC record as shown:
+  - v=DMARC1; p=none; sp=quarantine; rua=mailto:mailauth-reports@google.com
+
+## Source: MX records
+
+Exact query: GET https://cloudflare-dns.com/dns-query?name=gmail.com&type=MX
+Retrieved (UTC): 2026-10-24T12:47:40Z
+Source: <https://cloudflare-dns.com/dns-query?name=gmail.com&type=MX>
+```
+HTTP/1.1 200 OK
+Server: cloudflare
+Date: Sat, 24 Oct 2026 12:47:41 GMT
+Content-Type: application/dns-json
+alt-svc: h3=":443"; ma=86400
+Access-Control-Allow-Origin: *
+X-Content-Type-Options: nosniff
+CF-RAY: a4f9176e99211f54-LAX
+Connection: close
+Content-Length: 544
+
+{"Status":0,"TC":false,"RD":true,"RA":true,"AD":false,"CD":false,"Question":[{"name":"gmail.com","type":15}],"Answer":[{"name":"gmail.com","type":15,"TTL":399,"data":"10 alt1.gmail-smtp-in.l.google.com."},{"name":"gmail.com","type":15,"TTL":399,"data":"30 alt3.gmail-smtp-in.l.google.com."},{"name":"gmail.com","type":15,"TTL":399,"data":"20 alt2.gmail-smtp-in.l.google.com."},{"name":"gmail.com","type":15,"TTL":399,"data":"5 gmail-smtp-in.l.google.com."},{"name":"gmail.com","type":15,"TTL":399,"data":"40 alt4.gmail-smtp-in.l.google.com."}]}
+```
+
+## Source: TXT records (SPF)
+
+Exact query: GET https://cloudflare-dns.com/dns-query?name=gmail.com&type=TXT
+Retrieved (UTC): 2026-10-24T12:47:40Z
+Source: <https://cloudflare-dns.com/dns-query?name=gmail.com&type=TXT>
+```
+HTTP/1.1 200 OK
+Server: cloudflare
+Date: Sat, 24 Oct 2026 12:47:42 GMT
+Content-Type: application/dns-json
+alt-svc: h3=":443"; ma=86400
+Access-Control-Allow-Origin: *
+X-Content-Type-Options: nosniff
+CF-RAY: a4f917726bb297b4-ATL
+Connection: close
+Content-Length: 565
+
+{"Status":0,"TC":false,"RD":true,"RA":true,"AD":false,"CD":false,"Question":[{"name":"gmail.com","type":16}],"Answer":[{"name":"gmail.com","type":16,"TTL":68,"data":"\"yahoo-verification-key=dKYwfVbaxatmcXiXy6LDAxMRirqpOq5tj98iJv9qWVk=\""},{"name":"gmail.com","type":16,"TTL":68,"data":"\"v=spf1 redirect=_spf.google.com\""},{"name":"gmail.com","type":16,"TTL":68,"data":"\"yahoo-verification-key=+eZwIPSgRxkAUzDtqT8Qhk+j4A1JF6V/wtGoyGTkELY=\""},{"name":"gmail.com","type":16,"TTL":68,"data":"\"globalsign-smime-dv=CDYX+XFHUw2wml6/Gb8+59BsH31KzUr6c1l2BPvqKX8=\""}]}
+```
+
+## Source: DMARC record
+
+Exact query: GET https://cloudflare-dns.com/dns-query?name=_dmarc.gmail.com&type=TXT
+Retrieved (UTC): 2026-10-24T12:47:41Z
+Source: <https://cloudflare-dns.com/dns-query?name=_dmarc.gmail.com&type=TXT>
+```
+HTTP/1.1 200 OK
+Server: cloudflare
+Date: Sat, 24 Oct 2026 12:47:43 GMT
+Content-Type: application/dns-json
+alt-svc: h3=":443"; ma=86400
+Access-Control-Allow-Origin: *
+X-Content-Type-Options: nosniff
+CF-RAY: a4f917764e49c45c-EWR
+Connection: close
+Content-Length: 260
+
+{"Status":0,"TC":false,"RD":true,"RA":true,"AD":false,"CD":false,"Question":[{"name":"_dmarc.gmail.com","type":16}],"Answer":[{"name":"_dmarc.gmail.com","type":16,"TTL":600,"data":"\"v=DMARC1; p=none; sp=quarantine; rua=mailto:mailauth-reports@google.com\""}]}
+```

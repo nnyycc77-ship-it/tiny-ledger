@@ -1,0 +1,9 @@
+HTTP/1.0 502 Bad Gateway
+Date: Sat, 24 Oct 2026 12:47:51 GMT
+Server: WSGIServer/0.2 CPython/3.12.3
+Content-Type: text/plain; charset=utf-8
+Content-Length: 187
+Cache-Control: no-store
+X-Payout-Wallet: 0x1111111111111111111111111111111111111111
+
+request to https://cloudflare-dns.com/dns-query?name=gmail.com&type=MX failed or timed out: <urlopen error [Errno 111] Connection refused>; no report, and this is unknown, not a negative

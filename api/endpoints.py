@@ -36,6 +36,7 @@ nothing else to the fetchers' output.
     /drug        tools/fda_drug_check.py       name
     /faa         tools/faa_lookup.py           n_number
     /weather     tools/weather_alert_check.py  lat, lon
+    /email       tools/email_check.py          address
     /npi         tools/npi_check.py            query (NPI number or provider name)
     /disaster    tools/disaster_history_check.py  state (county, limit optional)
     /wallet      tools/wallet_check.py         address
@@ -104,6 +105,7 @@ from tools import usaspending_awards as ua  # noqa: E402
 from tools import vin_decode as vd  # noqa: E402
 from tools import weather_alert_check as wa  # noqa: E402
 from tools import wallet_check as wc  # noqa: E402
+from tools import email_check as ec  # noqa: E402
 from tools import npi_check as npi  # noqa: E402
 from tools import upc_lookup as ul  # noqa: E402
 from tools import uk_sanctions_check as uks  # noqa: E402
@@ -704,6 +706,23 @@ def flood(query, env=None):
 
 
 # ----------------------------------------------------------------------
+# /email
+
+def email(query, env=None):
+    """Keyless email check via tools/email_check.py."""
+    try:
+        _local, domain = ec.check_address(_single(query, "address", ""))
+    except ValueError as err:
+        raise BadRequest(str(err))
+    try:
+        captures = [ec.fetch(ec.doh_url(name, rr)) for _label, name, rr in ec.queries(domain)]
+        lines = ec.render(_single(query, "address", "").strip(), domain, captures)
+    except ec.FetchError as err:
+        raise FetchFailed(str(err))
+    return _text([], lines)
+
+
+# ----------------------------------------------------------------------
 # /weather
 # ----------------------------------------------------------------------
 
@@ -1067,6 +1086,7 @@ ROUTES = {
     "/drug": drug,
     "/faa": faa_lookup,
     "/weather": weather,
+    "/email": email,
     "/npi": npi_lookup,
     "/disaster": disaster_history,
     "/wallet": wallet,
@@ -1135,6 +1155,12 @@ DESCRIPTIONS = {
         "params": ["owner (GitHub user or organization)", "repo (repository name)"],
         "sources": [gh.API_URL],
         "note": "Keyless: no Authorization header is sent; GitHub's unauthenticated limit is 60 requests per hour.",
+    },
+    "/email": {
+        "tool": "tools/email_check.py",
+        "params": ["address (an email address; the domain part is checked over DNS)"],
+        "sources": [ec.DOH_URL],
+        "note": "Keyless. Address shape is checked locally; MX, SPF and DMARC are read over DNS over HTTPS.",
     },
     "/bank": {
         "tool": "tools/bank_check.py",

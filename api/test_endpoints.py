@@ -67,7 +67,7 @@ class RoutingTests(unittest.TestCase):
         doc = recall_api.descriptor(WALLET)
         self.assertEqual(sorted(doc["endpoints"]),
                          ["/app", "/awards", "/bank", "/carrier", "/csl", "/disaster", "/domain", "/drug",
-                          "/earthquake", "/epa", "/faa", "/fda", "/flood", "/formd", "/fx", "/geocode", "/github",
+                          "/earthquake", "/email", "/epa", "/faa", "/fda", "/flood", "/formd", "/fx", "/geocode", "/github",
                           "/insider", "/links", "/litigation", "/meta", "/nonprofit", "/npi", "/ofac", "/oig",
                           "/pagespeed", "/recall", "/safety", "/trials", "/uksanctions", "/upc", "/vin", "/wallet",
                           "/weather"])
