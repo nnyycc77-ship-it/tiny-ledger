@@ -30,6 +30,7 @@ from tools import app_lookup_check as al  # noqa: E402
 from tools import courtlistener_recap as cl  # noqa: E402
 from tools import domain_trust_check as dt  # noqa: E402
 from tools import edgar_formd as ef  # noqa: E402
+from tools import exchange_rate_check as fx  # noqa: E402
 from tools import fmcsa_carrier as fc  # noqa: E402
 from tools import pagespeed_snapshot as ps  # noqa: E402
 from tools import propublica_nonprofits as pp  # noqa: E402
@@ -55,8 +56,8 @@ class RoutingTests(unittest.TestCase):
     def test_descriptor_lists_every_endpoint_with_tool_params_and_sources(self):
         doc = recall_api.descriptor(WALLET)
         self.assertEqual(sorted(doc["endpoints"]),
-                         ["/app", "/awards", "/carrier", "/domain", "/formd", "/github", "/litigation", "/nonprofit",
-                          "/ofac", "/pagespeed", "/recall", "/vin"])
+                         ["/app", "/awards", "/carrier", "/domain", "/formd", "/fx", "/github", "/litigation",
+                          "/nonprofit", "/ofac", "/pagespeed", "/recall", "/vin"])
         for path, entry in doc["endpoints"].items():
             self.assertEqual(entry["method"], "GET", path)
             self.assertTrue(entry["tool"].startswith("tools/"), path)
@@ -85,9 +86,11 @@ class RoutingTests(unittest.TestCase):
             "/app": ["", "name=Nike&country=usa", "name=Nike&limit=0", "name=Nike&limit=201", "name=Nike&limit=x"],
             "/vin": ["", "vin=1HGCM/2633A004352", "vin=1HGCM82633A0043521", "vin=1HGCM82633A004352&model_year=03",
                      "vin=1HGCM82633A004352&vin=1HGCM82643A004352"],
+            "/fx": ["", "base=USD", "target=EUR", "base=US&target=EUR", "base=USD&target=usd",
+                    "base=USD&target=EUR&amount=0", "base=USD&target=EUR&date=2024-13-01"],
         }
         patches = [patch.object(mod, "fetch", side_effect=AssertionError("no fetch expected"))
-                   for mod in (fc, cl, ua, pp, ps, ef, vd)]
+                   for mod in (fc, cl, ua, pp, ps, ef, vd, fx)]
         patches += [patch.object(dt, name, side_effect=AssertionError("no fetch expected"))
                     for name in ("fetch_doh", "fetch_site")]
         patches.append(patch.object(al, "fetch", side_effect=AssertionError("no fetch expected")))
@@ -487,6 +490,49 @@ class AppTests(unittest.TestCase):
             status, _, text = get("/app", "name=Nike")
         self.assertEqual(status, "502 Bad Gateway")
         self.assertNotIn("## App search", text)
+
+
+
+# ----------------------------------------------------------------------
+# /fx
+# ----------------------------------------------------------------------
+
+class ExchangeRateTests(unittest.TestCase):
+    """Served from the coordinator's keyless Option B captures on issue #168
+    (tools/tests/fixtures/frankfurter, provenance there)."""
+
+    def served(self, name):
+        transcript = (FIXTURES / "frankfurter" / name).read_text(encoding="utf-8")
+        return "2026-10-24T03:06:03Z", transcript, transcript.partition("\n\n")[2]
+
+    def test_amount_renders_the_fetchers_section(self):
+        url = "https://api.frankfurter.dev/v1/latest?base=USD&symbols=EUR&amount=100"
+        cap = self.served("latest-USD-EUR-amount-100.http")
+        with patch.object(fx, "fetch", side_effect=lambda u: cap if u == url else AssertionError(u)) as fetch:
+            status, headers, text = get("/fx", "base=usd&target=eur&amount=100", WALLET)
+        self.assertEqual(status, "200 OK", text)
+        self.assertEqual(headers["Content-Type"], recall_api.TEXT_MD)
+        self.assertEqual(fetch.call_count, 1)
+        self.assertTrue(text.startswith("# Exchange rate: USD to EUR\n"))
+        self.assertIn("tools/exchange_rate_check.py", text)
+        self.assertIn("\n".join(fx.render_section("USD", "EUR", "100", None, url, *cap)), text)
+        self.assertIn("RATE: 100.0 USD = 89.34 EUR, rate date 2026-10-23", text)
+
+    def test_unknown_code_is_a_report_not_an_error(self):
+        cap = self.served("latest-USD-XYZ-404.http")
+        with patch.object(fx, "fetch", return_value=cap) as fetch:
+            status, _, text = get("/fx", "base=USD&target=XYZ")
+        fetch.assert_called_once_with("https://api.frankfurter.dev/v1/latest?base=USD&symbols=XYZ")
+        self.assertEqual(status, "200 OK", text)
+        self.assertIn("RATE: none returned for USD to XYZ.", text)
+        self.assertIn("HTTP/1.1 404 Not Found", text)
+
+    def test_failed_fetch_is_502_with_no_report(self):
+        import urllib.error
+        with patch.object(fx, "fetch", side_effect=urllib.error.URLError("refused (test)")):
+            status, _, text = get("/fx", "base=USD&target=EUR")
+        self.assertEqual(status, "502 Bad Gateway")
+        self.assertNotIn("RATE:", text)
 
 
 if __name__ == "__main__":

@@ -22,6 +22,7 @@ environment and its header comment says so.
 | SEC EDGAR Form D filings | `edgar_formd.py` | none needed; an operator contact for the User-Agent is required (`--contact` or `EDGAR_CONTACT`) |
 | ProPublica Nonprofit Explorer (IRS Form 990 extracts) | `propublica_nonprofits.py` | none needed |
 | NHTSA vPIC VIN decode (DecodeVinValues) | `vin_decode.py` | none needed |
+| Frankfurter exchange rates (API v1) | `exchange_rate_check.py` | none needed |
 | Brand name checks: RDAP domains, X / Instagram / TikTok handles, iTunes Search (trademarks not covered) | `brand_name_checker.py` | none needed |
 | Weekly brief: watchlist Form D filings and NAICS filtered contract awards for a seven day window (docs/weekly-brief.md) | `weekly_brief.py` | EDGAR contact |
 | OFAC SDN list name check, primary names and aliases (docs/ofac-sdn-check.md) | `ofac_sdn_check.py` | none needed |
@@ -452,6 +453,43 @@ its 9th character variant, and an all zeros VIN that decodes nothing).
 The coordinator captured them under Option B on issue #161, because this
 container cannot reach vpic.nhtsa.dot.gov. Their URLs, sizes and SHA-256
 are in `tests/fixtures/vpic/provenance.json`, and the hashes are checked.
+
+## exchange_rate_check.py
+
+```sh
+python3 tools/exchange_rate_check.py USD EUR
+python3 tools/exchange_rate_check.py USD EUR --amount 100
+python3 tools/exchange_rate_check.py USD EUR --date 2024-01-06
+```
+
+Tool factory wave 1, issue #168. One currency pair per run, looked up
+once with the Frankfurter API v1 (`/v1/latest`, or `/v1/<date>`, with
+`base`, `symbols` and an optional `amount`), keyless, through the capture
+path of `nhtsa_recalls.py`. The section shows the QUERY line with the
+HTTP status, then the RATE line: the response's own amount, base, rate
+and date, with numbers printed as the body writes them. With an amount
+the converted figure is the API's own, and the tool does no arithmetic.
+When the response's date differs from the date asked, both are stated.
+A pair the API has no rate for (the recorded USD to XYZ answer is HTTP
+404, `{"message":"not found"}`) is reported as no rate returned, quoting
+the body's message, and the complete raw HTTP response transcript
+directly beneath the source link proves it. A transport failure prints
+nothing on stdout and exits 2. The v1 documentation says v1 is deprecated
+in favor of v2 but will continue to work. Docs page:
+[`docs/mcpize-tools/exchange_rate_check.md`](../docs/mcpize-tools/exchange_rate_check.md).
+
+### Verification
+
+```sh
+python3 -m unittest discover -s tools/tests -p 'test_exchange_rate_check.py' -v
+```
+
+The tests need no network. They run on five real, keyless Frankfurter
+responses: latest, latest with an amount, a weekend date, an unknown
+code, and the currencies list. The coordinator captured them under
+Option B on issue #168, because this container cannot reach
+api.frankfurter.dev. Their URLs, body sizes and SHA-256 hashes are in
+`tests/fixtures/frankfurter/provenance.json`, and the hashes are checked.
 
 ## edgar_formd.py
 

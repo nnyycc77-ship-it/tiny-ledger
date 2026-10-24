@@ -1,0 +1,57 @@
+{
+  "latest-USD-EUR.http": {
+    "url": "https://api.frankfurter.dev/v1/latest?base=USD&symbols=EUR",
+    "retrieved_utc": "2026-10-24, about 03:05 UTC (response Date header: Sat, 24 Oct 2026 03:06:02 GMT)",
+    "method": "GET, keyless (plain curl, no credentials), by the coordinator under Option B",
+    "captured_by": "coordinator, Option B capture A on issue #168",
+    "comment": "https://github.com/nnyycc77-ship-it/tiny-ledger/issues/168#issuecomment-6379108823",
+    "transcript_form": "status line, response headers in the order returned, a blank line, then the body exactly as returned, joined with newline characters, as posted in the comment",
+    "body_bytes": 71,
+    "body_sha256": "f7ef20dab1ca32894c05cd515cf38f7287e434da316fa2e581243008ef9d33be",
+    "sha256": "047d50f68826a2da0230f5e74cfe039b5b3457b6f3d069eb8cd73d2a89a64800"
+  },
+  "latest-USD-EUR-amount-100.http": {
+    "url": "https://api.frankfurter.dev/v1/latest?base=USD&symbols=EUR&amount=100",
+    "retrieved_utc": "2026-10-24, about 03:05 UTC (response Date header: Sat, 24 Oct 2026 03:06:03 GMT)",
+    "method": "GET, keyless (plain curl, no credentials), by the coordinator under Option B",
+    "captured_by": "coordinator, Option B capture B on issue #168",
+    "comment": "https://github.com/nnyycc77-ship-it/tiny-ledger/issues/168#issuecomment-6379109049",
+    "transcript_form": "status line, response headers in the order returned, a blank line, then the body exactly as returned, joined with newline characters, as posted in the comment",
+    "body_bytes": 71,
+    "body_sha256": "ad6617ee99350b619f5eccf4dee1b5bb9bee515e24592e74303038f5c0be347e",
+    "sha256": "d4e1efbf57c0f1f54ecbfe52109432a8b2578b4602173ad0895bd6df31b59694"
+  },
+  "date-2024-01-06-USD-EUR.http": {
+    "url": "https://api.frankfurter.dev/v1/2024-01-06?base=USD&symbols=EUR",
+    "retrieved_utc": "2026-10-24, about 03:05 UTC (response Date header: Sat, 24 Oct 2026 03:06:04 GMT)",
+    "method": "GET, keyless (plain curl, no credentials), by the coordinator under Option B",
+    "captured_by": "coordinator, Option B capture C on issue #168",
+    "comment": "https://github.com/nnyycc77-ship-it/tiny-ledger/issues/168#issuecomment-6379109250",
+    "transcript_form": "status line, response headers in the order returned, a blank line, then the body exactly as returned, joined with newline characters, as posted in the comment",
+    "body_bytes": 71,
+    "body_sha256": "1228362cebe2befa25fa92fb5e8428f3b748cba924530520a3bde6afdf83e637",
+    "sha256": "4d4ddf7dbf03746a1c8310ec7732515011ef5c5518d8d6a7fa4e5fde60120bc2"
+  },
+  "latest-USD-XYZ-404.http": {
+    "url": "https://api.frankfurter.dev/v1/latest?base=USD&symbols=XYZ",
+    "retrieved_utc": "2026-10-24, about 03:05 UTC (response Date header: Sat, 24 Oct 2026 03:06:05 GMT)",
+    "method": "GET, keyless (plain curl, no credentials), by the coordinator under Option B",
+    "captured_by": "coordinator, Option B capture D on issue #168",
+    "comment": "https://github.com/nnyycc77-ship-it/tiny-ledger/issues/168#issuecomment-6379109471",
+    "transcript_form": "status line, response headers in the order returned, a blank line, then the body exactly as returned, joined with newline characters, as posted in the comment",
+    "body_bytes": 23,
+    "body_sha256": "aef2ed8a2ebaf652f0f07cf0c47ece26e78c0f712ecb47ce91f2b53530173a79",
+    "sha256": "d7cc106b885cebfebc8ac54605f86aae59639c21e0405f5845ee6909624175c4"
+  },
+  "currencies.http": {
+    "url": "https://api.frankfurter.dev/v1/currencies",
+    "retrieved_utc": "2026-10-24, about 03:05 UTC (response Date header: Sat, 24 Oct 2026 03:06:05 GMT)",
+    "method": "GET, keyless (plain curl, no credentials), by the coordinator under Option B",
+    "captured_by": "coordinator, Option B capture E on issue #168",
+    "comment": "https://github.com/nnyycc77-ship-it/tiny-ledger/issues/168#issuecomment-6379109776",
+    "transcript_form": "status line, response headers in the order returned, a blank line, then the body exactly as returned, joined with newline characters, as posted in the comment",
+    "body_bytes": 703,
+    "body_sha256": "d943666faf93cd6a48c344437638ef7ce6bd8a4199b742b7743f72a146549e8a",
+    "sha256": "ddf24b5a4540caaab48a2b37a35cfe9ba10dd3995b4ddfc8aa3157c4afe33ba4"
+  }
+}

@@ -1,0 +1,16 @@
+HTTP/1.1 404 Not Found
+Date: Sat, 24 Oct 2026 03:06:05 GMT
+Content-Type: application/json; charset=utf-8
+CF-RAY: a4f5c3746f011d1a-EWR
+Server: cloudflare
+cache-control: no-store
+vary: Origin
+x-robots-tag: noindex
+deprecation: @1779103800
+link: <https://api.frankfurter.dev/v2/rates>; rel="successor-version"
+cf-cache-status: BYPASS
+Nel: {"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}
+Report-To: {"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=UcbHhKG8a42dy7yfnQibIgFIRTpIhuEfecwzT3MoGggstG%2FKimq%2Bq74D0d%2BkS%2FHeJGeQerX01NfMRsImpJTrMbLDDUgkEjYtEvahtpBZeeNJwAx7xrcppTaTs%2F%2Bm4Vw%2BR6BuczQQV4YyMOMtXWuoktI%3D"}]}
+Content-Length: 23
+
+{"message":"not found"}

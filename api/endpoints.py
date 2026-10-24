@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """The remaining fetchers as paid API endpoints (issue #65).
 
-Nine GET endpoints beside GET /recall, each wrapping one merged fetcher in
+Twelve GET endpoints beside GET /recall, each wrapping one merged fetcher in
 tools/ as library code and returning that fetcher's own rendered Markdown
 in the delivery format from AGENT-BRIEF.md: the claim lines, the exact
 query, the UTC retrieval time, the source link, and the complete raw
@@ -17,7 +17,9 @@ nothing else to the fetchers' output.
     /ofac        tools/ofac_sdn_check.py       name
     /domain      tools/domain_trust_check.py   domain
     /app         tools/app_lookup_check.py     name (country, limit optional)
+    /github      tools/github_repo_check.py    owner, repo
     /vin         tools/vin_decode.py           vin
+    /fx          tools/exchange_rate_check.py  base, target (amount, date optional)
 
 Each endpoint takes the fetcher's own command line inputs as query
 parameters under the same names (hyphens become underscores), validates
@@ -55,6 +57,7 @@ from tools import app_lookup_check as al  # noqa: E402
 from tools import courtlistener_recap as cl  # noqa: E402
 from tools import domain_trust_check as dt  # noqa: E402
 from tools import edgar_formd as ef  # noqa: E402
+from tools import exchange_rate_check as fx  # noqa: E402
 from tools import fmcsa_carrier as fc  # noqa: E402
 from tools import github_repo_check as gh  # noqa: E402
 from tools import ofac_sdn_check as ofac  # noqa: E402
@@ -522,6 +525,31 @@ def app(query, env=None):
 
 
 # ----------------------------------------------------------------------
+# /fx
+# ----------------------------------------------------------------------
+
+def exchange_rate(query, env=None):
+    """Frankfurter exchange rate via tools/exchange_rate_check.py."""
+    try:
+        base, target, amount, on = fx.check_query(_single(query, "base", ""), _single(query, "target", ""),
+                                                  _single(query, "amount"), _single(query, "date"))
+    except ValueError as err:
+        raise BadRequest(str(err))
+    url = fx.build_url(base, target, amount, on)
+    try:
+        retrieved, transcript, body = fx.fetch(url)
+    except (urllib.error.URLError, OSError) as err:
+        raise _transport(err)
+    lines = fx.render_section(base, target, amount, on, url, retrieved, transcript, body)
+    head = _head("Exchange rate: %s to %s" % (base, target),
+                 "Observation only: this report records what the public Frankfurter API returned at "
+                 "the retrieval time stated below; the rate, its date and any converted amount are "
+                 "the API's own figures as shown, not a quote to trade at.",
+                 "tools/exchange_rate_check.py")
+    return _text(head, lines)
+
+
+# ----------------------------------------------------------------------
 # Registry and descriptor
 # ----------------------------------------------------------------------
 
@@ -537,6 +565,7 @@ ROUTES = {
     "/vin": vin,
     "/github": github_repo,
     "/app": app,
+    "/fx": exchange_rate,
 }
 
 DESCRIPTIONS = {
@@ -609,6 +638,13 @@ DESCRIPTIONS = {
         "params": ["name (the app name to search for)", "country (optional, two letter store code, default us)",
                    "limit (optional, 1 to %d, default %d)" % (al.MAX_LIMIT, al.DEFAULT_LIMIT)],
         "sources": [al.SEARCH_URL],
+    },
+    "/fx": {
+        "tool": "tools/exchange_rate_check.py",
+        "params": ["base (three letter currency code, e.g. USD)", "target (three letter currency code, e.g. EUR)",
+                   "amount (optional, a positive number; the API converts it)",
+                   "date (optional, YYYY-MM-DD; default latest)"],
+        "sources": [fx.BASE_URL],
     },
 }
 
