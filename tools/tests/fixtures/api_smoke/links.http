@@ -1,0 +1,45 @@
+HTTP/1.0 200 OK
+Date: Sat, 24 Oct 2026 08:15:49 GMT
+Server: WSGIServer/0.2 CPython/3.12.3
+Content-Type: text/markdown; charset=utf-8
+Content-Length: 1988
+Cache-Control: no-store
+X-Payout-Wallet: 0x1111111111111111111111111111111111111111
+
+# Broken link check: https://example.com/
+
+Observation only: this report records what the page named below and each link target on it returned at the retrieval time stated below. A status is the server's own answer at that moment; a target that answers later may answer differently.
+
+Exact query: GET https://example.com/
+Retrieved (UTC): 2026-10-24T08:15:48Z
+
+PAGE: https://example.com/ answered HTTP/1.1 200 OK; body 577 bytes, sha256 25ddf2c883e0d1958ea971d279a7e4f0fd446724ee3db7db19dadabd4a62e484.
+LINKS: 1 link(s) on the page; 0 unique HTTP target(s) checked, 0 same page anchor(s) not fetched, 1 non HTTP link(s) not fetched, 0 target(s) past the cap of 100 not checked.
+
+Dead links (final status 400 or above): 0
+- None. Every checked link answered below 400, and the per link results below are the proof.
+
+Every checked link, with the status line it answered:
+- None were checked; the page holds no HTTP link target, and the complete raw page response beneath the source link below is the proof.
+
+Non HTTP links, not fetched: 'data:,'
+
+Source: <https://example.com/>
+```
+HTTP/1.1 200 OK
+Date: Sat, 24 Oct 2026 08:15:50 GMT
+Content-Type: text/html; charset=utf-8
+alt-svc: h3=":443"; ma=86400
+CF-RAY: a4f78933d8e551e8-DEN
+Server: cloudflare
+last-modified: Sat, 24 Oct 2026 06:00:47 GMT
+allow: GET, HEAD
+Accept-Ranges: bytes
+Age: 59
+cf-cache-status: HIT
+Connection: close
+Transfer-Encoding: chunked
+
+<!doctype html><html lang=en><head><meta charset=utf-8><link rel=icon href=data:,><meta name=viewport content="width=device-width,initial-scale=1"><title>Example Domain</title><style>html{color-scheme:light dark;background:light-dark(#eee,#222)}body{font:16px/1.6 system-ui,sans-serif;max-width:26em;margin:auto;padding:25vh 2em 2em;text-align:center}</style></head><body><p>This domain is for use in documentation examples without needing permission. This is not a service; avoid relying on it for testing and monitoring purposes.</p><script src=/s.js></script></body></html>
+
+```

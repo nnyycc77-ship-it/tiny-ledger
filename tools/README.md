@@ -1061,13 +1061,21 @@ shapes are asserted:
    wallet, a `resource`, and a description of at most 500 characters.
 3. `GET /openapi.json` is 200 OpenAPI naming `/recall`.
 
+Offline mode asserts a fourth shape (issue #205): every other GET endpoint
+in `api/openapi.json` answers 200 with its fetcher's Markdown report
+(text/markdown, title first, a retrieved UTC timestamp, the fenced
+raw transcript), and a closing coverage section counts one check per GET
+endpoint in that file. An endpoint with no fixture fails the run and is
+named; live mode keeps the original three shapes only.
+
 Output is one Markdown section in the delivery format: a PASS or FAIL claim
 line per assertion, the source link, the UTC time, and the complete raw
 transcript beneath. Exit codes:
 - 0: every assertion passes.
 - 1: any assertion fails. The failed ones are listed by name at the top.
 - 2: the checks cannot run, because of a transport failure, a fixture that
-  no longer matches its SHA-256, or bad input.
+  no longer matches its SHA-256, a fixture or provenance entry that is
+  missing, or bad input.
 
 Offline mode reads `tests/fixtures/api_smoke/`, which holds transcripts
 captured from the local gated server (`python3 server.py`) with a synthetic

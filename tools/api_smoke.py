@@ -24,6 +24,15 @@ Shapes asserted:
    of at most 500 characters.
 3. GET /openapi.json is 200, parses as OpenAPI (an "openapi" field and a
    "paths" object), and names /recall in its paths.
+4. Every other GET endpoint in the OpenAPI document answers 200 with
+   its fetcher's Markdown report: a text/markdown body whose first line
+   is the report title, carrying a retrieved UTC timestamp from the
+   evidence format and the fenced raw response transcript (issue #205).
+   The timestamp's label varies by fetcher (most print a Retrieved
+   (UTC) line; /faa states the archive's retrieved time inline), so the
+   assertion matches the timestamp itself, not one label. A final
+   coverage section then counts one check per GET endpoint in the
+   document; an endpoint with no check fails the run and is named.
 
 Read only. The tool sends GET requests and never an X-PAYMENT header, so
 it can never pay for a call; the 402 check depends on that.
@@ -31,7 +40,11 @@ it can never pay for a call; the 402 check depends on that.
 Offline mode (the default) reads the transcripts captured from the local
 gated server in tools/tests/fixtures/api_smoke/ and checks their SHA-256
 against provenance.json before asserting anything; a changed fixture is
-an error, not a result.
+an error, not a result, and so is a missing fixture or provenance entry,
+named by its endpoint. The coverage denominator is the repo's own
+api/openapi.json, read by the tool itself, so a stale capture cannot
+undercount the surface. Live mode keeps the original three registry
+checks only; the endpoint coverage is an offline fixture discipline.
 
 Exit 0 when every assertion passes, 1 when any fails, 2 when the checks
 cannot run (a transport failure, an unreadable or altered fixture, bad
@@ -55,10 +68,37 @@ FIXTURES = Path(__file__).resolve().parent / "tests" / "fixtures" / "api_smoke"
 DEFAULT_PRODUCT = "Instant Pot"
 TIMEOUT_SECONDS = 30
 EVM_ADDRESS = re.compile(r"^0x[0-9a-fA-F]{40}$")
+RETRIEVED_UTC = re.compile(r"(?i)retrieved[^.\n]{0,30}\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z")
 MAX_DESCRIPTION = 500
 
 Capture = namedtuple("Capture", "url retrieved status_line status headers body")
 FIXTURE_NAMES = {"descriptor": "descriptor.http", "payment": "recall-402.http", "openapi": "openapi.http"}
+
+# Offline endpoint coverage (issue #205): one captured fixture per GET
+# endpoint in api/openapi.json that is not already covered above (/ is
+# the descriptor check, /recall is the payment check). Each entry is the
+# endpoint path, its fixture file, and the tool file its report names.
+# A path added to the OpenAPI document without an entry here fails the
+# coverage section of the offline run and the api_smoke suite.
+ENDPOINT_FIXTURES = {
+    "/app": ("app.http", "app_lookup_check.py"),
+    "/awards": ("awards.http", "usaspending_awards.py"),
+    "/carrier": ("carrier.http", "fmcsa_carrier.py"),
+    "/csl": ("csl.http", "csl_screen.py"),
+    "/drug": ("drug.http", "fda_drug_check.py"),
+    "/epa": ("epa.http", "epa_screen.py"),
+    "/faa": ("faa.http", "faa_lookup.py"),
+    "/formd": ("formd.http", "edgar_formd.py"),
+    "/fx": ("fx.http", "exchange_rate_check.py"),
+    "/links": ("links.http", "broken_link_check.py"),
+    "/litigation": ("litigation.http", "courtlistener_recap.py"),
+    "/meta": ("meta.http", "meta_tag_check.py"),
+    "/nonprofit": ("nonprofit.http", "propublica_nonprofits.py"),
+    "/pagespeed": ("pagespeed.http", "pagespeed_snapshot.py"),
+    "/safety": ("safety.http", "safety_file.py"),
+    "/trials": ("trials.http", "clinical_trial_check.py"),
+    "/vin": ("vin.http", "vin_decode.py"),
+}
 
 
 class SmokeError(Exception):
@@ -118,18 +158,45 @@ def offline_captures(fixtures=FIXTURES):
     except (OSError, ValueError) as err:
         raise SmokeError("cannot read fixture provenance: %s" % err)
     out = {}
-    for key, name in FIXTURE_NAMES.items():
+    named = [(key, name, None) for key, name in FIXTURE_NAMES.items()]
+    named += [(path, name, path) for path, (name, _tool) in ENDPOINT_FIXTURES.items()]
+    endpoints = {}
+    for key, name, path in named:
+        where = "fixture %s" % name if path is None else "fixture %s (endpoint %s)" % (name, path)
         entry = provenance.get(name)
         if not entry:
-            raise SmokeError("no provenance for fixture %s" % name)
+            raise SmokeError("no provenance for %s" % where)
         try:
             data = (fixtures / name).read_bytes()
         except OSError as err:
-            raise SmokeError("cannot read fixture %s: %s" % (name, err))
+            raise SmokeError("cannot read %s: %s" % (where, err))
         if hashlib.sha256(data).hexdigest() != entry.get("sha256"):
-            raise SmokeError("fixture %s does not match its recorded sha256" % name)
-        out[key] = parse_transcript(data.decode("utf-8"), entry["url"], entry["retrieved_utc"])
+            raise SmokeError("%s does not match its recorded sha256" % where)
+        capture = parse_transcript(data.decode("utf-8"), entry["url"], entry["retrieved_utc"])
+        if path is None:
+            out[key] = capture
+        else:
+            endpoints[path] = capture
+    out["endpoints"] = endpoints
+    out["coverage_paths"] = repo_openapi_get_paths()
     return out
+
+
+def repo_openapi_get_paths():
+    """The GET paths of the repo's own api/openapi.json, in document
+    order: the coverage denominator. Read from the file beside the repo
+    root (this tool lives in tools/), never from a capture, because a
+    stale capture would undercount the surface. Unreadable is an error,
+    not an empty list."""
+    doc_file = Path(__file__).resolve().parent.parent / "api" / "openapi.json"
+    try:
+        doc = json.loads(doc_file.read_text(encoding="utf-8"))
+    except (OSError, ValueError) as err:
+        raise SmokeError("cannot read %s for the coverage count: %s" % (doc_file, err))
+    paths = doc.get("paths") if isinstance(doc, dict) else None
+    if not isinstance(paths, dict):
+        raise SmokeError("%s has no paths object for the coverage count" % doc_file)
+    return [path for path, ops in paths.items() if isinstance(ops, dict) and "get" in ops]
 
 
 def live_captures(base, product):
@@ -205,6 +272,33 @@ def check_openapi(capture):
     ]
 
 
+def check_endpoint_report(capture, path, tool):
+    """The shape every wrapped fetcher endpoint answers with: its own
+    rendered Markdown report in the delivery evidence format. `tool` is
+    the fetcher the endpoint wraps (named in the section title); not
+    every fetcher's report names it in the body, so it is not asserted."""
+    content_type = next((h for h in capture.headers if h.lower().startswith("content-type:")), "")
+    return [
+        ("GET %s answers 200" % path, capture.status == 200),
+        ("Content-Type is text/markdown", "text/markdown" in content_type),
+        ("body is the endpoint report (Markdown title first)", capture.body.startswith("# ")),
+        ("report carries a retrieved UTC timestamp",
+         bool(RETRIEVED_UTC.search(capture.body))),
+        ("report embeds the raw response transcript (fenced block)", "```" in capture.body),
+    ]
+
+
+def check_coverage(captures):
+    """One line per GET endpoint in the repo's api/openapi.json: covered
+    when the run checked it (descriptor, payment, or an endpoint
+    fixture). The paths come from offline_captures, which read the repo
+    file itself; a hand built captures dict without them covers only
+    what it carries, so an unchecked endpoint still fails by name."""
+    covered = {"/", "/recall"} | set(captures.get("endpoints", {}))
+    return [("GET %s has an offline check" % path, path in covered)
+            for path in captures.get("coverage_paths", [])]
+
+
 # ----------------------------------------------------------------------
 # Report
 # ----------------------------------------------------------------------
@@ -234,6 +328,17 @@ def run_checks(captures, mode):
          check_payment(captures["payment"], wallet)),
         ("3. OpenAPI document", captures["openapi"], check_openapi(captures["openapi"])),
     ]
+    if "endpoints" in captures:
+        number = 4
+        for path, (_name, tool) in ENDPOINT_FIXTURES.items():
+            capture = captures["endpoints"].get(path)
+            if capture is None:
+                continue
+            parts.append(("%d. Endpoint GET %s (tools/%s)" % (number, path, tool), capture,
+                          check_endpoint_report(capture, path, tool)))
+            number += 1
+        parts.append(("%d. Endpoint coverage" % number, captures["openapi"],
+                      check_coverage(captures)))
     failed = [(title, text) for title, _, results in parts for text, ok in results if not ok]
     lines = ["## Recall API smoke checks (%s)" % mode, "",
              "Read only: GET requests with no X-PAYMENT header; nothing is paid.", ""]

@@ -11,6 +11,15 @@ Which data is which:
   SHA-256 of each, checked here. The payout address configured for that
   capture, 0x1111111111111111111111111111111111111111, is a SYNTHETIC
   placeholder, not any real wallet.
+* REAL CAPTURE, ENDPOINTS: the seventeen endpoint fixtures added for issue
+  #205 (app.http through vin.http) are transcripts from the same local
+  gated server, captured with the same fetch(); sixteen at main 60a1bf3,
+  and faa.http at main af3646c for the PR #209 fix round, after GET /faa
+  merged in PR #195. Their provenance entries record the sample query in
+  each URL, the server config (the same SYNTHETIC placeholder wallet, a
+  labelled test EDGAR_CONTACT, and no PAGESPEED_API_KEY, so /pagespeed
+  carries its documented keyless 429 quota report) and the SHA-256 of
+  each.
 * LIVE LOCAL: the live mode tests run the real api.payment_gate app
   in process on 127.0.0.1, configured with the same SYNTHETIC placeholder
   address. No X-PAYMENT header is ever sent, so the facilitator is never
@@ -91,15 +100,20 @@ class OfflineMode(unittest.TestCase):
         self.assertTrue(all(ok for _, ok in results), results)
         self.assertEqual(self.caps["openapi"].status, 200)
 
-    def test_default_run_passes_all_twenty_with_the_raw_responses(self):
+    def test_default_run_passes_all_124_with_the_raw_responses(self):
+        # 20 original assertions, 17 endpoint sections of 5, and 19
+        # coverage lines, one per GET path in api/openapi.json.
         code, out, err = run_main([])
         self.assertEqual(code, 0, err)
         self.assertIn("Result: PASS, every assertion held.", out)
-        self.assertEqual(out.count("- PASS:"), 20)
+        self.assertEqual(out.count("- PASS:"), 124)
         self.assertNotIn("- FAIL:", out)
         self.assertIn("Source: <http://127.0.0.1:8765/openapi.json>", out)
         self.assertIn("Retrieved (UTC): 2026-10-23T14:51:26Z", out)
         self.assertIn((FIX / "openapi.http").read_text(encoding="utf-8"), out)
+        self.assertIn((FIX / "vin.http").read_text(encoding="utf-8"), out)
+        self.assertIn("- PASS: GET /vin has an offline check", out)
+        self.assertIn("- PASS: GET /faa has an offline check", out)
 
     def test_a_failed_assertion_is_named_with_the_raw_response(self):
         # DERIVED: the real openapi capture with its status line changed to a 404,
@@ -125,6 +139,69 @@ class OfflineMode(unittest.TestCase):
                 smoke.offline_captures(tmp)
         finally:
             shutil.rmtree(tmp)
+
+    def test_missing_endpoint_fixture_fails_closed_and_names_the_endpoint(self):
+        tmp = Path(tempfile.mkdtemp())
+        try:
+            for f in FIX.iterdir():
+                shutil.copy(f, tmp / f.name)
+            (tmp / "vin.http").unlink()  # DERIVED: the real fixture set minus one file
+            with self.assertRaises(smoke.SmokeError) as ctx:
+                smoke.offline_captures(tmp)
+            self.assertIn("/vin", str(ctx.exception))
+        finally:
+            shutil.rmtree(tmp)
+
+    def test_missing_endpoint_provenance_fails_closed_and_names_the_endpoint(self):
+        tmp = Path(tempfile.mkdtemp())
+        try:
+            for f in FIX.iterdir():
+                shutil.copy(f, tmp / f.name)
+            prov = json.loads((tmp / "provenance.json").read_text(encoding="utf-8"))
+            del prov["drug.http"]  # DERIVED: the real provenance minus one entry
+            (tmp / "provenance.json").write_text(json.dumps(prov), encoding="utf-8")
+            with self.assertRaises(smoke.SmokeError) as ctx:
+                smoke.offline_captures(tmp)
+            self.assertIn("/drug", str(ctx.exception))
+        finally:
+            shutil.rmtree(tmp)
+
+    def test_uncovered_endpoint_fails_the_run_and_is_named(self):
+        # DERIVED: the real captures with one invented path added to the
+        # coverage denominator, as if openapi.json had gained an endpoint
+        # with no fixture.
+        caps = smoke.offline_captures()
+        caps["coverage_paths"] = list(caps["coverage_paths"]) + ["/zzz"]
+        with mock.patch.object(smoke, "offline_captures", return_value=caps):
+            code, out, err = run_main([])
+        self.assertEqual(code, 1, err)
+        self.assertIn("- FAIL: GET /zzz has an offline check", out)
+        self.assertIn("Endpoint coverage: GET /zzz has an offline check", out)
+
+    def test_endpoint_shape_failure_is_named(self):
+        # DERIVED: the real /fx capture with its status changed to a 502.
+        caps = smoke.offline_captures()
+        caps["endpoints"]["/fx"] = caps["endpoints"]["/fx"]._replace(
+            status_line="HTTP/1.0 502 Bad Gateway", status=502)
+        report, ok = smoke.run_checks(caps, "offline: derived")
+        self.assertFalse(ok)
+        self.assertIn("- FAIL: GET /fx answers 200", report)
+
+
+class CoverageTable(unittest.TestCase):
+    def test_every_get_path_in_the_repo_openapi_has_a_fixture_entry(self):
+        from api import endpoints as api_endpoints
+        doc = json.loads(OPENAPI_FILE)
+        get_paths = [p for p, ops in doc["paths"].items() if "get" in ops]
+        self.assertEqual(set(smoke.repo_openapi_get_paths()), set(get_paths))
+        for path in get_paths:
+            with self.subTest(path=path):
+                if path in ("/", "/recall"):
+                    continue  # the descriptor and payment checks
+                self.assertIn(path, smoke.ENDPOINT_FIXTURES)
+                name, tool = smoke.ENDPOINT_FIXTURES[path]
+                self.assertIn(name, PROVENANCE)
+                self.assertEqual(api_endpoints.DESCRIPTIONS[path]["tool"], "tools/" + tool)
 
 
 class Assertions(unittest.TestCase):

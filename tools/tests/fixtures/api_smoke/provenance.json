@@ -22,5 +22,142 @@
     "captured_by": "H2, with tools/api_smoke.py fetch(), from the local gated server: python3 server.py at main 04ba970 (api.payment_gate:app), PORT=8765; recaptured for issue #95 after GET /openapi.json was added (PR #93, issue #85). The earlier capture was H3's at main f6a3e0c for PR #81.",
     "server_config": "PAYOUT_WALLET_ADDRESS=0x1111111111111111111111111111111111111111, a SYNTHETIC placeholder address chosen for the capture, not any real wallet; FACILITATOR_URL, X402_PRICE_ATOMIC, X402_NETWORK and X402_ASSET at their defaults; no X-PAYMENT header sent, so the facilitator was never contacted",
     "transcript_form": "status line, response headers in the order returned, a blank line, then the body exactly as returned, joined with newline characters"
+  },
+  "app.http": {
+    "url": "http://127.0.0.1:8765/app?name=Spotify&limit=3",
+    "retrieved_utc": "2026-10-24T08:15:38Z",
+    "sha256": "aabd65f0e3f9f592b8ca05da806a8140f28e34cc440f3cf08b88a5cef601201f",
+    "captured_by": "H6, with tools/api_smoke.py fetch(), from the local gated server: python3 server.py at main 60a1bf3 (api.payment_gate:app), PORT=8765, for issue #205.",
+    "server_config": "PAYOUT_WALLET_ADDRESS=0x1111111111111111111111111111111111111111, a SYNTHETIC placeholder address chosen for the capture, not any real wallet; EDGAR_CONTACT set to a labelled test contact (Tiny Ledger Api Smoke smoke@example.com) so /formd answers from EDGAR instead of 503; PAGESPEED_API_KEY unset, so the /pagespeed report carries the keyless 429 quota transcript, the endpoint's documented default; FACILITATOR_URL, X402_PRICE_ATOMIC, X402_NETWORK and X402_ASSET at their defaults; no X-PAYMENT header sent, so the facilitator was never contacted",
+    "transcript_form": "status line, response headers in the order returned, a blank line, then the body exactly as returned, joined with newline characters"
+  },
+  "awards.http": {
+    "url": "http://127.0.0.1:8765/awards?recipient=Lockheed+Martin&limit=3",
+    "retrieved_utc": "2026-10-24T08:15:40Z",
+    "sha256": "ab4a49775308a9989d56e93ad977fb000b64161552d9b0df7d14a17c1c9ddea6",
+    "captured_by": "H6, with tools/api_smoke.py fetch(), from the local gated server: python3 server.py at main 60a1bf3 (api.payment_gate:app), PORT=8765, for issue #205.",
+    "server_config": "PAYOUT_WALLET_ADDRESS=0x1111111111111111111111111111111111111111, a SYNTHETIC placeholder address chosen for the capture, not any real wallet; EDGAR_CONTACT set to a labelled test contact (Tiny Ledger Api Smoke smoke@example.com) so /formd answers from EDGAR instead of 503; PAGESPEED_API_KEY unset, so the /pagespeed report carries the keyless 429 quota transcript, the endpoint's documented default; FACILITATOR_URL, X402_PRICE_ATOMIC, X402_NETWORK and X402_ASSET at their defaults; no X-PAYMENT header sent, so the facilitator was never contacted",
+    "transcript_form": "status line, response headers in the order returned, a blank line, then the body exactly as returned, joined with newline characters"
+  },
+  "carrier.http": {
+    "url": "http://127.0.0.1:8765/carrier?usdot=2046&source=census",
+    "retrieved_utc": "2026-10-24T08:15:41Z",
+    "sha256": "ff6c6754f2080491960d9fd094f9aba495c64ac28ecb13fda69292a6113537ef",
+    "captured_by": "H6, with tools/api_smoke.py fetch(), from the local gated server: python3 server.py at main 60a1bf3 (api.payment_gate:app), PORT=8765, for issue #205.",
+    "server_config": "PAYOUT_WALLET_ADDRESS=0x1111111111111111111111111111111111111111, a SYNTHETIC placeholder address chosen for the capture, not any real wallet; EDGAR_CONTACT set to a labelled test contact (Tiny Ledger Api Smoke smoke@example.com) so /formd answers from EDGAR instead of 503; PAGESPEED_API_KEY unset, so the /pagespeed report carries the keyless 429 quota transcript, the endpoint's documented default; FACILITATOR_URL, X402_PRICE_ATOMIC, X402_NETWORK and X402_ASSET at their defaults; no X-PAYMENT header sent, so the facilitator was never contacted",
+    "transcript_form": "status line, response headers in the order returned, a blank line, then the body exactly as returned, joined with newline characters",
+    "note": "The sample query selects source=census, one of the endpoint's three sources, to keep the fixture small; the other sources return the same report shape through the same endpoint."
+  },
+  "csl.http": {
+    "url": "http://127.0.0.1:8765/csl?name=Carlos+Smith",
+    "retrieved_utc": "2026-10-24T08:15:42Z",
+    "sha256": "1d8316fe8741420ef69b02a8e6b546d55143f354b1b733e8e845c2984b633007",
+    "captured_by": "H6, with tools/api_smoke.py fetch(), from the local gated server: python3 server.py at main 60a1bf3 (api.payment_gate:app), PORT=8765, for issue #205.",
+    "server_config": "PAYOUT_WALLET_ADDRESS=0x1111111111111111111111111111111111111111, a SYNTHETIC placeholder address chosen for the capture, not any real wallet; EDGAR_CONTACT set to a labelled test contact (Tiny Ledger Api Smoke smoke@example.com) so /formd answers from EDGAR instead of 503; PAGESPEED_API_KEY unset, so the /pagespeed report carries the keyless 429 quota transcript, the endpoint's documented default; FACILITATOR_URL, X402_PRICE_ATOMIC, X402_NETWORK and X402_ASSET at their defaults; no X-PAYMENT header sent, so the facilitator was never contacted",
+    "transcript_form": "status line, response headers in the order returned, a blank line, then the body exactly as returned, joined with newline characters"
+  },
+  "drug.http": {
+    "url": "http://127.0.0.1:8765/drug?name=Tylenol",
+    "retrieved_utc": "2026-10-24T08:15:43Z",
+    "sha256": "41cd2f6ecd262b50e9eebea4a8fbb0b36b488a3c28dfb9aa396a097350a9fbf1",
+    "captured_by": "H6, with tools/api_smoke.py fetch(), from the local gated server: python3 server.py at main 60a1bf3 (api.payment_gate:app), PORT=8765, for issue #205.",
+    "server_config": "PAYOUT_WALLET_ADDRESS=0x1111111111111111111111111111111111111111, a SYNTHETIC placeholder address chosen for the capture, not any real wallet; EDGAR_CONTACT set to a labelled test contact (Tiny Ledger Api Smoke smoke@example.com) so /formd answers from EDGAR instead of 503; PAGESPEED_API_KEY unset, so the /pagespeed report carries the keyless 429 quota transcript, the endpoint's documented default; FACILITATOR_URL, X402_PRICE_ATOMIC, X402_NETWORK and X402_ASSET at their defaults; no X-PAYMENT header sent, so the facilitator was never contacted",
+    "transcript_form": "status line, response headers in the order returned, a blank line, then the body exactly as returned, joined with newline characters"
+  },
+  "epa.http": {
+    "url": "http://127.0.0.1:8765/epa?name=BAYTOWN+OLEFINS&state=TX",
+    "retrieved_utc": "2026-10-24T08:15:45Z",
+    "sha256": "675a11c78941655dddc8ebe84b0c7b2322cc5bf7e637aa1bf5bc6bf5b88eb6ba",
+    "captured_by": "H6, with tools/api_smoke.py fetch(), from the local gated server: python3 server.py at main 60a1bf3 (api.payment_gate:app), PORT=8765, for issue #205.",
+    "server_config": "PAYOUT_WALLET_ADDRESS=0x1111111111111111111111111111111111111111, a SYNTHETIC placeholder address chosen for the capture, not any real wallet; EDGAR_CONTACT set to a labelled test contact (Tiny Ledger Api Smoke smoke@example.com) so /formd answers from EDGAR instead of 503; PAGESPEED_API_KEY unset, so the /pagespeed report carries the keyless 429 quota transcript, the endpoint's documented default; FACILITATOR_URL, X402_PRICE_ATOMIC, X402_NETWORK and X402_ASSET at their defaults; no X-PAYMENT header sent, so the facilitator was never contacted",
+    "transcript_form": "status line, response headers in the order returned, a blank line, then the body exactly as returned, joined with newline characters"
+  },
+  "formd.http": {
+    "url": "http://127.0.0.1:8765/formd?issuer=Farmer+Bros+Co&max_filings=1",
+    "retrieved_utc": "2026-10-24T08:15:46Z",
+    "sha256": "5a6b826cd362b55f73d73902f5b80f441944e5b55f66340c50354d8081b8c547",
+    "captured_by": "H6, with tools/api_smoke.py fetch(), from the local gated server: python3 server.py at main 60a1bf3 (api.payment_gate:app), PORT=8765, for issue #205.",
+    "server_config": "PAYOUT_WALLET_ADDRESS=0x1111111111111111111111111111111111111111, a SYNTHETIC placeholder address chosen for the capture, not any real wallet; EDGAR_CONTACT set to a labelled test contact (Tiny Ledger Api Smoke smoke@example.com) so /formd answers from EDGAR instead of 503; PAGESPEED_API_KEY unset, so the /pagespeed report carries the keyless 429 quota transcript, the endpoint's documented default; FACILITATOR_URL, X402_PRICE_ATOMIC, X402_NETWORK and X402_ASSET at their defaults; no X-PAYMENT header sent, so the facilitator was never contacted",
+    "transcript_form": "status line, response headers in the order returned, a blank line, then the body exactly as returned, joined with newline characters"
+  },
+  "fx.http": {
+    "url": "http://127.0.0.1:8765/fx?base=USD&target=EUR",
+    "retrieved_utc": "2026-10-24T08:15:47Z",
+    "sha256": "59a0cdb8c2a8db0b55ae81e772c8f125ecaef2fdd0d6442e93833364ec46b1c8",
+    "captured_by": "H6, with tools/api_smoke.py fetch(), from the local gated server: python3 server.py at main 60a1bf3 (api.payment_gate:app), PORT=8765, for issue #205.",
+    "server_config": "PAYOUT_WALLET_ADDRESS=0x1111111111111111111111111111111111111111, a SYNTHETIC placeholder address chosen for the capture, not any real wallet; EDGAR_CONTACT set to a labelled test contact (Tiny Ledger Api Smoke smoke@example.com) so /formd answers from EDGAR instead of 503; PAGESPEED_API_KEY unset, so the /pagespeed report carries the keyless 429 quota transcript, the endpoint's documented default; FACILITATOR_URL, X402_PRICE_ATOMIC, X402_NETWORK and X402_ASSET at their defaults; no X-PAYMENT header sent, so the facilitator was never contacted",
+    "transcript_form": "status line, response headers in the order returned, a blank line, then the body exactly as returned, joined with newline characters"
+  },
+  "links.http": {
+    "url": "http://127.0.0.1:8765/links?url=https%3A%2F%2Fexample.com%2F",
+    "retrieved_utc": "2026-10-24T08:15:48Z",
+    "sha256": "540438ff322e78b41236ef09215d4eee3a3fca29e75c1c09cce8b83c800d7317",
+    "captured_by": "H6, with tools/api_smoke.py fetch(), from the local gated server: python3 server.py at main 60a1bf3 (api.payment_gate:app), PORT=8765, for issue #205.",
+    "server_config": "PAYOUT_WALLET_ADDRESS=0x1111111111111111111111111111111111111111, a SYNTHETIC placeholder address chosen for the capture, not any real wallet; EDGAR_CONTACT set to a labelled test contact (Tiny Ledger Api Smoke smoke@example.com) so /formd answers from EDGAR instead of 503; PAGESPEED_API_KEY unset, so the /pagespeed report carries the keyless 429 quota transcript, the endpoint's documented default; FACILITATOR_URL, X402_PRICE_ATOMIC, X402_NETWORK and X402_ASSET at their defaults; no X-PAYMENT header sent, so the facilitator was never contacted",
+    "transcript_form": "status line, response headers in the order returned, a blank line, then the body exactly as returned, joined with newline characters"
+  },
+  "litigation.http": {
+    "url": "http://127.0.0.1:8765/litigation?party=Apple+Inc&list=3",
+    "retrieved_utc": "2026-10-24T08:15:49Z",
+    "sha256": "6500e546af8f3333d953bb3c39b7f61d59217e6f64b4854d1bcdf63eebcad250",
+    "captured_by": "H6, with tools/api_smoke.py fetch(), from the local gated server: python3 server.py at main 60a1bf3 (api.payment_gate:app), PORT=8765, for issue #205.",
+    "server_config": "PAYOUT_WALLET_ADDRESS=0x1111111111111111111111111111111111111111, a SYNTHETIC placeholder address chosen for the capture, not any real wallet; EDGAR_CONTACT set to a labelled test contact (Tiny Ledger Api Smoke smoke@example.com) so /formd answers from EDGAR instead of 503; PAGESPEED_API_KEY unset, so the /pagespeed report carries the keyless 429 quota transcript, the endpoint's documented default; FACILITATOR_URL, X402_PRICE_ATOMIC, X402_NETWORK and X402_ASSET at their defaults; no X-PAYMENT header sent, so the facilitator was never contacted",
+    "transcript_form": "status line, response headers in the order returned, a blank line, then the body exactly as returned, joined with newline characters"
+  },
+  "meta.http": {
+    "url": "http://127.0.0.1:8765/meta?url=https%3A%2F%2Fexample.com%2F",
+    "retrieved_utc": "2026-10-24T08:15:50Z",
+    "sha256": "7f1598511702f8e2c2f5a56c5fa33244a15c88688482b0ea0a3aafb431a22e56",
+    "captured_by": "H6, with tools/api_smoke.py fetch(), from the local gated server: python3 server.py at main 60a1bf3 (api.payment_gate:app), PORT=8765, for issue #205.",
+    "server_config": "PAYOUT_WALLET_ADDRESS=0x1111111111111111111111111111111111111111, a SYNTHETIC placeholder address chosen for the capture, not any real wallet; EDGAR_CONTACT set to a labelled test contact (Tiny Ledger Api Smoke smoke@example.com) so /formd answers from EDGAR instead of 503; PAGESPEED_API_KEY unset, so the /pagespeed report carries the keyless 429 quota transcript, the endpoint's documented default; FACILITATOR_URL, X402_PRICE_ATOMIC, X402_NETWORK and X402_ASSET at their defaults; no X-PAYMENT header sent, so the facilitator was never contacted",
+    "transcript_form": "status line, response headers in the order returned, a blank line, then the body exactly as returned, joined with newline characters"
+  },
+  "nonprofit.http": {
+    "url": "http://127.0.0.1:8765/nonprofit?name=Red+Cross",
+    "retrieved_utc": "2026-10-24T08:15:51Z",
+    "sha256": "57344bf9ce92c03f7b7f4c1301990f5b52bcde5bcafe676ca2bc117f3b4c24fd",
+    "captured_by": "H6, with tools/api_smoke.py fetch(), from the local gated server: python3 server.py at main 60a1bf3 (api.payment_gate:app), PORT=8765, for issue #205.",
+    "server_config": "PAYOUT_WALLET_ADDRESS=0x1111111111111111111111111111111111111111, a SYNTHETIC placeholder address chosen for the capture, not any real wallet; EDGAR_CONTACT set to a labelled test contact (Tiny Ledger Api Smoke smoke@example.com) so /formd answers from EDGAR instead of 503; PAGESPEED_API_KEY unset, so the /pagespeed report carries the keyless 429 quota transcript, the endpoint's documented default; FACILITATOR_URL, X402_PRICE_ATOMIC, X402_NETWORK and X402_ASSET at their defaults; no X-PAYMENT header sent, so the facilitator was never contacted",
+    "transcript_form": "status line, response headers in the order returned, a blank line, then the body exactly as returned, joined with newline characters"
+  },
+  "pagespeed.http": {
+    "url": "http://127.0.0.1:8765/pagespeed?url=https%3A%2F%2Fexample.com%2F",
+    "retrieved_utc": "2026-10-24T08:15:52Z",
+    "sha256": "60881e36420e1887ec8d60f2a831a114a06390cb220fcf686c452434d6761f2c",
+    "captured_by": "H6, with tools/api_smoke.py fetch(), from the local gated server: python3 server.py at main 60a1bf3 (api.payment_gate:app), PORT=8765, for issue #205.",
+    "server_config": "PAYOUT_WALLET_ADDRESS=0x1111111111111111111111111111111111111111, a SYNTHETIC placeholder address chosen for the capture, not any real wallet; EDGAR_CONTACT set to a labelled test contact (Tiny Ledger Api Smoke smoke@example.com) so /formd answers from EDGAR instead of 503; PAGESPEED_API_KEY unset, so the /pagespeed report carries the keyless 429 quota transcript, the endpoint's documented default; FACILITATOR_URL, X402_PRICE_ATOMIC, X402_NETWORK and X402_ASSET at their defaults; no X-PAYMENT header sent, so the facilitator was never contacted",
+    "transcript_form": "status line, response headers in the order returned, a blank line, then the body exactly as returned, joined with newline characters"
+  },
+  "safety.http": {
+    "url": "http://127.0.0.1:8765/safety?make=Hyundai&model=Elantra&year=2021",
+    "retrieved_utc": "2026-10-24T08:15:53Z",
+    "sha256": "5593c228d5ea95a06d34933de24f907ebd15296c5a98c090f244a8b31bf83d80",
+    "captured_by": "H6, with tools/api_smoke.py fetch(), from the local gated server: python3 server.py at main 60a1bf3 (api.payment_gate:app), PORT=8765, for issue #205.",
+    "server_config": "PAYOUT_WALLET_ADDRESS=0x1111111111111111111111111111111111111111, a SYNTHETIC placeholder address chosen for the capture, not any real wallet; EDGAR_CONTACT set to a labelled test contact (Tiny Ledger Api Smoke smoke@example.com) so /formd answers from EDGAR instead of 503; PAGESPEED_API_KEY unset, so the /pagespeed report carries the keyless 429 quota transcript, the endpoint's documented default; FACILITATOR_URL, X402_PRICE_ATOMIC, X402_NETWORK and X402_ASSET at their defaults; no X-PAYMENT header sent, so the facilitator was never contacted",
+    "transcript_form": "status line, response headers in the order returned, a blank line, then the body exactly as returned, joined with newline characters"
+  },
+  "trials.http": {
+    "url": "http://127.0.0.1:8765/trials?term=asthma&limit=3",
+    "retrieved_utc": "2026-10-24T08:15:58Z",
+    "sha256": "5f6a28be67a42e79687a096027f95da79b3e4173db2c167b5613eb6562ef5304",
+    "captured_by": "H6, with tools/api_smoke.py fetch(), from the local gated server: python3 server.py at main 60a1bf3 (api.payment_gate:app), PORT=8765, for issue #205.",
+    "server_config": "PAYOUT_WALLET_ADDRESS=0x1111111111111111111111111111111111111111, a SYNTHETIC placeholder address chosen for the capture, not any real wallet; EDGAR_CONTACT set to a labelled test contact (Tiny Ledger Api Smoke smoke@example.com) so /formd answers from EDGAR instead of 503; PAGESPEED_API_KEY unset, so the /pagespeed report carries the keyless 429 quota transcript, the endpoint's documented default; FACILITATOR_URL, X402_PRICE_ATOMIC, X402_NETWORK and X402_ASSET at their defaults; no X-PAYMENT header sent, so the facilitator was never contacted",
+    "transcript_form": "status line, response headers in the order returned, a blank line, then the body exactly as returned, joined with newline characters"
+  },
+  "vin.http": {
+    "url": "http://127.0.0.1:8765/vin?vin=1HGCM82633A004352",
+    "retrieved_utc": "2026-10-24T08:15:59Z",
+    "sha256": "9f383866eb4c17411b9d45a3d38cc42899562aed23488038872f5041805f22ca",
+    "captured_by": "H6, with tools/api_smoke.py fetch(), from the local gated server: python3 server.py at main 60a1bf3 (api.payment_gate:app), PORT=8765, for issue #205.",
+    "server_config": "PAYOUT_WALLET_ADDRESS=0x1111111111111111111111111111111111111111, a SYNTHETIC placeholder address chosen for the capture, not any real wallet; EDGAR_CONTACT set to a labelled test contact (Tiny Ledger Api Smoke smoke@example.com) so /formd answers from EDGAR instead of 503; PAGESPEED_API_KEY unset, so the /pagespeed report carries the keyless 429 quota transcript, the endpoint's documented default; FACILITATOR_URL, X402_PRICE_ATOMIC, X402_NETWORK and X402_ASSET at their defaults; no X-PAYMENT header sent, so the facilitator was never contacted",
+    "transcript_form": "status line, response headers in the order returned, a blank line, then the body exactly as returned, joined with newline characters"
+  },
+  "faa.http": {
+    "url": "http://127.0.0.1:8765/faa?n_number=N172SP",
+    "retrieved_utc": "2026-10-24T08:33:11Z",
+    "sha256": "c6abd1e9a1b1ae845f056f20e191f732ebc6737731782bebd68b62e6e5984cce",
+    "captured_by": "H6, with tools/api_smoke.py fetch(), from the local gated server: python3 server.py at main af3646c (api.payment_gate:app), PORT=8765, for the PR #209 fix round on issue #205 (GET /faa merged after the sixteen, in PR #195).",
+    "server_config": "PAYOUT_WALLET_ADDRESS=0x1111111111111111111111111111111111111111, a SYNTHETIC placeholder address chosen for the capture, not any real wallet; EDGAR_CONTACT set to a labelled test contact (Tiny Ledger Api Smoke smoke@example.com); the endpoint answered from the FAA ReleasableAircraft archive in the server cache for that UTC day, and the report states the archive Last-Modified and its cached retrieval time; no X-PAYMENT header sent, so the facilitator was never contacted",
+    "transcript_form": "status line, response headers in the order returned, a blank line, then the body exactly as returned, joined with newline characters"
   }
 }

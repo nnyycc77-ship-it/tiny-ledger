@@ -1,0 +1,38 @@
+HTTP/1.0 200 OK
+Date: Sat, 24 Oct 2026 08:33:20 GMT
+Server: WSGIServer/0.2 CPython/3.12.3
+Content-Type: text/markdown; charset=utf-8
+Content-Length: 2410
+Cache-Control: no-store
+X-Payout-Wallet: 0x1111111111111111111111111111111111111111
+
+# Aircraft registration: N172SP
+
+Observation only: this report records what the FAA releasable aircraft database download, as retrieved at the time stated below, holds for this N number; the registration is a public record shown as the record states it.
+
+Produced by the Hojo Research Agent API from tools/faa_lookup.py. The query, the retrieval time, the source link, and the complete raw response are below.
+
+## Subject: N172SP
+
+Database: FAA releasable aircraft database (Aircraft Registration Master file and Aircraft Reference file), one ZIP download.
+
+QUERY: N-NUMBER = 172SP (the file stores the number without its leading N). 1 matching MASTER.txt row.
+
+Archive: https://registry.faa.gov/database/ReleasableAircraft.zip, archive Last-Modified Sat, 24 Oct 2026 04:58:32 GMT, retrieved 2026-10-24T07:10:16Z (UTC) from the cache, 73006950 bytes, SHA-256 40b3a90b708906d52a629ec7d0b7b323390a0e6af839fc30ebc1f22d5aefcb9d. MASTER.txt as read: 195251786 bytes, 318000 lines including the header, SHA-256 75f530621374af0b635b7e7ccd06190a9d9b06f750c66ebf6db1ab4748126c6c.
+
+REGISTRATION, as the record states it (space padding trimmed):
+- Make (ACFTREF MFR): CESSNA
+- Model (ACFTREF MODEL): R172K
+- Year (MASTER YEAR MFR): 1977
+- Registrant name (MASTER NAME): LUKE AIRLINES LLC
+
+### Source. https://registry.faa.gov/database/ReleasableAircraft.zip (MASTER.txt row, N-NUMBER 172SP)
+Excerpt (the complete raw MASTER.txt row, exactly as the file has it):
+```
+172SP,R172-2842                     ,2072431,17025,1977,7,LUKE AIRLINES LLC                                 ,13422 FORT ST                    ,                                 ,SOUTHGATE         ,MI,481951138 ,C,163,US,20230603,20021031,1NU       ,4,1 ,V ,50221071, ,19771210,                                                  ,                                                  ,                                                  ,                                                  ,                                                  ,20280831,00652330,                              ,                    ,A12239    ,
+```
+### Source. https://registry.faa.gov/database/ReleasableAircraft.zip (ACFTREF.txt row, CODE 2072431)
+Excerpt (the complete raw ACFTREF.txt row, exactly as the file has it):
+```
+2072431,CESSNA                        ,R172K               ,4,1 ,1,0,01,004,CLASS 1,0076,               ,                                                  ,
+```

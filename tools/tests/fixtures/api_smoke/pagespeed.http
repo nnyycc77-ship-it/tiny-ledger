@@ -1,0 +1,93 @@
+HTTP/1.0 200 OK
+Date: Sat, 24 Oct 2026 08:15:53 GMT
+Server: WSGIServer/0.2 CPython/3.12.3
+Content-Type: text/markdown; charset=utf-8
+Content-Length: 4098
+Cache-Control: no-store
+X-Payout-Wallet: 0x1111111111111111111111111111111111111111
+
+# PageSpeed snapshot: example.com
+
+Snapshot only: this report records what the public PageSpeed Insights API returned for each page at the retrieval time stated below; it is a measurement of that moment, not a permanent grade.
+
+Produced by the Hojo Research Agent API from tools/pagespeed_snapshot.py. The query, the retrieval time, the source link, and the complete raw response are below.
+
+## Subject: example.com
+
+Snapshot only: the figures below are what the PageSpeed Insights API returned for each page at the stated time. Scores change from run to run; this is not a permanent grade, an audit, or a ranking prediction.
+
+Method: each page was measured once with the public Google PageSpeed Insights API (v5 runPagespeed, which runs Lighthouse against the live page), strategy mobile, requesting the performance, accessibility, best-practices and seo categories. Every figure below is copied from the response as shown, with the field path it was read from, and the complete raw response of every request is printed in the Sources section directly beneath its request URL. A page the API could not measure keeps its section and its full error response.
+
+## Page 1: https://example.com/
+
+QUERY: runPagespeed for url = https://example.com/ with strategy = mobile and the four categories (retrieved 2026-10-24T08:15:52Z; source S1). HTTP status as returned: 429 Too Many Requests.
+
+The API could not measure this page: the response status is 429 Too Many Requests, not 200. The complete raw response is printed in source S1; nothing is claimed about the page.
+
+- Error code as shown (error.code): 429
+- Error status as shown (error.status): RESOURCE_EXHAUSTED
+- Error message as shown (error.message): Quota exceeded for quota metric 'Queries' and limit 'Queries per day' of service 'pagespeedonline.googleapis.com' for consumer 'project_number:583797351490'.
+
+## Sources
+
+### Source. S1. PageSpeed Insights API, page https://example.com/
+- Request URL: https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url=https%3A%2F%2Fexample.com%2F&strategy=mobile&category=performance&category=accessibility&category=best-practices&category=seo
+- Retrieved (UTC): 2026-10-24T08:15:52Z
+Excerpt (complete raw HTTP response transcript for the request above: status line, headers in the order returned, a blank line, then the complete body exactly as returned):
+```
+HTTP/1.1 429 Too Many Requests
+Vary: X-Origin
+Vary: Referer
+Vary: Origin,Accept-Encoding
+Content-Type: application/json; charset=UTF-8
+Date: Sat, 24 Oct 2026 08:15:54 GMT
+Server: ESF
+X-XSS-Protection: 0
+X-Frame-Options: SAMEORIGIN
+X-Content-Type-Options: nosniff
+Alt-Svc: h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
+Accept-Ranges: none
+connection: close
+Transfer-Encoding: chunked
+
+{
+  "error": {
+    "code": 429,
+    "message": "Quota exceeded for quota metric 'Queries' and limit 'Queries per day' of service 'pagespeedonline.googleapis.com' for consumer 'project_number:583797351490'.",
+    "errors": [
+      {
+        "message": "Quota exceeded for quota metric 'Queries' and limit 'Queries per day' of service 'pagespeedonline.googleapis.com' for consumer 'project_number:583797351490'.",
+        "domain": "global",
+        "reason": "rateLimitExceeded"
+      }
+    ],
+    "status": "RESOURCE_EXHAUSTED",
+    "details": [
+      {
+        "@type": "type.googleapis.com/google.rpc.ErrorInfo",
+        "reason": "RATE_LIMIT_EXCEEDED",
+        "domain": "googleapis.com",
+        "metadata": {
+          "quota_location": "global",
+          "quota_unit": "1/d/{project}",
+          "quota_metric": "pagespeedonline.googleapis.com/default",
+          "quota_limit_value": "0",
+          "service": "pagespeedonline.googleapis.com",
+          "quota_limit": "defaultPerDayPerProject",
+          "consumer": "projects/583797351490"
+        }
+      },
+      {
+        "@type": "type.googleapis.com/google.rpc.Help",
+        "links": [
+          {
+            "description": "Request a higher quota limit.",
+            "url": "https://cloud.google.com/docs/quotas/help/request_increase"
+          }
+        ]
+      }
+    ]
+  }
+}
+
+```
