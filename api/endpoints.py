@@ -162,6 +162,19 @@ def _text(head, lines):
     return "\n".join(head + list(lines)) + "\n"
 
 
+def _fetcher_text(lines):
+    """The body for a fetcher whose command line strips trailing blank
+    lines before printing: flood, FDA recall and OIG each end their line
+    list with an empty string and their main writes the join rstripped
+    plus one newline. The endpoint serves the fetcher's own Markdown
+    byte for byte, so the trailing empty lines are dropped here the
+    same way (issue #215)."""
+    lines = list(lines)
+    while lines and lines[-1] == "":
+        lines.pop()
+    return _text([], lines)
+
+
 def _transport(err):
     return FetchFailed("fetch failed, no report emitted: %s" % err)
 
@@ -652,7 +665,7 @@ def flood(query, env=None):
         lines = fl.report(fetcher=fl.fetch, **args)
     except fl.FetchError as err:
         raise FetchFailed(str(err))
-    return _text([], lines)
+    return _fetcher_text(lines)
 
 
 # ----------------------------------------------------------------------
@@ -695,7 +708,7 @@ def fda_recall(query, env=None):
         lines = fda.report(*args, fetcher=fda.fetch)
     except fda.FetchError as err:
         raise FetchFailed(str(err))
-    return _text([], lines)
+    return _fetcher_text(lines)
 
 
 # ----------------------------------------------------------------------
@@ -760,7 +773,7 @@ def oig_exclusions(query, env=None):
         lines = oig.render(name, oig.fetch(oig.LEIE_URL))
     except oig.FetchError as err:
         raise FetchFailed(str(err))
-    return _text([], lines)
+    return _fetcher_text(lines)
 
 
 # ----------------------------------------------------------------------
