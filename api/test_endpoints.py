@@ -57,7 +57,7 @@ class RoutingTests(unittest.TestCase):
     def test_descriptor_lists_every_endpoint_with_tool_params_and_sources(self):
         doc = recall_api.descriptor(WALLET)
         self.assertEqual(sorted(doc["endpoints"]),
-                         ["/app", "/awards", "/carrier", "/domain", "/flood", "/formd", "/fx", "/github",
+                         ["/app", "/awards", "/carrier", "/domain", "/fda", "/flood", "/formd", "/fx", "/github",
                           "/litigation", "/meta", "/nonprofit", "/ofac", "/pagespeed", "/recall", "/safety", "/vin"])
         for path, entry in doc["endpoints"].items():
             self.assertEqual(entry["method"], "GET", path)

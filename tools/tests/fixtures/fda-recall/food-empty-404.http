@@ -1,0 +1,27 @@
+HTTP/1.1 404 Not Found
+Date: Sat, 24 Oct 2026 04:39:21 GMT
+Content-Type: application/json; charset=utf-8
+X-Frame-Options: deny
+X-Xss-Protection: 1; mode=block
+Vary: Accept-Encoding
+Vary: Accept-Encoding
+Access-Control-Allow-Credentials: true
+Access-Control-Allow-Origin: *
+Age: 0
+Cache-Control: no-cache, no-store, must-revalidate
+Content-Security-Policy: default-src 'none'
+Etag: W/"50-Gov3eVBQAYPDbwMSq8YtHKLjrHw"
+Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
+Via: https/1.1 api-umbrella (ApacheTrafficServer [cMsSf ])
+X-Api-Umbrella-Request-Id: d1dgqchro3671nuuc46g
+X-Cache: MISS
+X-Content-Type-Options: nosniff
+X-Vcap-Request-Id: 6bc8b2f4-48ae-46dc-7e09-62650e225abf
+Content-Length: 80
+
+{
+  "error": {
+    "code": "NOT_FOUND",
+    "message": "No matches found!"
+  }
+}
