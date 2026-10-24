@@ -70,6 +70,8 @@ history.
   `/domain`, `/ofac`, `/github`, `/flood`, `/fda`, `/oig` and `/insider`.
   That file is not a docs file, and issue #228 limits fixes to docs, so
   this is reported for a separate task.
+  **Follow-up:** issue #243 added all seven, so `api/openapi.json` now
+  names every registered route; the reproduce script below reports 25.
 
 ## Reproduce
 

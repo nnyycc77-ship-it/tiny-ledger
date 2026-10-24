@@ -120,17 +120,19 @@ class OfflineMode(unittest.TestCase):
         self.assertTrue(all(ok for _, ok in results), results)
         self.assertEqual(self.caps["openapi"].status, 200)
 
-    def test_default_run_passes_all_322_with_the_raw_responses(self):
-        # 20 original assertions, 17 endpoint sections of 5, 17 bad
-        # query sections of 4, 19 bad query accounting lines, 17 source
-        # failure sections of 4, 19 source failure accounting lines,
-        # one unavailable section of 5, 19 unavailable accounting
-        # lines, and 19 coverage lines, one per GET path in
-        # api/openapi.json.
+    def test_default_run_passes_all_411_with_the_raw_responses(self):
+        # 20 original assertions, 17 endpoint sections of 5, 24 bad
+        # query sections of 4, 26 bad query accounting lines, 24 source
+        # failure sections of 4, 26 source failure accounting lines,
+        # two unavailable sections of 5 (/formd and /insider), 26
+        # unavailable accounting lines, and 26 coverage lines, one per
+        # GET path in api/openapi.json (seven paths added by issue #243,
+        # with 400 and 502 captures, a 503 capture for /insider, and a
+        # reasoned entry in NO_ENDPOINT_CAPTURE).
         code, out, err = run_main([])
         self.assertEqual(code, 0, err)
         self.assertIn("Result: PASS, every assertion held.", out)
-        self.assertEqual(out.count("- PASS:"), 322)
+        self.assertEqual(out.count("- PASS:"), 411)
         self.assertNotIn("- FAIL:", out)
         self.assertIn("Source: <http://127.0.0.1:8765/openapi.json>", out)
         self.assertIn("Retrieved (UTC): 2026-10-23T14:51:26Z", out)
@@ -142,12 +144,19 @@ class OfflineMode(unittest.TestCase):
         self.assertIn("- PASS: GET /recall 400 shape not capturable offline:", out)
         self.assertIn((FIX / "epa-400.http").read_text(encoding="utf-8"), out)
         self.assertIn("- PASS: GET /csl with its source failing answers 502", out)
+        self.assertIn("- PASS: GET /oig with its source failing answers 502", out)
+        self.assertIn("- PASS: GET /insider with no valid input answers 400", out)
+        self.assertIn("- PASS: GET /flood has no captured 200 yet: the capture for issue #243 ran in a container "
+                      "whose network policy refuses hazards.fema.gov", out)
+        self.assertIn((FIX / "oig-502.http").read_text(encoding="utf-8"), out)
         self.assertIn("- PASS: GET /recall 502 shape not capturable offline:", out)
         self.assertIn((FIX / "csl-502.http").read_text(encoding="utf-8"), out)
         self.assertIn("- PASS: GET /formd unconfigured on the server answers 503", out)
         self.assertIn("- PASS: GET /formd 503 shape captured in formd-503.http", out)
         self.assertIn("- PASS: GET /recall 503 shape not capturable offline:", out)
         self.assertIn((FIX / "formd-503.http").read_text(encoding="utf-8"), out)
+        self.assertIn("- PASS: GET /insider 503 shape captured in insider-503.http", out)
+        self.assertIn((FIX / "insider-503.http").read_text(encoding="utf-8"), out)
 
     def test_a_failed_assertion_is_named_with_the_raw_response(self):
         # DERIVED: the real openapi capture with its status line changed to a 404,
@@ -209,8 +218,20 @@ class OfflineMode(unittest.TestCase):
         with mock.patch.object(smoke, "offline_captures", return_value=caps):
             code, out, err = run_main([])
         self.assertEqual(code, 1, err)
-        self.assertIn("- FAIL: GET /zzz has an offline check", out)
-        self.assertIn("Endpoint coverage: GET /zzz has an offline check", out)
+        self.assertIn("- FAIL: GET /zzz coverage is not accounted for exactly once", out)
+        self.assertIn("Endpoint coverage: GET /zzz coverage is not accounted for exactly once", out)
+
+    def test_a_path_both_checked_and_reasoned_fails_coverage(self):
+        # DERIVED: the real captures, with /vin (which has a 200 fixture) also given a reason.
+        caps = smoke.offline_captures()
+        with mock.patch.dict(smoke.NO_ENDPOINT_CAPTURE, {"/vin": "SYNTHETIC reason"}):
+            lines = smoke.check_coverage(caps)
+        self.assertIn(("GET /vin coverage is not accounted for exactly once", False), lines)
+
+    def test_a_reasoned_path_passes_coverage_with_its_reason(self):
+        lines = dict(smoke.check_coverage(smoke.offline_captures()))
+        self.assertTrue(lines["GET /github has no captured 200 yet: " + smoke.NO_ENDPOINT_CAPTURE["/github"]])
+        self.assertNotIn("GET /github has an offline check", lines)
 
     def test_endpoint_shape_failure_is_named(self):
         # DERIVED: the real /fx capture with its status changed to a 502.
@@ -325,10 +346,16 @@ class CoverageTable(unittest.TestCase):
             with self.subTest(path=path):
                 if path in ("/", "/recall"):
                     continue  # the descriptor and payment checks
-                self.assertIn(path, smoke.ENDPOINT_FIXTURES)
-                name, tool = smoke.ENDPOINT_FIXTURES[path]
-                self.assertIn(name, PROVENANCE)
-                self.assertEqual(api_endpoints.DESCRIPTIONS[path]["tool"], "tools/" + tool)
+                captured = path in smoke.ENDPOINT_FIXTURES
+                reasoned = path in smoke.NO_ENDPOINT_CAPTURE
+                self.assertNotEqual(captured, reasoned, path)  # exactly one of the two
+                self.assertIn(path, api_endpoints.ROUTES)
+                if captured:
+                    name, tool = smoke.ENDPOINT_FIXTURES[path]
+                    self.assertIn(name, PROVENANCE)
+                    self.assertEqual(api_endpoints.DESCRIPTIONS[path]["tool"], "tools/" + tool)
+                else:
+                    self.assertTrue(smoke.NO_ENDPOINT_CAPTURE[path])
 
     def test_every_get_path_400_shape_is_captured_or_reasoned_exactly_once(self):
         doc = json.loads(OPENAPI_FILE)
@@ -340,7 +367,7 @@ class CoverageTable(unittest.TestCase):
                 self.assertNotEqual(captured, reasoned, path)  # exactly one of the two
                 if captured:
                     self.assertIn(smoke.BAD_QUERY_FIXTURES[path], PROVENANCE)
-                    self.assertIn(path, smoke.ENDPOINT_FIXTURES)
+                    self.assertTrue(path in smoke.ENDPOINT_FIXTURES or path in smoke.NO_ENDPOINT_CAPTURE, path)
                 if reasoned:
                     self.assertTrue(smoke.NO_400_CAPTURE[path])
 
@@ -354,7 +381,7 @@ class CoverageTable(unittest.TestCase):
                 self.assertNotEqual(captured, reasoned, path)  # exactly one of the two
                 if captured:
                     self.assertIn(smoke.SOURCE_FAILURE_FIXTURES[path], PROVENANCE)
-                    self.assertIn(path, smoke.ENDPOINT_FIXTURES)
+                    self.assertTrue(path in smoke.ENDPOINT_FIXTURES or path in smoke.NO_ENDPOINT_CAPTURE, path)
                 if reasoned:
                     self.assertTrue(smoke.NO_502_CAPTURE[path])
 
@@ -366,7 +393,7 @@ class CoverageTable(unittest.TestCase):
         self.assertEqual(sorted(declared), sorted(smoke.UNAVAILABLE_FIXTURES))
         for path in declared:
             self.assertIn(smoke.UNAVAILABLE_FIXTURES[path], PROVENANCE)
-            self.assertIn(path, smoke.ENDPOINT_FIXTURES)
+            self.assertTrue(path in smoke.ENDPOINT_FIXTURES or path in smoke.NO_ENDPOINT_CAPTURE, path)
 
 
 class Assertions(unittest.TestCase):
