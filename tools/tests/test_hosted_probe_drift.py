@@ -1,12 +1,13 @@
 """Drift check for the hosted probe's expected values (issue #237).
 
-Pinned tree: refreshed for issue #294 on merged main
-`2b86c90199ede1fbf3b31a0d39d6f9a4d3293e65` (the merge of PR #293), by
+Pinned tree: refreshed for issue #302 on merged main
+`65dde3693bf3aeb601e783c78dcfc36472b895d8` (the merge of PR #285), by
 rerunning this suite on a clean checkout of that tree unmodified
 first: all eight tests green and the pricing state unchanged
 (mcpize.yaml prices recall_check only, at 0.05 USDC, 50000 atomic
 units, pending issue #147's 0.25 repricing), so only this pin moved.
-Previous pins: issue #287 on merged main
+Previous pins: issue #294 on merged main
+`2b86c90199ede1fbf3b31a0d39d6f9a4d3293e65`, issue #287 on merged main
 `96a347f8b26dde768d020fcf1c2d65264e1a5fae`, issue #278 on merged main
 `530f6dae61770cf5be9dacad6e3a7a6806c3595f`, issue #271 on merged main
 `e5035f36a116feddc6243787cfacf951705b9067`. The pin records the tree
