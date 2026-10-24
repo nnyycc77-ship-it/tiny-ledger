@@ -28,6 +28,7 @@ environment and its header comment says so.
 | Weekly brief: watchlist Form D filings and NAICS filtered contract awards for a seven day window (docs/weekly-brief.md) | `weekly_brief.py` | EDGAR contact |
 | OFAC SDN list name check, primary names and aliases (docs/ofac-sdn-check.md) | `ofac_sdn_check.py` | none needed |
 | GitHub repository check, keyless: stars, license, last push, archived (docs/mcpize-tools/github_repo_check.md) | `github_repo_check.py` | none needed; 60 requests per hour unauthenticated |
+| Meta tag check: title, description and Open Graph tags present or missing on a page (docs/mcpize-tools/meta_tag_check.md) | `meta_tag_check.py` | none needed; the source is the page itself |
 | FEMA NFHL flood zone check for a point or a US address (Census Geocoder), screening only (docs/mcpize-tools/flood_check.md) | `flood_check.py` | none needed |
 
 Not a fetcher: `pregate.py` is the offline review pre gate (secrets scan,

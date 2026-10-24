@@ -1,0 +1,56 @@
+{
+  "ogp-hit.headers": {
+    "url": "https://ogp.me/",
+    "final_url": "https://ogp.me/",
+    "what": "title, description and many og tags present",
+    "part": "headers",
+    "retrieved_utc": "2026-10-24T04:55:58Z",
+    "bytes": 656,
+    "sha256": "b22b4717fe2a46b2a090916a18bddad0cd12613140e704357fc3228c677f03fb"
+  },
+  "ogp-hit.body": {
+    "url": "https://ogp.me/",
+    "final_url": "https://ogp.me/",
+    "what": "title, description and many og tags present",
+    "part": "body",
+    "retrieved_utc": "2026-10-24T04:55:58Z",
+    "bytes": 23130,
+    "sha256": "7014532286751499f442e4ea5c6392f112e9327233c9f47a3825a6275f8e5d9a"
+  },
+  "example-partial.headers": {
+    "url": "https://example.com/",
+    "final_url": "https://example.com/",
+    "what": "title present, description and all og tags missing",
+    "part": "headers",
+    "retrieved_utc": "2026-10-24T04:55:59Z",
+    "bytes": 327,
+    "sha256": "0476713027859b6edaf35534594c34f6b970de9cfd60acf197d0d9ccdf9de6fb"
+  },
+  "example-partial.body": {
+    "url": "https://example.com/",
+    "final_url": "https://example.com/",
+    "what": "title present, description and all og tags missing",
+    "part": "body",
+    "retrieved_utc": "2026-10-24T04:55:59Z",
+    "bytes": 577,
+    "sha256": "25ddf2c883e0d1958ea971d279a7e4f0fd446724ee3db7db19dadabd4a62e484"
+  },
+  "httpbin-empty.headers": {
+    "url": "https://httpbin.org/html",
+    "final_url": "https://httpbin.org/html",
+    "what": "no title, no description, no og tags (empty head)",
+    "part": "headers",
+    "retrieved_utc": "2026-10-24T04:56:00Z",
+    "bytes": 224,
+    "sha256": "b071093e94a234b89417a6396b07d88abe94e769d855e93468a715826d16f5e0"
+  },
+  "httpbin-empty.body": {
+    "url": "https://httpbin.org/html",
+    "final_url": "https://httpbin.org/html",
+    "what": "no title, no description, no og tags (empty head)",
+    "part": "body",
+    "retrieved_utc": "2026-10-24T04:56:00Z",
+    "bytes": 3741,
+    "sha256": "3f324f9914742e62cf082861ba03b207282dba781c3349bee9d7c1b5ef8e0bfe"
+  }
+}

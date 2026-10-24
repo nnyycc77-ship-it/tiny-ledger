@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """The remaining fetchers as paid API endpoints (issue #65).
 
-Fourteen GET endpoints beside GET /recall, each wrapping one merged fetcher in
+Fifteen GET endpoints beside GET /recall, each wrapping one merged fetcher in
 tools/ as library code and returning that fetcher's own rendered Markdown
 in the delivery format from AGENT-BRIEF.md: the claim lines, the exact
 query, the UTC retrieval time, the source link, and the complete raw
@@ -18,6 +18,7 @@ nothing else to the fetchers' output.
     /domain      tools/domain_trust_check.py   domain
     /app         tools/app_lookup_check.py     name (country, limit optional)
     /github      tools/github_repo_check.py    owner, repo
+    /meta        tools/meta_tag_check.py       url
     /vin         tools/vin_decode.py           vin
     /fx          tools/exchange_rate_check.py  base, target (amount, date optional)
     /flood       tools/flood_check.py          lat, lon | address
@@ -63,6 +64,7 @@ from tools import exchange_rate_check as fx  # noqa: E402
 from tools import flood_check as fl  # noqa: E402
 from tools import fmcsa_carrier as fc  # noqa: E402
 from tools import github_repo_check as gh  # noqa: E402
+from tools import meta_tag_check as mt  # noqa: E402
 from tools import ofac_sdn_check as ofac  # noqa: E402
 from tools import pagespeed_snapshot as ps  # noqa: E402
 from tools import propublica_nonprofits as pp  # noqa: E402
@@ -504,6 +506,23 @@ def github_repo(query, env=None):
 
 
 # ----------------------------------------------------------------------
+# /meta
+# ----------------------------------------------------------------------
+
+def meta_tags(query, env=None):
+    """Meta tag check via tools/meta_tag_check.py: the page itself is the source."""
+    try:
+        url = mt.check_url(_single(query, "url", ""))
+    except ValueError as err:
+        raise BadRequest(str(err))
+    try:
+        lines = mt.render(url, mt.fetch(url))
+    except mt.FetchError as err:
+        raise FetchFailed(str(err))
+    return _text([], lines)
+
+
+# ----------------------------------------------------------------------
 # /app
 # ----------------------------------------------------------------------
 
@@ -619,6 +638,7 @@ ROUTES = {
     "/domain": domain,
     "/vin": vin,
     "/github": github_repo,
+    "/meta": meta_tags,
     "/app": app,
     "/fx": exchange_rate,
     "/flood": flood,
@@ -696,6 +716,12 @@ DESCRIPTIONS = {
         "params": ["vin (17 characters, or fewer with * for unknown ones)",
                    "model_year (optional, four digits; vPIC recommends sending it)"],
         "sources": [vd.BASE_URL],
+    },
+    "/meta": {
+        "tool": "tools/meta_tag_check.py",
+        "params": ["url (the page URL, http or https)"],
+        "sources": ["https://<page>/ (the page itself, at the exact URL given by the caller)"],
+        "note": "Keyless: the source is the page itself, fetched once. A source failure is 502, never a page with no tags.",
     },
     "/app": {
         "tool": "tools/app_lookup_check.py",
