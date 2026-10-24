@@ -1211,13 +1211,14 @@ local server run without the contact, recorded in the
 capturable set off the document itself: every other GET endpoint is
 reasoned as declaring no 503.
 
-Coverage census (issue #258, pin refreshed for issue #270), taken on
-main e5035f36a116feddc6243787cfacf951705b9067, the merged main that
-includes PR #249 (the /formd 503 pass), PR #253 (the seven routes
-added to `api/openapi.json` for issue #243, whose captures extended
-the 400, 502 and 503 tables in the same run) and PR #261 (which
-landed this census). Every figure below reproduces from that tree:
-the GET denominator is the 26 paths in
+Coverage census (issue #258, pin refreshed for issues #270 and
+#279), taken on main 530f6dae61770cf5be9dacad6e3a7a6806c3595f, the
+merged main that includes PR #249 (the /formd 503 pass), PR #253
+(the seven routes added to `api/openapi.json` for issue #243, whose
+captures extended the 400, 502 and 503 tables in the same run) and
+PR #261 (which landed this census; the pin was last refreshed by
+PR #273). Every figure below reproduces from that tree: the GET
+denominator is the 26 paths in
 `api/openapi.json` (`/`, `/app`, `/awards`, `/carrier`, `/csl`,
 `/domain`, `/drug`, `/epa`, `/faa`, `/fda`, `/flood`, `/formd`,
 `/fx`, `/github`, `/insider`, `/links`, `/litigation`, `/meta`,
@@ -1269,7 +1270,14 @@ endpoint 200 sections (5 each), 96 across the 24 bad query sections
 (4 each), 26 in the 400 accounting, 96 across the 24 source failure
 sections (4 each), 26 in the 502 accounting, 10 across the 2
 unavailable sections (5 each), 26 in the 503 accounting, and 26 in
-the closing coverage section.
+the closing coverage section. While the seven 200 transcripts above
+are owed, the document side of those same seven routes is guarded
+by `api/test_openapi_alignment.py` (5 tests, offline, added for
+issue #263): for `/domain`, `/ofac`, `/github`, `/flood`, `/fda`,
+`/oig` and `/insider` it proves the entry in `api/openapi.json` and
+the route's dispatcher in `api/endpoints.py` agree on parameter
+names, required flags and response codes, with SYNTHETIC patched
+reports and no source called.
 
 Output is one Markdown section in the delivery format: a PASS or FAIL claim
 line per assertion, the source link, the UTC time, and the complete raw
