@@ -1,0 +1,60 @@
+HTTP/1.0 200 OK
+Date: Sat, 24 Oct 2026 14:39:46 GMT
+Server: WSGIServer/0.2 CPython/3.12.3
+Content-Type: text/markdown; charset=utf-8
+Content-Length: 1835
+Cache-Control: no-store
+X-Payout-Wallet: 0x1111111111111111111111111111111111111111
+
+# Weather alert check: 29.7604, -95.3698
+
+Observation only: this report records what the US National Weather Service API listed as active alerts at this point when read at the retrieval time below. No active alerts at that time is not a statement that conditions are safe or that no alert will be issued.
+
+## Answer
+
+Point: latitude 29.7604, longitude -95.3698
+
+Collection title as shown: `"Current watches, warnings, and advisories for 29.7604 N, 95.3698 W"`
+Collection updated as shown: `"2026-10-24T14:39:33+00:00"`
+
+No active alerts at this point. The service returned an empty features array; the complete raw response below is the proof. This is the service's answer at the retrieval time only.
+
+## Evidence
+
+### National Weather Service, active alerts for the point
+
+Exact query URL: <https://api.weather.gov/alerts/active?point=29.7604,-95.3698>
+
+UTC retrieval time: 2026-10-24T14:39:40Z
+
+Complete raw response:
+```
+HTTP/1.1 200 OK
+Server: nginx/1.28.3
+Content-Type: application/geo+json
+ETag: W/"384623de2c424b8c8375508c0b8e0c5c"
+Access-Control-Allow-Origin: *
+Access-Control-Expose-Headers: X-Correlation-Id, X-Request-Id, X-Server-Id
+X-Request-ID: 01a16e5a-8049-7f3a-bc02-b9dc399d8ee2
+X-Correlation-ID: ccd63715
+X-Server-ID: vm-bldr-api-ops-app2.ncep.noaa.gov
+Vary: Accept-Encoding
+Vary: Accept,Feature-Flags,Accept-Language
+Cache-Control: public, max-age=5, s-maxage=5
+Expires: Sat, 24 Oct 2026 14:39:52 GMT
+Date: Sat, 24 Oct 2026 14:39:47 GMT
+Strict-Transport-Security: max-age=31536000 ; includeSubDomains ; preload
+X-Edge-Request-ID: 397f35df
+Connection: close
+Content-Length: 233
+
+{
+    "@context": {
+        "@version": "1.1"
+    },
+    "type": "FeatureCollection",
+    "features": [],
+    "title": "Current watches, warnings, and advisories for 29.7604 N, 95.3698 W",
+    "updated": "2026-10-24T14:39:33+00:00"
+}
+```

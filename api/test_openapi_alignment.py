@@ -1,8 +1,9 @@
-"""OpenAPI entry alignment for the seven routes added by PR #253 (issue #263). No network.
+"""OpenAPI entry alignment for the routes added by PR #253 (issue #263) and issue #370. No network.
 
 Run from the repository root: python3 -m unittest discover -s api -v
 
-For /domain, /ofac, /github, /flood, /fda, /oig and /insider, this proves
+For /domain, /ofac, /github, /flood, /fda, /oig and /insider (PR #253), and for
+/weather, /npi and /wallet (the wave 3 routes whose entries issue #370 added), this proves
 that the api/openapi.json entry and the route's dispatcher in
 api/endpoints.py agree, so neither can drift silently:
 
@@ -55,6 +56,9 @@ SAMPLES = {
     "/fda": ["name=peanut+butter", "name=peanut+butter&field=firm&category=food&limit=3"],
     "/oig": ["name=Aaron+Smith"],
     "/insider": ["cik=320193", "issuer=Apple+Inc&max_filings=2"],
+    "/weather": ["lat=29.7604&lon=-95.3698"],
+    "/npi": ["query=1740584747"],
+    "/wallet": ["address=1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa"],
 }
 
 
@@ -69,6 +73,7 @@ def entry_points(fail):
         return stand_in
     dt, ofac, gh, fl, fda, oig, ins = (endpoints.dt, endpoints.ofac, endpoints.gh, endpoints.fl, endpoints.fda,
                                        endpoints.oig, endpoints.ins)
+    wa, npi, wc = endpoints.wa, endpoints.npi, endpoints.wc
     return [
         patch.object(dt, "run", make(dt, SYNTHETIC_LINES)),
         patch.object(ofac, "fetch", make(ofac, object())),
@@ -80,6 +85,9 @@ def entry_points(fail):
         patch.object(oig, "fetch", make(oig, object())),
         patch.object(oig, "render", lambda *a, **k: SYNTHETIC_LINES),
         patch.object(ins, "run", make(ins, SYNTHETIC_LINES)),
+        patch.object(wa, "report", make(wa, SYNTHETIC_LINES)),
+        patch.object(npi, "report", make(npi, SYNTHETIC_LINES)),
+        patch.object(wc, "report", make(wc, SYNTHETIC_LINES)),
     ]
 
 
@@ -124,7 +132,7 @@ def without(query_string, name):
 
 
 class AlignmentTests(unittest.TestCase):
-    def test_the_seven_routes_are_in_the_document_and_dispatched(self):
+    def test_the_sampled_routes_are_in_the_document_and_dispatched(self):
         for path in SAMPLES:
             self.assertIn(path, OPENAPI["paths"], path)
             self.assertIn(path, endpoints.ROUTES, path)

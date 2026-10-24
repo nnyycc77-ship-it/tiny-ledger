@@ -1297,33 +1297,37 @@ capturable set off the document itself: every other GET endpoint is
 reasoned as declaring no 503.
 
 Coverage census (issue #258, pin refreshed for issues #270, #279,
-#288, #295, #303, #310, #351 and #354), taken on main
-0a8073736359aded333af0d29215f80588f9805b, the merged main that
-includes PR #249 (the /formd 503 pass), PR #253 (the seven routes
+#288, #295, #303, #310, #351, #354 and #370), taken on main
+96ab9af06813088a88a585948baec7ef604a6b3f plus the three OpenAPI
+entries and captures of PR #374 (issue #370) itself; the merged
+main named includes PR #249 (the /formd 503 pass), PR #253 (the seven routes
 added to `api/openapi.json` for issue #243, whose captures extended
 the 400, 502 and 503 tables in the same run), PR #261 (which
-landed this census; the pin was last refreshed by PR #353) and the
-coverage that arrived with the wave tools since: PR #328 (/bank
-200, 400 and 502 captures), PR #333 (/disaster, 400 and 502
-captures with a reasoned 200), PR #336 (/geocode captures),
-PR #339 (/earthquake, 400 and 502 captures with a reasoned 200),
-PR #345 (/upc captures), PR #346 (/uksanctions, 400 and 502
-captures with a reasoned 200) and PR #341 (/email 200, 400 and
-502 captures). Every figure below reproduces from that tree: the
-GET denominator is the 33 paths in
+landed this census), PR #373 (the census guard test of issue
+#368) and the coverage that arrived with the wave
+tools since: PR #328 (/bank 200, 400 and 502 captures), PR #333
+(/disaster, 400 and 502 captures with a reasoned 200), PR #336
+(/geocode captures), PR #339 (/earthquake, 400 and 502 captures
+with a reasoned 200), PR #345 (/upc captures), PR #346
+(/uksanctions, 400 and 502 captures with a reasoned 200), PR #341
+(/email 200, 400 and 502 captures) and PR #374 itself (/weather,
+/npi and /wallet 200, 400 and 502 captures, with the three routes'
+OpenAPI entries). Every figure below reproduces from the PR #374
+tree: the GET denominator is the 36 paths in
 `api/openapi.json` (`/`, `/app`, `/awards`, `/bank`, `/carrier`,
 `/csl`, `/disaster`, `/domain`, `/drug`, `/earthquake`, `/email`,
 `/epa`, `/faa`, `/fda`, `/flood`, `/formd`, `/fx`, `/geocode`,
 `/github`, `/insider`, `/links`, `/litigation`, `/meta`,
-`/nonprofit`, `/ofac`, `/oig`, `/pagespeed`, `/recall`, `/safety`,
-`/trials`, `/uksanctions`, `/upc`, `/vin`), and each shape counts
-every one of them exactly once.
+`/nonprofit`, `/npi`, `/ofac`, `/oig`, `/pagespeed`, `/recall`,
+`/safety`, `/trials`, `/uksanctions`, `/upc`, `/vin`, `/wallet`,
+`/weather`), and each shape counts every one of them exactly
+once.
 
-- 200 reports: 21 captured (`/app`, `/awards`, `/bank`, `/carrier`,
+- 200 reports: 24 captured (`/app`, `/awards`, `/bank`, `/carrier`,
   `/csl`, `/drug`, `/email`, `/epa`, `/faa`, `/formd`, `/fx`,
   `/geocode`, `/links`, `/litigation`, `/meta`, `/nonprofit`,
-  `/pagespeed`, `/safety`, `/trials`, `/upc`, `/vin`); the
-  descriptor `/` and
+  `/npi`, `/pagespeed`, `/safety`, `/trials`, `/upc`, `/vin`,
+  `/wallet`, `/weather`); the descriptor `/` and
   `/recall` are covered by the original sections (descriptor 200,
   `/recall` 402 unpaid); 10 reasoned in the tool's
   `NO_ENDPOINT_CAPTURE` table as having no captured 200 yet, each
@@ -1339,40 +1343,42 @@ every one of them exactly once.
   refused) and `/uksanctions`
   (ofsistorage.blob.core.windows.net refused); a 200 transcript is
   owed for each from an environment that can capture it.
-- 400 bad query: 31 captured (`/app`, `/awards`, `/bank`,
+- 400 bad query: 34 captured (`/app`, `/awards`, `/bank`,
   `/carrier`, `/csl`, `/disaster`, `/domain`, `/drug`,
   `/earthquake`, `/email`, `/epa`, `/faa`, `/fda`, `/flood`,
   `/formd`, `/fx`,
   `/geocode`, `/github`, `/insider`, `/links`, `/litigation`,
-  `/meta`, `/nonprofit`, `/ofac`, `/oig`, `/pagespeed`, `/safety`,
-  `/trials`, `/uksanctions`, `/upc`, `/vin`); 2 reasoned: `/` (takes
+  `/meta`, `/nonprofit`, `/npi`, `/ofac`, `/oig`, `/pagespeed`,
+  `/safety`, `/trials`, `/uksanctions`, `/upc`, `/vin`, `/wallet`,
+  `/weather`); 2 reasoned: `/` (takes
   no query input, so it has no 400 shape) and `/recall` (the payment
   gate answers 402 to the smoke's unpaid requests before any query
   validation, and the smoke never pays).
-- 502 source failure: the same 31 captured; 2 reasoned: `/` (answers
+- 502 source failure: the same 34 captured; 2 reasoned: `/` (answers
   from local state and fetches no source, so it has no 502 shape) and
   `/recall` (the payment gate answers 402 before any source fetch,
   and the smoke never pays).
 - 503 unavailable: 2 captured (`/formd` and `/insider`, the two
   endpoints whose entries in `api/openapi.json` declare a 503, each
-  for its missing operator contact); 31 reasoned, each because its
+  for its missing operator contact); 34 reasoned, each because its
   entry declares no 503 response: `/`, `/app`, `/awards`, `/bank`,
   `/carrier`, `/csl`, `/disaster`, `/domain`, `/drug`,
   `/earthquake`, `/email`, `/epa`, `/faa`, `/fda`, `/flood`, `/fx`,
   `/geocode`, `/github`, `/links`, `/litigation`, `/meta`,
-  `/nonprofit`, `/ofac`, `/oig`, `/pagespeed`, `/recall`, `/safety`,
-  `/trials`, `/uksanctions`, `/upc`, `/vin`.
+  `/nonprofit`, `/npi`, `/ofac`, `/oig`, `/pagespeed`, `/recall`,
+  `/safety`, `/trials`, `/uksanctions`, `/upc`, `/vin`, `/wallet`,
+  `/weather`.
 
-The fixture folder holds 88 transcripts with 88 provenance entries:
+The fixture folder holds 97 transcripts with 97 provenance entries:
 the 3 original captures (descriptor, OpenAPI document, `/recall`
-402), 21 endpoint 200 captures, 31 bad query captures, 31 source
-failure captures, and 2 unavailable captures. The offline run on the
-pinned tree prints 92 numbered sections and 515 PASS lines with no
-failures: 20 in the three original sections, 105 across the 21
-endpoint 200 sections (5 each), 124 across the 31 bad query sections
-(4 each), 33 in the 400 accounting, 124 across the 31 source failure
-sections (4 each), 33 in the 502 accounting, 10 across the 2
-unavailable sections (5 each), 33 in the 503 accounting, and 33 in
+402), 24 endpoint 200 captures, 34 bad query captures, 34 source
+failure captures, and 2 unavailable captures. The offline run on
+the PR #374 tree prints 101 numbered sections and 566 PASS lines with no
+failures: 20 in the three original sections, 120 across the 24
+endpoint 200 sections (5 each), 136 across the 34 bad query sections
+(4 each), 36 in the 400 accounting, 136 across the 34 source failure
+sections (4 each), 36 in the 502 accounting, 10 across the 2
+unavailable sections (5 each), 36 in the 503 accounting, and 36 in
 the closing coverage section. While the ten 200 transcripts above
 are owed, the document side of the seven routes added for issue
 #243 among them is guarded by `api/test_openapi_alignment.py`
@@ -1381,7 +1387,8 @@ are owed, the document side of the seven routes added for issue
 entry in `api/openapi.json` and the route's dispatcher in
 `api/endpoints.py` agree on parameter names, required flags and
 response codes, with SYNTHETIC patched reports and no source
-called.
+called; since issue #370 the same suite samples `/weather`, `/npi`
+and `/wallet` the same way.
 
 Output is one Markdown section in the delivery format: a PASS or FAIL claim
 line per assertion, the source link, the UTC time, and the complete raw

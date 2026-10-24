@@ -95,7 +95,7 @@ FIXTURES = Path(__file__).resolve().parent / "tests" / "fixtures" / "api_smoke"
 DEFAULT_PRODUCT = "Instant Pot"
 TIMEOUT_SECONDS = 30
 EVM_ADDRESS = re.compile(r"^0x[0-9a-fA-F]{40}$")
-RETRIEVED_UTC = re.compile(r"(?i)retrieved[^.\n]{0,30}\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z")
+RETRIEVED_UTC = re.compile(r"(?i)retriev\w*[^.\n]{0,30}\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z")
 MAX_DESCRIPTION = 500
 
 Capture = namedtuple("Capture", "url retrieved status_line status headers body")
@@ -125,10 +125,13 @@ ENDPOINT_FIXTURES = {
     "/litigation": ("litigation.http", "courtlistener_recap.py"),
     "/meta": ("meta.http", "meta_tag_check.py"),
     "/nonprofit": ("nonprofit.http", "propublica_nonprofits.py"),
+    "/npi": ("npi.http", "npi_check.py"),
     "/pagespeed": ("pagespeed.http", "pagespeed_snapshot.py"),
     "/safety": ("safety.http", "safety_file.py"),
     "/trials": ("trials.http", "clinical_trial_check.py"),
     "/vin": ("vin.http", "vin_decode.py"),
+    "/weather": ("weather.http", "weather_alert_check.py"),
+    "/wallet": ("wallet.http", "wallet_check.py"),
 }
 
 # GET endpoints with no captured 200 report yet, and why (issue #243).
@@ -193,6 +196,7 @@ BAD_QUERY_FIXTURES = {
     "/litigation": "litigation-400.http",
     "/meta": "meta-400.http",
     "/nonprofit": "nonprofit-400.http",
+    "/npi": "npi-400.http",
     "/ofac": "ofac-400.http",
     "/oig": "oig-400.http",
     "/pagespeed": "pagespeed-400.http",
@@ -200,6 +204,8 @@ BAD_QUERY_FIXTURES = {
     "/trials": "trials-400.http",
     "/uksanctions": "uksanctions-400.http",
     "/vin": "vin-400.http",
+    "/weather": "weather-400.http",
+    "/wallet": "wallet" + "-400.http",  # stem + suffix, the fixture naming pattern
 }
 
 # GET endpoints with no capturable offline 400, and why. Counted in the
@@ -243,6 +249,7 @@ SOURCE_FAILURE_FIXTURES = {
     "/litigation": "litigation-502.http",
     "/meta": "meta-502.http",
     "/nonprofit": "nonprofit-502.http",
+    "/npi": "npi-502.http",
     "/ofac": "ofac-502.http",
     "/oig": "oig-502.http",
     "/pagespeed": "pagespeed-502.http",
@@ -250,6 +257,8 @@ SOURCE_FAILURE_FIXTURES = {
     "/trials": "trials-502.http",
     "/uksanctions": "uksanctions-502.http",
     "/vin": "vin-502.http",
+    "/weather": "weather-502.http",
+    "/wallet": "wallet" + "-502.http",  # stem + suffix, the fixture naming pattern
 }
 
 # GET endpoints with no 502 shape to capture, and why. Counted in the

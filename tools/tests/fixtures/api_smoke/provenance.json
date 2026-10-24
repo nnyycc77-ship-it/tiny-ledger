@@ -758,5 +758,83 @@
     "server_config": "PAYOUT_WALLET_ADDRESS=0x1111111111111111111111111111111111111111, a SYNTHETIC placeholder address chosen for the capture, not any real wallet; EDGAR_CONTACT set to a labelled test contact (Tiny Ledger Api Smoke smoke@example.com), which /formd checks before fetching, so without it the server answers 503 and no 502 can be captured; HTTP_PROXY, HTTPS_PROXY, http_proxy and https_proxy all set to http://127.0.0.1:9, a closed local port, so every source fetch fails at transport; no X-PAYMENT header sent, so the facilitator was never contacted",
     "transcript_form": "status line, response headers in the order returned, a blank line, then the body exactly as returned, joined with newline characters",
     "note": "Replayed source failure: the query is valid, the same sample shape as the endpoint's 200 capture, and the recorded proxy config makes the source fetch fail at transport; the 502 below is the server's own answer, captured verbatim. The descriptor and the payment gate are not affected by the proxy config."
+  },
+  "weather.http": {
+    "url": "http://127.0.0.1:8773/weather?lat=29.7604&lon=-95.3698",
+    "retrieved_utc": "2026-10-24T14:39:39Z",
+    "sha256": "f57424c35a26b233bb24bf680d74b3c4834fd0ec3463de38bd9ebe852fecaaaf",
+    "captured_by": "H8, with tools/api_smoke.py fetch(), from the local gated server: python3 server.py at the issue #370 branch head (api.payment_gate:app), PORT=8773, for issue #370.",
+    "server_config": "PAYOUT_WALLET_ADDRESS=0x1111111111111111111111111111111111111111, a SYNTHETIC placeholder address chosen for the capture, not any real wallet; EDGAR_CONTACT set to a labelled test contact (Tiny Ledger Api Smoke smoke@example.com); no X-PAYMENT header sent, so the facilitator was never contacted",
+    "transcript_form": "status line, response headers in the order returned, a blank line, then the body exactly as returned, joined with newline characters"
+  },
+  "weather-400.http": {
+    "url": "http://127.0.0.1:8773/weather",
+    "retrieved_utc": "2026-10-24T14:39:46Z",
+    "sha256": "e166545a1c2947fb91d27b28a5f739d81f3a5403da85a7ba144b06b57dfec3e4",
+    "captured_by": "H8, with tools/api_smoke.py fetch(), from the local gated server: python3 server.py at the issue #370 branch head (api.payment_gate:app), PORT=8773, for issue #370.",
+    "server_config": "PAYOUT_WALLET_ADDRESS=0x1111111111111111111111111111111111111111, a SYNTHETIC placeholder address chosen for the capture, not any real wallet; EDGAR_CONTACT set to a labelled test contact (Tiny Ledger Api Smoke smoke@example.com); no X-PAYMENT header sent, so the facilitator was never contacted",
+    "transcript_form": "status line, response headers in the order returned, a blank line, then the body exactly as returned, joined with newline characters",
+    "note": "The request names no valid input (the bare endpoint path, no query string), so the server answers 400 before any source fetch; the api endpoint suite proves the same cases return 400 with its fetch functions patched to raise."
+  },
+  "npi.http": {
+    "url": "http://127.0.0.1:8773/npi?query=1740584747",
+    "retrieved_utc": "2026-10-24T14:39:46Z",
+    "sha256": "e79da07b7ffd8e0c426b7971dbc58e476db0ca13fe5189a91e25b9cb7f4e0e6d",
+    "captured_by": "H8, with tools/api_smoke.py fetch(), from the local gated server: python3 server.py at the issue #370 branch head (api.payment_gate:app), PORT=8773, for issue #370.",
+    "server_config": "PAYOUT_WALLET_ADDRESS=0x1111111111111111111111111111111111111111, a SYNTHETIC placeholder address chosen for the capture, not any real wallet; EDGAR_CONTACT set to a labelled test contact (Tiny Ledger Api Smoke smoke@example.com); no X-PAYMENT header sent, so the facilitator was never contacted",
+    "transcript_form": "status line, response headers in the order returned, a blank line, then the body exactly as returned, joined with newline characters"
+  },
+  "npi-400.http": {
+    "url": "http://127.0.0.1:8773/npi",
+    "retrieved_utc": "2026-10-24T14:39:48Z",
+    "sha256": "8f0899d747012b225d8e40f72a2d86828659f4ffdda30bb88416db72a5c08090",
+    "captured_by": "H8, with tools/api_smoke.py fetch(), from the local gated server: python3 server.py at the issue #370 branch head (api.payment_gate:app), PORT=8773, for issue #370.",
+    "server_config": "PAYOUT_WALLET_ADDRESS=0x1111111111111111111111111111111111111111, a SYNTHETIC placeholder address chosen for the capture, not any real wallet; EDGAR_CONTACT set to a labelled test contact (Tiny Ledger Api Smoke smoke@example.com); no X-PAYMENT header sent, so the facilitator was never contacted",
+    "transcript_form": "status line, response headers in the order returned, a blank line, then the body exactly as returned, joined with newline characters",
+    "note": "The request names no valid input (the bare endpoint path, no query string), so the server answers 400 before any source fetch; the api endpoint suite proves the same cases return 400 with its fetch functions patched to raise."
+  },
+  "wallet.http": {
+    "url": "http://127.0.0.1:8773/wallet?address=1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa",
+    "retrieved_utc": "2026-10-24T14:39:48Z",
+    "sha256": "05bd482cc8765e5dcef9dbe5bdfe2650cd7b04303419f4913c02500e6deadc9a",
+    "captured_by": "H8, with tools/api_smoke.py fetch(), from the local gated server: python3 server.py at the issue #370 branch head (api.payment_gate:app), PORT=8773, for issue #370.",
+    "server_config": "PAYOUT_WALLET_ADDRESS=0x1111111111111111111111111111111111111111, a SYNTHETIC placeholder address chosen for the capture, not any real wallet; EDGAR_CONTACT set to a labelled test contact (Tiny Ledger Api Smoke smoke@example.com); no X-PAYMENT header sent, so the facilitator was never contacted",
+    "transcript_form": "status line, response headers in the order returned, a blank line, then the body exactly as returned, joined with newline characters"
+  },
+  "wallet-400.http": {
+    "url": "http://127.0.0.1:8773/wallet",
+    "retrieved_utc": "2026-10-24T14:39:48Z",
+    "sha256": "16e044c066dec47aa264bb94697da7634c8cd6b6aa1a99cc8ed629406571ee25",
+    "captured_by": "H8, with tools/api_smoke.py fetch(), from the local gated server: python3 server.py at the issue #370 branch head (api.payment_gate:app), PORT=8773, for issue #370.",
+    "server_config": "PAYOUT_WALLET_ADDRESS=0x1111111111111111111111111111111111111111, a SYNTHETIC placeholder address chosen for the capture, not any real wallet; EDGAR_CONTACT set to a labelled test contact (Tiny Ledger Api Smoke smoke@example.com); no X-PAYMENT header sent, so the facilitator was never contacted",
+    "transcript_form": "status line, response headers in the order returned, a blank line, then the body exactly as returned, joined with newline characters",
+    "note": "The request names no valid input (the bare endpoint path, no query string), so the server answers 400 before any source fetch; the api endpoint suite proves the same cases return 400 with its fetch functions patched to raise."
+  },
+  "weather-502.http": {
+    "url": "http://127.0.0.1:8773/weather?lat=29.7604&lon=-95.3698",
+    "retrieved_utc": "2026-10-24T14:40:04Z",
+    "sha256": "607d74a31c6123c6f3cfb718e9bc9139e5a47f7fc0c4cac599d08e329a9ff5a3",
+    "captured_by": "H8, with tools/api_smoke.py fetch(), from the local gated server: python3 server.py at the issue #370 branch head (api.payment_gate:app), PORT=8773, for issue #370.",
+    "server_config": "PAYOUT_WALLET_ADDRESS=0x1111111111111111111111111111111111111111, a SYNTHETIC placeholder address chosen for the capture, not any real wallet; EDGAR_CONTACT set to a labelled test contact (Tiny Ledger Api Smoke smoke@example.com), which /formd checks before fetching, so without it the server answers 503 and no 502 can be captured; HTTP_PROXY, HTTPS_PROXY, http_proxy and https_proxy all set to http://127.0.0.1:9, a closed local port, so every source fetch fails at transport; no X-PAYMENT header sent, so the facilitator was never contacted",
+    "transcript_form": "status line, response headers in the order returned, a blank line, then the body exactly as returned, joined with newline characters",
+    "note": "Replayed source failure: the query is valid, the same sample shape as the endpoint's 200 capture, and the recorded proxy config makes the source fetch fail at transport; the 502 below is the server's own answer, captured verbatim. The descriptor and the payment gate are not affected by the proxy config."
+  },
+  "npi-502.http": {
+    "url": "http://127.0.0.1:8773/npi?query=1740584747",
+    "retrieved_utc": "2026-10-24T14:40:04Z",
+    "sha256": "4c90b32b7605df38e504cab0d29b4762024234348034d1e34fb5087fc76d99e2",
+    "captured_by": "H8, with tools/api_smoke.py fetch(), from the local gated server: python3 server.py at the issue #370 branch head (api.payment_gate:app), PORT=8773, for issue #370.",
+    "server_config": "PAYOUT_WALLET_ADDRESS=0x1111111111111111111111111111111111111111, a SYNTHETIC placeholder address chosen for the capture, not any real wallet; EDGAR_CONTACT set to a labelled test contact (Tiny Ledger Api Smoke smoke@example.com), which /formd checks before fetching, so without it the server answers 503 and no 502 can be captured; HTTP_PROXY, HTTPS_PROXY, http_proxy and https_proxy all set to http://127.0.0.1:9, a closed local port, so every source fetch fails at transport; no X-PAYMENT header sent, so the facilitator was never contacted",
+    "transcript_form": "status line, response headers in the order returned, a blank line, then the body exactly as returned, joined with newline characters",
+    "note": "Replayed source failure: the query is valid, the same sample shape as the endpoint's 200 capture, and the recorded proxy config makes the source fetch fail at transport; the 502 below is the server's own answer, captured verbatim. The descriptor and the payment gate are not affected by the proxy config."
+  },
+  "wallet-502.http": {
+    "url": "http://127.0.0.1:8773/wallet?address=1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa",
+    "retrieved_utc": "2026-10-24T14:40:04Z",
+    "sha256": "2498d38d8e0a629536060af4edeef634254c24c914baa7ce507a4c1a307fb212",
+    "captured_by": "H8, with tools/api_smoke.py fetch(), from the local gated server: python3 server.py at the issue #370 branch head (api.payment_gate:app), PORT=8773, for issue #370.",
+    "server_config": "PAYOUT_WALLET_ADDRESS=0x1111111111111111111111111111111111111111, a SYNTHETIC placeholder address chosen for the capture, not any real wallet; EDGAR_CONTACT set to a labelled test contact (Tiny Ledger Api Smoke smoke@example.com), which /formd checks before fetching, so without it the server answers 503 and no 502 can be captured; HTTP_PROXY, HTTPS_PROXY, http_proxy and https_proxy all set to http://127.0.0.1:9, a closed local port, so every source fetch fails at transport; no X-PAYMENT header sent, so the facilitator was never contacted",
+    "transcript_form": "status line, response headers in the order returned, a blank line, then the body exactly as returned, joined with newline characters",
+    "note": "Replayed source failure: the query is valid, the same sample shape as the endpoint's 200 capture, and the recorded proxy config makes the source fetch fail at transport; the 502 below is the server's own answer, captured verbatim. The descriptor and the payment gate are not affected by the proxy config."
   }
 }

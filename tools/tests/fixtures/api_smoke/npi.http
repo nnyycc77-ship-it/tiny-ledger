@@ -1,0 +1,85 @@
+HTTP/1.0 200 OK
+Date: Sat, 24 Oct 2026 14:39:47 GMT
+Server: WSGIServer/0.2 CPython/3.12.3
+Content-Type: text/markdown; charset=utf-8
+Content-Length: 4654
+Cache-Control: no-store
+X-Payout-Wallet: 0x1111111111111111111111111111111111111111
+
+# NPI Registry check: 1740584747
+
+Observation only: this report records what the CMS NPI Registry returned for this query at the retrieval times below. The registry is maintained on its own clock; another source naming the same provider can differ, and this report does not merge sources. No match is the registry's answer at the retrieval time only.
+
+## Answer
+
+Interpretation: NPI number
+
+The registry returned 1 record(s) for this interpretation across 1 page(s):
+
+Provider 1 of 1:
+- NPI number (number) as shown: "1740584747"
+- Enumeration type (enumeration_type) as shown: `"NPI-1"`
+- Name as shown: `"BRIAN"` `"MICHAEL"` `"AALBERS"`
+- Credential (credential) as shown: `"D.O."`
+- Status (status) as shown: `"A"`
+- Taxonomy as shown: `"Pediatrics, Neurodevelopmental Disabilities"` (code `"2080P0008X"`), primary: `false`
+- Taxonomy as shown: `"Psychiatry & Neurology, Neurology with Special Qualifications in Child Neurology"` (code `"2084N0402X"`), primary: `false`
+- Taxonomy as shown: `"Psychiatry & Neurology, Neurology with Special Qualifications in Child Neurology"` (code `"2084N0402X"`), primary: `true`
+- Practice state: `"MO"` (state as shown, of the LOCATION address; address_purpose as shown: `"LOCATION"`)
+
+## Evidence
+
+### CMS NPI Registry, NPI number, page 1
+
+Exact query URL: <https://npiregistry.cms.hhs.gov/api/?version=2.1&number=1740584747&limit=200&skip=0>
+
+UTC retrieval time: 2026-10-24T14:39:46Z
+
+Fields, verbatim from the response:
+```
+"number":"1740584747"
+"enumeration_type":"NPI-1"
+"first_name":"BRIAN"
+"middle_name":"MICHAEL"
+"last_name":"AALBERS"
+"credential":"D.O."
+"status":"A"
+"desc":"Pediatrics, Neurodevelopmental Disabilities"
+"code":"2080P0008X"
+"primary":false
+"desc":"Psychiatry & Neurology, Neurology with Special Qualifications in Child Neurology"
+"code":"2084N0402X"
+"primary":false
+"desc":"Psychiatry & Neurology, Neurology with Special Qualifications in Child Neurology"
+"code":"2084N0402X"
+"primary":true
+"address_purpose":"LOCATION"
+"state":"MO"
+"address_purpose":"MAILING"
+"state":"MO"
+```
+
+Complete raw response:
+```
+HTTP/1.1 200 
+Content-Type: application/json
+Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
+X-Content-Type-Options: nosniff
+Date: Sat, 24 Oct 2026 14:39:48 GMT
+Expires: Thu, 01 Jan 1970 00:00:00 GMT
+Cache-Control: no-cache, no-store, must-revalidate
+Pragma: no-cache
+X-Cache: Miss from cloudfront
+Via: 1.1 972331e74cb7b2ca9a35b5c774cfe406.cloudfront.net (CloudFront)
+X-Amz-Cf-Pop: MIA50-P7
+Alt-Svc: h3=":443"; ma=86400
+X-Amz-Cf-Id: dnhpeRx9q0nvD8N78-31Oth8iSkQy52iKXzO8brLmuaaStc5PctHRA==
+X-XSS-Protection: 1; mode=block
+X-Frame-Options: SAMEORIGIN
+Referrer-Policy: same-origin
+Content-Security-Policy: default-src 'self' data:; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:;
+Connection: close
+Content-Length: 1793
+
+{"result_count":1,"results":[{"addresses":[{"address_1":"2401 GILLHAM RD","address_purpose":"LOCATION","address_type":"DOM","city":"KANSAS CITY","country_code":"US","country_name":"United States","postal_code":"641084619","state":"MO","telephone_number":"816-234-3000"},{"address_1":"2401 GILLHAM RD","address_purpose":"MAILING","address_type":"DOM","city":"KANSAS CITY","country_code":"US","country_name":"United States","postal_code":"641084619","state":"MO","telephone_number":"816-234-3000"}],"basic":{"credential":"D.O.","enumeration_date":"2011-01-05","first_name":"BRIAN","last_name":"AALBERS","last_updated":"2022-01-26","middle_name":"MICHAEL","name_prefix":"Dr.","sex":"M","sole_proprietor":"NO","status":"A"},"created_epoch":"1294250151000","endpoints":[{"address_1":"2401 Gillham Rd","address_type":"DOM","affiliation":"N","city":"Kansas City","contentTypeDescription":"","country_code":"US","country_name":"United States","endpoint":"BRIAN.AALBERS@hca2.eclinicaldirectplus.com","endpointType":"DIRECT","endpointTypeDescription":"Direct Messaging Address","postal_code":"641084619","state":"MO","useDescription":""}],"enumeration_type":"NPI-1","identifiers":[],"last_updated_epoch":"1643218491000","number":"1740584747","other_names":[],"practiceLocations":[],"taxonomies":[{"code":"2080P0008X","desc":"Pediatrics, Neurodevelopmental Disabilities","license":"N5517","primary":false,"state":"TX","taxonomy_group":""},{"code":"2084N0402X","desc":"Psychiatry & Neurology, Neurology with Special Qualifications in Child Neurology","license":"N5517","primary":false,"state":"TX","taxonomy_group":""},{"code":"2084N0402X","desc":"Psychiatry & Neurology, Neurology with Special Qualifications in Child Neurology","license":"2014013358","primary":true,"state":"MO","taxonomy_group":""}]}]}
+```
