@@ -61,8 +61,20 @@ class Handler(http.server.BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(body)
 
+    hits = {}  # path -> requests seen, for the retry tests
+
+    def drop(self):
+        """SYNTHETIC: close the connection before any status line (RemoteDisconnected on the client)."""
+        self.close_connection = True
+
     def do_GET(self):
         p = self.path
+        Handler.hits[p] = Handler.hits.get(p, 0) + 1
+        # Retry routes (issue #201), SYNTHETIC, in the shape of the live check: no response, then a 404.
+        if p == "/rdap/domain/flakyonce.com":
+            return self.drop() if Handler.hits[p] == 1 else self.send(404, b"", "application/rdap+json")
+        if p == "/rdap/domain/flakytwice.com":
+            return self.drop()
         # RDAP: redirect hop (SYNTHETIC, mirrors the recorded rdap.org -> verisign redirect).
         if p == "/rdap/domain/nike.com":
             return self.send(302, extra=[("Location", "/verisign/com/v1/domain/nike.com")])
@@ -152,6 +164,30 @@ class Rules(unittest.TestCase):
         self.assertEqual(bnc.normalize("Nike SNKRS"), "nikesnkrs")
 
 
+class Retry(unittest.TestCase):
+    def count_calls(self, exc):
+        calls = []
+
+        def fake(request, timeout=None):  # SYNTHETIC: every attempt raises exc
+            calls.append(request.full_url)
+            raise exc
+        from unittest import mock
+        with mock.patch("urllib.request.urlopen", fake):
+            result = bnc.get("https://rdap.org/domain/zqxflorp.com", True)
+        return len(calls), result
+
+    def test_only_a_no_response_failure_is_retried_and_only_once(self):
+        import http.client
+        import urllib.error
+        n, result = self.count_calls(http.client.RemoteDisconnected("Remote end closed connection without response"))
+        self.assertEqual((n, result.status, result.first_error),
+                         (2, None, "Remote end closed connection without response"))
+        n, result = self.count_calls(urllib.error.URLError("SYNTHETIC refused"))
+        self.assertEqual(n, 2)
+        n, result = self.count_calls(ValueError("SYNTHETIC unknown url type"))  # a bad URL: not a transport failure
+        self.assertEqual((n, result.first_error), (1, None))
+
+
 class EndToEnd(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
@@ -230,6 +266,34 @@ class EndToEnd(unittest.TestCase):
         self.assertRegex(out, r"\| x \| broken \| could not confirm \| no response \(")
         self.assertNotIn("no account found", out)
         self.assertIn("App Store | could not confirm", out)
+
+    def test_no_response_then_404_is_retried_once_and_reported_as_before(self):
+        Handler.hits.clear()
+        code, out, err = self.run_main(["flakyonce", "--app-limit", "2", "--platforms", "x"])
+        self.assertEqual(code, 0, err)
+        self.assertEqual(Handler.hits["/rdap/domain/flakyonce.com"], 2)
+        self.assertRegex(out, r"\| flakyonce\.com \| no registration found \| HTTP 404 ")
+        self.assertIn("[retried once: the first attempt got no response: Remote end closed connection without "
+                      "response]", out)
+
+    def test_no_response_twice_is_still_could_not_confirm(self):
+        Handler.hits.clear()
+        code, out, err = self.run_main(["flakytwice", "--app-limit", "2", "--platforms", "x"])
+        self.assertEqual(code, 0, err)
+        self.assertEqual(Handler.hits["/rdap/domain/flakytwice.com"], 2)  # one retry, not more
+        self.assertRegex(out, r"\| flakytwice\.com \| could not confirm \| no response \(Remote end closed")
+        self.assertIn("request failed: Remote end closed connection without response\n"
+                      "[retried once: the first attempt got no response: Remote end closed", out)
+        self.assertNotIn("flakytwice.com | no registration found", out)
+
+    def test_an_http_status_is_never_retried(self):
+        Handler.hits.clear()
+        self.run_main(["broken", "--app-limit", "2", "--platforms", "x"])
+        self.assertEqual(Handler.hits["/rdap/domain/broken.com"], 1)
+        Handler.hits.clear()
+        _, out, _ = self.run_main(["zqxflorp", "--app-limit", "2", "--platforms", "x"])
+        self.assertEqual(Handler.hits["/rdap/domain/zqxflorp.com"], 1)
+        self.assertNotIn("retried once", out)
 
     def test_bad_inputs_exit_2_with_nothing_on_stdout(self):
         for argv in (["Nike", "--tlds", "c$m"], ["Nike", "--platforms", "myspace"], ["%%%"],
