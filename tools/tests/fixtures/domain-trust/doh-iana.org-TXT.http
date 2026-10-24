@@ -1,0 +1,12 @@
+HTTP/1.1 200 OK
+Server: cloudflare
+Date: Sat, 24 Oct 2026 01:51:46 GMT
+Content-Type: application/dns-json
+alt-svc: h3=":443"; ma=86400
+Access-Control-Allow-Origin: *
+X-Content-Type-Options: nosniff
+CF-RAY: a4f5569aa8b1c639-DEN
+Connection: close
+Content-Length: 1358
+
+{"Status":0,"TC":false,"RD":true,"RA":true,"AD":true,"CD":false,"Question":[{"name":"iana.org","type":16}],"Answer":[{"name":"iana.org","type":16,"TTL":86400,"data":"\"MS=ms22660639\""},{"name":"iana.org","type":16,"TTL":86400,"data":"\"v=spf1 redirect=icann.org\""},{"name":"iana.org","type":16,"TTL":86400,"data":"\"c9e864a6c53444038d34fe3a22513b74\""},{"name":"iana.org","type":16,"TTL":86400,"data":"\"ZOOM_verify_OSW2jT8DRO7PWDLYayPfa1\""},{"name":"iana.org","type":16,"TTL":86400,"data":"\"hibp-verify=dweb_deeci9b66kmruhrzqi0rgz1m\""},{"name":"iana.org","type":16,"TTL":86400,"data":"\"docusign=b2d7c7b0-4627-494b-a7aa-682ee87c265d\""},{"name":"iana.org","type":16,"TTL":86400,"data":"\"openai-domain-verification=dv-PthFCD7xcAsc4Af2tmFj9sui\""},{"name":"iana.org","type":16,"TTL":86400,"data":"\"smartsheet-site-validation=CcnvONgQ2ibuzf2zHZxgPaWUqTwt-Sjr\""},{"name":"iana.org","type":16,"TTL":86400,"data":"\"anthropic-domain-verification-y6snfs=iFBQ4ycOIIfJWwcVxPVrM7GjE\""},{"name":"iana.org","type":16,"TTL":86400,"data":"\"yahoo-verification-key=a1BzYfCAaz0f0Lu5ciZqvFkN93BwOIFipV9hvjjvqJw=\""},{"name":"iana.org","type":16,"TTL":86400,"data":"\"google-site-verification=6UylNQOBC9EN1ZNfySQ3g8XdRBqkGG4gifrzF9zsPD0\""},{"name":"iana.org","type":16,"TTL":86400,"data":"\"google-site-verification=iIqTTcUxND4wZOeVe5Ho728rH3JOSDnssYsYJ7pUtQQ\""}]}

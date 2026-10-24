@@ -627,6 +627,19 @@ live captures on issue #51:
 - `status-captures.json`, a transcription of the recorded statuses for the
   status-only checks.
 
+## domain_trust_check.py
+
+One domain in, its A and MX records, SPF record and ending policy,
+DMARC record and policy, and its HTTPS answer and redirects out. DNS
+comes from the Cloudflare DNS over HTTPS JSON API (keyless), the HTTPS
+leg from the site itself. Every response is printed in full beneath its
+request URL. Full documentation, with the source, the empty and fail
+closed cases, and the shelf price: [`domain-trust-check-README.md`](domain-trust-check-README.md).
+
+```sh
+python3 tools/domain_trust_check.py example.com   # the reserved example domain, as the example input
+```
+
 ## Cross agent offline integration pass (`tests/test_agents_integration.py`)
 
 Issue #100. It runs every agent in `agents/` plus the brand checker through

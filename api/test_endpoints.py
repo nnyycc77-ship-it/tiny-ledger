@@ -383,5 +383,33 @@ class PageSpeedTests(unittest.TestCase):
         self.assertNotIn("## Page", text)
 
 
+# ----------------------------------------------------------------------
+# /domain
+# ----------------------------------------------------------------------
+
+import test_domain_trust_check as dt_fixtures  # noqa: E402
+
+
+class DomainTests(unittest.TestCase):
+    """Served from the real captures in tools/tests/fixtures/domain-trust/."""
+
+    def test_example_com_report_from_the_recorded_answers(self):
+        with patch.object(dt, "fetch_doh", side_effect=dt_fixtures.by_url(*dt_fixtures.EXAMPLE_DNS)), \
+             patch.object(dt, "fetch_site", side_effect=dt_fixtures.by_url("site-example.com.http")):
+            status, headers, text = get("/domain", "domain=example.com", WALLET)
+        self.assertEqual(status, "200 OK", text)
+        self.assertEqual(headers["Content-Type"], recall_api.TEXT_MD)
+        self.assertTrue(text.startswith("# Domain trust check: example.com\n"))  # example domain fixture
+        self.assertIn("- SPF ending policy: `-all`, the final all mechanism of the record (source S3).", text)
+        self.assertIn("- DMARC policy (p= tag as shown): `reject` (source S4).", text)
+
+    def test_dns_transport_failure_is_502_with_no_report(self):
+        with patch.object(dt, "fetch_doh", side_effect=OSError("connection refused")), \
+             patch.object(dt, "fetch_site", side_effect=AssertionError("no site fetch expected")):
+            status, _, text = get("/domain", "domain=example.com")  # example domain fixture
+        self.assertEqual(status, "502 Bad Gateway")
+        self.assertNotIn("## Domain", text)
+
+
 if __name__ == "__main__":
     unittest.main()

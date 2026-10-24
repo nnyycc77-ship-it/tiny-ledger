@@ -1,0 +1,12 @@
+HTTP/1.1 200 OK
+Server: cloudflare
+Date: Sat, 24 Oct 2026 01:51:48 GMT
+Content-Type: application/dns-json
+alt-svc: h3=":443"; ma=86400
+Access-Control-Allow-Origin: *
+X-Content-Type-Options: nosniff
+CF-RAY: a4f556a778083b08-EWR
+Connection: close
+Content-Length: 280
+
+{"Status":0,"TC":false,"RD":true,"RA":true,"AD":true,"CD":false,"Question":[{"name":"_dmarc.iana.org","type":16}],"Answer":[{"name":"_dmarc.iana.org","type":16,"TTL":3600,"data":"\"v=DMARC1; p=none;fo=1; rua=mailto:tutnr7vw@ag.us.dmarcian.com; ruf=mailto:dmarc-ruf@iana.org;\""}]}

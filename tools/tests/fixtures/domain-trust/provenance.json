@@ -1,0 +1,115 @@
+{
+ "_about": "Captures for tools/domain_trust_check.py (issue #159). Every response was captured live by the coordinator from a working environment and posted verbatim on issue #159 (Option B: H1's environment could not reach the hosts). Each fixture is the complete origin response as a transcript: status line, headers in the order received, a blank line, the body. The sha256 under each file name is the hash of the fixture file, checked by tools/pregate.py; body_sha256_as_posted and body_bytes are the coordinator's recorded values for the body alone, and the body in each file matches both.",
+ "doh-example.com-A.http": {
+  "url": "https://cloudflare-dns.com/dns-query?name=example.com&type=A",
+  "retrieved_utc": "2026-10-24T01:51:42Z",
+  "status_line": "HTTP/1.1 200 OK",
+  "posted_at": "https://github.com/nnyycc77-ship-it/tiny-ledger/issues/159#issuecomment-6378418247",
+  "transcript_form": "status line, headers in the order received, then a blank line added between headers and body (the posted block had none), then the body",
+  "body_sha256_as_posted": "692b4c2a44583449170ee48eb077a8beef138b2508e58eea70326474be722a9b",
+  "body_bytes": 249,
+  "sha256": "1e3830d7f2eafc34ffee39a26a700968b4907a65d3f0e9ee5e92de818d515d42"
+ },
+ "doh-example.com-MX.http": {
+  "url": "https://cloudflare-dns.com/dns-query?name=example.com&type=MX",
+  "retrieved_utc": "2026-10-24T01:51:42Z",
+  "status_line": "HTTP/1.1 200 OK",
+  "posted_at": "https://github.com/nnyycc77-ship-it/tiny-ledger/issues/159#issuecomment-6378418247",
+  "transcript_form": "status line, headers in the order received, then a blank line added between headers and body (the posted block had none), then the body",
+  "body_sha256_as_posted": "a8052de7bc9c41aaf42ba3d3c1dbe5abb315952366eb6a4688021130a1140f32",
+  "body_bytes": 177,
+  "sha256": "520c0e15add60e505f187006f1e76aa5104b031673f08fe9e9de32ff3807193a"
+ },
+ "doh-example.com-TXT.http": {
+  "url": "https://cloudflare-dns.com/dns-query?name=example.com&type=TXT",
+  "retrieved_utc": "2026-10-24T01:51:43Z",
+  "status_line": "HTTP/1.1 200 OK",
+  "posted_at": "https://github.com/nnyycc77-ship-it/tiny-ledger/issues/159#issuecomment-6378418247",
+  "transcript_form": "status line, headers in the order received, then a blank line added between headers and body (the posted block had none), then the body",
+  "body_sha256_as_posted": "7417b34066103f2cc8cdfffe709c5ad35ffe1a26b1ed41fb1cf5be54fc250770",
+  "body_bytes": 278,
+  "sha256": "671c909281d422e5c224c778a0e47e274c7f9a2ca63bcc2589cbe7bf4636095a"
+ },
+ "doh-_dmarc.example.com-TXT.http": {
+  "url": "https://cloudflare-dns.com/dns-query?name=_dmarc.example.com&type=TXT",
+  "retrieved_utc": "2026-10-24T01:51:44Z",
+  "status_line": "HTTP/1.1 200 OK",
+  "posted_at": "https://github.com/nnyycc77-ship-it/tiny-ledger/issues/159#issuecomment-6378418247",
+  "transcript_form": "status line, headers in the order received, then a blank line added between headers and body (the posted block had none), then the body",
+  "body_sha256_as_posted": "1c98b1128edee0af326a5f4a25ef500993ec997324c4708dff53c1e15524ba90",
+  "body_bytes": 233,
+  "sha256": "2541efb6030813685411828cdf1abd4eeac16af9376ce6811cd0f454aa1951bb"
+ },
+ "doh-iana.org-TXT.http": {
+  "url": "https://cloudflare-dns.com/dns-query?name=iana.org&type=TXT",
+  "retrieved_utc": "2026-10-24T01:51:44Z",
+  "status_line": "HTTP/1.1 200 OK",
+  "posted_at": "https://github.com/nnyycc77-ship-it/tiny-ledger/issues/159#issuecomment-6378418549",
+  "transcript_form": "status line, headers in the order received, then a blank line added between headers and body (the posted block had none), then the body",
+  "body_sha256_as_posted": "3c79551c1276202b7d4e25f737b501bb7f1699a5e633380a0f1f9c7eb5a13df6",
+  "body_bytes": 1358,
+  "sha256": "71142aa9639250fc202a969996822a4ce6431872555c1aa44247af17e9ea2807"
+ },
+ "doh-_dmarc.iana.org-TXT.http": {
+  "url": "https://cloudflare-dns.com/dns-query?name=_dmarc.iana.org&type=TXT",
+  "retrieved_utc": "2026-10-24T01:51:45Z",
+  "status_line": "HTTP/1.1 200 OK",
+  "posted_at": "https://github.com/nnyycc77-ship-it/tiny-ledger/issues/159#issuecomment-6378418549",
+  "transcript_form": "status line, headers in the order received, then a blank line added between headers and body (the posted block had none), then the body",
+  "body_sha256_as_posted": "c25449327d61d2ef83733e3d44ab1865a961910f0d8e567f74c0d777777b3e74",
+  "body_bytes": 280,
+  "sha256": "8c933d1f66a84896b3803f00215ce66901e4f783f1ea8cabeb5ecb9e0bc2f500"
+ },
+ "doh-wikipedia.org-TXT.http": {
+  "url": "https://cloudflare-dns.com/dns-query?name=wikipedia.org&type=TXT",
+  "retrieved_utc": "2026-10-24T01:51:47Z",
+  "status_line": "HTTP/1.1 200 OK",
+  "posted_at": "https://github.com/nnyycc77-ship-it/tiny-ledger/issues/159#issuecomment-6378418549",
+  "transcript_form": "status line, headers in the order received, then a blank line added between headers and body (the posted block had none), then the body",
+  "body_sha256_as_posted": "3f92cd7f389eea38abcb8c9899f34f3477620efedfc012c6564030f7b3516f76",
+  "body_bytes": 446,
+  "sha256": "971aef2808f9bc4654a810f028faa2b6f4af599c9343e87cdc42e55ab8f96678"
+ },
+ "doh-does-not-exist.invalid-A.http": {
+  "url": "https://cloudflare-dns.com/dns-query?name=does-not-exist.invalid&type=A",
+  "retrieved_utc": "2026-10-24T01:51:48Z",
+  "status_line": "HTTP/1.1 200 OK",
+  "posted_at": "https://github.com/nnyycc77-ship-it/tiny-ledger/issues/159#issuecomment-6378418549",
+  "transcript_form": "status line, headers in the order received, then a blank line added between headers and body (the posted block had none), then the body",
+  "body_sha256_as_posted": "00a4df061188c8d87f492ea2d945424f8fd1bacd3e3fedd842e8d08e0f3862b8",
+  "body_bytes": 253,
+  "sha256": "13f9aba4033511a3018c621d3bcbd37859c56e8ece9cacb9d444825943f14a7b"
+ },
+ "doh-_dmarc.neverssl.com-TXT.http": {
+  "url": "https://cloudflare-dns.com/dns-query?name=_dmarc.neverssl.com&type=TXT",
+  "retrieved_utc": "2026-10-24T01:51:48Z",
+  "status_line": "HTTP/1.1 200 OK",
+  "posted_at": "https://github.com/nnyycc77-ship-it/tiny-ledger/issues/159#issuecomment-6378418549",
+  "transcript_form": "status line, headers in the order received, then a blank line added between headers and body (the posted block had none), then the body",
+  "body_sha256_as_posted": "79cda6126a49e4b20b399d7a5f97984041a36b317742088c5bee5c1ce454a70b",
+  "body_bytes": 265,
+  "sha256": "7b58dc7f065c489281d91ec4b6252f555c03dbf680c2d7282e9a720cff12c22a"
+ },
+ "site-example.com.http": {
+  "url": "https://example.com/",
+  "retrieved_utc": "2026-10-24T01:51:49Z",
+  "status_line": "HTTP/1.1 200 OK",
+  "posted_at": "https://github.com/nnyycc77-ship-it/tiny-ledger/issues/159#issuecomment-6378418840",
+  "transcript_form": "status line, headers in the order received, then a blank line added between headers and body (the posted block had none), then the body",
+  "body_sha256_as_posted": "25ddf2c883e0d1958ea971d279a7e4f0fd446724ee3db7db19dadabd4a62e484",
+  "body_bytes": 577,
+  "sha256": "bec6dd8925afefdbac8158c58d2bdad0f507edc0598327be0b0e0922cbe963fc",
+  "body_note": "The posted text of the body ends without its final newline; the body here ends with one LF, the only arrangement whose bytes match the recorded body sha256 and body_bytes (577)."
+ },
+ "site-google.com.http": {
+  "url": "https://google.com/",
+  "retrieved_utc": "2026-10-24T01:51:50Z",
+  "status_line": "HTTP/1.1 301 Moved Permanently",
+  "posted_at": "https://github.com/nnyycc77-ship-it/tiny-ledger/issues/159#issuecomment-6378418840",
+  "transcript_form": "status line, headers in the order received, then a blank line added between headers and body (the posted block had none), then the body",
+  "body_sha256_as_posted": "5b61b0c2032b4aa9519d65cc98c6416c12415e02c7fbbaa1be5121dc75162edb",
+  "body_bytes": 220,
+  "sha256": "261d0d6c6afabc147478881d6686e7bdc7cf3301b05b2a5f9ed25169fcfe2910",
+  "body_note": "The posted text of the body lost its CR bytes; the body here restores CRLF before its last line and at its end, the only one of the 96 LF/CRLF arrangements of its six lines whose bytes match the recorded body sha256 and body_bytes (220)."
+ }
+}

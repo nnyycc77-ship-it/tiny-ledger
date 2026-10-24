@@ -1,0 +1,12 @@
+HTTP/1.1 200 OK
+Server: cloudflare
+Date: Sat, 24 Oct 2026 01:51:49 GMT
+Content-Type: application/dns-json
+alt-svc: h3=":443"; ma=86400
+Access-Control-Allow-Origin: *
+X-Content-Type-Options: nosniff
+CF-RAY: a4f556ab4b36181f-IAD
+Connection: close
+Content-Length: 446
+
+{"Status":0,"TC":false,"RD":true,"RA":true,"AD":false,"CD":false,"Question":[{"name":"wikipedia.org","type":16}],"Answer":[{"name":"wikipedia.org","type":16,"TTL":600,"data":"\"yandex-verification: 35c08d23099dc863\""},{"name":"wikipedia.org","type":16,"TTL":600,"data":"\"v=spf1 include:_cidrs.wikimedia.org ~all\""},{"name":"wikipedia.org","type":16,"TTL":600,"data":"\"google-site-verification=AMHkgs-4ViEvIJf5znZle-BSE2EPNFqM1nDJGRyn2qk\""}]}

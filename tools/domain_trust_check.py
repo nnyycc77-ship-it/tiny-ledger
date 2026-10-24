@@ -284,8 +284,9 @@ def _status_line(index, name, rr_type, capture, status):
 
 def _empty(status, name, rr_type, index):
     if status != 0:
-        return ("The answer holds no %s record for %s: the DNS Status field is %d, not 0, so the name did "
-                "not resolve normally. The complete raw response is in source S%d." % (rr_type, name, status, index))
+        return ("The answer holds no %s record for %s: the DNS Status field is %d, not 0 (the API documentation "
+                "says Status is the DNS response code, as defined in the IANA DNS parameters registry). The "
+                "complete raw response is in source S%d." % (rr_type, name, status, index))
     return ("The answer holds no %s record for %s (DNS Status 0 with no %s record in the Answer). The "
             "complete raw response is in source S%d." % (rr_type, name, rr_type, index))
 
