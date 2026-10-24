@@ -349,13 +349,6 @@ class Wave2Integration(unittest.TestCase):
         self.assertNotIn("\n## ", body)
 
 
-# Drift filed as its own issue, not patched here (#212 rules): these routes'
-# bodies end with one more "\n" than the command line prints. The assertion
-# is unchanged; when #215 is fixed they report "unexpected success" and the
-# entry is removed.
-KNOWN_DRIFT = {"/flood": "#215", "/fda": "#215", "/oig": "#215"}
-
-
 def same_text(route):
     def test(self):
         code, own, err = route.own()
@@ -366,7 +359,7 @@ def same_text(route):
         expected = own if route.head is None else "\n".join(route.head) + "\n" + own
         self.assertEqual(body, expected)
     test.__doc__ = "%s: the 200 body is the fetcher's own Markdown" % route.path
-    return unittest.expectedFailure(test) if route.path in KNOWN_DRIFT else test
+    return test
 
 
 for _route in ROUTES:
