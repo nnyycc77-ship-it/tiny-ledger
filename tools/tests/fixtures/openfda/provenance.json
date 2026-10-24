@@ -1,0 +1,22 @@
+{
+  "tylenol-hit.http": {
+    "url": "https://api.fda.gov/drug/label.json?search=openfda.brand_name:%22Tylenol%22+OR+openfda.generic_name:%22Tylenol%22&limit=1",
+    "retrieved_utc": "2026-10-24T04:59:59Z",
+    "method": "GET, keyless (no credentials), captured live by H6 in the helper environment with the capture path of tools/nhtsa_recalls.py",
+    "captured_by": "H6, live capture on issue #163",
+    "transcript_form": "status line, response headers in the order returned, a blank line, then the body exactly as returned, joined with newline characters",
+    "body_bytes": 7152,
+    "body_sha256": "9db860274efe440e94df2eb0ceef1b40de734b3d8f8adac0bcd6f86594156a4d",
+    "sha256": "3df9b47f340c3703fc081c8f5fe7f7e36e07fc7fa0f22bb302418c6c9ec11db5"
+  },
+  "no-match-404.http": {
+    "url": "https://api.fda.gov/drug/label.json?search=openfda.brand_name:%22Zqxwvnotadrug%22+OR+openfda.generic_name:%22Zqxwvnotadrug%22&limit=1",
+    "retrieved_utc": "2026-10-24T05:00:07Z",
+    "method": "GET, keyless (no credentials), captured live by H6 in the helper environment with the capture path of tools/nhtsa_recalls.py",
+    "captured_by": "H6, live capture on issue #163",
+    "transcript_form": "status line, response headers in the order returned, a blank line, then the body exactly as returned, joined with newline characters",
+    "body_bytes": 80,
+    "body_sha256": "57b1e7534d003e4246182162fd2469cdf038de39405056f44fc006715e5496da",
+    "sha256": "094a9bb77cd6c11d5fcbe393d4b5dad6af117004f7ab56ca69155a2f1567258b"
+  }
+}
