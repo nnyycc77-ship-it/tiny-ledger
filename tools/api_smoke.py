@@ -136,6 +136,9 @@ ENDPOINT_FIXTURES = {
 _REFUSED = ("the capture for issue #243 ran in a container whose network policy refuses %s, so no "
             "200 report could be captured; a 200 transcript is owed from an environment that reaches it")
 NO_ENDPOINT_CAPTURE = {
+    "/disaster": ("the endpoint was added by issue #312 in a container whose network policy refuses "
+                  "www.fema.gov, so no 200 report could be captured; a 200 transcript is owed from an "
+                  "environment that reaches it"),
     "/domain": _REFUSED % "cloudflare-dns.com",
     "/fda": _REFUSED % "api.fda.gov",
     "/flood": _REFUSED % "hazards.fema.gov",
@@ -162,6 +165,7 @@ BAD_QUERY_FIXTURES = {
     "/bank": "bank-400.http",
     "/carrier": "carrier-400.http",
     "/csl": "csl-400.http",
+    "/disaster": "disaster-400.http",
     "/domain": "domain-400.http",
     "/drug": "drug-400.http",
     "/epa": "epa-400.http",
@@ -206,6 +210,7 @@ SOURCE_FAILURE_FIXTURES = {
     "/bank": "bank-502.http",
     "/carrier": "carrier-502.http",
     "/csl": "csl-502.http",
+    "/disaster": "disaster-502.http",
     "/domain": "domain-502.http",
     "/drug": "drug-502.http",
     "/epa": "epa-502.http",

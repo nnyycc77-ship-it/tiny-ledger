@@ -120,19 +120,21 @@ class OfflineMode(unittest.TestCase):
         self.assertTrue(all(ok for _, ok in results), results)
         self.assertEqual(self.caps["openapi"].status, 200)
 
-    def test_default_run_passes_all_428_with_the_raw_responses(self):
-        # 20 original assertions, 17 endpoint sections of 5, 24 bad
-        # query sections of 4, 26 bad query accounting lines, 24 source
-        # failure sections of 4, 26 source failure accounting lines,
-        # two unavailable sections of 5 (/formd and /insider), 26
-        # unavailable accounting lines, and 26 coverage lines, one per
+    def test_default_run_passes_all_440_with_the_raw_responses(self):
+        # 20 original assertions, 18 endpoint sections of 5, 26 bad
+        # query sections of 4, 28 bad query accounting lines, 26 source
+        # failure sections of 4, 28 source failure accounting lines,
+        # two unavailable sections of 5 (/formd and /insider), 28
+        # unavailable accounting lines, and 28 coverage lines, one per
         # GET path in api/openapi.json (seven paths added by issue #243,
         # with 400 and 502 captures, a 503 capture for /insider, and a
-        # reasoned entry in NO_ENDPOINT_CAPTURE).
+        # reasoned entry in NO_ENDPOINT_CAPTURE; /bank added by issue #320
+        # with 200, 400 and 502 captures; /disaster added by issue #312
+        # with 400 and 502 captures and a reasoned 200, with no 503).
         code, out, err = run_main([])
         self.assertEqual(code, 0, err)
         self.assertIn("Result: PASS, every assertion held.", out)
-        self.assertEqual(out.count("- PASS:"), 428)
+        self.assertEqual(out.count("- PASS:"), 440)
         self.assertNotIn("- FAIL:", out)
         self.assertIn("Source: <http://127.0.0.1:8765/openapi.json>", out)
         self.assertIn("Retrieved (UTC): 2026-10-23T14:51:26Z", out)
