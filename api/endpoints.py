@@ -54,6 +54,7 @@ from tools import courtlistener_recap as cl  # noqa: E402
 from tools import domain_trust_check as dt  # noqa: E402
 from tools import edgar_formd as ef  # noqa: E402
 from tools import fmcsa_carrier as fc  # noqa: E402
+from tools import github_repo_check as gh  # noqa: E402
 from tools import ofac_sdn_check as ofac  # noqa: E402
 from tools import pagespeed_snapshot as ps  # noqa: E402
 from tools import propublica_nonprofits as pp  # noqa: E402
@@ -475,6 +476,25 @@ def vin(query, env=None):
 
 
 # ----------------------------------------------------------------------
+# /github
+# ----------------------------------------------------------------------
+
+def github_repo(query, env=None):
+    """Keyless GitHub repository check via tools/github_repo_check.py."""
+    try:
+        owner = gh.check_name(_single(query, "owner", ""), "owner")
+        repo = gh.check_name(_single(query, "repo", ""), "repo")
+    except ValueError as err:
+        raise BadRequest(str(err))
+    try:
+        capture = gh.fetch(gh.repo_url(owner, repo))
+        lines = gh.render(owner, repo, capture)
+    except gh.FetchError as err:
+        raise FetchFailed(str(err))
+    return _text([], lines)
+
+
+# ----------------------------------------------------------------------
 # Registry and descriptor
 # ----------------------------------------------------------------------
 
@@ -488,9 +508,16 @@ ROUTES = {
     "/ofac": ofac_sdn,
     "/domain": domain,
     "/vin": vin,
+    "/github": github_repo,
 }
 
 DESCRIPTIONS = {
+    "/github": {
+        "tool": "tools/github_repo_check.py",
+        "params": ["owner (GitHub user or organization)", "repo (repository name)"],
+        "sources": [gh.API_URL],
+        "note": "Keyless: no Authorization header is sent; GitHub's unauthenticated limit is 60 requests per hour.",
+    },
     "/ofac": {
         "tool": "tools/ofac_sdn_check.py",
         "params": ["name (person or company name; at least %d letters or digits)" % ofac.MIN_QUERY_CHARS],

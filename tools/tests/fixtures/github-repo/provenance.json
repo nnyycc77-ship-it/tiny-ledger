@@ -1,0 +1,75 @@
+{
+  "_about": "Keyless GitHub REST API responses for tools/github_repo_check.py (issue #166), captured by the coordinator with plain curl and no Authorization header at 2026-10-24 about 02:36 UTC, under option B (this build environment's proxy adds credentials to api.github.com, so it cannot make a keyless call). Each response is two files, verbatim from the coordinator comment: NAME.headers is the status line and headers block as posted (the status line reads 'HTTP/1.1 HTTP/1.1 ...' exactly as posted), NAME.body the body. Every captured response carries X-RateLimit-Limit: 60, the unauthenticated limit. Each body's SHA-256 matches the one the coordinator posted.",
+  "atom-atom.headers": {
+    "url": "https://api.github.com/repos/atom/atom",
+    "what": "archived public repo (archived true), license MIT",
+    "part": "headers",
+    "retrieved_utc": "2026-10-24 about 02:36 UTC, keyless, as stated by the coordinator",
+    "posted_at": "https://github.com/nnyycc77-ship-it/tiny-ledger/issues/166#issuecomment-6378847682",
+    "bytes": 1331,
+    "sha256": "ab8e22d037d8538704a47e61986c3668aacec64c7d75f0e60136cec8f440d61b"
+  },
+  "atom-atom.body": {
+    "url": "https://api.github.com/repos/atom/atom",
+    "what": "archived public repo (archived true), license MIT",
+    "part": "body",
+    "retrieved_utc": "2026-10-24 about 02:36 UTC, keyless, as stated by the coordinator",
+    "posted_at": "https://github.com/nnyycc77-ship-it/tiny-ledger/issues/166#issuecomment-6378847682",
+    "bytes": 6467,
+    "sha256": "378b9ca730a125c94097eec8d9d32c2cc628ed198c348eade651fa1e0ef640b0"
+  },
+  "octocat-hello-world.headers": {
+    "url": "https://api.github.com/repos/octocat/Hello-World",
+    "what": "public repo with \"license\": null, archived false",
+    "part": "headers",
+    "retrieved_utc": "2026-10-24 about 02:36 UTC, keyless, as stated by the coordinator",
+    "posted_at": "https://github.com/nnyycc77-ship-it/tiny-ledger/issues/166#issuecomment-6378847900",
+    "bytes": 1330,
+    "sha256": "a642d27accef0179d24a47c34dcc2cb02373c9920f1c35d9e51b99efc96b1316"
+  },
+  "octocat-hello-world.body": {
+    "url": "https://api.github.com/repos/octocat/Hello-World",
+    "what": "public repo with \"license\": null, archived false",
+    "part": "body",
+    "retrieved_utc": "2026-10-24 about 02:36 UTC, keyless, as stated by the coordinator",
+    "posted_at": "https://github.com/nnyycc77-ship-it/tiny-ledger/issues/166#issuecomment-6378847900",
+    "bytes": 5566,
+    "sha256": "8f1ef395bd00e759e37531c7f6a4d86683cb2c48d698f99a2fc780e86b86dba0"
+  },
+  "missing-404.headers": {
+    "url": "https://api.github.com/repos/zqxflorp/no-such-repo-xyz123",
+    "what": "nonexistent repo, HTTP 404",
+    "part": "headers",
+    "retrieved_utc": "2026-10-24 about 02:36 UTC, keyless, as stated by the coordinator",
+    "posted_at": "https://github.com/nnyycc77-ship-it/tiny-ledger/issues/166#issuecomment-6378848158",
+    "bytes": 1137,
+    "sha256": "72ab52b7328b929b00a2d31d1d464f36e082cebbe93fd650316efd5217f6c326"
+  },
+  "missing-404.body": {
+    "url": "https://api.github.com/repos/zqxflorp/no-such-repo-xyz123",
+    "what": "nonexistent repo, HTTP 404",
+    "part": "body",
+    "retrieved_utc": "2026-10-24 about 02:36 UTC, keyless, as stated by the coordinator",
+    "posted_at": "https://github.com/nnyycc77-ship-it/tiny-ledger/issues/166#issuecomment-6378848158",
+    "bytes": 132,
+    "sha256": "a298fd3d1a255b0eb21a952212460852e05ba9721d3445fb42d7ad054d88f94a"
+  },
+  "psf-requests.headers": {
+    "url": "https://api.github.com/repos/psf/requests",
+    "what": "public repo with a license (Apache License 2.0), archived false",
+    "part": "headers",
+    "retrieved_utc": "2026-10-24 about 02:36 UTC, keyless, as stated by the coordinator",
+    "posted_at": "https://github.com/nnyycc77-ship-it/tiny-ledger/issues/166#issuecomment-6378847439",
+    "bytes": 1331,
+    "sha256": "2823d444db4474250f1d1f4af4353e9cc6c17d77f76e3133a490bd6881f6cff7"
+  },
+  "psf-requests.body": {
+    "url": "https://api.github.com/repos/psf/requests",
+    "what": "public repo with a license (Apache License 2.0), archived false",
+    "part": "body",
+    "retrieved_utc": "2026-10-24 about 02:36 UTC, keyless, as stated by the coordinator",
+    "posted_at": "https://github.com/nnyycc77-ship-it/tiny-ledger/issues/166#issuecomment-6378847439",
+    "bytes": 6676,
+    "sha256": "cc0f273af19d8c6315194540eb6af00bb8d92d678c9dbd4ed1ede725db85d44f"
+  }
+}
