@@ -1,28 +1,32 @@
-# Offline suite census, 2026-10-24 (third pass)
+# Offline suite census, 2026-10-24 (fourth pass)
 
 The census for issue
-[#236](https://github.com/nnyycc77-ship-it/tiny-ledger/issues/236). It
+[#247](https://github.com/nnyycc77-ship-it/tiny-ledger/issues/247). It
 refreshes the censuses filed under issues
-[#112](https://github.com/nnyycc77-ship-it/tiny-ledger/issues/112) and
-[#200](https://github.com/nnyycc77-ship-it/tiny-ledger/issues/200). Every
-offline suite in the repo was run in one pass against merged main, after
-the wave integration passes (#212, #219, #224, #227) landed. This file
-replaces the #200 census in place, as that census replaced the first one.
-The numbers below are the settled counts now.
+[#112](https://github.com/nnyycc77-ship-it/tiny-ledger/issues/112),
+[#200](https://github.com/nnyycc77-ship-it/tiny-ledger/issues/200) and
+[#236](https://github.com/nnyycc77-ship-it/tiny-ledger/issues/236). Every
+offline suite in the repo was run in one pass against merged main. The #236
+census was pinned to a92012c, and seven PRs merged after it (#238, #239,
+#240, #241, #242, #248, #250). This file replaces the #236 census in place,
+as each census replaced the one before. The numbers below are the settled
+counts now.
 
-- **Main commit:** `a92012c94c6c3e1706c56cd40c970ba4f49da144` (a92012c,
-  "Merge pull request #232 from nnyycc77-ship-it/h6-api-smoke-400").
+- **Main commit:** `80e646427a625346c0dce4480412fa41c12549a7` (80e6464,
+  "Merge pull request #250 from nnyycc77-ship-it/h8-registry-drift").
 - **Taken:** 2026-10-24, by H4, on a clean checkout of that commit. Runs
-  started at 09:33 UTC and finished by 09:39 UTC.
-- **Interpreters:** python3.11, python3.12 and python3.13 are all
-  installed here.
-  - `python3` is python3.13.16 in this environment.
-  - Every Python suite ran under all three interpreters, and the counts
-    were identical (see the cross check below).
-  - The headline counts are the python3.12 run, the version the `test`
-    workflow pins. The `USAspending fetcher tests` workflow pins
-    python3.11.
-  - Node is v22.22.0, the major version the `test` workflow pins.
+  started at 09:57 UTC and finished by 10:02 UTC.
+- **Interpreters:** each suite ran first on the interpreter its workflow
+  pins:
+  - python3.12 for the `test` workflow's two suites;
+  - python3.11 for the `USAspending fetcher tests` workflow (suite 11);
+  - Node v22.22.0 for the proof page tests, the major version the `test`
+    workflow pins.
+
+  Every Python suite was also run under the other two of python3.11,
+  python3.12 and python3.13 (`python3` here is python3.13.16), and the
+  counts were identical (see the cross check below). The headline counts
+  are the python3.12 run.
 - **Network:** none used. Every suite ran in its default offline mode.
   Live checks are opt in by environment variable, and none was set (see
   Skips).
@@ -43,19 +47,19 @@ QUEUE issue was filed.
 
 | | Python and Node tests run | Passed | Failed | Skipped |
 | --- | --- | --- | --- | --- |
-| **Repo total, unique tests** | 1232 | 1225 | 0 | 7 |
+| **Repo total, unique tests** | 1253 | 1246 | 0 | 7 |
 
 The total counts each test once, on python3.12, the CI version.
 
 | Suite (unique tests) | Tests |
 | --- | --- |
-| `tools/tests` (own tests) | 857 |
+| `tools/tests` (own tests) | 878 |
 | Seven agent suites | 228 |
 | `near-agent/tests` | 49 |
 | `api` | 89 |
 | Node proof page tests | 9 |
 
-857 + 228 + 49 + 89 + 9 = 1232.
+878 + 228 + 49 + 89 + 9 = 1253.
 
 Not in the total:
 
@@ -66,13 +70,14 @@ Not in the total:
 
 ## Per suite
 
-Counts are from the python3.12 run. The commands are written with
-`python3`, as the workflows write them; each was also run as
-`python3.11 ...` and `python3.12 ...`.
+Counts are from the python3.12 run. Suite 11 has the same counts on
+python3.11, its workflow's interpreter. The commands are written with
+`python3`, as the workflows write them; each was run as `python3.11 ...`,
+`python3.12 ...` and `python3.13 ...`.
 
 | # | Suite | Command | Tests | Passed | Failed | Skipped | Exit |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| 1 | Delivery tooling, as CI runs it | `python3 -m unittest discover -s tools/tests -v` | 1134 | 1127 | 0 | 7 | 0 |
+| 1 | Delivery tooling, as CI runs it | `python3 -m unittest discover -s tools/tests -v` | 1155 | 1148 | 0 | 7 | 0 |
 | 2 | Recall API | `python3 -m unittest discover -s api -v` | 89 | 89 | 0 | 0 | 0 |
 | 3 | NEAR worker | `python3 -m unittest discover -s near-agent/tests -v` | 49 | 49 | 0 | 0 | 0 |
 | 4 | Agent: call-for-me | `python3 -m unittest discover -s agents/call-for-me/tests -t agents/call-for-me/tests -v` | 50 | 49 | 0 | 1 | 0 |
@@ -101,7 +106,7 @@ the exit code:
 
 | # | python3.11 | python3.12 | python3.13 |
 | --- | --- | --- | --- |
-| 1 | 1134, OK (skipped=7) | 1134, OK (skipped=7) | 1134, OK (skipped=7) |
+| 1 | 1155, OK (skipped=7) | 1155, OK (skipped=7) | 1155, OK (skipped=7) |
 | 2 | 89, OK | 89, OK | 89, OK |
 | 3 | 49, OK | 49, OK | 49, OK |
 | 4 | 50, OK (skipped=1) | 50, OK (skipped=1) | 50, OK (skipped=1) |
@@ -116,16 +121,16 @@ the exit code:
 
 ### How the suites overlap
 
-- **Suite 1 is the CI suite.** Its 1134 tests are 857 of its own, plus
+- **Suite 1 is the CI suite.** Its 1155 tests are 878 of its own, plus
   all 277 tests of suites 3 to 10. The `load_tests` shims in
   `tools/tests/test_<name>.py` pull those in: 50 + 29 + 38 + 27 + 32 +
   28 + 24 = 228 agent tests, plus 49 NEAR worker tests.
-- **Splitting 1134 into 857 and 277.** Each test line in the suite 1
+- **Splitting 1155 into 878 and 277.** Each test line in the suite 1
   verbose log was grouped by its module name. For every shim suite, the
   per module counts inside suite 1 matched its standalone run exactly, so
-  suite 1 holds 277 shim tests and 1134 − 277 = 857 of its own.
-- **Result words.** 1093 of suite 1's 1134 test lines carry their result
-  word on the same line: 1086 `ok` and 7 `skipped`. The other 41 do not,
+  suite 1 holds 277 shim tests and 1155 − 277 = 878 of its own.
+- **Result words.** 1114 of suite 1's 1155 test lines carry their result
+  word on the same line: 1107 `ok` and 7 `skipped`. The other 41 do not,
   and none of them failed, because the run ended `OK (skipped=7)`. They
   break down as follows:
   - **37 tests with a docstring.** unittest prints the docstring on the
@@ -141,39 +146,34 @@ the exit code:
     They print argparse usage or an error message they expect, so the
     result word moves later in the line.
 - **Suite 11** is the `usaspending-test.yml` workflow. Its 18 tests are
-  part of suite 1's own 857.
+  part of suite 1's own 878.
 - **The unique repo total** is suite 1, plus suite 2, plus suite 12:
-  1134 + 89 + 9 = 1232. The skips are suite 1's 7, which include the
-  skips of suites 4 and 11. So 1232 − 7 = 1225 passed.
+  1155 + 89 + 9 = 1253. The skips are suite 1's 7, which include the
+  skips of suites 4 and 11. So 1253 − 7 = 1246 passed.
 
-## Changes since the #200 census
+## Changes since the #236 census
 
-- **Repo total:** grew from 1104 to 1232 unique tests (+128).
-- **Suite 1:** grew from 1007 to 1134 (+127). Its own tests grew from 730
-  to 857; the shim suites stayed at 277.
-  - Eight test modules are new since eab32ca, with 106 tests between
-    them. The counts are from the suite 1 log, grouped by module:
+- **Repo total:** grew from 1232 to 1253 unique tests (+21).
+- **Suite 1:** grew from 1134 to 1155 (+21). Its own tests grew from 857
+  to 878; the shim suites stayed at 277. All 21 come from four test
+  modules the seven merges touched, counted from the suite 1 logs of both
+  censuses, grouped by module:
 
-    | Module | Tests |
-    | --- | --- |
-    | `test_csl_screen` | 14 |
-    | `test_faa_lookup` | 16 |
-    | `test_hosted_mcp_probe` | 11 |
-    | `test_mcp_wave2_integration` | 14 |
-    | `test_rdap_discriminate` | 12 |
-    | `test_wave1_integration` | 13 |
-    | `test_wave1_mcp_integration` | 14 |
-    | `test_wave2_integration` | 12 |
+  | Module | Tests at a92012c | Tests at 80e6464 | Change |
+  | --- | --- | --- | --- |
+  | `test_api_smoke` | 23 | 27 | +4 |
+  | `test_hosted_probe_drift` (new) | 0 | 8 | +8 |
+  | `test_mcp_faa_integration` (new) | 0 | 4 | +4 |
+  | `test_registry_listing_drift` (new) | 0 | 5 | +5 |
 
-  - The other 21 come from tests added to modules that already existed:
-    127 − 106 = 21.
-- **Suite 2:** grew from 88 to 89. Suites 3 to 12 are unchanged.
+  4 + 8 + 4 + 5 = 21. No other test module under `tools/tests` or `api`
+  changed between the two commits.
+- **Suites 2 to 12:** unchanged.
+- **Result words:** the 41 lines without a result word on the same line
+  are the same 41 tests as in the #236 census.
 - **Skips:** unchanged at 7, the same seven tests with the same reasons.
-- **Pregate:** reports 173 recorded provenance hashes on the clean tree,
-  up from 131.
-- **Interpreter cross check:** python3.11 and python3.13 are now
-  installed, so the check could be repeated this round. The #200 census
-  could not run it.
+- **Pregate:** reports 190 recorded provenance hashes on the clean tree,
+  up from 173.
 
 ## Skips
 
@@ -192,14 +192,14 @@ is set. The skip reasons below are copied from the suite 1 verbose log.
 
 ## CI on this commit
 
-**The `test` workflow** ran on a92012c (run 40081748229, push). All three
+**The `test` workflow** ran on 80e6464 (run 40083739595, push). All three
 of its jobs ended in success:
-- `delivery-tool-tests` (job 120836558159);
-- `forge-test` (job 120836558205);
-- `proof-page-tests` (job 120836558327).
+- `delivery-tool-tests` (job 120842344145);
+- `forge-test` (job 120842344197);
+- `proof-page-tests` (job 120842344171).
 
-**The `USAspending fetcher tests` workflow** (run 40081748192, job
-120836558258) ended in success as well.
+**The `USAspending fetcher tests` workflow** (run 40083739574, job
+120842344047) ended in success as well.
 
 **One limit, stated plainly:** the job log download redirects to a
 storage host that this environment's proxy refuses (`CONNECT tunnel
@@ -214,8 +214,8 @@ binary is not installed in this environment. The full log of the run:
 
 ```
 $ forge test -vvv
-# started 2026-10-24T09:34:59Z at a92012c94c6c3e1706c56cd40c970ba4f49da144
-/tmp/claude-0/-home-user-tiny-ledger/f93df76c-ca5d-58a0-b5ec-8e06d29d5672/scratchpad/census3/run.sh: line 4: forge: command not found
+# started 2026-10-24T10:01:55Z at 80e646427a625346c0dce4480412fa41c12549a7
+/tmp/claude-0/-home-user-tiny-ledger/f93df76c-ca5d-58a0-b5ec-8e06d29d5672/scratchpad/census4/run.sh: line 4: forge: command not found
 # exit 127
 ```
 
@@ -223,9 +223,9 @@ No install was attempted, because this is a docs only task. The CI
 evidence stands in for the local run.
 
 **CI result on the same commit.** The `forge-test` job ran the suite on
-a92012c (job 120836558205 in run 40081748229) and completed with
+80e6464 (job 120842344197 in run 40083739595) and completed with
 success. `test/AgentTab.t.sol` declares 26 `function test` entries,
-matching the suite size both earlier censuses recorded. This census did
+matching the suite size every earlier census recorded. This census did
 not observe the job's log itself (see the limit under CI on this commit),
 so suite 13 is not counted in the repo total.
 
@@ -241,13 +241,13 @@ Result: PASS, every assertion held.
 ```
 
 **Suite 15, pregate on the clean tree.** With no changes to gate, it
-checks no added lines. It still verifies the 173 recorded provenance
+checks no added lines. It still verifies the 190 recorded provenance
 hashes:
 
 ```
 PASS secrets: 0 added line(s) in 0 file(s)
 PASS honesty: 0 added line(s) in 0 file(s)
-PASS provenance: 173 recorded hash(es) verified
+PASS provenance: 190 recorded hash(es) verified
 ```
 
 ## How to retake this census
