@@ -7,9 +7,9 @@ expects the hosted server, once redeployed, to list a fixed set of tools by
 name. This test boots the real entry point (`python -m mcp_server`) over
 stdio pipes and checks the same surface locally:
 
-- `tools/list` names exactly the seven tools, in order, and that list
-  equals both `recall_mcp.TOOL_NAMES` in the server code and the list the
-  runbook's outside verification expects;
+- `tools/list` names exactly the twenty four tools, in order, and that
+  list equals both `recall_mcp.TOOL_NAMES` in the server code and the
+  list the runbook's outside verification expects;
 - `initialize` reports the server name and the version the runbook expects;
 - a `recall_check` whose source fails in a controlled offline way answers
   a tool error naming the source, the exact query and the reason (the
@@ -44,7 +44,12 @@ RUNBOOK = ROOT / "docs" / "mcpize-redeploy-runbook.md"
 # The surface, written out by hand from the server code so that a renamed,
 # dropped or added tool fails this test instead of passing silently.
 EXPECTED_TOOLS = ["recall_check", "carrier_check", "litigation_screen",
-                  "formd_check", "nonprofit_check", "awards_search", "pagespeed_snapshot"]
+                  "formd_check", "nonprofit_check", "awards_search", "pagespeed_snapshot",
+                  "domain_trust_check", "ofac_sanctions_check", "vin_decode_check",
+                  "clinical_trial_check", "fda_drug_check", "broken_link_check",
+                  "meta_tag_check", "github_repo_check", "app_lookup_check",
+                  "exchange_rate_check", "flood_check", "safety_file", "fda_recall_check",
+                  "epa_screen", "csl_screen", "oig_screen", "insider_check"]
 
 INIT = {"jsonrpc": "2.0", "id": 1, "method": "initialize",
         "params": {"protocolVersion": "2025-06-18", "capabilities": {},
@@ -92,7 +97,7 @@ class ToolSurfaceTests(unittest.TestCase):
         cls.responses, cls.stderr = serve([INIT, INITIALIZED, LIST])
         cls.tools = cls.responses[2]["result"]["tools"]
 
-    def test_tools_list_names_exactly_the_seven_tools_in_order(self):
+    def test_tools_list_names_exactly_the_twenty_four_tools_in_order(self):
         self.assertEqual([t["name"] for t in self.tools], EXPECTED_TOOLS)
 
     def test_the_list_is_the_server_codes_own(self):

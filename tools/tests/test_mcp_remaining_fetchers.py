@@ -39,6 +39,11 @@ WALLET = "0x" + "ab" * 20  # synthetic test value, not a real wallet
 CONTACT = "Test Operator operator@example.com"  # placeholder contact for tests (example domain), not a real address
 FAKE_KEY = "fake-key-for-tests-only-not-a-real-credential"  # placeholder, not a real key
 NEW_TOOLS = ["formd_check", "nonprofit_check", "awards_search", "pagespeed_snapshot"]
+WAVE_TOOLS = ["domain_trust_check", "ofac_sanctions_check", "vin_decode_check",
+              "clinical_trial_check", "fda_drug_check", "broken_link_check",
+              "meta_tag_check", "github_repo_check", "app_lookup_check",
+              "exchange_rate_check", "flood_check", "safety_file", "fda_recall_check",
+              "epa_screen", "csl_screen", "oig_screen", "insider_check"]
 
 
 def rpc(messages, wallet=None):
@@ -69,10 +74,10 @@ def text_of(result):
 # ----------------------------------------------------------------------
 
 class ListingTests(unittest.TestCase):
-    def test_seven_tools_listed_first_three_unchanged(self):
+    def test_twenty_four_tools_listed_first_three_unchanged(self):
         responses, _ = rpc([{"jsonrpc": "2.0", "id": 1, "method": "tools/list"}], wallet=WALLET)
         tools = responses[0]["result"]["tools"]
-        self.assertEqual([t["name"] for t in tools], ["recall_check", "carrier_check", "litigation_screen"] + NEW_TOOLS)
+        self.assertEqual([t["name"] for t in tools], ["recall_check", "carrier_check", "litigation_screen"] + NEW_TOOLS + WAVE_TOOLS)
         self.assertEqual(tools[0], recall_mcp.tool_definition(WALLET))
         self.assertEqual(tools[1], recall_mcp.carrier_tool_definition())
         self.assertEqual(tools[2], recall_mcp.litigation_tool_definition())
@@ -97,13 +102,13 @@ class ListingTests(unittest.TestCase):
         self.assertEqual(by_name["pagespeed_snapshot"]["inputSchema"]["required"], ["url"])
         self.assertEqual(by_name["pagespeed_snapshot"]["inputSchema"]["properties"]["strategy"]["enum"], ["mobile", "desktop"])
 
-    def test_instructions_name_all_seven_tools(self):
+    def test_instructions_name_all_twenty_four_tools(self):
         responses, _ = rpc([{"jsonrpc": "2.0", "id": 1, "method": "initialize", "params": {"protocolVersion": "2025-06-18"}}])
         text = responses[0]["result"]["instructions"]
-        self.assertTrue(text.startswith("Seven tools"))
+        self.assertTrue(text.startswith("Twenty four tools"))
         for name in recall_mcp.TOOL_NAMES:
             self.assertIn(name, text)
-        self.assertEqual(len(recall_mcp.TOOL_NAMES), 7)
+        self.assertEqual(len(recall_mcp.TOOL_NAMES), 24)
 
 
 # ----------------------------------------------------------------------
