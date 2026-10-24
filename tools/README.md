@@ -30,6 +30,7 @@ environment and its header comment says so.
 | OFAC SDN list name check, primary names and aliases (docs/ofac-sdn-check.md) | `ofac_sdn_check.py` | none needed |
 | GitHub repository check, keyless: stars, license, last push, archived (docs/mcpize-tools/github_repo_check.md) | `github_repo_check.py` | none needed; 60 requests per hour unauthenticated |
 | Meta tag check: title, description and Open Graph tags present or missing on a page (docs/mcpize-tools/meta_tag_check.md) | `meta_tag_check.py` | none needed; the source is the page itself |
+| ClinicalTrials.gov API v2 studies search: trial count and top trials with status (docs/mcpize-tools/clinical_trial_check.md) | `clinical_trial_check.py` | none needed |
 | FEMA NFHL flood zone check for a point or a US address (Census Geocoder), screening only (docs/mcpize-tools/flood_check.md) | `flood_check.py` | none needed |
 | openFDA food and device enforcement recall search (docs/mcpize-tools/fda_recall_check.md) | `fda_recall_check.py` | none needed; keyless limits 240 per minute and 1,000 per day per IP address |
 | HHS OIG LEIE exclusion screen, persons and entities (docs/mcpize-tools/oig_screen.md) | `oig_screen.py` | none needed |
@@ -805,6 +806,20 @@ Full documentation, with the source, the failures and the shelf price:
 
 ```sh
 python3 tools/app_lookup_check.py "Nike"   # example app name
+```
+
+## clinical_trial_check.py
+
+A company, drug, or condition in, the ClinicalTrials.gov trial count
+and the top trials with status out: NCTId, brief title, lead sponsor,
+conditions, and phases, each as shown, with the complete raw response
+printed beneath the source link. An empty result is proven by its raw
+response. Full documentation, with the source, the failures and the
+shelf price:
+[`../docs/mcpize-tools/clinical_trial_check.md`](../docs/mcpize-tools/clinical_trial_check.md).
+
+```sh
+python3 tools/clinical_trial_check.py "elivaldogene"   # example drug name
 ```
 
 ## Cross agent offline integration pass (`tests/test_agents_integration.py`)

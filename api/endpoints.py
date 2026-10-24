@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """The remaining fetchers as paid API endpoints (issue #65).
 
-Seventeen GET endpoints beside GET /recall, each wrapping one merged fetcher in
+Eighteen GET endpoints beside GET /recall, each wrapping one merged fetcher in
 tools/ as library code and returning that fetcher's own rendered Markdown
 in the delivery format from AGENT-BRIEF.md: the claim lines, the exact
 query, the UTC retrieval time, the source link, and the complete raw
@@ -26,6 +26,7 @@ nothing else to the fetchers' output.
     /fda         tools/fda_recall_check.py     name (field, category, limit optional)
     /epa         tools/epa_screen.py           name, state (city, registry_id optional)
     /oig         tools/oig_screen.py           name
+    /trials      tools/clinical_trial_check.py term (limit optional)
 
 Each endpoint takes the fetcher's own command line inputs as query
 parameters under the same names (hyphens become underscores), validates
@@ -60,6 +61,7 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from tools import app_lookup_check as al  # noqa: E402
+from tools import clinical_trial_check as ct  # noqa: E402
 from tools import courtlistener_recap as cl  # noqa: E402
 from tools import domain_trust_check as dt  # noqa: E402
 from tools import edgar_formd as ef  # noqa: E402
@@ -554,6 +556,30 @@ def app(query, env=None):
 
 
 # ----------------------------------------------------------------------
+# /trials
+# ----------------------------------------------------------------------
+
+def clinical_trials(query, env=None):
+    """Clinical trials matching a term via tools/clinical_trial_check.py."""
+    try:
+        term, limit = ct.check_inputs(_single(query, "term", ""), _int(query, "limit", ct.DEFAULT_LIMIT))
+    except ValueError as err:
+        raise BadRequest(str(err))
+    try:
+        lines = ct.render(term, limit, ct.fetch(ct.search_url(term, limit)))
+    except ct.FetchError as err:
+        raise _transport(err)
+    except (urllib.error.URLError, OSError) as err:
+        raise _transport(err)
+    head = _head("Clinical trial search: %s" % term,
+                 "Observation only: this report records what the public ClinicalTrials.gov API v2 returned "
+                 "for this search at the retrieval time stated below, in the order returned; trial statuses "
+                 "and listings change, and it is not a review of any trial, drug, or sponsor.",
+                 "tools/clinical_trial_check.py")
+    return _text(head, lines)
+
+
+# ----------------------------------------------------------------------
 # /fx
 # ----------------------------------------------------------------------
 
@@ -705,6 +731,7 @@ ROUTES = {
     "/github": github_repo,
     "/meta": meta_tags,
     "/app": app,
+    "/trials": clinical_trials,
     "/fx": exchange_rate,
     "/flood": flood,
     "/safety": safety,
@@ -811,6 +838,13 @@ DESCRIPTIONS = {
         "params": ["name (the app name to search for)", "country (optional, two letter store code, default us)",
                    "limit (optional, 1 to %d, default %d)" % (al.MAX_LIMIT, al.DEFAULT_LIMIT)],
         "sources": [al.SEARCH_URL],
+    },
+    "/trials": {
+        "tool": "tools/clinical_trial_check.py",
+        "params": ["term (a company, drug, or condition to search for)",
+                   "limit (optional, 1 to %d, default %d)" % (ct.MAX_LIMIT, ct.DEFAULT_LIMIT)],
+        "sources": [ct.STUDIES_URL],
+        "note": "Keyless: the public ClinicalTrials.gov API v2 needs no key.",
     },
     "/fx": {
         "tool": "tools/exchange_rate_check.py",

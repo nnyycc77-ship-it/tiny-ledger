@@ -1,0 +1,21 @@
+{
+ "_about": "Captures for tools/clinical_trial_check.py (issue #162). Each response was captured live by H5 from this build environment with the tool's own urllib fetch, keyless, on 2026-10-24. Each fixture is the response as a transcript: the status line, the headers one per line in the order returned with any Set-Cookie header omitted (the safety_file fixture precedent: a session cookie is not evidence and is never committed), a blank line, then the body exactly as returned. The sha256 under each file name is the hash of the fixture file, checked by tools/pregate.py; body_sha256 and body_bytes are the values for the body alone, which matches the returned body byte for byte.",
+ "search-zqxflorp-medicine-5.http": {
+  "url": "https://clinicaltrials.gov/api/v2/studies?query.term=zqxflorp+medicine&countTotal=true&pageSize=5&fields=NCTId%2CBriefTitle%2COverallStatus%2CLeadSponsorName%2CCondition%2CPhase&format=json",
+  "retrieved_utc": "2026-10-24T04:58:02Z",
+  "status_line": "HTTP/1.1 200 OK",
+  "headers_omitted": "Set-Cookie x1",
+  "body_sha256": "b54968c05ff881a1ef7ce604b6a340248f8e2aee8637bef06da0f5693f520df8",
+  "body_bytes": 31,
+  "sha256": "45f9cf387540477987cb80c531a7b3c5a4d7d5fc27479b89b4cf12f7790c7674"
+ },
+ "search-elivaldogene-5.http": {
+  "url": "https://clinicaltrials.gov/api/v2/studies?query.term=elivaldogene&countTotal=true&pageSize=5&fields=NCTId%2CBriefTitle%2COverallStatus%2CLeadSponsorName%2CCondition%2CPhase&format=json",
+  "retrieved_utc": "2026-10-24T05:04:29Z",
+  "status_line": "HTTP/1.1 200 OK",
+  "headers_omitted": "Set-Cookie x1",
+  "body_sha256": "2a024830642a9fc5d8450309f3e5ffb87ce100a3d2666f10543d7c5948a42b09",
+  "body_bytes": 1895,
+  "sha256": "934ebc4230a596fcb5679a600a71d225eeeddbeb8ef8aa180a146e533297a98c"
+ }
+}

@@ -1,0 +1,22 @@
+HTTP/1.1 200 OK
+Date: Sat, 24 Oct 2026 05:04:31 GMT
+Server: istio-envoy
+Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
+X-Frame-Options: SAMEORIGIN
+content-type: application/json
+etag: "0/0.34.1/mvkqolr4"
+x-envoy-upstream-service-time: 11
+Vary: Accept-Encoding
+X-UA-Compatible: IE=Edge
+X-XSS-Protection: 1; mode=block
+Via: 1.1 google
+Alt-Svc: clear
+connection: close
+Transfer-Encoding: chunked
+
+{"totalCount":4,"studies":[
+{"protocolSection":{"identificationModule":{"nctId":"NCT02698579","briefTitle":"Long-term Follow-up of Participants With Cerebral Adrenoleukodystrophy Who Were Treated With Lenti-D Drug Product"},"statusModule":{"overallStatus":"ACTIVE_NOT_RECRUITING"},"sponsorCollaboratorsModule":{"leadSponsor":{"name":"Genetix Biotherapeutics Inc."}},"conditionsModule":{"conditions":["Cerebral Adrenoleukodystrophy (CALD)","Adrenoleukodystrophy (ALD)","X-Linked Adrenoleukodystrophy (X-ALD)"]},"designModule":{}}},
+{"protocolSection":{"identificationModule":{"nctId":"NCT01896102","briefTitle":"A Study of the Efficacy and Safety of Hematopoietic Stem Cells Transduced With Lenti-D Lentiviral Vector for the Treatment of Cerebral Adrenoleukodystrophy (CALD)"},"statusModule":{"overallStatus":"COMPLETED"},"sponsorCollaboratorsModule":{"leadSponsor":{"name":"Genetix Biotherapeutics Inc."}},"conditionsModule":{"conditions":["Cerebral Adrenoleukodystrophy (CALD)"]},"designModule":{"phases":["PHASE2","PHASE3"]}}},
+{"protocolSection":{"identificationModule":{"nctId":"NCT03852498","briefTitle":"A Clinical Study to Assess the Efficacy and Safety of Gene Therapy for the Treatment of Cerebral Adrenoleukodystrophy (CALD)"},"statusModule":{"overallStatus":"COMPLETED"},"sponsorCollaboratorsModule":{"leadSponsor":{"name":"Genetix Biotherapeutics Inc."}},"conditionsModule":{"conditions":["Cerebral Adrenoleukodystrophy (CALD)"]},"designModule":{"phases":["PHASE3"]}}},
+{"protocolSection":{"identificationModule":{"nctId":"NCT06224413","briefTitle":"A Study of Participants With Cerebral Adrenoleukodystrophy (CALD) Treated With Elivaldogene Autotemcel"},"statusModule":{"overallStatus":"RECRUITING"},"sponsorCollaboratorsModule":{"leadSponsor":{"name":"Genetix Biotherapeutics Inc."}},"conditionsModule":{"conditions":["Cerebral Adrenoleukodystrophy (CALD)"]},"designModule":{}}}
+]}

@@ -27,6 +27,7 @@ sys.path.insert(0, str(ROOT / "tools" / "tests"))
 
 from api import endpoints, recall_api  # noqa: E402
 from tools import app_lookup_check as al  # noqa: E402
+from tools import clinical_trial_check as ct  # noqa: E402
 from tools import courtlistener_recap as cl  # noqa: E402
 from tools import domain_trust_check as dt  # noqa: E402
 from tools import edgar_formd as ef  # noqa: E402
@@ -59,7 +60,7 @@ class RoutingTests(unittest.TestCase):
         doc = recall_api.descriptor(WALLET)
         self.assertEqual(sorted(doc["endpoints"]),
                          ["/app", "/awards", "/carrier", "/domain", "/epa", "/fda", "/flood", "/formd", "/fx", "/github",
-                          "/litigation", "/meta", "/nonprofit", "/ofac", "/oig", "/pagespeed", "/recall", "/safety", "/vin"])
+                          "/litigation", "/meta", "/nonprofit", "/ofac", "/oig", "/pagespeed", "/recall", "/safety", "/trials", "/vin"])
         for path, entry in doc["endpoints"].items():
             self.assertEqual(entry["method"], "GET", path)
             self.assertTrue(entry["tool"].startswith("tools/"), path)
@@ -86,6 +87,8 @@ class RoutingTests(unittest.TestCase):
                            "url=https://a.example/&exclude=https://b.example/=reason"],
             "/domain": ["", "domain=https://example.com/", "domain=example", "domain=a.example&domain=b.example"],
             "/app": ["", "name=Nike&country=usa", "name=Nike&limit=0", "name=Nike&limit=201", "name=Nike&limit=x"],
+            "/trials": ["", "term=Zolgensma&limit=0", "term=Zolgensma&limit=101", "term=Zolgensma&limit=x",
+                        "term=a&term=b"],
             "/vin": ["", "vin=1HGCM/2633A004352", "vin=1HGCM82633A0043521", "vin=1HGCM82633A004352&model_year=03",
                      "vin=1HGCM82633A004352&vin=1HGCM82643A004352"],
             "/fx": ["", "base=USD", "target=EUR", "base=US&target=EUR", "base=USD&target=usd",
@@ -100,6 +103,7 @@ class RoutingTests(unittest.TestCase):
         patches += [patch.object(dt, name, side_effect=AssertionError("no fetch expected"))
                     for name in ("fetch_doh", "fetch_site")]
         patches.append(patch.object(al, "fetch", side_effect=AssertionError("no fetch expected")))
+        patches.append(patch.object(ct, "fetch", side_effect=AssertionError("no fetch expected")))
         for p in patches:
             p.start()
             self.addCleanup(p.stop)
@@ -496,6 +500,52 @@ class AppTests(unittest.TestCase):
             status, _, text = get("/app", "name=Nike")
         self.assertEqual(status, "502 Bad Gateway")
         self.assertNotIn("## App search", text)
+
+
+# ----------------------------------------------------------------------
+# /trials
+# ----------------------------------------------------------------------
+
+class TrialsTests(unittest.TestCase):
+    """Served from the real captures in tools/tests/fixtures/clinical-trials/."""
+
+    PROV = json.loads((FIXTURES / "clinical-trials" / "provenance.json").read_text(encoding="utf-8"))
+
+    def served(self, name):
+        meta = self.PROV[name]
+        transcript = (FIXTURES / "clinical-trials" / name).read_text(encoding="utf-8")
+        head, _, body = transcript.partition("\n\n")
+        lines = head.split("\n")
+        cap = ct.Capture(meta["url"], meta["retrieved_utc"], lines[0], lines[1:], body)
+
+        def fetch(url):
+            if url != meta["url"]:
+                raise AssertionError("unexpected url %s" % url)
+            return cap
+        return fetch
+
+    def test_hit_from_the_recorded_response(self):
+        with patch.object(ct, "fetch", side_effect=self.served("search-elivaldogene-5.http")):
+            status, headers, text = get("/trials", "term=elivaldogene&limit=5", WALLET)
+        self.assertEqual(status, "200 OK", text)
+        self.assertEqual(headers["Content-Type"], recall_api.TEXT_MD)
+        self.assertTrue(text.startswith("# Clinical trial search: elivaldogene\n"))
+        self.assertIn("tools/clinical_trial_check.py", text)
+        self.assertIn("Trial count (totalCount) as shown: 4. Studies in this response: 4.", text)
+        self.assertIn("- Overall status (statusModule.overallStatus) as shown: `ACTIVE_NOT_RECRUITING`", text)
+
+    def test_empty_from_the_recorded_response(self):
+        with patch.object(ct, "fetch", side_effect=self.served("search-zqxflorp-medicine-5.http")):
+            status, _, text = get("/trials", "term=zqxflorp%20medicine&limit=5")
+        self.assertEqual(status, "200 OK", text)
+        self.assertIn("Trial count (totalCount) as shown: 0. Studies in this response: 0.", text)
+        self.assertIn("The search returned no trials.", text)
+
+    def test_source_failure_is_502_with_no_report(self):
+        with patch.object(ct, "fetch", side_effect=ct.FetchError("SYNTHETIC 503; no report")):
+            status, _, text = get("/trials", "term=Zolgensma")
+        self.assertEqual(status, "502 Bad Gateway")
+        self.assertNotIn("## Clinical trial search", text)
 
 
 
