@@ -178,48 +178,33 @@ pinned in the program record (coordinator, #123).
 `https://mcpize.com/mcp/recallcheck`, named in PR #45, is the
 marketplace listing page, not the client endpoint.
 
-The script below speaks MCP's streamable HTTP transport:
-- one JSON-RPC message per POST;
-- an `Accept: application/json, text/event-stream` header;
-- the `Mcp-Session-Id` the server returns, echoed back on later requests.
+This verification is run with the probe script merged in issue #218,
+[`tools/hosted_mcp_probe.py`](../tools/hosted_mcp_probe.py) (docs:
+[`docs/hosted-mcp-probe.md`](hosted-mcp-probe.md)):
 
-It uses the standard library only. It prints each status line and body
-as received and pays nothing.
-
-```python
-# verify_mcpize.py: run as  python3 verify_mcpize.py <endpoint URL>
-import json, sys, urllib.error, urllib.request
-
-URL = sys.argv[1]
-session = {}
-
-def post(message):
-    headers = {"Content-Type": "application/json",
-               "Accept": "application/json, text/event-stream",
-               "MCP-Protocol-Version": "2025-06-18"}
-    if "id" in session:
-        headers["Mcp-Session-Id"] = session["id"]
-    request = urllib.request.Request(URL, json.dumps(message).encode(), headers, method="POST")
-    try:
-        response = urllib.request.urlopen(request, timeout=60)
-    except urllib.error.HTTPError as err:
-        response = err
-    with response:
-        if response.headers.get("Mcp-Session-Id"):
-            session["id"] = response.headers["Mcp-Session-Id"]
-        body = response.read().decode("utf-8", "replace")
-        print("==", message.get("method"), "->", response.status, response.reason)
-        print(body)
-        return response.status, body
-
-post({"jsonrpc": "2.0", "id": 1, "method": "initialize",
-      "params": {"protocolVersion": "2025-06-18", "capabilities": {},
-                 "clientInfo": {"name": "outside-verification", "version": "0"}}})
-post({"jsonrpc": "2.0", "method": "notifications/initialized"})
-post({"jsonrpc": "2.0", "id": 2, "method": "tools/list"})
-post({"jsonrpc": "2.0", "id": 3, "method": "tools/call",
-      "params": {"name": "recall_check", "arguments": {"product": "VH101"}}})
+```sh
+python3 tools/hosted_mcp_probe.py
+python3 tools/hosted_mcp_probe.py https://recallcheck.mcpize.run/mcp
 ```
+
+With no argument it probes the endpoint above. It speaks MCP's
+streamable HTTP transport (one JSON-RPC message per POST, an
+`Accept: application/json, text/event-stream` header, the
+`Mcp-Session-Id` the server returns echoed back on later requests),
+sends the same three steps the table below names (an anonymous
+`initialize`, a `tools/list`, and one unpaid `recall_check` `tools/call`
+for `{"product": "VH101"}`), and prints one section per step in the
+repo's evidence format: a PASS or FAIL line per check with the observed
+value, the exact request, the UTC retrieval time, and the complete raw
+response transcript. It uses the standard library only, never sends an
+X-PAYMENT header, and pays nothing.
+
+Exit codes: 0 when every check passes, 1 when any check fails, 2 when
+the probe cannot run (a transport failure before a step's status
+arrives). The table below stays the source of the expected values; the
+probe mirrors it, and its own expected tool order is pinned by a test to
+the server's `tool_definitions()` on main, so the two cannot drift
+silently.
 
 What each step must show. The "before" column is the coordinator's live
 probe on 2026-10-23 at about 18:36 UTC (#123, comment 6372123142):
