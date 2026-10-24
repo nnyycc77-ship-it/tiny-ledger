@@ -50,6 +50,14 @@ Shapes asserted:
    captured verbatim; each provenance entry records that config.
    Endpoints with no 502 shape are listed in NO_502_CAPTURE with
    the reason, under the same exactly once accounting.
+7. The unavailable (503) shape (issue #245): api/openapi.json
+   declares a 503 for GET /formd, answered when the server carries
+   no EDGAR_CONTACT, before any query validation and before any
+   fetch. Its capture is a replay from the local server run
+   without the contact. The accounting is driven by the document
+   itself: an endpoint is capturable exactly when its entry in
+   api/openapi.json declares a 503 response, and every other
+   endpoint is reasoned as declaring no 503.
 
 Read only. The tool sends GET requests and never an X-PAYMENT header, so
 it can never pay for a call; the 402 check depends on that.
@@ -189,6 +197,19 @@ NO_502_CAPTURE = {
                 "captured in this pattern"),
 }
 
+# Offline 503 coverage (issue #245): one replayed 503 transcript per
+# endpoint whose entry in api/openapi.json declares a 503 response.
+# Today that is /formd alone: the capture server ran without
+# EDGAR_CONTACT, so the endpoint answered 503 before any fetch; its
+# provenance entry records the missing contact as the capture config.
+UNAVAILABLE_FIXTURES = {
+    "/formd": "formd-503.http",
+}
+
+# The reason every other GET endpoint is not captured for the 503
+# shape: only an endpoint whose OpenAPI entry declares a 503 can be.
+NO_503_REASON = "its entry in api/openapi.json declares no 503 response"
+
 
 class SmokeError(Exception):
     """The checks could not run. Never reported as a pass or a fail."""
@@ -295,6 +316,21 @@ def offline_captures(fixtures=FIXTURES):
             raise SmokeError("%s does not match its recorded sha256" % where)
         source_failures[path] = parse_transcript(data.decode("utf-8"), entry["url"], entry["retrieved_utc"])
     out["source_failures"] = source_failures
+    unavailable = {}
+    for path, name in UNAVAILABLE_FIXTURES.items():
+        where = "fixture %s (endpoint %s unavailable)" % (name, path)
+        entry = provenance.get(name)
+        if not entry:
+            raise SmokeError("no provenance for %s" % where)
+        try:
+            data = (fixtures / name).read_bytes()
+        except OSError as err:
+            raise SmokeError("cannot read %s: %s" % (where, err))
+        if hashlib.sha256(data).hexdigest() != entry.get("sha256"):
+            raise SmokeError("%s does not match its recorded sha256" % where)
+        unavailable[path] = parse_transcript(data.decode("utf-8"), entry["url"], entry["retrieved_utc"])
+    out["unavailable"] = unavailable
+    out["declared_503_paths"] = repo_openapi_503_paths()
     out["coverage_paths"] = repo_openapi_get_paths()
     return out
 
@@ -314,6 +350,29 @@ def repo_openapi_get_paths():
     if not isinstance(paths, dict):
         raise SmokeError("%s has no paths object for the coverage count" % doc_file)
     return [path for path, ops in paths.items() if isinstance(ops, dict) and "get" in ops]
+
+
+def repo_openapi_503_paths():
+    """The GET paths whose entry in the repo's own api/openapi.json
+    declares a 503 response: the 503 accounting's capturable set, read
+    from the same file as the coverage denominator for the same
+    reason. Unreadable is an error, not an empty list."""
+    doc_file = Path(__file__).resolve().parent.parent / "api" / "openapi.json"
+    try:
+        doc = json.loads(doc_file.read_text(encoding="utf-8"))
+    except (OSError, ValueError) as err:
+        raise SmokeError("cannot read %s for the 503 count: %s" % (doc_file, err))
+    paths = doc.get("paths") if isinstance(doc, dict) else None
+    if not isinstance(paths, dict):
+        raise SmokeError("%s has no paths object for the 503 count" % doc_file)
+    out = []
+    for path, ops in paths.items():
+        if not (isinstance(ops, dict) and isinstance(ops.get("get"), dict)):
+            continue
+        responses = ops["get"].get("responses")
+        if isinstance(responses, dict) and "503" in responses:
+            out.append(path)
+    return out
 
 
 def live_captures(base, product):
@@ -468,6 +527,40 @@ def check_source_failure_accounting(captures):
     return lines
 
 
+def check_unavailable(capture, path):
+    """The 503 shape: the endpoint is not configured on this server,
+    so it answers before any fetch, in plain text naming the missing
+    configuration (EDGAR_CONTACT for /formd) and stating that it
+    fetches nothing; no report is served."""
+    content_type = next((h for h in capture.headers if h.lower().startswith("content-type:")), "")
+    return [
+        ("GET %s unconfigured on the server answers 503" % path, capture.status == 503),
+        ("Content-Type is text/plain", "text/plain" in content_type),
+        ("body names the missing configuration (EDGAR_CONTACT)", "EDGAR_CONTACT" in capture.body),
+        ("body states nothing was fetched", "fetches nothing" in capture.body),
+        ("no report served (body is not a Markdown report)", not capture.body.startswith("# ")),
+    ]
+
+
+def check_unavailable_accounting(captures):
+    """One line per GET endpoint in the repo's api/openapi.json: its
+    503 shape is captured exactly when its entry in that document
+    declares a 503 response, and reasoned with NO_503_REASON when it
+    declares none. A declared endpoint with no capture, or a capture
+    for an endpoint that declares no 503, fails here and is named."""
+    lines = []
+    declared = set(captures.get("declared_503_paths", []))
+    for path in captures.get("coverage_paths", []):
+        captured = path in captures.get("unavailable", {})
+        if captured and path in declared:
+            lines.append(("GET %s 503 shape captured in %s" % (path, UNAVAILABLE_FIXTURES[path]), True))
+        elif not captured and path not in declared:
+            lines.append(("GET %s 503 shape not capturable offline: %s" % (path, NO_503_REASON), True))
+        else:
+            lines.append(("GET %s 503 shape is not accounted for exactly once" % path, False))
+    return lines
+
+
 def check_coverage(captures):
     """One line per GET endpoint in the repo's api/openapi.json: covered
     when the run checked it (descriptor, payment, or an endpoint
@@ -536,6 +629,16 @@ def run_checks(captures, mode):
             number += 1
         parts.append(("%d. Source failure (502) accounting" % number, captures["openapi"],
                       check_source_failure_accounting(captures)))
+        number += 1
+        for path in UNAVAILABLE_FIXTURES:
+            capture = captures.get("unavailable", {}).get(path)
+            if capture is None:
+                continue
+            parts.append(("%d. Endpoint GET %s unavailable (503)" % (number, path), capture,
+                          check_unavailable(capture, path)))
+            number += 1
+        parts.append(("%d. Unavailable (503) accounting" % number, captures["openapi"],
+                      check_unavailable_accounting(captures)))
         number += 1
         parts.append(("%d. Endpoint coverage" % number, captures["openapi"],
                       check_coverage(captures)))

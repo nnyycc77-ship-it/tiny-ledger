@@ -465,5 +465,14 @@
     "server_config": "PAYOUT_WALLET_ADDRESS=0x1111111111111111111111111111111111111111, a SYNTHETIC placeholder address chosen for the capture, not any real wallet; EDGAR_CONTACT set to a labelled test contact (Tiny Ledger Api Smoke smoke@example.com), which /formd checks before fetching, so without it the server answers 503 and no 502 can be captured; HTTP_PROXY, HTTPS_PROXY, http_proxy and https_proxy all set to http://127.0.0.1:9, a closed local port, so every source fetch fails at transport; TINY_LEDGER_CACHE pointed at an empty folder so /faa attempts its archive download instead of answering from the cache under the home folder; no X-PAYMENT header sent, so the facilitator was never contacted",
     "transcript_form": "status line, response headers in the order returned, a blank line, then the body exactly as returned, joined with newline characters",
     "note": "Replayed source failure: the query is valid, the same sample shape as the endpoint's 200 capture, and the recorded proxy config makes the source fetch fail at transport; the 502 below is the server's own answer, captured verbatim. The descriptor and the payment gate are not affected by the proxy config."
+  },
+  "formd-503.http": {
+    "url": "http://127.0.0.1:8765/formd?issuer=Farmer%20Bros%20Co&max_filings=1",
+    "retrieved_utc": "2026-10-24T09:46:20Z",
+    "sha256": "aa4a1ef5eb23ffffc69e82086549040ba2a38cbbcf3692d9b778041988d7658c",
+    "captured_by": "H6, with tools/api_smoke.py fetch(), from the local gated server: python3 server.py at main 1784d43 (api.payment_gate:app), PORT=8765, for issue #245.",
+    "server_config": "EDGAR_CONTACT absent by design: the capture config is the missing contact. PAYOUT_WALLET_ADDRESS=0x1111111111111111111111111111111111111111, a SYNTHETIC placeholder address chosen for the capture, not any real wallet, as in the existing fixtures; no X-PAYMENT header sent, so the facilitator was never contacted",
+    "transcript_form": "status line, response headers in the order returned, a blank line, then the body exactly as returned, joined with newline characters",
+    "note": "The endpoint checks the operator contact before its query and before any fetch, so this valid sample query is answered 503 and nothing is fetched. This is the shape the formd 400 fixture's provenance note described from the other side: with the contact set, the same endpoint validates the query instead."
   }
 }

@@ -1195,6 +1195,16 @@ exactly once accounting applies, with `/` (fetches no source) and
 `/recall` (its 502 also sits behind the payment gate) reasoned in the
 tool's `NO_502_CAPTURE` table.
 
+Offline mode also asserts the unavailable shape (issue #245): an
+endpoint whose entry in `api/openapi.json` declares a 503 (today only
+`/formd`, when the server carries no EDGAR_CONTACT) answers 503
+before any fetch, its body naming the missing configuration and
+stating that it fetches nothing. The capture is a replay from the
+local server run without the contact, recorded in the
+`formd-503.http` provenance entry, and the accounting reads the
+capturable set off the document itself: every other GET endpoint is
+reasoned as declaring no 503.
+
 Output is one Markdown section in the delivery format: a PASS or FAIL claim
 line per assertion, the source link, the UTC time, and the complete raw
 transcript beneath. Exit codes:
