@@ -1,13 +1,15 @@
 """Drift check for the hosted probe's expected values (issue #237).
 
-Pinned tree: refreshed for issue #271 on merged main
-`e5035f36a116feddc6243787cfacf951705b9067` (the merge of PR #268), by
+Pinned tree: refreshed for issue #278 on merged main
+`530f6dae61770cf5be9dacad6e3a7a6806c3595f` (the merge of PR #275), by
 rerunning this suite on that tree: all eight tests green and the
-pricing state unchanged, as the issue states it (mcpize.yaml prices
-recall_check only, at 0.05 USDC, 50000 atomic units, pending issue
-#147's 0.25 repricing). The pin records the tree the suite was last
-verified against; the comparisons below read the live files, so a
-later drift fails on its own merits wherever it lands.
+pricing state unchanged (mcpize.yaml prices recall_check only, at
+0.05 USDC, 50000 atomic units, pending issue #147's 0.25 repricing).
+Previous pin: issue #271 on merged main
+`e5035f36a116feddc6243787cfacf951705b9067`. The pin records the tree
+the suite was last verified against; the comparisons below read the
+live files, so a later drift fails on its own merits wherever it
+lands.
 
 Offline only: no network, no live probe run. The hosted MCP probe
 (tools/hosted_mcp_probe.py, issue #218) carries its expected values as
