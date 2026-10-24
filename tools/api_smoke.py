@@ -31,8 +31,10 @@ Shapes asserted:
    The timestamp's label varies by fetcher (most print a Retrieved
    (UTC) line; /faa states the archive's retrieved time inline), so the
    assertion matches the timestamp itself, not one label. A final
-   coverage section then counts one check per GET endpoint in the
-   document; an endpoint with no check fails the run and is named.
+   coverage section then counts every GET endpoint in the document
+   exactly once: checked, or listed in NO_ENDPOINT_CAPTURE with the
+   reason it has no captured 200 yet (issue #243). An endpoint in both
+   or neither fails the run and is named.
 5. The bad query (400) shape of every wrapped endpoint (issue #225):
    a request naming no valid input (the bare path, no query string)
    is answered 400 before any source fetch, with a plain text body
@@ -51,10 +53,10 @@ Shapes asserted:
    Endpoints with no 502 shape are listed in NO_502_CAPTURE with
    the reason, under the same exactly once accounting.
 7. The unavailable (503) shape (issue #245): api/openapi.json
-   declares a 503 for GET /formd, answered when the server carries
-   no EDGAR_CONTACT, before any query validation and before any
-   fetch. Its capture is a replay from the local server run
-   without the contact. The accounting is driven by the document
+   declares a 503 for GET /formd and GET /insider (issue #243),
+   answered when the server carries no EDGAR_CONTACT, before any
+   query validation and before any fetch. Each capture is a replay
+   from the local server run without the contact. The accounting is driven by the document
    itself: an endpoint is capturable exactly when its entry in
    api/openapi.json declares a 503 response, and every other
    endpoint is reasoned as declaring no 503.
@@ -125,6 +127,27 @@ ENDPOINT_FIXTURES = {
     "/vin": ("vin.http", "vin_decode.py"),
 }
 
+# GET endpoints with no captured 200 report yet, and why (issue #243).
+# Counted in the coverage section, never asserted from a capture that
+# does not exist: each needs a 200 transcript captured from an
+# environment that reaches its source, added to ENDPOINT_FIXTURES, and
+# then removed here. Their 400 and 502 shapes are captured below.
+_REFUSED = ("the capture for issue #243 ran in a container whose network policy refuses %s, so no "
+            "200 report could be captured; a 200 transcript is owed from an environment that reaches it")
+NO_ENDPOINT_CAPTURE = {
+    "/domain": _REFUSED % "cloudflare-dns.com",
+    "/fda": _REFUSED % "api.fda.gov",
+    "/flood": _REFUSED % "hazards.fema.gov",
+    "/github": ("the capture container's only route to api.github.com adds credentials, so a 200 "
+                "captured there would not show the keyless answer the endpoint promises; a keyless "
+                "200 transcript is owed"),
+    "/insider": ("the capture container holds no declared EDGAR fair access contact for live EDGAR "
+                 "requests, so no 200 report could be captured; a 200 transcript is owed from a run "
+                 "with a declared contact"),
+    "/ofac": _REFUSED % "sanctionslistservice.ofac.treas.gov",
+    "/oig": _REFUSED % "oig.hhs.gov",
+}
+
 # Offline 400 coverage (issue #225): one captured 400 transcript per
 # wrapped endpoint above, taken from the bare path with no query string,
 # which every wrapped endpoint answers 400 before any source fetch (the
@@ -137,15 +160,22 @@ BAD_QUERY_FIXTURES = {
     "/awards": "awards-400.http",
     "/carrier": "carrier-400.http",
     "/csl": "csl-400.http",
+    "/domain": "domain-400.http",
     "/drug": "drug-400.http",
     "/epa": "epa-400.http",
     "/faa": "faa-400.http",
+    "/fda": "fda-400.http",
+    "/flood": "flood-400.http",
     "/formd": "formd-400.http",
     "/fx": "fx-400.http",
+    "/github": "github-400.http",
+    "/insider": "insider-400.http",
     "/links": "links-400.http",
     "/litigation": "litigation-400.http",
     "/meta": "meta-400.http",
     "/nonprofit": "nonprofit-400.http",
+    "/ofac": "ofac-400.http",
+    "/oig": "oig-400.http",
     "/pagespeed": "pagespeed-400.http",
     "/safety": "safety-400.http",
     "/trials": "trials-400.http",
@@ -173,15 +203,22 @@ SOURCE_FAILURE_FIXTURES = {
     "/awards": "awards-502.http",
     "/carrier": "carrier-502.http",
     "/csl": "csl-502.http",
+    "/domain": "domain-502.http",
     "/drug": "drug-502.http",
     "/epa": "epa-502.http",
     "/faa": "faa-502.http",
+    "/fda": "fda-502.http",
+    "/flood": "flood-502.http",
     "/formd": "formd-502.http",
     "/fx": "fx-502.http",
+    "/github": "github-502.http",
+    "/insider": "insider-502.http",
     "/links": "links-502.http",
     "/litigation": "litigation-502.http",
     "/meta": "meta-502.http",
     "/nonprofit": "nonprofit-502.http",
+    "/ofac": "ofac-502.http",
+    "/oig": "oig-502.http",
     "/pagespeed": "pagespeed-502.http",
     "/safety": "safety-502.http",
     "/trials": "trials-502.http",
@@ -204,6 +241,7 @@ NO_502_CAPTURE = {
 # provenance entry records the missing contact as the capture config.
 UNAVAILABLE_FIXTURES = {
     "/formd": "formd-503.http",
+    "/insider": "insider-503.http",
 }
 
 # The reason every other GET endpoint is not captured for the 503
@@ -564,12 +602,22 @@ def check_unavailable_accounting(captures):
 def check_coverage(captures):
     """One line per GET endpoint in the repo's api/openapi.json: covered
     when the run checked it (descriptor, payment, or an endpoint
-    fixture). The paths come from offline_captures, which read the repo
+    fixture), or listed in NO_ENDPOINT_CAPTURE with the reason it has no
+    captured 200 yet. An endpoint in both or neither fails here and is
+    named. The paths come from offline_captures, which read the repo
     file itself; a hand built captures dict without them covers only
     what it carries, so an unchecked endpoint still fails by name."""
     covered = {"/", "/recall"} | set(captures.get("endpoints", {}))
-    return [("GET %s has an offline check" % path, path in covered)
-            for path in captures.get("coverage_paths", [])]
+    lines = []
+    for path in captures.get("coverage_paths", []):
+        checked, reasoned = path in covered, path in NO_ENDPOINT_CAPTURE
+        if checked and not reasoned:
+            lines.append(("GET %s has an offline check" % path, True))
+        elif reasoned and not checked:
+            lines.append(("GET %s has no captured 200 yet: %s" % (path, NO_ENDPOINT_CAPTURE[path]), True))
+        else:
+            lines.append(("GET %s coverage is not accounted for exactly once" % path, False))
+    return lines
 
 
 # ----------------------------------------------------------------------

@@ -1,0 +1,9 @@
+HTTP/1.0 502 Bad Gateway
+Date: Sat, 24 Oct 2026 09:48:19 GMT
+Server: WSGIServer/0.2 CPython/3.13.16
+Content-Type: text/plain; charset=utf-8
+Content-Length: 301
+Cache-Control: no-store
+X-Payout-Wallet: 0x1111111111111111111111111111111111111111
+
+request to https://hazards.fema.gov/arcgis/rest/services/public/NFHL/MapServer/28/query?geometry=-82.4515%2C27.9235&geometryType=esriGeometryPoint&inSR=4326&spatialRel=esriSpatialRelIntersects&outFields=%2A&returnGeometry=false&f=json failed: <urlopen error [Errno 111] Connection refused>; no report

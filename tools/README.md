@@ -1172,9 +1172,15 @@ shapes are asserted:
 Offline mode asserts a fourth shape (issue #205): every other GET endpoint
 in `api/openapi.json` answers 200 with its fetcher's Markdown report
 (text/markdown, title first, a retrieved UTC timestamp, the fenced
-raw transcript), and a closing coverage section counts one check per GET
-endpoint in that file. An endpoint with no fixture fails the run and is
-named; live mode keeps the original three shapes only.
+raw transcript), and a closing coverage section counts every GET
+endpoint in that file exactly once: checked against a fixture, or listed
+in the tool's `NO_ENDPOINT_CAPTURE` table with the reason it has no
+captured 200 yet. An endpoint in both or neither fails the run and is
+named. The seven routes added to the document by issue #243 (`/domain`,
+`/ofac`, `/github`, `/flood`, `/fda`, `/oig`, `/insider`) are reasoned
+there: their sources were refused from the capture container, and their
+400, 502 and (for `/insider`) 503 shapes are captured. Live mode keeps
+the original three shapes only.
 
 Offline mode also asserts the bad query shape (issue #225): a request
 naming no valid input (the bare path) is answered 400 before any source
@@ -1196,12 +1202,12 @@ exactly once accounting applies, with `/` (fetches no source) and
 tool's `NO_502_CAPTURE` table.
 
 Offline mode also asserts the unavailable shape (issue #245): an
-endpoint whose entry in `api/openapi.json` declares a 503 (today only
-`/formd`, when the server carries no EDGAR_CONTACT) answers 503
+endpoint whose entry in `api/openapi.json` declares a 503 (today
+`/formd` and `/insider`, when the server carries no EDGAR_CONTACT) answers 503
 before any fetch, its body naming the missing configuration and
 stating that it fetches nothing. The capture is a replay from the
 local server run without the contact, recorded in the
-`formd-503.http` provenance entry, and the accounting reads the
+`formd-503.http` and `insider-503.http` provenance entries, and the accounting reads the
 capturable set off the document itself: every other GET endpoint is
 reasoned as declaring no 503.
 

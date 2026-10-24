@@ -1,0 +1,9 @@
+HTTP/1.0 503 Service Unavailable
+Date: Sat, 24 Oct 2026 10:13:48 GMT
+Server: WSGIServer/0.2 CPython/3.13.16
+Content-Type: text/plain; charset=utf-8
+Content-Length: 196
+Cache-Control: no-store
+X-Payout-Wallet: 0x1111111111111111111111111111111111111111
+
+Endpoint unavailable, no report emitted: EDGAR_CONTACT is not set on the server; EDGAR fair access needs the operator's contact in the User-Agent, so this endpoint fetches nothing until it is set
