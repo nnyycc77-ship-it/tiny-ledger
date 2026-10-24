@@ -1,0 +1,130 @@
+{
+  "source": "Cloudflare DNS over HTTPS (cloudflare-dns.com/dns-query, Accept application/dns-json), keyless, captured live by H8 on issue #338 with the tool's own fetch",
+  "note": "Each case is three queries (MX and TXT on the domain, TXT on _dmarc.<domain>). Each .headers file is the status line then the response headers in the order returned; each .body is the complete raw response body, verbatim.",
+  "gmail-mx.headers": {
+    "sha256": "59f4ca60c9ef0729409d180f280a1f4c3ddc4490161e5e7dc35bd82d93c03b1a",
+    "url": "https://cloudflare-dns.com/dns-query?name=gmail.com&type=MX",
+    "address": "someone@gmail.com",
+    "retrieved": "2026-10-24T12:46:14Z",
+    "status": 200
+  },
+  "gmail-mx.body": {
+    "sha256": "22ee0b8492f871b47bd54e625f2531c9011000cf008aed62239ddee4606f09a0",
+    "url": "https://cloudflare-dns.com/dns-query?name=gmail.com&type=MX",
+    "address": "someone@gmail.com",
+    "retrieved": "2026-10-24T12:46:14Z",
+    "status": 200
+  },
+  "gmail-spf.headers": {
+    "sha256": "6edb26e7be111d4d0b6c624ea2c9591b474043bf080372539ab97f85d83bab41",
+    "url": "https://cloudflare-dns.com/dns-query?name=gmail.com&type=TXT",
+    "address": "someone@gmail.com",
+    "retrieved": "2026-10-24T12:46:14Z",
+    "status": 200
+  },
+  "gmail-spf.body": {
+    "sha256": "ec982ef9651739a941603fbf22133139a18fad1740359ff4e6fa170603ba1cee",
+    "url": "https://cloudflare-dns.com/dns-query?name=gmail.com&type=TXT",
+    "address": "someone@gmail.com",
+    "retrieved": "2026-10-24T12:46:14Z",
+    "status": 200
+  },
+  "gmail-dmarc.headers": {
+    "sha256": "42acce7c5a4e28be1f91f04af7a05ae2bdc47402e50a5c9dfe529ef87d537877",
+    "url": "https://cloudflare-dns.com/dns-query?name=_dmarc.gmail.com&type=TXT",
+    "address": "someone@gmail.com",
+    "retrieved": "2026-10-24T12:46:15Z",
+    "status": 200
+  },
+  "gmail-dmarc.body": {
+    "sha256": "a9516363f6a449b030b0448b5985745f802d40519c702203e347b5c1e82f7988",
+    "url": "https://cloudflare-dns.com/dns-query?name=_dmarc.gmail.com&type=TXT",
+    "address": "someone@gmail.com",
+    "retrieved": "2026-10-24T12:46:15Z",
+    "status": 200
+  },
+  "example-mx.headers": {
+    "sha256": "9740ab8fd374ca43a14307ade1275310b50c56ad19c059675a7f1870c5b50d6e",
+    "url": "https://cloudflare-dns.com/dns-query?name=example.com&type=MX",
+    "address": "someone@example.com",
+    "retrieved": "2026-10-24T12:46:16Z",
+    "status": 200
+  },
+  "example-mx.body": {
+    "sha256": "f025b675a6793976ec1871dd259b5bb45d8d4629dfe2f1e6a5f64af27e2f31a4",
+    "url": "https://cloudflare-dns.com/dns-query?name=example.com&type=MX",
+    "address": "someone@example.com",
+    "retrieved": "2026-10-24T12:46:16Z",
+    "status": 200
+  },
+  "example-spf.headers": {
+    "sha256": "3fc22373491fac77d24873f0c84c9f486b2539db3e81c41a5ac5513cd577b6d2",
+    "url": "https://cloudflare-dns.com/dns-query?name=example.com&type=TXT",
+    "address": "someone@example.com",
+    "retrieved": "2026-10-24T12:46:16Z",
+    "status": 200
+  },
+  "example-spf.body": {
+    "sha256": "7417b34066103f2cc8cdfffe709c5ad35ffe1a26b1ed41fb1cf5be54fc250770",
+    "url": "https://cloudflare-dns.com/dns-query?name=example.com&type=TXT",
+    "address": "someone@example.com",
+    "retrieved": "2026-10-24T12:46:16Z",
+    "status": 200
+  },
+  "example-dmarc.headers": {
+    "sha256": "a856ff08b7656a47c1a766b2830d358bd6e583efff821b1543923cc00a29a4ce",
+    "url": "https://cloudflare-dns.com/dns-query?name=_dmarc.example.com&type=TXT",
+    "address": "someone@example.com",
+    "retrieved": "2026-10-24T12:46:17Z",
+    "status": 200
+  },
+  "example-dmarc.body": {
+    "sha256": "1667c0d5bf1113713aa60b26c8ce4682eed16da6189384a1116051b509252c08",
+    "url": "https://cloudflare-dns.com/dns-query?name=_dmarc.example.com&type=TXT",
+    "address": "someone@example.com",
+    "retrieved": "2026-10-24T12:46:17Z",
+    "status": 200
+  },
+  "nxdomain-mx.headers": {
+    "sha256": "a92256937e13ba174db08aad0967ede69ee1a6fbbb79b6eb469ed3d692065e4a",
+    "url": "https://cloudflare-dns.com/dns-query?name=nonexistent.invalid&type=MX",
+    "address": "someone@nonexistent.invalid",
+    "retrieved": "2026-10-24T12:46:18Z",
+    "status": 200
+  },
+  "nxdomain-mx.body": {
+    "sha256": "423bc0133f66eb64c06e964a0ca07d416a776bc482f4dc401662cfe6568234c9",
+    "url": "https://cloudflare-dns.com/dns-query?name=nonexistent.invalid&type=MX",
+    "address": "someone@nonexistent.invalid",
+    "retrieved": "2026-10-24T12:46:18Z",
+    "status": 200
+  },
+  "nxdomain-spf.headers": {
+    "sha256": "68b36615511ed9dbe8666536c12b4675bfa1dcff77a0b724b7932d50f1af98ed",
+    "url": "https://cloudflare-dns.com/dns-query?name=nonexistent.invalid&type=TXT",
+    "address": "someone@nonexistent.invalid",
+    "retrieved": "2026-10-24T12:46:19Z",
+    "status": 200
+  },
+  "nxdomain-spf.body": {
+    "sha256": "dfbfd386407e2f1f1b3a641f2e4c2d94b5d508cddc55eb0932ee3316981d6331",
+    "url": "https://cloudflare-dns.com/dns-query?name=nonexistent.invalid&type=TXT",
+    "address": "someone@nonexistent.invalid",
+    "retrieved": "2026-10-24T12:46:19Z",
+    "status": 200
+  },
+  "nxdomain-dmarc.headers": {
+    "sha256": "c3033a43cf0e297b64570c23a17909573f1a2b87015689a55214411a70077016",
+    "url": "https://cloudflare-dns.com/dns-query?name=_dmarc.nonexistent.invalid&type=TXT",
+    "address": "someone@nonexistent.invalid",
+    "retrieved": "2026-10-24T12:46:19Z",
+    "status": 200
+  },
+  "nxdomain-dmarc.body": {
+    "sha256": "c97a912484165332d37c052a2fc01c71542a29b24ddf27703015f8c4c67b3348",
+    "url": "https://cloudflare-dns.com/dns-query?name=_dmarc.nonexistent.invalid&type=TXT",
+    "address": "someone@nonexistent.invalid",
+    "retrieved": "2026-10-24T12:46:19Z",
+    "status": 200
+  }
+}
