@@ -74,6 +74,20 @@ class MatchingTests(unittest.TestCase):
         self.assertIsNone(o.match_kind("Abu Abbas", "ABBAS, Abu"))  # word order is not rearranged
         self.assertIsNone(o.match_kind("", "ANY"))
 
+    def test_accent_folding(self):
+        # Issue #251: accents fold where Unicode decomposition splits them
+        # off, in both directions, where the old normalise turned them
+        # into spaces (normalise("José Müller") was "jos m ller").
+        self.assertEqual(o.normalise("José Müller"), "jose muller")
+        self.assertEqual(o.match_kind("Jose Muller", "JOSÉ MÜLLER"), "exact")  # unaccented query, accented list name
+        self.assertEqual(o.match_kind("José Müller", "JOSE MULLER"), "exact")  # the reverse
+        self.assertEqual(o.match_kind("Jose", "JOSÉ GARCÍA"), "contains")
+        self.assertEqual(o.match_kind("García", "GARCIA"), "exact")
+        self.assertIsNone(o.match_kind("Jose Mulle", "JOSÉ MÜLLER"))  # whole words still required
+        # The stated limit: a letter with no decomposition (ł) is not
+        # folded; it still acts as a separator.
+        self.assertEqual(o.normalise("Łukasz"), "ukasz")
+
 
 class ReportTests(unittest.TestCase):
     def test_alias_match_prints_both_lines_verbatim(self):

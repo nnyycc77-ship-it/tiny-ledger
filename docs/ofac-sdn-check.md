@@ -43,8 +43,10 @@ matching entry's lines whole instead.
 
 ## What a report contains
 
-- **The matching rule.** Names are compared after folding case and
-  replacing every non-letter, non-digit character with a space. An exact
+- **The matching rule.** Names are compared after folding case, removing
+  accents where Unicode decomposition splits them off (é becomes e; a
+  letter with no such decomposition is still replaced), and replacing
+  every non-letter, non-digit character with a space. An exact
   match is the whole normalised name equal; a contains match is the name
   appearing as whole words. Primary names and aliases are both checked.
   No fuzzy or phonetic score is computed or claimed.

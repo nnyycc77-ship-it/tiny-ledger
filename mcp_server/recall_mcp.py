@@ -507,8 +507,9 @@ def ofac_tool_definition():
             "Sourced OFAC sanctions list name check from the Treasury sanctions list service "
             "exports, the SDN list (%s) and its aliases (%s), %s. Give `name` (a person or "
             "company name, at least %d letters or digits). Matches are the list's own records "
-            "as shown, with the list's programs, types and remarks; the search folds case and "
-            "accents and matches whole words, so a near name is not a match. A name with no "
+            "as shown, with the list's programs, types and remarks; the search folds case, "
+            "removes accents where Unicode decomposition splits them off, and matches whole "
+            "words, so a near name is not a match. A name with no "
             "match is an empty result, proven by the counts, not a clearance. %s %s"
             % (ofac.SDN_URL, ofac.ALT_URL, FORMAT_SENTENCE, ofac.MIN_QUERY_CHARS,
                SAME_TEXT % "GET /ofac", FAIL_SENTENCE)
