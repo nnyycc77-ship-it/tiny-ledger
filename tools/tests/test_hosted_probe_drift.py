@@ -17,6 +17,13 @@ the disagreeing source:
   (server version, x402Version, scheme, network, maxAmountRequired, and
   payTo equal to the mcpize.yaml recipient).
 
+Issue #244 adds a fourth side for the amount: the pricing block in
+mcpize.yaml is the pricing source of record, so its recall_check price,
+parsed independently of the probe's own reader and converted to atomic
+units (USDC has 6 decimals, as the runbook's table states), is pinned
+against both the probe's EXPECTED_MAX_AMOUNT and the runbook's
+maxAmountRequired.
+
 The comparison lives in disagreements() so the mutation tests below can
 feed it drifted inputs: every drift case is SYNTHETIC, built in this
 file, and each asserts the returned message names the source pair that
@@ -26,6 +33,7 @@ disagrees.
 import re
 import sys
 import unittest
+from decimal import Decimal
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -62,9 +70,26 @@ def runbook_values(text):
     }
 
 
-def disagreements(probe_values, server_tools, server_version, book):
+def yaml_pricing_amount(text, tool="recall_check"):
+    """The pricing block's price for `tool` in mcpize.yaml, as atomic
+    units, parsed independently of the probe's reader: the tools list
+    entry naming the tool, then its price line, converted at USDC's 6
+    decimals. A missing entry or a price that is not a whole number of
+    atomic units parses as None, which disagrees with everything."""
+    entry = re.search(r"-\s*name:\s*%s\s*\n\s*price:\s*\"?([0-9]+(?:\.[0-9]+)?)\"?"
+                      % re.escape(tool), text)
+    if not entry:
+        return None
+    atomic = Decimal(entry.group(1)) * (10 ** 6)
+    if atomic != atomic.to_integral_value():
+        return None
+    return str(int(atomic))
+
+
+def disagreements(probe_values, server_tools, server_version, book, yaml_amount):
     """One message per drift, each naming the disagreeing sources.
-    probe_values mirrors the probe's constants; book is runbook_values()."""
+    probe_values mirrors the probe's constants; book is runbook_values();
+    yaml_amount is yaml_pricing_amount() on mcpize.yaml."""
     out = []
     if probe_values["tools"] != server_tools:
         out.append("probe vs server: EXPECTED_TOOLS %r != tool_definitions() %r"
@@ -93,6 +118,14 @@ def disagreements(probe_values, server_tools, server_version, book):
         out.append("runbook vs mcpize.yaml: the table no longer states payTo "
                    "equal to the recipient in mcpize.yaml, which is the value "
                    "the probe compares against")
+    if probe_values["max_amount"] != yaml_amount:
+        out.append("probe vs mcpize.yaml: EXPECTED_MAX_AMOUNT %r != the pricing "
+                   "block's recall_check amount %r (atomic units)"
+                   % (probe_values["max_amount"], yaml_amount))
+    if book["max_amount"] != yaml_amount:
+        out.append("runbook vs mcpize.yaml: the table's maxAmountRequired %r != "
+                   "the pricing block's recall_check amount %r (atomic units)"
+                   % (book["max_amount"], yaml_amount))
     return out
 
 
@@ -107,13 +140,27 @@ def real_server_tools():
     return [d["name"] for d in recall_mcp.tool_definitions(None)]
 
 
+def real_yaml_amount():
+    return yaml_pricing_amount((ROOT / "mcpize.yaml").read_text(encoding="utf-8"))
+
+
 class RealSourcesAgreeTests(unittest.TestCase):
     def test_probe_server_and_runbook_agree(self):
         book = runbook_values(RUNBOOK.read_text(encoding="utf-8"))
         found = disagreements(real_probe_values(), real_server_tools(),
-                              recall_mcp.SERVER_VERSION, book)
+                              recall_mcp.SERVER_VERSION, book, real_yaml_amount())
         self.assertEqual(found, [],
                          "drift detected: " + "; ".join(found))
+
+    def test_yaml_pricing_amount_is_parsed_and_agrees(self):
+        # The pricing block is the pricing source of record: its
+        # recall_check price must parse (a whole number of atomic units)
+        # and land on the same amount the probe and the runbook carry.
+        amount = real_yaml_amount()
+        self.assertIsNotNone(amount, "the pricing block's recall_check price did not parse")
+        self.assertEqual(amount, probe.EXPECTED_MAX_AMOUNT)
+        book = runbook_values(RUNBOOK.read_text(encoding="utf-8"))
+        self.assertEqual(amount, book["max_amount"])
 
     def test_probe_recipient_is_the_yaml_recipient(self):
         # The probe compares payTo against the value it reads from
@@ -133,13 +180,15 @@ class MutationTests(unittest.TestCase):
         self.book = runbook_values(RUNBOOK.read_text(encoding="utf-8"))
         self.probe_values = real_probe_values()
         self.server_tools = real_server_tools()
+        self.yaml_amount = real_yaml_amount()
 
     def check(self, probe_values=None, server_tools=None,
-              server_version=None, book=None):
+              server_version=None, book=None, yaml_amount=None):
         return disagreements(probe_values or self.probe_values,
                              server_tools or self.server_tools,
                              server_version or recall_mcp.SERVER_VERSION,
-                             book or self.book)
+                             book or self.book,
+                             self.yaml_amount if yaml_amount is None else yaml_amount)
 
     def test_probe_tool_order_mutation_names_probe_vs_server_and_runbook(self):
         drifted = dict(self.probe_values)
@@ -161,6 +210,15 @@ class MutationTests(unittest.TestCase):
         found = self.check(book=book)
         self.assertTrue(any("probe vs runbook" in m and "maxAmountRequired" in m
                             for m in found), found)
+
+    def test_yaml_price_mutation_names_mcpize_yaml(self):
+        text = (ROOT / "mcpize.yaml").read_text(encoding="utf-8")
+        drifted = text.replace('price: "0.05"', 'price: "0.25"')  # synthetic drift in the pricing block
+        self.assertNotEqual(drifted, text)
+        found = self.check(yaml_amount=yaml_pricing_amount(drifted))
+        self.assertTrue(any(m.startswith("probe vs mcpize.yaml") for m in found), found)
+        self.assertTrue(any(m.startswith("runbook vs mcpize.yaml")
+                            and "maxAmountRequired" in m for m in found), found)
 
     def test_version_mutation_names_the_version_sources(self):
         drifted = dict(self.probe_values)
