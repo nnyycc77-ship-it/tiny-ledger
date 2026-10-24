@@ -3,9 +3,10 @@
 A tool factory wave 2 tool (issue #178). The fetcher is
 [`tools/epa_screen.py`](../../tools/epa_screen.py), and it is served as
 `GET /epa` by the pay per call API ([`api/endpoints.py`](../../api/endpoints.py)).
-It is not on the MCP server yet. Wave tools that pass review are
-registered on the server in one shared surface PR (coordinator rulings on
-issues #158 and #175), and going live is one owner redeploy step after that.
+It is registered on the MCP server: the server on main lists it
+(`tool_definitions()` in `mcp_server/recall_mcp.py`). It was added by
+PR #208 (issue #204), the shared surface step the #158 ruling called for.
+Going live still waits on the owner redeploy step.
 
 - **What it answers:** Does this facility show EPA violations or significant noncompliance? It answers as the EPA ECHO facility search states it, quoting three fields of each facility row as shown: `FacComplianceStatus`, `FacSNCFlg` (significant noncompliance flag) and `FacQtrsWithNC`.
 - **Source:** the EPA ECHO facility search web service on `echodata.epa.gov`, keyless, in two steps:

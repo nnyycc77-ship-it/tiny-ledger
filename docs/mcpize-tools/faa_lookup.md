@@ -3,9 +3,10 @@
 A tool factory wave 2 tool (issue #181). The fetcher is
 [`tools/faa_lookup.py`](../../tools/faa_lookup.py), and it is served as
 `GET /faa` by the pay per call API ([`api/endpoints.py`](../../api/endpoints.py)).
-It is not on the MCP server yet. Wave tools that pass review are
-registered on the server in one shared surface PR (coordinator rulings on
-issues #158 and #175), and going live is one owner redeploy step after that.
+It is registered on the MCP server: the server on main lists it
+(`tool_definitions()` in `mcp_server/recall_mcp.py`). It was added by
+PR #213 (issue #210), the shared surface step the #158 ruling called for.
+Going live still waits on the owner redeploy step.
 
 - **What it answers:** What aircraft is registered under this N number, and whose name is on the registration? It gives make and model (the Aircraft Reference file's `MFR` and `MODEL`), year (`YEAR MFR`) and registrant name (`NAME`), exactly as the record states them with only the file's space padding trimmed, followed by the matched rows in full.
 - **Source:** the FAA releasable aircraft database, one keyless ZIP download: `https://registry.faa.gov/database/ReleasableAircraft.zip`. The FAA download page says "The data in the download is refreshed daily at 11:30 pm central time. The download is delivered in a Comma-Delimited text file (.txt extension) format." The columns are read from each file's own header row. Their meanings come from the FAA layout document `ardata.pdf`: for example, N-Number is the "Identification number assigned to aircraft", and Registrant's Name is "The first registrant's name which appears on the Application for Registration". Both are quoted by the coordinator on #181.

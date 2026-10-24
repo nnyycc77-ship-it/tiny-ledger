@@ -3,9 +3,10 @@
 A tool factory wave 2 tool (issue #176). The fetcher is
 [`tools/safety_file.py`](../../tools/safety_file.py), and it is served as
 `GET /safety` by the pay per call API ([`api/endpoints.py`](../../api/endpoints.py)).
-It is not on the MCP server yet. Wave tools that pass review are
-registered on the server in one shared surface PR (coordinator rulings on
-issues #158 and #175), and going live is one owner redeploy step after that.
+It is registered on the MCP server: the server on main lists it
+(`tool_definitions()` in `mcp_server/recall_mcp.py`). It was added by
+PR #208 (issue #204), the shared surface step the #158 ruling called for.
+Going live still waits on the owner redeploy step.
 
 - **What it answers:** For one make, model and model year, the NHTSA crash test ratings of each rated variant, the recall campaigns, and the consumer complaints, in one file. Each figure is stated only where the raw response beneath it shows it.
 - **Sources:** Three keyless NHTSA APIs on `api.nhtsa.gov`, called as the coordinator's live captures on #176 show them:

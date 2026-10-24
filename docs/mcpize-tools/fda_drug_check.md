@@ -3,10 +3,10 @@
 A tool factory wave 1 tool (issue #163, parent #158). The fetcher is
 [`tools/fda_drug_check.py`](../../tools/fda_drug_check.py), and it is served as
 `GET /drug` by the pay per call API ([`api/endpoints.py`](../../api/endpoints.py)).
-It is not on the MCP server yet. Every wave 1 tool that passes review is
-registered on the server in one shared surface PR at the end of the wave
-(coordinator ruling on issue #158), and going live is one owner redeploy
-step after that.
+It is registered on the MCP server: the server on main lists it
+(`tool_definitions()` in `mcp_server/recall_mcp.py`). It was added by
+PR #208 (issue #204), the shared surface step the #158 ruling called for.
+Going live still waits on the owner redeploy step.
 
 - **What it answers:** For one drug brand or generic name, the label facts of the first matching openFDA drug label record: its brand and generic names, its maker, its product type and route, which warning sections it carries, and its dosage form as the record carries it. The report states the total number of matching label records the response itself reports, so a first record is never presented as the only one when it is not.
 - **Source:** openFDA drug label endpoint, `https://api.fda.gov/drug/label.json?search=openfda.brand_name:%22<name>%22+OR+openfda.generic_name:%22<name>%22&limit=1`. Keyless: no API key is needed for this endpoint at this rate and none is read.

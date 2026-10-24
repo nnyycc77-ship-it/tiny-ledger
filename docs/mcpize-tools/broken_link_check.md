@@ -3,10 +3,10 @@
 A tool factory wave 1 tool (issue #164, parent #158). The fetcher is
 [`tools/broken_link_check.py`](../../tools/broken_link_check.py), and it is served as
 `GET /links` by the pay per call API ([`api/endpoints.py`](../../api/endpoints.py)).
-It is not on the MCP server yet. Every wave 1 tool that passes review is
-registered on the server in one shared surface PR at the end of the wave
-(coordinator ruling on issue #158), and going live is one owner redeploy
-step after that.
+It is registered on the MCP server: the server on main lists it
+(`tool_definitions()` in `mcp_server/recall_mcp.py`). It was added by
+PR #208 (issue #204), the shared surface step the #158 ruling called for.
+Going live still waits on the owner redeploy step.
 
 - **What it answers:** Which links on one page are dead. The page is fetched once, every link on it is checked once, and the dead ones are listed with their status codes, beside every checked link with the status line it answered.
 - **Source:** The page itself, and then each link target on it. There is no API behind this tool. Links are the href targets of `<a>`, `<area>` and `<link>` elements, resolved against the page's final URL with fragments removed; duplicates are checked once and counted. A page `<base>` element is not applied. Outbound HTTPS (or HTTP, when the page or a target uses it) to the page's host and to each target's host. Keyless.

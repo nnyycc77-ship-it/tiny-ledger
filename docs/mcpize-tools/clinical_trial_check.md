@@ -5,10 +5,10 @@ A tool factory wave 1 tool (issue #162, parent #158).
   [`tools/clinical_trial_check.py`](../../tools/clinical_trial_check.py). The pay
   per call API serves it as `GET /trials?term=...&limit=...`
   ([`api/endpoints.py`](../../api/endpoints.py)).
-- **Not on the MCP server yet.** Under the coordinator ruling on #158,
-  every wave 1 tool that passes review is registered on the server in one
-  shared surface PR at the end of the wave. Going live is one owner
-  redeploy step after that.
+- **Registered on the MCP server.** The server on main lists it
+  (`tool_definitions()` in `mcp_server/recall_mcp.py`). It was added by
+  PR #208 (issue #204), the shared surface step the #158 ruling called for.
+  Going live still waits on the owner redeploy step.
 
 ## The tool at a glance
 

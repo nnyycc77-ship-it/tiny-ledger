@@ -168,20 +168,34 @@ Source for this part: each tool's own docs page under
 [`docs/mcpize-tools/`](mcpize-tools/), linked from its entry below. What
 each entry says the tool checks is what that docs page states. Every tool
 in this part is merged into this repository and served by the pay per call
-API at the route its entry names. None of them is on the MCP server yet:
-under the wave registration ruling on issue #158, tools that pass review
-are registered on the server in one shared surface PR, and the shelf goes
-live at one owner redeploy step after that, as each docs page records.
+API at the route its entry names. Every one of them is also registered
+on the MCP server on main (`tool_definitions()` in
+`mcp_server/recall_mcp.py`): the shared surface step that the wave
+registration ruling on issue #158 called for was PR #208 (issue #204),
+with `faa_lookup` added by PR #213 (issue #210). The shelf goes live at
+the owner redeploy step, which this repository does not record as done,
+as each docs page records.
 
 - Price for every tool in this part: 0.25 USDC per call once the shelf
   goes live, the shelf price set by the owner ruling on issue #147 and
   recorded on issue #158 and on each tool's docs page.
 - Delivery time: not stated as a duration; each call is answered from the
   tool's live source at the time of the call, as its docs page describes.
-- How to order: not stated yet; ordering opens only after the
-  registration and redeploy steps above happen.
+- How to order: not stated yet; ordering opens only after the owner
+  redeploy step above happens.
 
 ### Wave 1
+
+#### `app_lookup_check`: App Store lookup
+
+Source: [`docs/mcpize-tools/app_lookup_check.md`](mcpize-tools/app_lookup_check.md)
+
+- What it checks: which App Store apps the public iTunes Search API
+  returns for an app name, with each app's seller, rating, rating count
+  and store link as shown, and whether its name matches the searched
+  name exactly.
+- Served as: `GET /app` by the pay per call API.
+- Price: 0.25 USDC per call, as stated above for this part.
 
 #### `broken_link_check`: broken link check
 
@@ -203,6 +217,16 @@ Source: [`docs/mcpize-tools/clinical_trial_check.md`](mcpize-tools/clinical_tria
   top trials are, with their status, each value exactly as the API
   returns it.
 - Served as: `GET /trials` by the pay per call API.
+- Price: 0.25 USDC per call, as stated above for this part.
+
+#### `domain_trust_check`: domain trust check
+
+Source: [`docs/mcpize-tools/domain_trust_check.md`](mcpize-tools/domain_trust_check.md)
+
+- What it checks: the DNS mail and web posture of one domain as the public
+  sources show it: its A and MX records, its SPF and DMARC records with
+  their policies, and the outcome of requesting the site over HTTPS.
+- Served as: `GET /domain` by the pay per call API.
 - Price: 0.25 USDC per call, as stated above for this part.
 
 #### `exchange_rate_check`: exchange rate
@@ -245,6 +269,16 @@ Source: [`docs/mcpize-tools/meta_tag_check.md`](mcpize-tools/meta_tag_check.md)
   description, and its checked Open Graph tags are present or missing,
   with the values exactly as the page prints them.
 - Served as: `GET /meta` by the pay per call API.
+- Price: 0.25 USDC per call, as stated above for this part.
+
+#### `ofac_sanctions_check`: OFAC SDN list name check
+
+Source: [`docs/mcpize-tools/ofac_sanctions_check.md`](mcpize-tools/ofac_sanctions_check.md)
+
+- What it checks: whether a person or company name is on the US Treasury OFAC
+  SDN list, under a primary name or an alias, and what the matching
+  entries say. The full page is [`docs/ofac-sdn-check.md`](ofac-sdn-check.md).
+- Served as: `GET /ofac` by the pay per call API.
 - Price: 0.25 USDC per call, as stated above for this part.
 
 #### `vin_decode_check`: VIN decode
