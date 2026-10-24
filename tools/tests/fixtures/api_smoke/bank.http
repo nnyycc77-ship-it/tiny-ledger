@@ -1,0 +1,60 @@
+HTTP/1.0 200 OK
+Date: Sat, 24 Oct 2026 12:21:40 GMT
+Server: WSGIServer/0.2 CPython/3.12.3
+Content-Type: text/markdown; charset=utf-8
+Content-Length: 3184
+Cache-Control: no-store
+X-Payout-Wallet: 0x1111111111111111111111111111111111111111
+
+# Bank check: JPMorgan Chase Bank
+
+Observation only: this report records what the FDIC BankFind Institutions API returned for this name at the retrieval time stated below, without any API key.
+
+Exact query: GET https://banks.data.fdic.gov/api/Institutions?filters=NAME%3AJPMorgan%2A&fields=NAME%2CCERT%2CCITY%2CSTNAME%2CACTIVE&format=json&limit=5000&sort_by=NAME&sort_order=ASC
+Sent with no api_key parameter (keyless).
+Retrieved (UTC): 2026-10-24T12:21:38Z
+Answered from: https://api.fdic.gov/banks/Institutions?filters=NAME%3AJPMorgan%2A&fields=NAME%2CCERT%2CCITY%2CSTNAME%2CACTIVE&format=json&limit=5000&sort_by=NAME&sort_order=ASC (the API redirected the request)
+FDIC index snapshot as returned: institutions_20261023090007 (createTimestamp 2026-10-23T11:54:56Z)
+
+How the match works: the API's NAME filter is a prefix match on the whole name field, so the request below asks for every institution whose name begins with the typed name's first word; from that page, this report keeps the institutions whose name, after folding case and accents and replacing every other non letter or digit character with a space, begins with the whole typed name at a word boundary. Type the name as FDIC lists it, from its start.
+
+The prefix page holds 3 institution(s); 2 match the typed name under the rule above.
+
+## JPMorgan Chase Bank, Dearborn
+
+- FDIC certificate number (CERT) as shown: 21761
+- City (CITY) as shown: Dearborn
+- State (STNAME) as shown: Michigan
+- Active status (ACTIVE) as shown: 1 (active)
+
+## JPMorgan Chase Bank, National Association
+
+- FDIC certificate number (CERT) as shown: 628
+- City (CITY) as shown: Columbus
+- State (STNAME) as shown: Ohio
+- Active status (ACTIVE) as shown: 1 (active)
+
+Source: <https://banks.data.fdic.gov/api/Institutions?filters=NAME%3AJPMorgan%2A&fields=NAME%2CCERT%2CCITY%2CSTNAME%2CACTIVE&format=json&limit=5000&sort_by=NAME&sort_order=ASC>
+```
+HTTP/1.1 200 OK
+Date: Sat, 24 Oct 2026 12:21:41 GMT
+Content-Type: application/json; charset=utf-8
+X-Frame-Options: DENY
+X-Vcap-Request-Id: 3d70ac38-5df7-4424-7fc0-5735c23afff9
+Vary: Accept-Encoding
+Vary: Accept-Encoding
+Access-Control-Allow-Origin: *
+Age: 0
+Etag: W/"2a3-WBbxVwTomawyCG1ZpqJQjrIxc/w"
+Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
+Via: https/1.1 api-umbrella (ApacheTrafficServer [cMsSf ])
+X-Api-Umbrella-Request-Id: d1dne14gh0inioflnag0
+X-Cache: MISS
+X-Content-Type-Options: nosniff
+X-Ratelimit-Limit: 20
+X-Ratelimit-Remaining: 19
+Connection: close
+Content-Length: 675
+
+{"meta":{"total":3,"parameters":{"filters":"NAME:JPMorgan*","fields":"NAME,CERT,CITY,STNAME,ACTIVE","limit":"5000"},"index":{"name":"institutions_20261023090007","createTimestamp":"2026-10-23T11:54:56Z"}},"data":[{"data":{"CITY":"San Francisco","ACTIVE":0,"STNAME":"California","CERT":58729,"NAME":"JPMorgan Bank and Trust Company, National Association","ID":"58729"},"score":0},{"data":{"CITY":"Dearborn","ACTIVE":1,"STNAME":"Michigan","CERT":21761,"NAME":"JPMorgan Chase Bank, Dearborn","ID":"21761"},"score":0},{"data":{"CITY":"Columbus","ACTIVE":1,"STNAME":"Ohio","CERT":628,"NAME":"JPMorgan Chase Bank, National Association","ID":"628"},"score":0}],"totals":{"count":3}}
+```

@@ -1,0 +1,20 @@
+HTTP/1.1 200 OK
+Date: Sat, 24 Oct 2026 12:16:25 GMT
+Content-Type: application/json; charset=utf-8
+X-Frame-Options: DENY
+X-Vcap-Request-Id: f7fae1a5-1a61-4897-7a04-26889b488f66
+Vary: Accept-Encoding
+Vary: Accept-Encoding
+Vary: Accept-Encoding
+Access-Control-Allow-Origin: *
+Age: 0
+Etag: W/"170c-Vw0K18a2zFQVlN6nXwGvS33L2qg"
+Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
+Via: https/1.1 api-umbrella (ApacheTrafficServer [cMsSf ])
+X-Api-Umbrella-Request-Id: d1dnbk0locplr4jesejg
+X-Cache: MISS
+X-Content-Type-Options: nosniff
+X-Ratelimit-Limit: 20
+X-Ratelimit-Remaining: 19
+Connection: close
+Content-Length: 5900

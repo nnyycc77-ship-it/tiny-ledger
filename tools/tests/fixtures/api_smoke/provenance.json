@@ -609,5 +609,31 @@
     "server_config": "EDGAR_CONTACT absent by design: the capture config is the missing contact. PAYOUT_WALLET_ADDRESS=0x1111111111111111111111111111111111111111, a SYNTHETIC placeholder address chosen for the capture, not any real wallet, as in the existing fixtures; HTTP_PROXY, HTTPS_PROXY, http_proxy and https_proxy all set to http://127.0.0.1:9, a closed local port, and NO_PROXY empty, so nothing could leave the machine; no X-PAYMENT header sent, so the facilitator was never contacted",
     "transcript_form": "status line, response headers in the order returned, a blank line, then the body exactly as returned, joined with newline characters",
     "note": "The endpoint checks the operator contact before its query and before any fetch, so this valid sample query is answered 503 and nothing is fetched, the same shape as formd-503.http (issue #245)."
+  },
+  "bank.http": {
+    "url": "http://127.0.0.1:8771/bank?name=JPMorgan+Chase+Bank",
+    "retrieved_utc": "2026-10-24T12:21:38Z",
+    "sha256": "7f1760f8e2ae22280cd0123c57f095ad81a4a589cffa05e69e2daa91d7f73dce",
+    "captured_by": "H8, with tools/api_smoke.py fetch(), from the local gated server: python3 server.py at the issue #320 branch head (api.payment_gate:app), PORT=8771, for issue #320.",
+    "server_config": "PAYOUT_WALLET_ADDRESS=0x1111111111111111111111111111111111111111, a SYNTHETIC placeholder address chosen for the capture, not any real wallet; EDGAR_CONTACT set to a labelled test contact (Tiny Ledger Api Smoke smoke@example.com); no X-PAYMENT header sent, so the facilitator was never contacted",
+    "transcript_form": "status line, response headers in the order returned, a blank line, then the body exactly as returned, joined with newline characters"
+  },
+  "bank-400.http": {
+    "url": "http://127.0.0.1:8771/bank",
+    "retrieved_utc": "2026-10-24T12:21:40Z",
+    "sha256": "08dbe7dec67ed0d5bf9c76cd0369b384b7e226a4bdc66049126bb5b44777773c",
+    "captured_by": "H8, with tools/api_smoke.py fetch(), from the local gated server: python3 server.py at the issue #320 branch head (api.payment_gate:app), PORT=8771, for issue #320.",
+    "server_config": "PAYOUT_WALLET_ADDRESS=0x1111111111111111111111111111111111111111, a SYNTHETIC placeholder address chosen for the capture, not any real wallet; EDGAR_CONTACT set to a labelled test contact (Tiny Ledger Api Smoke smoke@example.com); no X-PAYMENT header sent, so the facilitator was never contacted",
+    "transcript_form": "status line, response headers in the order returned, a blank line, then the body exactly as returned, joined with newline characters",
+    "note": "The request names no valid input (the bare endpoint path, no query string), so the server answers 400 before any source fetch; the api endpoint suite proves the same cases return 400 with its fetch functions patched to raise."
+  },
+  "bank-502.http": {
+    "url": "http://127.0.0.1:8771/bank?name=JPMorgan+Chase+Bank",
+    "retrieved_utc": "2026-10-24T12:22:06Z",
+    "sha256": "57f6a9f58257c59ccac07e134c2cf382de24acf42089cedbea43d73aaf0e8b62",
+    "captured_by": "H8, with tools/api_smoke.py fetch(), from the local gated server: python3 server.py at the issue #320 branch head (api.payment_gate:app), PORT=8771, for issue #320.",
+    "server_config": "PAYOUT_WALLET_ADDRESS=0x1111111111111111111111111111111111111111, a SYNTHETIC placeholder address chosen for the capture, not any real wallet; EDGAR_CONTACT set to a labelled test contact (Tiny Ledger Api Smoke smoke@example.com), which /formd checks before fetching, so without it the server answers 503 and no 502 can be captured; HTTP_PROXY, HTTPS_PROXY, http_proxy and https_proxy all set to http://127.0.0.1:9, a closed local port, so every source fetch fails at transport; no X-PAYMENT header sent, so the facilitator was never contacted",
+    "transcript_form": "status line, response headers in the order returned, a blank line, then the body exactly as returned, joined with newline characters",
+    "note": "Replayed source failure: the query is valid, the same sample shape as the endpoint's 200 capture, and the recorded proxy config makes the source fetch fail at transport; the 502 below is the server's own answer, captured verbatim. The descriptor and the payment gate are not affected by the proxy config."
   }
 }

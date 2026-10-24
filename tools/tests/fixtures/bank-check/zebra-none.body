@@ -1,0 +1,1 @@
+{"meta":{"total":0,"parameters":{"filters":"NAME:Zebra*","fields":"NAME,CERT,CITY,STNAME,ACTIVE","limit":"5000"},"index":{"name":"institutions_20261023090007","createTimestamp":"2026-10-23T11:54:56Z"}},"data":[],"totals":{"count":0}}

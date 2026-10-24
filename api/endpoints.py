@@ -18,6 +18,7 @@ nothing else to the fetchers' output.
     /domain      tools/domain_trust_check.py   domain
     /app         tools/app_lookup_check.py     name (country, limit optional)
     /github      tools/github_repo_check.py    owner, repo
+    /bank        tools/bank_check.py           name
     /meta        tools/meta_tag_check.py       url
     /csl         tools/csl_screen.py           name
     /vin         tools/vin_decode.py           vin
@@ -67,6 +68,7 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from tools import app_lookup_check as al  # noqa: E402
+from tools import bank_check as bk  # noqa: E402
 from tools import broken_link_check as bl  # noqa: E402
 from tools import clinical_trial_check as ct  # noqa: E402
 from tools import courtlistener_recap as cl  # noqa: E402
@@ -539,6 +541,23 @@ def github_repo(query, env=None):
 
 
 # ----------------------------------------------------------------------
+# /bank
+
+def bank(query, env=None):
+    """Keyless FDIC BankFind check via tools/bank_check.py."""
+    try:
+        name = bk.check_name(_single(query, "name", ""))
+    except ValueError as err:
+        raise BadRequest(str(err))
+    try:
+        capture = bk.fetch(bk.search_url(name))
+        lines = bk.render(name, capture)
+    except bk.FetchError as err:
+        raise FetchFailed(str(err))
+    return _text([], lines)
+
+
+# ----------------------------------------------------------------------
 # /meta
 # ----------------------------------------------------------------------
 
@@ -885,6 +904,7 @@ ROUTES = {
     "/domain": domain,
     "/vin": vin,
     "/github": github_repo,
+    "/bank": bank,
     "/meta": meta_tags,
     "/csl": csl,
     "/app": app,
@@ -943,6 +963,12 @@ DESCRIPTIONS = {
         "params": ["owner (GitHub user or organization)", "repo (repository name)"],
         "sources": [gh.API_URL],
         "note": "Keyless: no Authorization header is sent; GitHub's unauthenticated limit is 60 requests per hour.",
+    },
+    "/bank": {
+        "tool": "tools/bank_check.py",
+        "params": ["name (the start of the bank's name as FDIC lists it; at least 3 letters or digits)"],
+        "sources": [bk.API_URL],
+        "note": "Keyless: no api_key parameter is sent. The NAME filter is a prefix match; matches are kept locally under the stated prefix rule.",
     },
     "/ofac": {
         "tool": "tools/ofac_sdn_check.py",
