@@ -31,6 +31,7 @@ environment and its header comment says so.
 | GitHub repository check, keyless: stars, license, last push, archived (docs/mcpize-tools/github_repo_check.md) | `github_repo_check.py` | none needed; 60 requests per hour unauthenticated |
 | Meta tag check: title, description and Open Graph tags present or missing on a page (docs/mcpize-tools/meta_tag_check.md) | `meta_tag_check.py` | none needed; the source is the page itself |
 | ClinicalTrials.gov API v2 studies search: trial count and top trials with status (docs/mcpize-tools/clinical_trial_check.md) | `clinical_trial_check.py` | none needed |
+| US Consolidated Screening List screen: name and alias match against the published CSL file, with list date and rows screened (docs/mcpize-tools/csl_screen.md) | `csl_screen.py` | none needed; the list file is cached locally for a day |
 | FEMA NFHL flood zone check for a point or a US address (Census Geocoder), screening only (docs/mcpize-tools/flood_check.md) | `flood_check.py` | none needed |
 | openFDA food and device enforcement recall search (docs/mcpize-tools/fda_recall_check.md) | `fda_recall_check.py` | none needed; keyless limits 240 per minute and 1,000 per day per IP address |
 | HHS OIG LEIE exclusion screen, persons and entities (docs/mcpize-tools/oig_screen.md) | `oig_screen.py` | none needed |
