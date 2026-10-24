@@ -35,6 +35,11 @@ Which data is which:
   query. Their provenance entries record that replay config in full
   (including the empty tool cache folder used so /faa attempted its
   archive download) and the SHA-256 of each.
+* REPLAYED CAPTURE, 503 SHAPE: the formd-503.http fixture added for
+  issue #245 is a transcript from the same local gated server at main
+  1784d43 run without EDGAR_CONTACT, so the endpoint answered 503 to
+  a valid sample query before fetching anything. Its provenance entry
+  records the missing contact as the capture config and the SHA-256.
 * LIVE LOCAL: the live mode tests run the real api.payment_gate app
   in process on 127.0.0.1, configured with the same SYNTHETIC placeholder
   address. No X-PAYMENT header is ever sent, so the facilitator is never
@@ -115,15 +120,17 @@ class OfflineMode(unittest.TestCase):
         self.assertTrue(all(ok for _, ok in results), results)
         self.assertEqual(self.caps["openapi"].status, 200)
 
-    def test_default_run_passes_all_298_with_the_raw_responses(self):
+    def test_default_run_passes_all_322_with_the_raw_responses(self):
         # 20 original assertions, 17 endpoint sections of 5, 17 bad
         # query sections of 4, 19 bad query accounting lines, 17 source
         # failure sections of 4, 19 source failure accounting lines,
-        # and 19 coverage lines, one per GET path in api/openapi.json.
+        # one unavailable section of 5, 19 unavailable accounting
+        # lines, and 19 coverage lines, one per GET path in
+        # api/openapi.json.
         code, out, err = run_main([])
         self.assertEqual(code, 0, err)
         self.assertIn("Result: PASS, every assertion held.", out)
-        self.assertEqual(out.count("- PASS:"), 298)
+        self.assertEqual(out.count("- PASS:"), 322)
         self.assertNotIn("- FAIL:", out)
         self.assertIn("Source: <http://127.0.0.1:8765/openapi.json>", out)
         self.assertIn("Retrieved (UTC): 2026-10-23T14:51:26Z", out)
@@ -137,6 +144,10 @@ class OfflineMode(unittest.TestCase):
         self.assertIn("- PASS: GET /csl with its source failing answers 502", out)
         self.assertIn("- PASS: GET /recall 502 shape not capturable offline:", out)
         self.assertIn((FIX / "csl-502.http").read_text(encoding="utf-8"), out)
+        self.assertIn("- PASS: GET /formd unconfigured on the server answers 503", out)
+        self.assertIn("- PASS: GET /formd 503 shape captured in formd-503.http", out)
+        self.assertIn("- PASS: GET /recall 503 shape not capturable offline:", out)
+        self.assertIn((FIX / "formd-503.http").read_text(encoding="utf-8"), out)
 
     def test_a_failed_assertion_is_named_with_the_raw_response(self):
         # DERIVED: the real openapi capture with its status line changed to a 404,
@@ -272,6 +283,37 @@ class OfflineMode(unittest.TestCase):
         self.assertFalse(ok)
         self.assertIn("- FAIL: GET /vin with its source failing answers 502", report)
 
+    def test_missing_unavailable_fixture_fails_closed_and_names_the_endpoint(self):
+        tmp = Path(tempfile.mkdtemp())
+        try:
+            for f in FIX.iterdir():
+                shutil.copy(f, tmp / f.name)
+            (tmp / "formd-503.http").unlink()  # DERIVED: the real fixture set minus the 503 file
+            with self.assertRaises(smoke.SmokeError) as ctx:
+                smoke.offline_captures(tmp)
+            self.assertIn("/formd", str(ctx.exception))
+        finally:
+            shutil.rmtree(tmp)
+
+    def test_declared_503_without_a_capture_fails_the_accounting_and_is_named(self):
+        # DERIVED: the real captures with the /formd 503 capture dropped,
+        # so a declared 503 endpoint has no capture in the run.
+        caps = smoke.offline_captures()
+        caps["unavailable"] = {}
+        with mock.patch.object(smoke, "offline_captures", return_value=caps):
+            code, out, err = run_main([])
+        self.assertEqual(code, 1, err)
+        self.assertIn("- FAIL: GET /formd 503 shape is not accounted for exactly once", out)
+
+    def test_unavailable_shape_failure_is_named(self):
+        # DERIVED: the real 503 capture with its status changed to a 200.
+        caps = smoke.offline_captures()
+        caps["unavailable"]["/formd"] = caps["unavailable"]["/formd"]._replace(
+            status_line="HTTP/1.0 200 OK", status=200)
+        report, ok = smoke.run_checks(caps, "offline: derived")
+        self.assertFalse(ok)
+        self.assertIn("- FAIL: GET /formd unconfigured on the server answers 503", report)
+
 
 class CoverageTable(unittest.TestCase):
     def test_every_get_path_in_the_repo_openapi_has_a_fixture_entry(self):
@@ -315,6 +357,16 @@ class CoverageTable(unittest.TestCase):
                     self.assertIn(path, smoke.ENDPOINT_FIXTURES)
                 if reasoned:
                     self.assertTrue(smoke.NO_502_CAPTURE[path])
+
+    def test_503_captures_match_the_paths_declaring_503_exactly(self):
+        # The capturable set is read off the document itself: every GET
+        # path whose entry declares a 503 has a fixture in provenance,
+        # and no other path has one.
+        declared = smoke.repo_openapi_503_paths()
+        self.assertEqual(sorted(declared), sorted(smoke.UNAVAILABLE_FIXTURES))
+        for path in declared:
+            self.assertIn(smoke.UNAVAILABLE_FIXTURES[path], PROVENANCE)
+            self.assertIn(path, smoke.ENDPOINT_FIXTURES)
 
 
 class Assertions(unittest.TestCase):
