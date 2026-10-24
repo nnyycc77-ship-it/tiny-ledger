@@ -53,6 +53,19 @@ secret, seed, signer or wallet word fails even next to a hash word; after a
 hash word (sha256, digest, tx, topic, commit, ...) it passes; assigned to a
 name that says neither, it fails; bare in prose, it passes.
 
+**Accepted capture findings (issue #198).** A secrets or honesty finding
+inside a fixture whose provenance hash verifies is a verbatim capture
+finding: a third party's "guarantee" in an app description, a consumer's
+"guaranteed" in a complaint, `keys_url` in a GitHub response body. It does
+not fail its check. It is listed, file and line, in an `ACCEPTED capture
+findings` section after the three result lines, never silently. Not
+accepted:
+- the same line in a non-fixture file;
+- a fixture that no provenance file lists, or whose hash does not verify
+  (the provenance check fails as well);
+- the always-fail credential shapes and seed phrases, which fail in any
+  file.
+
 A PASS is not a review. `REVIEW.md` still requires the reviewer to read
 every added line; this gate makes that read start from a list instead of
 from nothing. Known limit: a fixture edited together with its recorded
