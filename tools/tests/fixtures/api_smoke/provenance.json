@@ -312,5 +312,158 @@
     "server_config": "PAYOUT_WALLET_ADDRESS=0x1111111111111111111111111111111111111111, a SYNTHETIC placeholder address chosen for the capture, not any real wallet; EDGAR_CONTACT set to a labelled test contact (Tiny Ledger Api Smoke smoke@example.com): /formd checks the contact before its query, so without it the server answers 503 and the 400 shape cannot be captured; no X-PAYMENT header sent, so the facilitator was never contacted",
     "transcript_form": "status line, response headers in the order returned, a blank line, then the body exactly as returned, joined with newline characters",
     "note": "The request names no valid input (the bare endpoint path, no query string), so the server answers 400 before any source fetch; the api endpoint suite proves the same cases return 400 with its fetch functions patched to raise."
+  },
+  "app-502.http": {
+    "url": "http://127.0.0.1:8765/app?name=Nike&limit=3",
+    "retrieved_utc": "2026-10-24T09:27:53Z",
+    "sha256": "28af817ee5bd48281545a5609af5e255c33563d5170db7190634f21423d64049",
+    "captured_by": "H6, with tools/api_smoke.py fetch(), from the local gated server: python3 server.py at main a92012c (api.payment_gate:app), PORT=8765, for issue #235.",
+    "server_config": "PAYOUT_WALLET_ADDRESS=0x1111111111111111111111111111111111111111, a SYNTHETIC placeholder address chosen for the capture, not any real wallet; EDGAR_CONTACT set to a labelled test contact (Tiny Ledger Api Smoke smoke@example.com), which /formd checks before fetching, so without it the server answers 503 and no 502 can be captured; HTTP_PROXY, HTTPS_PROXY, http_proxy and https_proxy all set to http://127.0.0.1:9, a closed local port, so every source fetch fails at transport; TINY_LEDGER_CACHE pointed at an empty folder so /faa attempts its archive download instead of answering from the cache under the home folder; no X-PAYMENT header sent, so the facilitator was never contacted",
+    "transcript_form": "status line, response headers in the order returned, a blank line, then the body exactly as returned, joined with newline characters",
+    "note": "Replayed source failure: the query is valid, the same sample shape as the endpoint's 200 capture, and the recorded proxy config makes the source fetch fail at transport; the 502 below is the server's own answer, captured verbatim. The descriptor and the payment gate are not affected by the proxy config."
+  },
+  "awards-502.http": {
+    "url": "http://127.0.0.1:8765/awards?recipient=Boeing&limit=1",
+    "retrieved_utc": "2026-10-24T09:27:53Z",
+    "sha256": "28af817ee5bd48281545a5609af5e255c33563d5170db7190634f21423d64049",
+    "captured_by": "H6, with tools/api_smoke.py fetch(), from the local gated server: python3 server.py at main a92012c (api.payment_gate:app), PORT=8765, for issue #235.",
+    "server_config": "PAYOUT_WALLET_ADDRESS=0x1111111111111111111111111111111111111111, a SYNTHETIC placeholder address chosen for the capture, not any real wallet; EDGAR_CONTACT set to a labelled test contact (Tiny Ledger Api Smoke smoke@example.com), which /formd checks before fetching, so without it the server answers 503 and no 502 can be captured; HTTP_PROXY, HTTPS_PROXY, http_proxy and https_proxy all set to http://127.0.0.1:9, a closed local port, so every source fetch fails at transport; TINY_LEDGER_CACHE pointed at an empty folder so /faa attempts its archive download instead of answering from the cache under the home folder; no X-PAYMENT header sent, so the facilitator was never contacted",
+    "transcript_form": "status line, response headers in the order returned, a blank line, then the body exactly as returned, joined with newline characters",
+    "note": "Replayed source failure: the query is valid, the same sample shape as the endpoint's 200 capture, and the recorded proxy config makes the source fetch fail at transport; the 502 below is the server's own answer, captured verbatim. The descriptor and the payment gate are not affected by the proxy config."
+  },
+  "carrier-502.http": {
+    "url": "http://127.0.0.1:8765/carrier?usdot=2046&source=census",
+    "retrieved_utc": "2026-10-24T09:27:53Z",
+    "sha256": "28af817ee5bd48281545a5609af5e255c33563d5170db7190634f21423d64049",
+    "captured_by": "H6, with tools/api_smoke.py fetch(), from the local gated server: python3 server.py at main a92012c (api.payment_gate:app), PORT=8765, for issue #235.",
+    "server_config": "PAYOUT_WALLET_ADDRESS=0x1111111111111111111111111111111111111111, a SYNTHETIC placeholder address chosen for the capture, not any real wallet; EDGAR_CONTACT set to a labelled test contact (Tiny Ledger Api Smoke smoke@example.com), which /formd checks before fetching, so without it the server answers 503 and no 502 can be captured; HTTP_PROXY, HTTPS_PROXY, http_proxy and https_proxy all set to http://127.0.0.1:9, a closed local port, so every source fetch fails at transport; TINY_LEDGER_CACHE pointed at an empty folder so /faa attempts its archive download instead of answering from the cache under the home folder; no X-PAYMENT header sent, so the facilitator was never contacted",
+    "transcript_form": "status line, response headers in the order returned, a blank line, then the body exactly as returned, joined with newline characters",
+    "note": "Replayed source failure: the query is valid, the same sample shape as the endpoint's 200 capture, and the recorded proxy config makes the source fetch fail at transport; the 502 below is the server's own answer, captured verbatim. The descriptor and the payment gate are not affected by the proxy config."
+  },
+  "csl-502.http": {
+    "url": "http://127.0.0.1:8765/csl?name=Sberbank",
+    "retrieved_utc": "2026-10-24T09:27:53Z",
+    "sha256": "4910b05c6838f62d8c26689a7d2bc64303f69d253ae5f0158917864f6a6e7c8d",
+    "captured_by": "H6, with tools/api_smoke.py fetch(), from the local gated server: python3 server.py at main a92012c (api.payment_gate:app), PORT=8765, for issue #235.",
+    "server_config": "PAYOUT_WALLET_ADDRESS=0x1111111111111111111111111111111111111111, a SYNTHETIC placeholder address chosen for the capture, not any real wallet; EDGAR_CONTACT set to a labelled test contact (Tiny Ledger Api Smoke smoke@example.com), which /formd checks before fetching, so without it the server answers 503 and no 502 can be captured; HTTP_PROXY, HTTPS_PROXY, http_proxy and https_proxy all set to http://127.0.0.1:9, a closed local port, so every source fetch fails at transport; TINY_LEDGER_CACHE pointed at an empty folder so /faa attempts its archive download instead of answering from the cache under the home folder; no X-PAYMENT header sent, so the facilitator was never contacted",
+    "transcript_form": "status line, response headers in the order returned, a blank line, then the body exactly as returned, joined with newline characters",
+    "note": "Replayed source failure: the query is valid, the same sample shape as the endpoint's 200 capture, and the recorded proxy config makes the source fetch fail at transport; the 502 below is the server's own answer, captured verbatim. The descriptor and the payment gate are not affected by the proxy config."
+  },
+  "drug-502.http": {
+    "url": "http://127.0.0.1:8765/drug?name=Tylenol",
+    "retrieved_utc": "2026-10-24T09:27:53Z",
+    "sha256": "28af817ee5bd48281545a5609af5e255c33563d5170db7190634f21423d64049",
+    "captured_by": "H6, with tools/api_smoke.py fetch(), from the local gated server: python3 server.py at main a92012c (api.payment_gate:app), PORT=8765, for issue #235.",
+    "server_config": "PAYOUT_WALLET_ADDRESS=0x1111111111111111111111111111111111111111, a SYNTHETIC placeholder address chosen for the capture, not any real wallet; EDGAR_CONTACT set to a labelled test contact (Tiny Ledger Api Smoke smoke@example.com), which /formd checks before fetching, so without it the server answers 503 and no 502 can be captured; HTTP_PROXY, HTTPS_PROXY, http_proxy and https_proxy all set to http://127.0.0.1:9, a closed local port, so every source fetch fails at transport; TINY_LEDGER_CACHE pointed at an empty folder so /faa attempts its archive download instead of answering from the cache under the home folder; no X-PAYMENT header sent, so the facilitator was never contacted",
+    "transcript_form": "status line, response headers in the order returned, a blank line, then the body exactly as returned, joined with newline characters",
+    "note": "Replayed source failure: the query is valid, the same sample shape as the endpoint's 200 capture, and the recorded proxy config makes the source fetch fail at transport; the 502 below is the server's own answer, captured verbatim. The descriptor and the payment gate are not affected by the proxy config."
+  },
+  "epa-502.http": {
+    "url": "http://127.0.0.1:8765/epa?name=BAYTOWN+OLEFINS&state=TX",
+    "retrieved_utc": "2026-10-24T09:27:53Z",
+    "sha256": "28af817ee5bd48281545a5609af5e255c33563d5170db7190634f21423d64049",
+    "captured_by": "H6, with tools/api_smoke.py fetch(), from the local gated server: python3 server.py at main a92012c (api.payment_gate:app), PORT=8765, for issue #235.",
+    "server_config": "PAYOUT_WALLET_ADDRESS=0x1111111111111111111111111111111111111111, a SYNTHETIC placeholder address chosen for the capture, not any real wallet; EDGAR_CONTACT set to a labelled test contact (Tiny Ledger Api Smoke smoke@example.com), which /formd checks before fetching, so without it the server answers 503 and no 502 can be captured; HTTP_PROXY, HTTPS_PROXY, http_proxy and https_proxy all set to http://127.0.0.1:9, a closed local port, so every source fetch fails at transport; TINY_LEDGER_CACHE pointed at an empty folder so /faa attempts its archive download instead of answering from the cache under the home folder; no X-PAYMENT header sent, so the facilitator was never contacted",
+    "transcript_form": "status line, response headers in the order returned, a blank line, then the body exactly as returned, joined with newline characters",
+    "note": "Replayed source failure: the query is valid, the same sample shape as the endpoint's 200 capture, and the recorded proxy config makes the source fetch fail at transport; the 502 below is the server's own answer, captured verbatim. The descriptor and the payment gate are not affected by the proxy config."
+  },
+  "faa-502.http": {
+    "url": "http://127.0.0.1:8765/faa?n_number=N172SP",
+    "retrieved_utc": "2026-10-24T09:27:53Z",
+    "sha256": "ad15e884c66167c7140fa364823f02c99ec6291b3db16e0067628d219e844850",
+    "captured_by": "H6, with tools/api_smoke.py fetch(), from the local gated server: python3 server.py at main a92012c (api.payment_gate:app), PORT=8765, for issue #235.",
+    "server_config": "PAYOUT_WALLET_ADDRESS=0x1111111111111111111111111111111111111111, a SYNTHETIC placeholder address chosen for the capture, not any real wallet; EDGAR_CONTACT set to a labelled test contact (Tiny Ledger Api Smoke smoke@example.com), which /formd checks before fetching, so without it the server answers 503 and no 502 can be captured; HTTP_PROXY, HTTPS_PROXY, http_proxy and https_proxy all set to http://127.0.0.1:9, a closed local port, so every source fetch fails at transport; TINY_LEDGER_CACHE pointed at an empty folder so /faa attempts its archive download instead of answering from the cache under the home folder; no X-PAYMENT header sent, so the facilitator was never contacted",
+    "transcript_form": "status line, response headers in the order returned, a blank line, then the body exactly as returned, joined with newline characters",
+    "note": "Replayed source failure: the query is valid, the same sample shape as the endpoint's 200 capture, and the recorded proxy config makes the source fetch fail at transport; the 502 below is the server's own answer, captured verbatim. The descriptor and the payment gate are not affected by the proxy config."
+  },
+  "formd-502.http": {
+    "url": "http://127.0.0.1:8765/formd?issuer=Farmer%20Bros%20Co&max_filings=1",
+    "retrieved_utc": "2026-10-24T09:27:53Z",
+    "sha256": "f0f6b16015ce05da1fa20bcaac3aa5fd9033e6b35f81009b37b88e31c941b704",
+    "captured_by": "H6, with tools/api_smoke.py fetch(), from the local gated server: python3 server.py at main a92012c (api.payment_gate:app), PORT=8765, for issue #235.",
+    "server_config": "PAYOUT_WALLET_ADDRESS=0x1111111111111111111111111111111111111111, a SYNTHETIC placeholder address chosen for the capture, not any real wallet; EDGAR_CONTACT set to a labelled test contact (Tiny Ledger Api Smoke smoke@example.com), which /formd checks before fetching, so without it the server answers 503 and no 502 can be captured; HTTP_PROXY, HTTPS_PROXY, http_proxy and https_proxy all set to http://127.0.0.1:9, a closed local port, so every source fetch fails at transport; TINY_LEDGER_CACHE pointed at an empty folder so /faa attempts its archive download instead of answering from the cache under the home folder; no X-PAYMENT header sent, so the facilitator was never contacted",
+    "transcript_form": "status line, response headers in the order returned, a blank line, then the body exactly as returned, joined with newline characters",
+    "note": "Replayed source failure: the query is valid, the same sample shape as the endpoint's 200 capture, and the recorded proxy config makes the source fetch fail at transport; the 502 below is the server's own answer, captured verbatim. The descriptor and the payment gate are not affected by the proxy config."
+  },
+  "fx-502.http": {
+    "url": "http://127.0.0.1:8765/fx?base=USD&target=EUR",
+    "retrieved_utc": "2026-10-24T09:27:53Z",
+    "sha256": "28af817ee5bd48281545a5609af5e255c33563d5170db7190634f21423d64049",
+    "captured_by": "H6, with tools/api_smoke.py fetch(), from the local gated server: python3 server.py at main a92012c (api.payment_gate:app), PORT=8765, for issue #235.",
+    "server_config": "PAYOUT_WALLET_ADDRESS=0x1111111111111111111111111111111111111111, a SYNTHETIC placeholder address chosen for the capture, not any real wallet; EDGAR_CONTACT set to a labelled test contact (Tiny Ledger Api Smoke smoke@example.com), which /formd checks before fetching, so without it the server answers 503 and no 502 can be captured; HTTP_PROXY, HTTPS_PROXY, http_proxy and https_proxy all set to http://127.0.0.1:9, a closed local port, so every source fetch fails at transport; TINY_LEDGER_CACHE pointed at an empty folder so /faa attempts its archive download instead of answering from the cache under the home folder; no X-PAYMENT header sent, so the facilitator was never contacted",
+    "transcript_form": "status line, response headers in the order returned, a blank line, then the body exactly as returned, joined with newline characters",
+    "note": "Replayed source failure: the query is valid, the same sample shape as the endpoint's 200 capture, and the recorded proxy config makes the source fetch fail at transport; the 502 below is the server's own answer, captured verbatim. The descriptor and the payment gate are not affected by the proxy config."
+  },
+  "links-502.http": {
+    "url": "http://127.0.0.1:8765/links?url=https://example.com/",
+    "retrieved_utc": "2026-10-24T09:27:53Z",
+    "sha256": "5a218a95b9a2c43956cabb10eae12b5042c5070929a3224c06b2f81cacb94536",
+    "captured_by": "H6, with tools/api_smoke.py fetch(), from the local gated server: python3 server.py at main a92012c (api.payment_gate:app), PORT=8765, for issue #235.",
+    "server_config": "PAYOUT_WALLET_ADDRESS=0x1111111111111111111111111111111111111111, a SYNTHETIC placeholder address chosen for the capture, not any real wallet; EDGAR_CONTACT set to a labelled test contact (Tiny Ledger Api Smoke smoke@example.com), which /formd checks before fetching, so without it the server answers 503 and no 502 can be captured; HTTP_PROXY, HTTPS_PROXY, http_proxy and https_proxy all set to http://127.0.0.1:9, a closed local port, so every source fetch fails at transport; TINY_LEDGER_CACHE pointed at an empty folder so /faa attempts its archive download instead of answering from the cache under the home folder; no X-PAYMENT header sent, so the facilitator was never contacted",
+    "transcript_form": "status line, response headers in the order returned, a blank line, then the body exactly as returned, joined with newline characters",
+    "note": "Replayed source failure: the query is valid, the same sample shape as the endpoint's 200 capture, and the recorded proxy config makes the source fetch fail at transport; the 502 below is the server's own answer, captured verbatim. The descriptor and the payment gate are not affected by the proxy config."
+  },
+  "litigation-502.http": {
+    "url": "http://127.0.0.1:8765/litigation?party=Jabil",
+    "retrieved_utc": "2026-10-24T09:27:53Z",
+    "sha256": "28af817ee5bd48281545a5609af5e255c33563d5170db7190634f21423d64049",
+    "captured_by": "H6, with tools/api_smoke.py fetch(), from the local gated server: python3 server.py at main a92012c (api.payment_gate:app), PORT=8765, for issue #235.",
+    "server_config": "PAYOUT_WALLET_ADDRESS=0x1111111111111111111111111111111111111111, a SYNTHETIC placeholder address chosen for the capture, not any real wallet; EDGAR_CONTACT set to a labelled test contact (Tiny Ledger Api Smoke smoke@example.com), which /formd checks before fetching, so without it the server answers 503 and no 502 can be captured; HTTP_PROXY, HTTPS_PROXY, http_proxy and https_proxy all set to http://127.0.0.1:9, a closed local port, so every source fetch fails at transport; TINY_LEDGER_CACHE pointed at an empty folder so /faa attempts its archive download instead of answering from the cache under the home folder; no X-PAYMENT header sent, so the facilitator was never contacted",
+    "transcript_form": "status line, response headers in the order returned, a blank line, then the body exactly as returned, joined with newline characters",
+    "note": "Replayed source failure: the query is valid, the same sample shape as the endpoint's 200 capture, and the recorded proxy config makes the source fetch fail at transport; the 502 below is the server's own answer, captured verbatim. The descriptor and the payment gate are not affected by the proxy config."
+  },
+  "meta-502.http": {
+    "url": "http://127.0.0.1:8765/meta?url=https://example.com/",
+    "retrieved_utc": "2026-10-24T09:27:53Z",
+    "sha256": "29098d1685a2f598f038e36aaf1dd2728d7302c075cefba58d081df660bb725b",
+    "captured_by": "H6, with tools/api_smoke.py fetch(), from the local gated server: python3 server.py at main a92012c (api.payment_gate:app), PORT=8765, for issue #235.",
+    "server_config": "PAYOUT_WALLET_ADDRESS=0x1111111111111111111111111111111111111111, a SYNTHETIC placeholder address chosen for the capture, not any real wallet; EDGAR_CONTACT set to a labelled test contact (Tiny Ledger Api Smoke smoke@example.com), which /formd checks before fetching, so without it the server answers 503 and no 502 can be captured; HTTP_PROXY, HTTPS_PROXY, http_proxy and https_proxy all set to http://127.0.0.1:9, a closed local port, so every source fetch fails at transport; TINY_LEDGER_CACHE pointed at an empty folder so /faa attempts its archive download instead of answering from the cache under the home folder; no X-PAYMENT header sent, so the facilitator was never contacted",
+    "transcript_form": "status line, response headers in the order returned, a blank line, then the body exactly as returned, joined with newline characters",
+    "note": "Replayed source failure: the query is valid, the same sample shape as the endpoint's 200 capture, and the recorded proxy config makes the source fetch fail at transport; the 502 below is the server's own answer, captured verbatim. The descriptor and the payment gate are not affected by the proxy config."
+  },
+  "nonprofit-502.http": {
+    "url": "http://127.0.0.1:8765/nonprofit?name=Habitat%20for%20Humanity",
+    "retrieved_utc": "2026-10-24T09:27:53Z",
+    "sha256": "241665dc98c55f53b6c15aadf4772c5a614d182930bfad4c7b97a604f065af55",
+    "captured_by": "H6, with tools/api_smoke.py fetch(), from the local gated server: python3 server.py at main a92012c (api.payment_gate:app), PORT=8765, for issue #235.",
+    "server_config": "PAYOUT_WALLET_ADDRESS=0x1111111111111111111111111111111111111111, a SYNTHETIC placeholder address chosen for the capture, not any real wallet; EDGAR_CONTACT set to a labelled test contact (Tiny Ledger Api Smoke smoke@example.com), which /formd checks before fetching, so without it the server answers 503 and no 502 can be captured; HTTP_PROXY, HTTPS_PROXY, http_proxy and https_proxy all set to http://127.0.0.1:9, a closed local port, so every source fetch fails at transport; TINY_LEDGER_CACHE pointed at an empty folder so /faa attempts its archive download instead of answering from the cache under the home folder; no X-PAYMENT header sent, so the facilitator was never contacted",
+    "transcript_form": "status line, response headers in the order returned, a blank line, then the body exactly as returned, joined with newline characters",
+    "note": "Replayed source failure: the query is valid, the same sample shape as the endpoint's 200 capture, and the recorded proxy config makes the source fetch fail at transport; the 502 below is the server's own answer, captured verbatim. The descriptor and the payment gate are not affected by the proxy config."
+  },
+  "pagespeed-502.http": {
+    "url": "http://127.0.0.1:8765/pagespeed?url=https://example.com/",
+    "retrieved_utc": "2026-10-24T09:27:53Z",
+    "sha256": "28af817ee5bd48281545a5609af5e255c33563d5170db7190634f21423d64049",
+    "captured_by": "H6, with tools/api_smoke.py fetch(), from the local gated server: python3 server.py at main a92012c (api.payment_gate:app), PORT=8765, for issue #235.",
+    "server_config": "PAYOUT_WALLET_ADDRESS=0x1111111111111111111111111111111111111111, a SYNTHETIC placeholder address chosen for the capture, not any real wallet; EDGAR_CONTACT set to a labelled test contact (Tiny Ledger Api Smoke smoke@example.com), which /formd checks before fetching, so without it the server answers 503 and no 502 can be captured; HTTP_PROXY, HTTPS_PROXY, http_proxy and https_proxy all set to http://127.0.0.1:9, a closed local port, so every source fetch fails at transport; TINY_LEDGER_CACHE pointed at an empty folder so /faa attempts its archive download instead of answering from the cache under the home folder; no X-PAYMENT header sent, so the facilitator was never contacted",
+    "transcript_form": "status line, response headers in the order returned, a blank line, then the body exactly as returned, joined with newline characters",
+    "note": "Replayed source failure: the query is valid, the same sample shape as the endpoint's 200 capture, and the recorded proxy config makes the source fetch fail at transport; the 502 below is the server's own answer, captured verbatim. The descriptor and the payment gate are not affected by the proxy config."
+  },
+  "safety-502.http": {
+    "url": "http://127.0.0.1:8765/safety?make=Toyota&model=Camry&year=2020",
+    "retrieved_utc": "2026-10-24T09:27:53Z",
+    "sha256": "28af817ee5bd48281545a5609af5e255c33563d5170db7190634f21423d64049",
+    "captured_by": "H6, with tools/api_smoke.py fetch(), from the local gated server: python3 server.py at main a92012c (api.payment_gate:app), PORT=8765, for issue #235.",
+    "server_config": "PAYOUT_WALLET_ADDRESS=0x1111111111111111111111111111111111111111, a SYNTHETIC placeholder address chosen for the capture, not any real wallet; EDGAR_CONTACT set to a labelled test contact (Tiny Ledger Api Smoke smoke@example.com), which /formd checks before fetching, so without it the server answers 503 and no 502 can be captured; HTTP_PROXY, HTTPS_PROXY, http_proxy and https_proxy all set to http://127.0.0.1:9, a closed local port, so every source fetch fails at transport; TINY_LEDGER_CACHE pointed at an empty folder so /faa attempts its archive download instead of answering from the cache under the home folder; no X-PAYMENT header sent, so the facilitator was never contacted",
+    "transcript_form": "status line, response headers in the order returned, a blank line, then the body exactly as returned, joined with newline characters",
+    "note": "Replayed source failure: the query is valid, the same sample shape as the endpoint's 200 capture, and the recorded proxy config makes the source fetch fail at transport; the 502 below is the server's own answer, captured verbatim. The descriptor and the payment gate are not affected by the proxy config."
+  },
+  "trials-502.http": {
+    "url": "http://127.0.0.1:8765/trials?term=Zolgensma&limit=1",
+    "retrieved_utc": "2026-10-24T09:27:53Z",
+    "sha256": "28af817ee5bd48281545a5609af5e255c33563d5170db7190634f21423d64049",
+    "captured_by": "H6, with tools/api_smoke.py fetch(), from the local gated server: python3 server.py at main a92012c (api.payment_gate:app), PORT=8765, for issue #235.",
+    "server_config": "PAYOUT_WALLET_ADDRESS=0x1111111111111111111111111111111111111111, a SYNTHETIC placeholder address chosen for the capture, not any real wallet; EDGAR_CONTACT set to a labelled test contact (Tiny Ledger Api Smoke smoke@example.com), which /formd checks before fetching, so without it the server answers 503 and no 502 can be captured; HTTP_PROXY, HTTPS_PROXY, http_proxy and https_proxy all set to http://127.0.0.1:9, a closed local port, so every source fetch fails at transport; TINY_LEDGER_CACHE pointed at an empty folder so /faa attempts its archive download instead of answering from the cache under the home folder; no X-PAYMENT header sent, so the facilitator was never contacted",
+    "transcript_form": "status line, response headers in the order returned, a blank line, then the body exactly as returned, joined with newline characters",
+    "note": "Replayed source failure: the query is valid, the same sample shape as the endpoint's 200 capture, and the recorded proxy config makes the source fetch fail at transport; the 502 below is the server's own answer, captured verbatim. The descriptor and the payment gate are not affected by the proxy config."
+  },
+  "vin-502.http": {
+    "url": "http://127.0.0.1:8765/vin?vin=1HGCM82633A004352",
+    "retrieved_utc": "2026-10-24T09:27:53Z",
+    "sha256": "28af817ee5bd48281545a5609af5e255c33563d5170db7190634f21423d64049",
+    "captured_by": "H6, with tools/api_smoke.py fetch(), from the local gated server: python3 server.py at main a92012c (api.payment_gate:app), PORT=8765, for issue #235.",
+    "server_config": "PAYOUT_WALLET_ADDRESS=0x1111111111111111111111111111111111111111, a SYNTHETIC placeholder address chosen for the capture, not any real wallet; EDGAR_CONTACT set to a labelled test contact (Tiny Ledger Api Smoke smoke@example.com), which /formd checks before fetching, so without it the server answers 503 and no 502 can be captured; HTTP_PROXY, HTTPS_PROXY, http_proxy and https_proxy all set to http://127.0.0.1:9, a closed local port, so every source fetch fails at transport; TINY_LEDGER_CACHE pointed at an empty folder so /faa attempts its archive download instead of answering from the cache under the home folder; no X-PAYMENT header sent, so the facilitator was never contacted",
+    "transcript_form": "status line, response headers in the order returned, a blank line, then the body exactly as returned, joined with newline characters",
+    "note": "Replayed source failure: the query is valid, the same sample shape as the endpoint's 200 capture, and the recorded proxy config makes the source fetch fail at transport; the 502 below is the server's own answer, captured verbatim. The descriptor and the payment gate are not affected by the proxy config."
   }
 }

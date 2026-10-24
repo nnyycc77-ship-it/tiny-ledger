@@ -41,6 +41,15 @@ Shapes asserted:
    with the reason, and a closing accounting section counts every
    GET endpoint exactly once: captured, or reasoned. An endpoint in
    neither table fails the run and is named.
+6. The source failure (502) shape of every wrapped endpoint (issue
+   #235): a valid query whose source fetch fails is answered 502,
+   with a plain text body naming the failure and no report served.
+   The captures are replays: the local server was run with its
+   proxy settings pointed at a closed local port, so every source
+   fetch failed at transport and the server's own 502 answer was
+   captured verbatim; each provenance entry records that config.
+   Endpoints with no 502 shape are listed in NO_502_CAPTURE with
+   the reason, under the same exactly once accounting.
 
 Read only. The tool sends GET requests and never an X-PAYMENT header, so
 it can never pay for a call; the 402 check depends on that.
@@ -144,6 +153,42 @@ NO_400_CAPTURE = {
                 "captured in this pattern"),
 }
 
+# Offline 502 coverage (issue #235): one replayed 502 transcript per
+# wrapped endpoint above. The capture server ran with its proxy
+# settings pointed at a closed local port, so the valid sample query's
+# source fetch failed at transport and the endpoint answered its own
+# 502; each provenance entry records that config. /faa's capture also
+# pointed the tool cache at an empty folder, so it attempted its
+# archive download instead of answering from its home folder cache.
+SOURCE_FAILURE_FIXTURES = {
+    "/app": "app-502.http",
+    "/awards": "awards-502.http",
+    "/carrier": "carrier-502.http",
+    "/csl": "csl-502.http",
+    "/drug": "drug-502.http",
+    "/epa": "epa-502.http",
+    "/faa": "faa-502.http",
+    "/formd": "formd-502.http",
+    "/fx": "fx-502.http",
+    "/links": "links-502.http",
+    "/litigation": "litigation-502.http",
+    "/meta": "meta-502.http",
+    "/nonprofit": "nonprofit-502.http",
+    "/pagespeed": "pagespeed-502.http",
+    "/safety": "safety-502.http",
+    "/trials": "trials-502.http",
+    "/vin": "vin-502.http",
+}
+
+# GET endpoints with no 502 shape to capture, and why. Counted in the
+# accounting section, never asserted from a capture that does not exist.
+NO_502_CAPTURE = {
+    "/": "the descriptor answers from local state and fetches no source, so it has no 502 shape",
+    "/recall": ("the payment gate answers 402 to this tool's unpaid requests before any "
+                "source fetch, and the smoke never pays, so its 502 shape cannot be "
+                "captured in this pattern"),
+}
+
 
 class SmokeError(Exception):
     """The checks could not run. Never reported as a pass or a fail."""
@@ -236,6 +281,20 @@ def offline_captures(fixtures=FIXTURES):
             raise SmokeError("%s does not match its recorded sha256" % where)
         bad_queries[path] = parse_transcript(data.decode("utf-8"), entry["url"], entry["retrieved_utc"])
     out["bad_queries"] = bad_queries
+    source_failures = {}
+    for path, name in SOURCE_FAILURE_FIXTURES.items():
+        where = "fixture %s (endpoint %s source failure)" % (name, path)
+        entry = provenance.get(name)
+        if not entry:
+            raise SmokeError("no provenance for %s" % where)
+        try:
+            data = (fixtures / name).read_bytes()
+        except OSError as err:
+            raise SmokeError("cannot read %s: %s" % (where, err))
+        if hashlib.sha256(data).hexdigest() != entry.get("sha256"):
+            raise SmokeError("%s does not match its recorded sha256" % where)
+        source_failures[path] = parse_transcript(data.decode("utf-8"), entry["url"], entry["retrieved_utc"])
+    out["source_failures"] = source_failures
     out["coverage_paths"] = repo_openapi_get_paths()
     return out
 
@@ -376,6 +435,39 @@ def check_bad_query_accounting(captures):
     return lines
 
 
+def check_source_failure(capture, path):
+    """The 502 shape: a plain text body naming the failed source
+    request, no report. Fetchers phrase the failure in their own
+    words (fetch failed, request to ... failed, source failure), so
+    the body assertion matches the word they all share."""
+    content_type = next((h for h in capture.headers if h.lower().startswith("content-type:")), "")
+    return [
+        ("GET %s with its source failing answers 502" % path, capture.status == 502),
+        ("Content-Type is text/plain", "text/plain" in content_type),
+        ("body names the failure (mentions the failed fetch)",
+         "fail" in capture.body.lower()),
+        ("no report served (body is not a Markdown report)", not capture.body.startswith("# ")),
+    ]
+
+
+def check_source_failure_accounting(captures):
+    """One line per GET endpoint in the repo's api/openapi.json: its 502
+    shape is either captured in SOURCE_FAILURE_FIXTURES or listed in
+    NO_502_CAPTURE with the reason. An endpoint in both or neither
+    fails here and is named."""
+    lines = []
+    for path in captures.get("coverage_paths", []):
+        captured = path in captures.get("source_failures", {})
+        reasoned = path in NO_502_CAPTURE
+        if captured and not reasoned:
+            lines.append(("GET %s 502 shape captured in %s" % (path, SOURCE_FAILURE_FIXTURES[path]), True))
+        elif reasoned and not captured:
+            lines.append(("GET %s 502 shape not capturable offline: %s" % (path, NO_502_CAPTURE[path]), True))
+        else:
+            lines.append(("GET %s 502 shape is not accounted for exactly once" % path, False))
+    return lines
+
+
 def check_coverage(captures):
     """One line per GET endpoint in the repo's api/openapi.json: covered
     when the run checked it (descriptor, payment, or an endpoint
@@ -434,6 +526,16 @@ def run_checks(captures, mode):
             number += 1
         parts.append(("%d. Bad query (400) accounting" % number, captures["openapi"],
                       check_bad_query_accounting(captures)))
+        number += 1
+        for path in SOURCE_FAILURE_FIXTURES:
+            capture = captures.get("source_failures", {}).get(path)
+            if capture is None:
+                continue
+            parts.append(("%d. Endpoint GET %s source failure (502)" % (number, path), capture,
+                          check_source_failure(capture, path)))
+            number += 1
+        parts.append(("%d. Source failure (502) accounting" % number, captures["openapi"],
+                      check_source_failure_accounting(captures)))
         number += 1
         parts.append(("%d. Endpoint coverage" % number, captures["openapi"],
                       check_coverage(captures)))
