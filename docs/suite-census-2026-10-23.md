@@ -1,27 +1,27 @@
-# Offline suite census, 2026-10-24 (seventh pass)
+# Offline suite census, 2026-10-24 (eighth pass)
 
 The census for issue
-[#286](https://github.com/nnyycc77-ship-it/tiny-ledger/issues/286). It
+[#296](https://github.com/nnyycc77-ship-it/tiny-ledger/issues/296). It
 refreshes the censuses filed under issues
 [#112](https://github.com/nnyycc77-ship-it/tiny-ledger/issues/112),
 [#200](https://github.com/nnyycc77-ship-it/tiny-ledger/issues/200),
 [#236](https://github.com/nnyycc77-ship-it/tiny-ledger/issues/236),
 [#247](https://github.com/nnyycc77-ship-it/tiny-ledger/issues/247),
-[#259](https://github.com/nnyycc77-ship-it/tiny-ledger/issues/259) and
-[#269](https://github.com/nnyycc77-ship-it/tiny-ledger/issues/269). Every
+[#259](https://github.com/nnyycc77-ship-it/tiny-ledger/issues/259),
+[#269](https://github.com/nnyycc77-ship-it/tiny-ledger/issues/269) and
+[#286](https://github.com/nnyycc77-ship-it/tiny-ledger/issues/286). Every
 offline suite in the repo was run in one pass against merged main.
 
-The #269 census was pinned to e5035f3. Eight PRs merged after it (#276,
-#273, #274, #275, #281, #282, #283, #284). This census is pinned to
-96a347f, the commit the issue names, which was also merged main when the
-run was taken. This file replaces the #269 census in place, as each census
-replaced the one before. The numbers below are the counts the runs
-returned.
+The #286 census was pinned to 96a347f. Four PRs merged after it (#290,
+#291, #292, #293). This census is pinned to 2b86c90, the commit the issue
+names, which was also merged main when the run was taken. This file
+replaces the #286 census in place, as each census replaced the one before.
+The numbers below are the counts the runs returned.
 
-- **Main commit:** `96a347f8b26dde768d020fcf1c2d65264e1a5fae` (96a347f,
-  "Merge pull request #284 from nnyycc77-ship-it/h8-census-refresh-280").
+- **Main commit:** `2b86c90199ede1fbf3b31a0d39d6f9a4d3293e65` (2b86c90,
+  "Merge pull request #293 from nnyycc77-ship-it/h4-suite-census-5").
 - **Taken:** 2026-10-24, by H4, on a clean detached checkout of that
-  commit. Runs started at 11:12 UTC and finished by 11:17 UTC.
+  commit. Runs started at 11:34 UTC and finished by 11:40 UTC.
 - **Interpreters:** each suite ran first on the interpreter its workflow
   pins:
   - python3.12 for the `test` workflow's two suites;
@@ -157,29 +157,17 @@ the exit code:
   1165 + 94 + 9 = 1268. The skips are suite 1's 7, which include the
   skips of suites 4 and 11. So 1268 − 7 = 1261 passed.
 
-## Changes since the #269 census
+## Changes since the #286 census
 
-- **Repo total:** grew from 1263 to 1268 unique tests (+5).
-- **Suite 2 (api):** grew from 89 to 94 (+5). The five tests are a new
-  module, counted from the suite 2 logs of both censuses:
-
-  | Module | Tests at e5035f3 | Tests at 96a347f | Change |
-  | --- | --- | --- | --- |
-  | `test_openapi_alignment` (new, PR #276) | 0 | 5 | +5 |
-
-  All 94 api tests carry `ok` on their own line.
-- **Suite 1:** unchanged at 1165 (888 own plus 277 shim). Grouped by
-  module, its log matches the #269 census log exactly. The one test
-  module under `tools/tests` that changed between the two commits,
-  `test_hosted_probe_drift`, changed only in its docstring (a refreshed
-  pin note) and still has 8 tests.
-- **A correction to the #269 report:** its PR and DONE comment said that
-  #275 added tests, naming `api/test_openapi_alignment.py` and additions
-  to `test_hosted_probe_drift`. In fact `test_openapi_alignment` came with
-  #276, which merged before #275, and the `test_hosted_probe_drift` change
-  added no tests. The census file itself made neither claim.
-- **Suites 3 to 12:** unchanged. Nothing changed under `near-agent`,
-  `agents`, `app` or `test`.
+- **No count moved.** The repo total stays at 1268 unique tests (1261
+  passed, 7 skipped). Suite 1 stays at 1165 (888 own plus 277 shim), and
+  suite 2 at 94. Grouped by module, both logs match the #286 census logs
+  exactly.
+- **What changed in the tree.** Between the two commits, the only test
+  file that changed is `tools/tests/test_hosted_probe_drift.py`. Its
+  docstring's pin note was refreshed, and it still has 8 tests. Nothing
+  changed under `api`, `near-agent`, `agents`, `app` or `test`.
+- **Suites 3 to 12:** unchanged.
 - **Result words:** the 41 suite 1 lines without a result word on the same
   line are the same 41 tests as before.
 - **Skips:** unchanged at 7, the same seven tests with the same reasons.
@@ -203,14 +191,14 @@ is set. The skip reasons below are copied from the suite 1 verbose log.
 
 ## CI on this commit
 
-**The `test` workflow** ran on 96a347f (run 40088671423, push). All three
+**The `test` workflow** ran on 2b86c90 (run 40089709124, push). All three
 of its jobs ended in success:
-- `delivery-tool-tests` (job 120856683629);
-- `forge-test` (job 120856683560);
-- `proof-page-tests` (job 120856683316).
+- `delivery-tool-tests` (job 120859717228);
+- `forge-test` (job 120859717548);
+- `proof-page-tests` (job 120859717377).
 
-**The `USAspending fetcher tests` workflow** (run 40088671309, job
-120856682963) ended in success as well.
+**The `USAspending fetcher tests` workflow** (run 40089709131, job
+120859717322) ended in success as well.
 
 **One limit, stated plainly:** the job log download redirects to a
 storage host that this environment's proxy refuses (`CONNECT tunnel
@@ -225,8 +213,8 @@ binary is not installed in this environment. The full log of the run:
 
 ```
 $ forge test -vvv
-# started 2026-10-24T11:16:13Z at 96a347f8b26dde768d020fcf1c2d65264e1a5fae
-/tmp/claude-0/-home-user-tiny-ledger/f93df76c-ca5d-58a0-b5ec-8e06d29d5672/scratchpad/census8/run.sh: line 4: forge: command not found
+# started 2026-10-24T11:39:02Z at 2b86c90199ede1fbf3b31a0d39d6f9a4d3293e65
+/tmp/claude-0/-home-user-tiny-ledger/f93df76c-ca5d-58a0-b5ec-8e06d29d5672/scratchpad/census9/run.sh: line 4: forge: command not found
 # exit 127
 ```
 
@@ -234,7 +222,7 @@ No install was attempted, because this is a docs only task. The CI
 evidence stands in for the local run.
 
 **CI result on the same commit.** The `forge-test` job ran the suite on
-96a347f (job 120856683560 in run 40088671423) and completed with
+2b86c90 (job 120859717548 in run 40089709124) and completed with
 success. `test/AgentTab.t.sol` declares 26 `function test` entries,
 matching the suite size every earlier census recorded. This census did
 not observe the job's log itself (see the limit under CI on this commit),
