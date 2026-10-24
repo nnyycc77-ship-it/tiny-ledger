@@ -1,0 +1,17 @@
+HTTP/1.1 200 OK
+Content-Type: text/html; charset=utf-8
+
+<!-- SYNTHETIC PAGE: written for the broken_link_check tests (issue #164). This page was never fetched from its stated URL. Every link target below is real, and each target's response is a real capture in this folder. -->
+<!doctype html>
+<html>
+<head><title>Synthetic page with a dead link</title></head>
+<body>
+<p><a href="https://example.com/">Example Domain, live</a></p>
+<p><a href="https://www.iana.org/domains/example">IANA example domains, redirects</a></p>
+<p><a href="https://example.com/no-such-page-broken-link-check">A dead link</a></p>
+<p><a href="no-such-page-broken-link-check">The same dead link, written relative</a></p>
+<p><a href="https://example.com/">Example Domain again, a duplicate</a></p>
+<p><a href="mailto:someone@example.com">Mail, not an HTTP link</a></p>
+<p><a href="#top">Back to top, a same page anchor</a></p>
+</body>
+</html>

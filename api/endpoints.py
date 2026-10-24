@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """The remaining fetchers as paid API endpoints (issue #65).
 
-Eighteen GET endpoints beside GET /recall, each wrapping one merged fetcher in
+Nineteen GET endpoints beside GET /recall, each wrapping one merged fetcher in
 tools/ as library code and returning that fetcher's own rendered Markdown
 in the delivery format from AGENT-BRIEF.md: the claim lines, the exact
 query, the UTC retrieval time, the source link, and the complete raw
@@ -27,6 +27,7 @@ nothing else to the fetchers' output.
     /epa         tools/epa_screen.py           name, state (city, registry_id optional)
     /oig         tools/oig_screen.py           name
     /trials      tools/clinical_trial_check.py term (limit optional)
+    /links       tools/broken_link_check.py    url
 
 Each endpoint takes the fetcher's own command line inputs as query
 parameters under the same names (hyphens become underscores), validates
@@ -61,6 +62,7 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from tools import app_lookup_check as al  # noqa: E402
+from tools import broken_link_check as bl  # noqa: E402
 from tools import clinical_trial_check as ct  # noqa: E402
 from tools import courtlistener_recap as cl  # noqa: E402
 from tools import domain_trust_check as dt  # noqa: E402
@@ -718,6 +720,21 @@ def oig_exclusions(query, env=None):
 # Registry and descriptor
 # ----------------------------------------------------------------------
 
+# ----------------------------------------------------------------------
+# /links
+# ----------------------------------------------------------------------
+
+def links(query, env=None):
+    """Broken link check for one page via tools/broken_link_check.py."""
+    try:
+        lines = bl.report_lines(_single(query, "url", ""))
+    except bl.FetchError as err:
+        raise FetchFailed(str(err))
+    except ValueError as err:
+        raise BadRequest(str(err))
+    return _text([], lines)
+
+
 ROUTES = {
     "/carrier": carrier,
     "/litigation": litigation,
@@ -738,6 +755,7 @@ ROUTES = {
     "/fda": fda_recall,
     "/epa": epa_screen,
     "/oig": oig_exclusions,
+    "/links": links,
 }
 
 DESCRIPTIONS = {
@@ -852,6 +870,12 @@ DESCRIPTIONS = {
                    "amount (optional, a positive number; the API converts it)",
                    "date (optional, YYYY-MM-DD; default latest)"],
         "sources": [fx.BASE_URL],
+    },
+    "/links": {
+        "tool": "tools/broken_link_check.py",
+        "params": ["url (the page URL, http or https)"],
+        "sources": ["https://<page url> (the page itself, and each link target on it)"],
+        "note": "Keyless. A link is dead on a final status of 400 or above; a request that fails is listed as a check failure, never as dead.",
     },
     "/safety": {
         "tool": "tools/safety_file.py",
