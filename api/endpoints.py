@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """The remaining fetchers as paid API endpoints (issue #65).
 
-Twenty-two GET endpoints beside GET /recall, each wrapping one merged fetcher in
+Twenty-four GET endpoints beside GET /recall, each wrapping one merged fetcher in
 tools/ as library code and returning that fetcher's own rendered Markdown
 in the delivery format from AGENT-BRIEF.md: the claim lines, the exact
 query, the UTC retrieval time, the source link, and the complete raw
@@ -31,6 +31,7 @@ nothing else to the fetchers' output.
     /links       tools/broken_link_check.py    url
     /insider     tools/insider_check.py        cik | issuer (max_filings optional)
     /drug        tools/fda_drug_check.py       name
+    /faa         tools/faa_lookup.py           n_number
 
 Each endpoint takes the fetcher's own command line inputs as query
 parameters under the same names (hyphens become underscores), validates
@@ -79,6 +80,7 @@ from tools import fmcsa_carrier as fc  # noqa: E402
 from tools import insider_check as ins  # noqa: E402
 from tools import github_repo_check as gh  # noqa: E402
 from tools import csl_screen as cs  # noqa: E402
+from tools import faa_lookup as faa  # noqa: E402
 from tools import meta_tag_check as mt  # noqa: E402
 from tools import oig_screen as oig  # noqa: E402
 from tools import ofac_sdn_check as ofac  # noqa: E402
@@ -797,6 +799,28 @@ def insider(query, env=None):
 
 
 # ----------------------------------------------------------------------
+# /faa
+# ----------------------------------------------------------------------
+
+def faa_lookup(query, env=None):
+    """FAA aircraft registry lookup by N number via tools/faa_lookup.py."""
+    try:
+        display, _ = faa.check_n_number(_single(query, "n_number", ""))
+    except ValueError as err:
+        raise BadRequest(str(err))
+    try:
+        lines = faa.run(display)
+    except faa.SourceFailed as err:
+        raise FetchFailed("source failure, no report emitted: %s" % err)
+    head = _head("Aircraft registration: %s" % display,
+                 "Observation only: this report records what the FAA releasable aircraft database download, "
+                 "as retrieved at the time stated below, holds for this N number; the registration is a public "
+                 "record shown as the record states it.",
+                 "tools/faa_lookup.py")
+    return _text(head, lines)
+
+
+# ----------------------------------------------------------------------
 # Registry and descriptor
 # ----------------------------------------------------------------------
 
@@ -839,6 +863,7 @@ ROUTES = {
     "/links": links,
     "/insider": insider,
     "/drug": drug,
+    "/faa": faa_lookup,
 }
 
 DESCRIPTIONS = {
@@ -996,6 +1021,14 @@ DESCRIPTIONS = {
                     epa.BASE_URL + "get_qid?output=JSON&qid=<QueryID>"],
         "note": "Any non-200 answer or an Error in Results is a source failure (502, no report); QueryRows 0 is "
                 "an empty result, never a finding that a facility is free of violations.",
+    },
+    "/faa": {
+        "tool": "tools/faa_lookup.py",
+        "params": ["n_number (the N number, e.g. N100ZT)"],
+        "sources": [faa.ARCHIVE_URL],
+        "note": "Answers from the FAA archive downloaded at most once per UTC day into the server's cache; every "
+                "reply states the archive Last-Modified. A non-200 answer, a redirect, or an archive not in the "
+                "captured shape is a source failure (502, no report), never a no match.",
     },
 }
 

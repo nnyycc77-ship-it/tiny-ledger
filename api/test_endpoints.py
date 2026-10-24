@@ -34,6 +34,7 @@ from tools import domain_trust_check as dt  # noqa: E402
 from tools import edgar_formd as ef  # noqa: E402
 from tools import epa_screen as epa  # noqa: E402
 from tools import exchange_rate_check as fx  # noqa: E402
+from tools import faa_lookup as faa  # noqa: E402
 from tools import fda_drug_check as fd  # noqa: E402
 from tools import fmcsa_carrier as fc  # noqa: E402
 from tools import pagespeed_snapshot as ps  # noqa: E402
@@ -61,9 +62,9 @@ class RoutingTests(unittest.TestCase):
     def test_descriptor_lists_every_endpoint_with_tool_params_and_sources(self):
         doc = recall_api.descriptor(WALLET)
         self.assertEqual(sorted(doc["endpoints"]),
-                         ["/app", "/awards", "/carrier", "/csl", "/domain", "/drug", "/epa", "/fda", "/flood", "/formd", "/fx", "/github",
-                          "/insider", "/links", "/litigation", "/meta", "/nonprofit", "/ofac", "/oig", "/pagespeed", "/recall",
-                          "/safety", "/trials", "/vin"])
+                         ["/app", "/awards", "/carrier", "/csl", "/domain", "/drug", "/epa", "/faa", "/fda",
+                          "/flood", "/formd", "/fx", "/github", "/insider", "/links", "/litigation", "/meta",
+                          "/nonprofit", "/ofac", "/oig", "/pagespeed", "/recall", "/safety", "/trials", "/vin"])
         for path, entry in doc["endpoints"].items():
             self.assertEqual(entry["method"], "GET", path)
             self.assertTrue(entry["tool"].startswith("tools/"), path)
@@ -102,6 +103,7 @@ class RoutingTests(unittest.TestCase):
                      "name=BAYTOWN+OLEFINS&state=TX&registry_id=abc"],
             "/links": ["", "url=notaurl", "url=ftp://example.com/", "url=https://a.example/&url=https://b.example/"],
             "/drug": ["", "name=", "name=Lipitor&name=Tylenol", 'name=say%20"cheese"'],
+            "/faa": ["", "n_number=N", "n_number=N10-0Z", "n_number=N1234567", "n_number=N1&n_number=N2"],
         }
         patches = [patch.object(mod, "fetch", side_effect=AssertionError("no fetch expected"))
                    for mod in (fc, cl, ua, pp, ps, ef, vd, fx, sf, epa, bl, fd)]
@@ -109,6 +111,7 @@ class RoutingTests(unittest.TestCase):
                     for name in ("fetch_doh", "fetch_site")]
         patches.append(patch.object(al, "fetch", side_effect=AssertionError("no fetch expected")))
         patches.append(patch.object(ct, "fetch", side_effect=AssertionError("no fetch expected")))
+        patches.append(patch.object(faa, "download", side_effect=AssertionError("no fetch expected")))
         for p in patches:
             p.start()
             self.addCleanup(p.stop)
@@ -778,6 +781,42 @@ class EpaTests(unittest.TestCase):
         self.assertIn("source failure, no report emitted", text)
         self.assertIn("(Results carries an Error)", text)
         self.assertNotIn("ANSWER", text)
+
+
+# ----------------------------------------------------------------------
+# /faa
+# ----------------------------------------------------------------------
+
+class FaaTests(unittest.TestCase):
+    """The archive is assembled from the coordinator's verbatim excerpt lines
+    on issue #181 (tools/tests/fixtures/faa-registry) by the faa test
+    module's own helper, a test arrangement; it stands in for the 73 MB
+    download and is served through faa.run's fetch argument."""
+
+    def test_hit_and_failure(self):
+        import tempfile
+        import test_faa_lookup as fx_faa
+        with tempfile.TemporaryDirectory() as tmp:
+            source = fx_faa.assemble(tempfile.mkdtemp(dir=tmp))
+
+            def fetch(url, dest):
+                dest.write_bytes(source.read_bytes())
+                return fx_faa.captured_meta(dest)
+            real_run = faa.run
+            with patch.object(faa, "run", lambda n: real_run(n, folder=tmp, fetch=fetch)):
+                status, headers, text = get("/faa", "n_number=n100zt", WALLET)
+            self.assertEqual(status, "200 OK", text[:400])
+            self.assertTrue(text.startswith("# Aircraft registration: N100ZT\n"))
+            self.assertIn("- Registrant name (MASTER NAME): BANK OF UTAH TRUSTEE", text)
+            self.assertIn("archive Last-Modified Sat, 24 Oct 2026 04:58:32 GMT", text)
+
+        def failing(n):
+            raise faa.SourceFailed("https://registry.faa.gov/database/ReleasableAircraft.zip answered HTTP/1.1 403 "
+                                   "Forbidden (test)")
+        with patch.object(faa, "run", failing):
+            status, _, text = get("/faa", "n_number=N100ZT")
+        self.assertEqual(status, "502 Bad Gateway")
+        self.assertIn("source failure, no report emitted", text)
 
 
 if __name__ == "__main__":
