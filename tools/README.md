@@ -1211,14 +1211,14 @@ local server run without the contact, recorded in the
 capturable set off the document itself: every other GET endpoint is
 reasoned as declaring no 503.
 
-Coverage census (issue #258, pin refreshed for issues #270 and
-#279), taken on main 530f6dae61770cf5be9dacad6e3a7a6806c3595f, the
-merged main that includes PR #249 (the /formd 503 pass), PR #253
-(the seven routes added to `api/openapi.json` for issue #243, whose
-captures extended the 400, 502 and 503 tables in the same run) and
-PR #261 (which landed this census; the pin was last refreshed by
-PR #273). Every figure below reproduces from that tree: the GET
-denominator is the 26 paths in
+Coverage census (issue #258, pin refreshed for issues #270, #279
+and #288), taken on main 96a347f8b26dde768d020fcf1c2d65264e1a5fae,
+the merged main that includes PR #249 (the /formd 503 pass),
+PR #253 (the seven routes added to `api/openapi.json` for issue
+#243, whose captures extended the 400, 502 and 503 tables in the
+same run) and PR #261 (which landed this census; the pin was last
+refreshed by PR #282). Every figure below reproduces from that
+tree: the GET denominator is the 26 paths in
 `api/openapi.json` (`/`, `/app`, `/awards`, `/carrier`, `/csl`,
 `/domain`, `/drug`, `/epa`, `/faa`, `/fda`, `/flood`, `/formd`,
 `/fx`, `/github`, `/insider`, `/links`, `/litigation`, `/meta`,
