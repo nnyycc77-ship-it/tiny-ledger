@@ -108,6 +108,35 @@ class MatchingTests(unittest.TestCase):
         # Word order is still not rearranged after folding.
         self.assertIsNone(o.match_kind("García José", "JOSÉ GARCÍA"))
 
+    def test_normalise_punctuation_digits_and_spaces(self):
+        # Issue #264: the rest of the stated rule, beyond accent folding.
+        # Punctuation inside names becomes a space, so it splits words.
+        self.assertEqual(o.normalise("O'Brien"), "o brien")
+        self.assertEqual(o.normalise("AERO-CARIBBEAN"), "aero caribbean")
+        self.assertEqual(o.normalise("CIMEX S.A."), "cimex s a")
+        self.assertEqual(o.normalise("NAFTA 2000, S.A."), "nafta 2000 s a")
+        self.assertEqual(o.match_kind("O'Brien", "O BRIEN"), "exact")
+        # A hyphenated list name is two words under the rule: the joined
+        # spelling is not a match, the split spelling is exact.
+        self.assertIsNone(o.match_kind("Aerocaribbean", "AERO-CARIBBEAN"))
+        self.assertEqual(o.match_kind("Aero Caribbean", "AERO-CARIBBEAN"), "exact")
+        # Punctuation splits initials too: "S.A." and "SA" differ.
+        self.assertIsNone(o.match_kind("S.A.", "SA"))
+        # Digits are word characters: kept, counted, and matched whole.
+        self.assertEqual(o.normalise("TU-154"), "tu 154")
+        self.assertEqual(o.significant("TU-154"), 5)
+        self.assertEqual(o.match_kind("Tu 154", "TU-154"), "exact")
+        self.assertEqual(o.match_kind("Company 47", "COMPANY 47"), "exact")
+        self.assertEqual(o.match_kind("47", "COMPANY 47"), "contains")
+        self.assertIsNone(o.match_kind("4", "COMPANY 47"))  # a partial digit token is not a whole word
+        # Mixed case with punctuation folds together.
+        self.assertEqual(o.normalise("aBc-DeF"), "abc def")
+        # Folding and punctuation can produce adjacent separators; the
+        # normalised form collapses them to single spaces and trims.
+        self.assertEqual(o.normalise("A  -  B"), "a b")
+        self.assertEqual(o.normalise("José - Müller"), "jose muller")
+        self.assertEqual(o.normalise("—Banco—"), "banco")
+
 
 class ReportTests(unittest.TestCase):
     def test_alias_match_prints_both_lines_verbatim(self):
