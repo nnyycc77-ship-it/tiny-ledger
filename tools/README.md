@@ -1176,6 +1176,15 @@ raw transcript), and a closing coverage section counts one check per GET
 endpoint in that file. An endpoint with no fixture fails the run and is
 named; live mode keeps the original three shapes only.
 
+Offline mode also asserts the bad query shape (issue #225): a request
+naming no valid input (the bare path) is answered 400 before any source
+fetch, with a plain text body naming the problem and no report served.
+Every GET endpoint is counted exactly once in a bad query accounting
+section: captured in a `<endpoint>-400.http` fixture, or listed in the
+tool's `NO_400_CAPTURE` table with the reason it cannot be captured
+(the descriptor takes no query input; `/recall`'s 400 sits behind the
+payment gate this tool never pays through).
+
 Output is one Markdown section in the delivery format: a PASS or FAIL claim
 line per assertion, the source link, the UTC time, and the complete raw
 transcript beneath. Exit codes:

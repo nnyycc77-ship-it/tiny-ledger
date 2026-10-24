@@ -33,6 +33,14 @@ Shapes asserted:
    assertion matches the timestamp itself, not one label. A final
    coverage section then counts one check per GET endpoint in the
    document; an endpoint with no check fails the run and is named.
+5. The bad query (400) shape of every wrapped endpoint (issue #225):
+   a request naming no valid input (the bare path, no query string)
+   is answered 400 before any source fetch, with a plain text body
+   naming the problem and no report served. Endpoints whose 400
+   cannot be captured in this pattern are listed in NO_400_CAPTURE
+   with the reason, and a closing accounting section counts every
+   GET endpoint exactly once: captured, or reasoned. An endpoint in
+   neither table fails the run and is named.
 
 Read only. The tool sends GET requests and never an X-PAYMENT header, so
 it can never pay for a call; the 402 check depends on that.
@@ -98,6 +106,42 @@ ENDPOINT_FIXTURES = {
     "/safety": ("safety.http", "safety_file.py"),
     "/trials": ("trials.http", "clinical_trial_check.py"),
     "/vin": ("vin.http", "vin_decode.py"),
+}
+
+# Offline 400 coverage (issue #225): one captured 400 transcript per
+# wrapped endpoint above, taken from the bare path with no query string,
+# which every wrapped endpoint answers 400 before any source fetch (the
+# api endpoint suite proves the same cases with its fetch functions
+# patched to raise). /formd is in this table because the capture server
+# carries the operator contact it checks first; without that contact the
+# endpoint answers 503 before any 400, which its provenance entry notes.
+BAD_QUERY_FIXTURES = {
+    "/app": "app-400.http",
+    "/awards": "awards-400.http",
+    "/carrier": "carrier-400.http",
+    "/csl": "csl-400.http",
+    "/drug": "drug-400.http",
+    "/epa": "epa-400.http",
+    "/faa": "faa-400.http",
+    "/formd": "formd-400.http",
+    "/fx": "fx-400.http",
+    "/links": "links-400.http",
+    "/litigation": "litigation-400.http",
+    "/meta": "meta-400.http",
+    "/nonprofit": "nonprofit-400.http",
+    "/pagespeed": "pagespeed-400.http",
+    "/safety": "safety-400.http",
+    "/trials": "trials-400.http",
+    "/vin": "vin-400.http",
+}
+
+# GET endpoints with no capturable offline 400, and why. Counted in the
+# accounting section, never asserted from a capture that does not exist.
+NO_400_CAPTURE = {
+    "/": "the descriptor takes no query input, so it has no 400 shape",
+    "/recall": ("the payment gate answers 402 to this tool's unpaid requests before any "
+                "query validation, and the smoke never pays, so its 400 shape cannot be "
+                "captured in this pattern"),
 }
 
 
@@ -178,6 +222,20 @@ def offline_captures(fixtures=FIXTURES):
         else:
             endpoints[path] = capture
     out["endpoints"] = endpoints
+    bad_queries = {}
+    for path, name in BAD_QUERY_FIXTURES.items():
+        where = "fixture %s (endpoint %s bad query)" % (name, path)
+        entry = provenance.get(name)
+        if not entry:
+            raise SmokeError("no provenance for %s" % where)
+        try:
+            data = (fixtures / name).read_bytes()
+        except OSError as err:
+            raise SmokeError("cannot read %s: %s" % (where, err))
+        if hashlib.sha256(data).hexdigest() != entry.get("sha256"):
+            raise SmokeError("%s does not match its recorded sha256" % where)
+        bad_queries[path] = parse_transcript(data.decode("utf-8"), entry["url"], entry["retrieved_utc"])
+    out["bad_queries"] = bad_queries
     out["coverage_paths"] = repo_openapi_get_paths()
     return out
 
@@ -288,6 +346,36 @@ def check_endpoint_report(capture, path, tool):
     ]
 
 
+def check_bad_query(capture, path):
+    """The 400 shape: a plain text body naming the problem, no report."""
+    content_type = next((h for h in capture.headers if h.lower().startswith("content-type:")), "")
+    return [
+        ("GET %s with no valid input answers 400" % path, capture.status == 400),
+        ("Content-Type is text/plain", "text/plain" in content_type),
+        ("body names the problem (starts with 'Bad request: ')",
+         capture.body.startswith("Bad request: ") and len(capture.body.strip()) > len("Bad request:")),
+        ("no report served (body is not a Markdown report)", not capture.body.startswith("# ")),
+    ]
+
+
+def check_bad_query_accounting(captures):
+    """One line per GET endpoint in the repo's api/openapi.json: its 400
+    shape is either captured in BAD_QUERY_FIXTURES or listed in
+    NO_400_CAPTURE with the reason. An endpoint in both or neither
+    fails here and is named."""
+    lines = []
+    for path in captures.get("coverage_paths", []):
+        captured = path in captures.get("bad_queries", {})
+        reasoned = path in NO_400_CAPTURE
+        if captured and not reasoned:
+            lines.append(("GET %s 400 shape captured in %s" % (path, BAD_QUERY_FIXTURES[path]), True))
+        elif reasoned and not captured:
+            lines.append(("GET %s 400 shape not capturable offline: %s" % (path, NO_400_CAPTURE[path]), True))
+        else:
+            lines.append(("GET %s 400 shape is not accounted for exactly once" % path, False))
+    return lines
+
+
 def check_coverage(captures):
     """One line per GET endpoint in the repo's api/openapi.json: covered
     when the run checked it (descriptor, payment, or an endpoint
@@ -337,6 +425,16 @@ def run_checks(captures, mode):
             parts.append(("%d. Endpoint GET %s (tools/%s)" % (number, path, tool), capture,
                           check_endpoint_report(capture, path, tool)))
             number += 1
+        for path in BAD_QUERY_FIXTURES:
+            capture = captures.get("bad_queries", {}).get(path)
+            if capture is None:
+                continue
+            parts.append(("%d. Endpoint GET %s bad query (400)" % (number, path), capture,
+                          check_bad_query(capture, path)))
+            number += 1
+        parts.append(("%d. Bad query (400) accounting" % number, captures["openapi"],
+                      check_bad_query_accounting(captures)))
+        number += 1
         parts.append(("%d. Endpoint coverage" % number, captures["openapi"],
                       check_coverage(captures)))
     failed = [(title, text) for title, _, results in parts for text, ok in results if not ok]

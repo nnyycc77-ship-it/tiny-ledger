@@ -159,5 +159,158 @@
     "captured_by": "H6, with tools/api_smoke.py fetch(), from the local gated server: python3 server.py at main af3646c (api.payment_gate:app), PORT=8765, for the PR #209 fix round on issue #205 (GET /faa merged after the sixteen, in PR #195).",
     "server_config": "PAYOUT_WALLET_ADDRESS=0x1111111111111111111111111111111111111111, a SYNTHETIC placeholder address chosen for the capture, not any real wallet; EDGAR_CONTACT set to a labelled test contact (Tiny Ledger Api Smoke smoke@example.com); the endpoint answered from the FAA ReleasableAircraft archive in the server cache for that UTC day, and the report states the archive Last-Modified and its cached retrieval time; no X-PAYMENT header sent, so the facilitator was never contacted",
     "transcript_form": "status line, response headers in the order returned, a blank line, then the body exactly as returned, joined with newline characters"
+  },
+  "app-400.http": {
+    "url": "http://127.0.0.1:8765/app",
+    "retrieved_utc": "2026-10-24T09:05:21Z",
+    "sha256": "21dcfb85068dcab6161b1d5c692ac9b102f569d279ed9b651d351a7afcefd96f",
+    "captured_by": "H6, with tools/api_smoke.py fetch(), from the local gated server: python3 server.py at main b90de2e (api.payment_gate:app), PORT=8765, for issue #225.",
+    "server_config": "PAYOUT_WALLET_ADDRESS=0x1111111111111111111111111111111111111111, a SYNTHETIC placeholder address chosen for the capture, not any real wallet; EDGAR_CONTACT set to a labelled test contact (Tiny Ledger Api Smoke smoke@example.com): /formd checks the contact before its query, so without it the server answers 503 and the 400 shape cannot be captured; no X-PAYMENT header sent, so the facilitator was never contacted",
+    "transcript_form": "status line, response headers in the order returned, a blank line, then the body exactly as returned, joined with newline characters",
+    "note": "The request names no valid input (the bare endpoint path, no query string), so the server answers 400 before any source fetch; the api endpoint suite proves the same cases return 400 with its fetch functions patched to raise."
+  },
+  "awards-400.http": {
+    "url": "http://127.0.0.1:8765/awards",
+    "retrieved_utc": "2026-10-24T09:05:22Z",
+    "sha256": "2c9f5df07f3e55b688d926d1259d402ac11f34a8331e8b7bcddddd7ba1f95f4e",
+    "captured_by": "H6, with tools/api_smoke.py fetch(), from the local gated server: python3 server.py at main b90de2e (api.payment_gate:app), PORT=8765, for issue #225.",
+    "server_config": "PAYOUT_WALLET_ADDRESS=0x1111111111111111111111111111111111111111, a SYNTHETIC placeholder address chosen for the capture, not any real wallet; EDGAR_CONTACT set to a labelled test contact (Tiny Ledger Api Smoke smoke@example.com): /formd checks the contact before its query, so without it the server answers 503 and the 400 shape cannot be captured; no X-PAYMENT header sent, so the facilitator was never contacted",
+    "transcript_form": "status line, response headers in the order returned, a blank line, then the body exactly as returned, joined with newline characters",
+    "note": "The request names no valid input (the bare endpoint path, no query string), so the server answers 400 before any source fetch; the api endpoint suite proves the same cases return 400 with its fetch functions patched to raise."
+  },
+  "carrier-400.http": {
+    "url": "http://127.0.0.1:8765/carrier",
+    "retrieved_utc": "2026-10-24T09:05:22Z",
+    "sha256": "f019d2cb187d0b8ff8f09a3a410e2671a9e66ee51daf68afed10fb9139377eee",
+    "captured_by": "H6, with tools/api_smoke.py fetch(), from the local gated server: python3 server.py at main b90de2e (api.payment_gate:app), PORT=8765, for issue #225.",
+    "server_config": "PAYOUT_WALLET_ADDRESS=0x1111111111111111111111111111111111111111, a SYNTHETIC placeholder address chosen for the capture, not any real wallet; EDGAR_CONTACT set to a labelled test contact (Tiny Ledger Api Smoke smoke@example.com): /formd checks the contact before its query, so without it the server answers 503 and the 400 shape cannot be captured; no X-PAYMENT header sent, so the facilitator was never contacted",
+    "transcript_form": "status line, response headers in the order returned, a blank line, then the body exactly as returned, joined with newline characters",
+    "note": "The request names no valid input (the bare endpoint path, no query string), so the server answers 400 before any source fetch; the api endpoint suite proves the same cases return 400 with its fetch functions patched to raise."
+  },
+  "csl-400.http": {
+    "url": "http://127.0.0.1:8765/csl",
+    "retrieved_utc": "2026-10-24T09:05:22Z",
+    "sha256": "e62fe8c0af1c32afc698be9585a8f3d53bb8dfca866265f6bf9d745cfefa6037",
+    "captured_by": "H6, with tools/api_smoke.py fetch(), from the local gated server: python3 server.py at main b90de2e (api.payment_gate:app), PORT=8765, for issue #225.",
+    "server_config": "PAYOUT_WALLET_ADDRESS=0x1111111111111111111111111111111111111111, a SYNTHETIC placeholder address chosen for the capture, not any real wallet; EDGAR_CONTACT set to a labelled test contact (Tiny Ledger Api Smoke smoke@example.com): /formd checks the contact before its query, so without it the server answers 503 and the 400 shape cannot be captured; no X-PAYMENT header sent, so the facilitator was never contacted",
+    "transcript_form": "status line, response headers in the order returned, a blank line, then the body exactly as returned, joined with newline characters",
+    "note": "The request names no valid input (the bare endpoint path, no query string), so the server answers 400 before any source fetch; the api endpoint suite proves the same cases return 400 with its fetch functions patched to raise."
+  },
+  "drug-400.http": {
+    "url": "http://127.0.0.1:8765/drug",
+    "retrieved_utc": "2026-10-24T09:05:22Z",
+    "sha256": "1ca2a4d672d8300e1fcd0caced7f5f280a687330749ae9f651e473b9121da668",
+    "captured_by": "H6, with tools/api_smoke.py fetch(), from the local gated server: python3 server.py at main b90de2e (api.payment_gate:app), PORT=8765, for issue #225.",
+    "server_config": "PAYOUT_WALLET_ADDRESS=0x1111111111111111111111111111111111111111, a SYNTHETIC placeholder address chosen for the capture, not any real wallet; EDGAR_CONTACT set to a labelled test contact (Tiny Ledger Api Smoke smoke@example.com): /formd checks the contact before its query, so without it the server answers 503 and the 400 shape cannot be captured; no X-PAYMENT header sent, so the facilitator was never contacted",
+    "transcript_form": "status line, response headers in the order returned, a blank line, then the body exactly as returned, joined with newline characters",
+    "note": "The request names no valid input (the bare endpoint path, no query string), so the server answers 400 before any source fetch; the api endpoint suite proves the same cases return 400 with its fetch functions patched to raise."
+  },
+  "epa-400.http": {
+    "url": "http://127.0.0.1:8765/epa",
+    "retrieved_utc": "2026-10-24T09:05:22Z",
+    "sha256": "87671930741c0a8edeeb4240eecea35a2a00cce99deeb79d5491a143898961cb",
+    "captured_by": "H6, with tools/api_smoke.py fetch(), from the local gated server: python3 server.py at main b90de2e (api.payment_gate:app), PORT=8765, for issue #225.",
+    "server_config": "PAYOUT_WALLET_ADDRESS=0x1111111111111111111111111111111111111111, a SYNTHETIC placeholder address chosen for the capture, not any real wallet; EDGAR_CONTACT set to a labelled test contact (Tiny Ledger Api Smoke smoke@example.com): /formd checks the contact before its query, so without it the server answers 503 and the 400 shape cannot be captured; no X-PAYMENT header sent, so the facilitator was never contacted",
+    "transcript_form": "status line, response headers in the order returned, a blank line, then the body exactly as returned, joined with newline characters",
+    "note": "The request names no valid input (the bare endpoint path, no query string), so the server answers 400 before any source fetch; the api endpoint suite proves the same cases return 400 with its fetch functions patched to raise."
+  },
+  "faa-400.http": {
+    "url": "http://127.0.0.1:8765/faa",
+    "retrieved_utc": "2026-10-24T09:05:22Z",
+    "sha256": "5276636f7bc888133164e14b052ae3b5922e70f2a790133bee83e27dcd6c56d4",
+    "captured_by": "H6, with tools/api_smoke.py fetch(), from the local gated server: python3 server.py at main b90de2e (api.payment_gate:app), PORT=8765, for issue #225.",
+    "server_config": "PAYOUT_WALLET_ADDRESS=0x1111111111111111111111111111111111111111, a SYNTHETIC placeholder address chosen for the capture, not any real wallet; EDGAR_CONTACT set to a labelled test contact (Tiny Ledger Api Smoke smoke@example.com): /formd checks the contact before its query, so without it the server answers 503 and the 400 shape cannot be captured; no X-PAYMENT header sent, so the facilitator was never contacted",
+    "transcript_form": "status line, response headers in the order returned, a blank line, then the body exactly as returned, joined with newline characters",
+    "note": "The request names no valid input (the bare endpoint path, no query string), so the server answers 400 before any source fetch; the api endpoint suite proves the same cases return 400 with its fetch functions patched to raise."
+  },
+  "formd-400.http": {
+    "url": "http://127.0.0.1:8765/formd",
+    "retrieved_utc": "2026-10-24T09:05:22Z",
+    "sha256": "fff3977d5af6909dc293be868961c78a90ec04c910fc32a4d9a8ce95c3162a19",
+    "captured_by": "H6, with tools/api_smoke.py fetch(), from the local gated server: python3 server.py at main b90de2e (api.payment_gate:app), PORT=8765, for issue #225.",
+    "server_config": "PAYOUT_WALLET_ADDRESS=0x1111111111111111111111111111111111111111, a SYNTHETIC placeholder address chosen for the capture, not any real wallet; EDGAR_CONTACT set to a labelled test contact (Tiny Ledger Api Smoke smoke@example.com): /formd checks the contact before its query, so without it the server answers 503 and the 400 shape cannot be captured; no X-PAYMENT header sent, so the facilitator was never contacted",
+    "transcript_form": "status line, response headers in the order returned, a blank line, then the body exactly as returned, joined with newline characters",
+    "note": "The request names no valid input (the bare endpoint path, no query string), so the server answers 400 before any source fetch; the api endpoint suite proves the same cases return 400 with its fetch functions patched to raise."
+  },
+  "fx-400.http": {
+    "url": "http://127.0.0.1:8765/fx",
+    "retrieved_utc": "2026-10-24T09:05:22Z",
+    "sha256": "429853397bf605ce0996746b189eca316bd6458595fa26be05893ff146fb8554",
+    "captured_by": "H6, with tools/api_smoke.py fetch(), from the local gated server: python3 server.py at main b90de2e (api.payment_gate:app), PORT=8765, for issue #225.",
+    "server_config": "PAYOUT_WALLET_ADDRESS=0x1111111111111111111111111111111111111111, a SYNTHETIC placeholder address chosen for the capture, not any real wallet; EDGAR_CONTACT set to a labelled test contact (Tiny Ledger Api Smoke smoke@example.com): /formd checks the contact before its query, so without it the server answers 503 and the 400 shape cannot be captured; no X-PAYMENT header sent, so the facilitator was never contacted",
+    "transcript_form": "status line, response headers in the order returned, a blank line, then the body exactly as returned, joined with newline characters",
+    "note": "The request names no valid input (the bare endpoint path, no query string), so the server answers 400 before any source fetch; the api endpoint suite proves the same cases return 400 with its fetch functions patched to raise."
+  },
+  "links-400.http": {
+    "url": "http://127.0.0.1:8765/links",
+    "retrieved_utc": "2026-10-24T09:05:22Z",
+    "sha256": "a03145044008038402ff9f58562cbb53d52408b8ab6fa1f0043e3820237c199c",
+    "captured_by": "H6, with tools/api_smoke.py fetch(), from the local gated server: python3 server.py at main b90de2e (api.payment_gate:app), PORT=8765, for issue #225.",
+    "server_config": "PAYOUT_WALLET_ADDRESS=0x1111111111111111111111111111111111111111, a SYNTHETIC placeholder address chosen for the capture, not any real wallet; EDGAR_CONTACT set to a labelled test contact (Tiny Ledger Api Smoke smoke@example.com): /formd checks the contact before its query, so without it the server answers 503 and the 400 shape cannot be captured; no X-PAYMENT header sent, so the facilitator was never contacted",
+    "transcript_form": "status line, response headers in the order returned, a blank line, then the body exactly as returned, joined with newline characters",
+    "note": "The request names no valid input (the bare endpoint path, no query string), so the server answers 400 before any source fetch; the api endpoint suite proves the same cases return 400 with its fetch functions patched to raise."
+  },
+  "litigation-400.http": {
+    "url": "http://127.0.0.1:8765/litigation",
+    "retrieved_utc": "2026-10-24T09:05:22Z",
+    "sha256": "d6dbd36af8ce77733c6d393c052d78b9223f0f2d24fd25c55a3d1758855e5e80",
+    "captured_by": "H6, with tools/api_smoke.py fetch(), from the local gated server: python3 server.py at main b90de2e (api.payment_gate:app), PORT=8765, for issue #225.",
+    "server_config": "PAYOUT_WALLET_ADDRESS=0x1111111111111111111111111111111111111111, a SYNTHETIC placeholder address chosen for the capture, not any real wallet; EDGAR_CONTACT set to a labelled test contact (Tiny Ledger Api Smoke smoke@example.com): /formd checks the contact before its query, so without it the server answers 503 and the 400 shape cannot be captured; no X-PAYMENT header sent, so the facilitator was never contacted",
+    "transcript_form": "status line, response headers in the order returned, a blank line, then the body exactly as returned, joined with newline characters",
+    "note": "The request names no valid input (the bare endpoint path, no query string), so the server answers 400 before any source fetch; the api endpoint suite proves the same cases return 400 with its fetch functions patched to raise."
+  },
+  "meta-400.http": {
+    "url": "http://127.0.0.1:8765/meta",
+    "retrieved_utc": "2026-10-24T09:05:22Z",
+    "sha256": "4564abc9545b6d7fa8b7f07c9fcefef2d03cc7a7f67a7e054a2778b08487c2a0",
+    "captured_by": "H6, with tools/api_smoke.py fetch(), from the local gated server: python3 server.py at main b90de2e (api.payment_gate:app), PORT=8765, for issue #225.",
+    "server_config": "PAYOUT_WALLET_ADDRESS=0x1111111111111111111111111111111111111111, a SYNTHETIC placeholder address chosen for the capture, not any real wallet; EDGAR_CONTACT set to a labelled test contact (Tiny Ledger Api Smoke smoke@example.com): /formd checks the contact before its query, so without it the server answers 503 and the 400 shape cannot be captured; no X-PAYMENT header sent, so the facilitator was never contacted",
+    "transcript_form": "status line, response headers in the order returned, a blank line, then the body exactly as returned, joined with newline characters",
+    "note": "The request names no valid input (the bare endpoint path, no query string), so the server answers 400 before any source fetch; the api endpoint suite proves the same cases return 400 with its fetch functions patched to raise."
+  },
+  "nonprofit-400.http": {
+    "url": "http://127.0.0.1:8765/nonprofit",
+    "retrieved_utc": "2026-10-24T09:05:22Z",
+    "sha256": "41e9ab9a9126f7e64218b34f59a2c063bef88458dc9eb3b671e6d9350fc1b84a",
+    "captured_by": "H6, with tools/api_smoke.py fetch(), from the local gated server: python3 server.py at main b90de2e (api.payment_gate:app), PORT=8765, for issue #225.",
+    "server_config": "PAYOUT_WALLET_ADDRESS=0x1111111111111111111111111111111111111111, a SYNTHETIC placeholder address chosen for the capture, not any real wallet; EDGAR_CONTACT set to a labelled test contact (Tiny Ledger Api Smoke smoke@example.com): /formd checks the contact before its query, so without it the server answers 503 and the 400 shape cannot be captured; no X-PAYMENT header sent, so the facilitator was never contacted",
+    "transcript_form": "status line, response headers in the order returned, a blank line, then the body exactly as returned, joined with newline characters",
+    "note": "The request names no valid input (the bare endpoint path, no query string), so the server answers 400 before any source fetch; the api endpoint suite proves the same cases return 400 with its fetch functions patched to raise."
+  },
+  "pagespeed-400.http": {
+    "url": "http://127.0.0.1:8765/pagespeed",
+    "retrieved_utc": "2026-10-24T09:05:22Z",
+    "sha256": "ad94ebf6023daecdbdf16dff136ce15688933fa1e00cb33574de54154fbdd41b",
+    "captured_by": "H6, with tools/api_smoke.py fetch(), from the local gated server: python3 server.py at main b90de2e (api.payment_gate:app), PORT=8765, for issue #225.",
+    "server_config": "PAYOUT_WALLET_ADDRESS=0x1111111111111111111111111111111111111111, a SYNTHETIC placeholder address chosen for the capture, not any real wallet; EDGAR_CONTACT set to a labelled test contact (Tiny Ledger Api Smoke smoke@example.com): /formd checks the contact before its query, so without it the server answers 503 and the 400 shape cannot be captured; no X-PAYMENT header sent, so the facilitator was never contacted",
+    "transcript_form": "status line, response headers in the order returned, a blank line, then the body exactly as returned, joined with newline characters",
+    "note": "The request names no valid input (the bare endpoint path, no query string), so the server answers 400 before any source fetch; the api endpoint suite proves the same cases return 400 with its fetch functions patched to raise."
+  },
+  "safety-400.http": {
+    "url": "http://127.0.0.1:8765/safety",
+    "retrieved_utc": "2026-10-24T09:05:22Z",
+    "sha256": "438345bed3b8387fd9ccc942960b0717a78ab23fed2dd03c22c244a1e4adf996",
+    "captured_by": "H6, with tools/api_smoke.py fetch(), from the local gated server: python3 server.py at main b90de2e (api.payment_gate:app), PORT=8765, for issue #225.",
+    "server_config": "PAYOUT_WALLET_ADDRESS=0x1111111111111111111111111111111111111111, a SYNTHETIC placeholder address chosen for the capture, not any real wallet; EDGAR_CONTACT set to a labelled test contact (Tiny Ledger Api Smoke smoke@example.com): /formd checks the contact before its query, so without it the server answers 503 and the 400 shape cannot be captured; no X-PAYMENT header sent, so the facilitator was never contacted",
+    "transcript_form": "status line, response headers in the order returned, a blank line, then the body exactly as returned, joined with newline characters",
+    "note": "The request names no valid input (the bare endpoint path, no query string), so the server answers 400 before any source fetch; the api endpoint suite proves the same cases return 400 with its fetch functions patched to raise."
+  },
+  "trials-400.http": {
+    "url": "http://127.0.0.1:8765/trials",
+    "retrieved_utc": "2026-10-24T09:05:22Z",
+    "sha256": "6922d962c3e167e8a145bdd574dc5e9cae71f5b453256a8e79630c503f533799",
+    "captured_by": "H6, with tools/api_smoke.py fetch(), from the local gated server: python3 server.py at main b90de2e (api.payment_gate:app), PORT=8765, for issue #225.",
+    "server_config": "PAYOUT_WALLET_ADDRESS=0x1111111111111111111111111111111111111111, a SYNTHETIC placeholder address chosen for the capture, not any real wallet; EDGAR_CONTACT set to a labelled test contact (Tiny Ledger Api Smoke smoke@example.com): /formd checks the contact before its query, so without it the server answers 503 and the 400 shape cannot be captured; no X-PAYMENT header sent, so the facilitator was never contacted",
+    "transcript_form": "status line, response headers in the order returned, a blank line, then the body exactly as returned, joined with newline characters",
+    "note": "The request names no valid input (the bare endpoint path, no query string), so the server answers 400 before any source fetch; the api endpoint suite proves the same cases return 400 with its fetch functions patched to raise."
+  },
+  "vin-400.http": {
+    "url": "http://127.0.0.1:8765/vin",
+    "retrieved_utc": "2026-10-24T09:05:22Z",
+    "sha256": "a9668964eb6574dd76d9f5bba45eee81b72e0fbb194ac4968039f31cf0228ab9",
+    "captured_by": "H6, with tools/api_smoke.py fetch(), from the local gated server: python3 server.py at main b90de2e (api.payment_gate:app), PORT=8765, for issue #225.",
+    "server_config": "PAYOUT_WALLET_ADDRESS=0x1111111111111111111111111111111111111111, a SYNTHETIC placeholder address chosen for the capture, not any real wallet; EDGAR_CONTACT set to a labelled test contact (Tiny Ledger Api Smoke smoke@example.com): /formd checks the contact before its query, so without it the server answers 503 and the 400 shape cannot be captured; no X-PAYMENT header sent, so the facilitator was never contacted",
+    "transcript_form": "status line, response headers in the order returned, a blank line, then the body exactly as returned, joined with newline characters",
+    "note": "The request names no valid input (the bare endpoint path, no query string), so the server answers 400 before any source fetch; the api endpoint suite proves the same cases return 400 with its fetch functions patched to raise."
   }
 }
