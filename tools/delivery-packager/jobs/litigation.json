@@ -1,0 +1,12 @@
+{
+ "service": "litigation",
+ "subject": "Jabil Inc.",
+ "buyer_ask": "Screen this company for federal court cases filed in the last five years, with each case's role and status and its source.",
+ "inputs": {
+  "parties": [
+   "Jabil Inc."
+  ],
+  "filed_after": "2021-10-22",
+  "list": 10
+ }
+}

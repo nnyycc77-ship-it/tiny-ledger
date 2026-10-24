@@ -1,0 +1,35 @@
+{
+ "about": "Capture bundle for tools/delivery_packager.py --replay. Every entry points at a capture already committed in this repository; the packager checks it against its recorded SHA-256, or rebuilds it byte for byte, before serving it.",
+ "captures": [
+  {
+   "kind": "fmcsa",
+   "url": "https://data.transportation.gov/resource/az4n-8mr2.json?dot_number=90849&$select=dot_number,legal_name,dba_name,phy_city,phy_state,power_units,total_drivers,docket1prefix,docket1,docket1_status_code,safety_rating,safety_rating_date,mcs150_mileage,mcs150_mileage_year,mcs150_date,business_org_desc,carship,carrier_operation,status_code,classdef",
+   "origin": {
+    "type": "standing_watch_snapshot",
+    "file": "tools/examples/standing-watch/snapshot-run1-2026-10-23.json",
+    "entry": "carrier:90849",
+    "index": 0
+   }
+  },
+  {
+   "kind": "fmcsa",
+   "url": "https://safer.fmcsa.dot.gov/query.asp?searchtype=ANY&query_type=queryCarrierSnapshot&query_param=USDOT&query_string=90849",
+   "origin": {
+    "type": "standing_watch_snapshot",
+    "file": "tools/examples/standing-watch/snapshot-run1-2026-10-23.json",
+    "entry": "carrier:90849",
+    "index": 1
+   }
+  },
+  {
+   "kind": "fmcsa",
+   "url": "https://li-public.fmcsa.dot.gov/LIVIEW/pkg_carrquery.prc_carrlist?n_dotno=90849&s_prefix=MC&pv_vpath=LIVIEW",
+   "origin": {
+    "type": "standing_watch_snapshot",
+    "file": "tools/examples/standing-watch/snapshot-run1-2026-10-23.json",
+    "entry": "carrier:90849",
+    "index": 2
+   }
+  }
+ ]
+}

@@ -1,0 +1,80 @@
+{
+ "format": "tiny-ledger delivery package",
+ "version": 1,
+ "tool": "tools/delivery_packager.py",
+ "service": "carrier",
+ "subject": "OLD DOMINION FREIGHT LINE INC (USDOT 90849)",
+ "buyer_ask": "Vet this motor carrier by USDOT number: census record, SAFER snapshot, and licensing and insurance, each with its source.",
+ "inputs": {
+  "usdot": "90849"
+ },
+ "mode": "replay",
+ "packaged_utc": "2026-10-23T23:52:48Z",
+ "report_file": "report.md",
+ "deliverable_sha256": "17b53d3a0862a384b1e84f4fc81a489246065c746132969727529899e0dfb95d",
+ "sections": [
+  {
+   "id": "S1",
+   "title": "FMCSA Company Census File record, USDOT 90849",
+   "captures": [
+    {
+     "url": "https://data.transportation.gov/resource/az4n-8mr2.json?dot_number=90849&$select=dot_number,legal_name,dba_name,phy_city,phy_state,power_units,total_drivers,docket1prefix,docket1,docket1_status_code,safety_rating,safety_rating_date,mcs150_mileage,mcs150_mileage_year,mcs150_date,business_org_desc,carship,carrier_operation,status_code,classdef",
+     "request": null,
+     "retrieved_utc": "2026-10-23T21:57:11Z",
+     "evidence_sha256": "c56aab296b98644f67fd43008e0033e31d50db9d92d0ec0f6de3e6799c3aeb0c",
+     "origin": "replayed from tools/examples/standing-watch/snapshot-run1-2026-10-23.json, entry carrier:90849, response 0 (live run 2026-10-23T21:57:11Z; SHA-256 c56aab296b98644f67fd43008e0033e31d50db9d92d0ec0f6de3e6799c3aeb0c as recorded)"
+    }
+   ],
+   "counts": [
+    {
+     "rule": "census_records",
+     "capture_url": "https://data.transportation.gov/resource/az4n-8mr2.json?dot_number=90849&$select=dot_number,legal_name,dba_name,phy_city,phy_state,power_units,total_drivers,docket1prefix,docket1,docket1_status_code,safety_rating,safety_rating_date,mcs150_mileage,mcs150_mileage_year,mcs150_date,business_org_desc,carship,carrier_operation,status_code,classdef",
+     "label": "FMCSA Census File records returned for USDOT 90849",
+     "value": "1"
+    }
+   ]
+  },
+  {
+   "id": "S2",
+   "title": "FMCSA SAFER Company Snapshot, USDOT 90849",
+   "captures": [
+    {
+     "url": "https://safer.fmcsa.dot.gov/query.asp?searchtype=ANY&query_type=queryCarrierSnapshot&query_param=USDOT&query_string=90849",
+     "request": null,
+     "retrieved_utc": "2026-10-23T21:57:13Z",
+     "evidence_sha256": "454a31286f8752e49d76aaf5cfd9c8bc83f15d563d53b1d81e1bcf030a7e07f4",
+     "origin": "replayed from tools/examples/standing-watch/snapshot-run1-2026-10-23.json, entry carrier:90849, response 1 (live run 2026-10-23T21:57:11Z; SHA-256 454a31286f8752e49d76aaf5cfd9c8bc83f15d563d53b1d81e1bcf030a7e07f4 as recorded)"
+    }
+   ],
+   "counts": [
+    {
+     "rule": "safer_fields",
+     "capture_url": "https://safer.fmcsa.dot.gov/query.asp?searchtype=ANY&query_type=queryCarrierSnapshot&query_param=USDOT&query_string=90849",
+     "label": "SAFER labelled fields found in the page text for USDOT 90849",
+     "value": "18"
+    }
+   ]
+  },
+  {
+   "id": "S3",
+   "title": "FMCSA Licensing and Insurance, USDOT 90849",
+   "captures": [
+    {
+     "url": "https://li-public.fmcsa.dot.gov/LIVIEW/pkg_carrquery.prc_carrlist?n_dotno=90849&s_prefix=MC&pv_vpath=LIVIEW",
+     "request": null,
+     "retrieved_utc": "2026-10-23T21:57:14Z",
+     "evidence_sha256": "be1a209e446a6de71197ebffecba0e15c933a74e369f9141e7bb49b25b595ba9",
+     "origin": "replayed from tools/examples/standing-watch/snapshot-run1-2026-10-23.json, entry carrier:90849, response 2 (live run 2026-10-23T21:57:11Z; SHA-256 be1a209e446a6de71197ebffecba0e15c933a74e369f9141e7bb49b25b595ba9 as recorded)"
+    }
+   ],
+   "counts": [
+    {
+     "rule": "li_lines",
+     "capture_url": "https://li-public.fmcsa.dot.gov/LIVIEW/pkg_carrquery.prc_carrlist?n_dotno=90849&s_prefix=MC&pv_vpath=LIVIEW",
+     "label": "Licensing and Insurance record text lines found for USDOT 90849",
+     "value": "2"
+    }
+   ]
+  }
+ ]
+}

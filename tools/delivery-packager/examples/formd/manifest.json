@@ -1,0 +1,53 @@
+{
+ "format": "tiny-ledger delivery package",
+ "version": 1,
+ "tool": "tools/delivery_packager.py",
+ "service": "formd",
+ "subject": "8VC DSS III",
+ "buyer_ask": "Does this issuer have Form D filings on EDGAR? List them with the offering figures as filed.",
+ "inputs": {
+  "issuer": "8VC DSS III",
+  "max_filings": 10
+ },
+ "mode": "replay",
+ "packaged_utc": "2026-10-23T23:52:48Z",
+ "report_file": "report.md",
+ "deliverable_sha256": "22363f3b119c16971a9bca763e7078aeeab93f57a1d3fa483041f554e6414eac",
+ "sections": [
+  {
+   "id": "S1",
+   "title": "SEC EDGAR Form D filings, 8VC DSS III",
+   "captures": [
+    {
+     "url": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&company=8VC+DSS+III&type=D&output=",
+     "request": null,
+     "retrieved_utc": "2026-10-23T03:45:19Z",
+     "evidence_sha256": "e4e708d3e879f9cc9c40991cc90823e91640e8beae40272993a5a2380e425bb3",
+     "origin": "replayed from tools/tests/fixtures/edgar/lookup-one.http (SHA-256 e4e708d3e879f9cc9c40991cc90823e91640e8beae40272993a5a2380e425bb3, as recorded in its provenance.json)"
+    },
+    {
+     "url": "https://data.sec.gov/submissions/CIK0002156237.json",
+     "request": null,
+     "retrieved_utc": "2026-10-23T03:45:20Z",
+     "evidence_sha256": "694bb0ed30c5a32cc40232f0fefd8932b4bb69b67607567b9a8102df3315e81e",
+     "origin": "replayed from tools/tests/fixtures/edgar/submissions-2156237.http (SHA-256 694bb0ed30c5a32cc40232f0fefd8932b4bb69b67607567b9a8102df3315e81e, as recorded in its provenance.json)"
+    },
+    {
+     "url": "https://www.sec.gov/Archives/edgar/data/2156237/000215623726000001/primary_doc.xml",
+     "request": null,
+     "retrieved_utc": "2026-10-23T03:45:20Z",
+     "evidence_sha256": "dc2b1dcbfcd6e37b07c8108347590e24d04d9d62548e6ff56ba172e2b016c9d1",
+     "origin": "replayed from tools/tests/fixtures/edgar/formd-0002156237-26-000001.http (SHA-256 dc2b1dcbfcd6e37b07c8108347590e24d04d9d62548e6ff56ba172e2b016c9d1, as recorded in its provenance.json)"
+    }
+   ],
+   "counts": [
+    {
+     "rule": "edgar_formd",
+     "capture_url": "https://data.sec.gov/submissions/CIK0002156237.json",
+     "label": "Form D filings (D or D/A) listed in the EDGAR submissions index's recent window",
+     "value": "1"
+    }
+   ]
+  }
+ ]
+}

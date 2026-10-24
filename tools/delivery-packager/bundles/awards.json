@@ -1,0 +1,14 @@
+{
+ "about": "Capture bundle for tools/delivery_packager.py --replay. Every entry points at a capture already committed in this repository; the packager checks it against its recorded SHA-256, or rebuilds it byte for byte, before serving it.",
+ "captures": [
+  {
+   "kind": "usaspending",
+   "request": "{\"filters\":{\"award_type_codes\":[\"A\",\"B\",\"C\",\"D\"],\"recipient_search_text\":[\"Boeing\"]},\"fields\":[\"Award ID\",\"Recipient Name\",\"Award Amount\",\"Awarding Agency\",\"Description\",\"Start Date\",\"End Date\",\"NAICS\",\"generated_internal_id\"],\"page\":1,\"limit\":2,\"sort\":\"Award Amount\",\"order\":\"desc\",\"subawards\":false}",
+   "origin": {
+    "type": "usaspending_fixture",
+    "body": "tools/tests/fixtures/usaspending/recipient.json",
+    "meta": "tools/tests/fixtures/usaspending/recipient.meta.json"
+   }
+  }
+ ]
+}

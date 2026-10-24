@@ -1,0 +1,39 @@
+{
+ "format": "tiny-ledger delivery package",
+ "version": 1,
+ "tool": "tools/delivery_packager.py",
+ "service": "awards",
+ "subject": "Boeing",
+ "buyer_ask": "Show the largest federal prime contract awards to this recipient on USAspending.",
+ "inputs": {
+  "recipient": "Boeing",
+  "limit": 2
+ },
+ "mode": "replay",
+ "packaged_utc": "2026-10-23T23:52:49Z",
+ "report_file": "report.md",
+ "deliverable_sha256": "84fe9eec4ce1c345a703cda02bd07a7e327cf4af420334bfd745ff994af99ee1",
+ "sections": [
+  {
+   "id": "S1",
+   "title": "USAspending prime contract awards, Boeing",
+   "captures": [
+    {
+     "url": "https://api.usaspending.gov/api/v2/search/spending_by_award/",
+     "request": "{\"filters\":{\"award_type_codes\":[\"A\",\"B\",\"C\",\"D\"],\"recipient_search_text\":[\"Boeing\"]},\"fields\":[\"Award ID\",\"Recipient Name\",\"Award Amount\",\"Awarding Agency\",\"Description\",\"Start Date\",\"End Date\",\"NAICS\",\"generated_internal_id\"],\"page\":1,\"limit\":2,\"sort\":\"Award Amount\",\"order\":\"desc\",\"subawards\":false}",
+     "retrieved_utc": "2026-10-23T00:17:52Z",
+     "evidence_sha256": "b77571eca7ef51670b4a1e8eeb0a1fa76ce11b933cad747b829d2e56830edff2",
+     "origin": "replayed from tools/tests/fixtures/usaspending/recipient.json with the request and retrieval time in tools/tests/fixtures/usaspending/recipient.meta.json (SHA-256 b77571eca7ef51670b4a1e8eeb0a1fa76ce11b933cad747b829d2e56830edff2)"
+    }
+   ],
+   "counts": [
+    {
+     "rule": "usa_records",
+     "capture_url": "https://api.usaspending.gov/api/v2/search/spending_by_award/",
+     "label": "USAspending awards returned on requested page 1",
+     "value": "2"
+    }
+   ]
+  }
+ ]
+}

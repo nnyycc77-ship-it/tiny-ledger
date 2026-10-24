@@ -1,0 +1,59 @@
+{
+ "format": "tiny-ledger delivery package",
+ "version": 1,
+ "tool": "tools/delivery_packager.py",
+ "service": "nonprofit",
+ "subject": "Feeding America",
+ "buyer_ask": "Confirm this nonprofit's identity and its latest Form 990 figures on ProPublica Nonprofit Explorer.",
+ "inputs": {
+  "name": "Feeding America"
+ },
+ "mode": "replay",
+ "packaged_utc": "2026-10-23T23:52:48Z",
+ "report_file": "report.md",
+ "deliverable_sha256": "8b6a67e6381e2b8ba8ef75fe3421a6d7ebf7f71ef8da3a42cfd7a95e9f43fb5e",
+ "sections": [
+  {
+   "id": "S1",
+   "title": "ProPublica Nonprofit Explorer search \"Feeding America\"",
+   "captures": [
+    {
+     "url": "https://projects.propublica.org/nonprofits/api/v2/search.json?q=Feeding+America",
+     "request": null,
+     "retrieved_utc": "2026-10-23T21:56:10Z",
+     "evidence_sha256": "376552cfde9efe37194cad863a0e754ed6e5bbd89f42df609900dbf2658dfebc",
+     "origin": "replayed from the transcript printed in tools/examples/nonprofit-pack.md (lines 202 to 226; SHA-256 376552cfde9efe37194cad863a0e754ed6e5bbd89f42df609900dbf2658dfebc)"
+    }
+   ],
+   "counts": [
+    {
+     "rule": "pp_orgs",
+     "capture_url": "https://projects.propublica.org/nonprofits/api/v2/search.json?q=Feeding+America",
+     "label": "Organizations on the search page for \"Feeding America\"",
+     "value": "16"
+    }
+   ]
+  },
+  {
+   "id": "S2",
+   "title": "ProPublica Nonprofit Explorer organization, EIN 363673599",
+   "captures": [
+    {
+     "url": "https://projects.propublica.org/nonprofits/api/v2/organizations/363673599.json",
+     "request": null,
+     "retrieved_utc": "2026-10-23T21:56:10Z",
+     "evidence_sha256": "91a8fd99798cf725087a1a3dcaa7aa1ab746bbe87ecf38a0180abbc3e0bc72de",
+     "origin": "replayed from the transcript printed in tools/examples/nonprofit-pack.md (lines 318 to 342; SHA-256 91a8fd99798cf725087a1a3dcaa7aa1ab746bbe87ecf38a0180abbc3e0bc72de)"
+    }
+   ],
+   "counts": [
+    {
+     "rule": "pp_filings",
+     "capture_url": "https://projects.propublica.org/nonprofits/api/v2/organizations/363673599.json",
+     "label": "filings_with_data entries for EIN 363673599",
+     "value": "12"
+    }
+   ]
+  }
+ ]
+}

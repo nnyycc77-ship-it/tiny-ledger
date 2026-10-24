@@ -1,0 +1,21 @@
+{
+ "about": "Capture bundle for tools/delivery_packager.py --replay. Every entry points at a capture already committed in this repository; the packager checks it against its recorded SHA-256, or rebuilds it byte for byte, before serving it.",
+ "captures": [
+  {
+   "kind": "propublica",
+   "url": "https://projects.propublica.org/nonprofits/api/v2/search.json?q=Feeding+America",
+   "origin": {
+    "type": "published_transcript",
+    "file": "tools/examples/nonprofit-pack.md"
+   }
+  },
+  {
+   "kind": "propublica",
+   "url": "https://projects.propublica.org/nonprofits/api/v2/organizations/363673599.json",
+   "origin": {
+    "type": "published_transcript",
+    "file": "tools/examples/nonprofit-pack.md"
+   }
+  }
+ ]
+}
