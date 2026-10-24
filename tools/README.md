@@ -941,6 +941,50 @@ Python in this process. ffmpeg and ffprobe run as subprocesses on local
 files, with no URLs given to them. The video cases skip when ffmpeg is
 missing.
 
+## Wave 2 endpoint offline integration pass (`tests/test_wave2_integration.py`)
+
+Issue #212, in the pattern of #100. It drives the eight wave 2 routes through
+`api/recall_api.handle`, the entry point the WSGI app serves. Each route's
+source is served from the recorded fixtures its own tool tests already use,
+through that test module's replay helper:
+
+| Route | Fixtures served by | Same text as the CLI |
+| --- | --- | --- |
+| `/flood` | `test_flood_check.replay` | drift, filed as #215 |
+| `/safety` | `test_safety_file.served` (2021 Hyundai Elantra) | yes, after the title block |
+| `/fda` | `test_fda_recall_check.replay` | drift, filed as #215 |
+| `/epa` | `test_epa_screen.served` (BAYTOWN OLEFINS hit) | yes, after the title block |
+| `/csl` | `test_csl_screen.replay`, temp `CSL_CACHE_DIR` | yes |
+| `/oig` | `test_oig_screen.replay` | drift, filed as #215 |
+| `/insider` | `test_insider_check.Fake` | yes |
+| `/faa` | `test_faa_lookup.assemble`, temp `TINY_LEDGER_CACHE` | yes, after the title block |
+
+```sh
+python3 -m unittest discover -s tools/tests -p 'test_wave2_integration.py' -v
+```
+
+**What a green run proves.** For every route:
+- the 200 body equals, byte for byte, what the tool's command line prints
+  for the same inputs on the same fixtures, after the dispatcher's title
+  block where it adds one;
+- each refused query shape answers 400 with a `Bad request: ` reason, while
+  the source fetch is replaced by one that fails the test if called;
+- a source failure answers 502 with no report in the body;
+- `/insider` with no operator contact answers 503 and fetches nothing.
+
+A coverage test fails if a wave 2 route is missing from the pass or from
+`ROUTES`.
+
+**Drift found.** The `/flood`, `/fda` and `/oig` bodies end with one more
+`\n` than the command line prints (#215). Those three same-text cases are
+marked as expected failures, citing #215, with the assertion unchanged. They
+turn into "unexpected success" once that is fixed.
+
+**What it does not prove.** Nothing about the live sources. The no-network
+guard replaces `urllib.request.urlopen` only. `/faa` downloads through its
+own opener, so there the guard is the replaced download, not the urlopen
+patch.
+
 ## Acceptance self tests for the built NEAR agents (`acceptance_all.py`)
 
 Issue #124. A marketplace tester checks a delivered agent against the job's
