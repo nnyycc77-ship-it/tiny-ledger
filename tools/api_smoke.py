@@ -110,6 +110,7 @@ FIXTURE_NAMES = {"descriptor": "descriptor.http", "payment": "recall-402.http", 
 ENDPOINT_FIXTURES = {
     "/app": ("app.http", "app_lookup_check.py"),
     "/awards": ("awards.http", "usaspending_awards.py"),
+    "/bank": ("bank.http", "bank_check.py"),
     "/carrier": ("carrier.http", "fmcsa_carrier.py"),
     "/csl": ("csl.http", "csl_screen.py"),
     "/drug": ("drug.http", "fda_drug_check.py"),
@@ -158,6 +159,7 @@ NO_ENDPOINT_CAPTURE = {
 BAD_QUERY_FIXTURES = {
     "/app": "app-400.http",
     "/awards": "awards-400.http",
+    "/bank": "bank-400.http",
     "/carrier": "carrier-400.http",
     "/csl": "csl-400.http",
     "/domain": "domain-400.http",
@@ -201,6 +203,7 @@ NO_400_CAPTURE = {
 SOURCE_FAILURE_FIXTURES = {
     "/app": "app-502.http",
     "/awards": "awards-502.http",
+    "/bank": "bank-502.http",
     "/carrier": "carrier-502.http",
     "/csl": "csl-502.http",
     "/domain": "domain-502.http",

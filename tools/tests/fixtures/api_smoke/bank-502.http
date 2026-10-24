@@ -1,0 +1,9 @@
+HTTP/1.0 502 Bad Gateway
+Date: Sat, 24 Oct 2026 12:22:06 GMT
+Server: WSGIServer/0.2 CPython/3.12.3
+Content-Type: text/plain; charset=utf-8
+Content-Length: 244
+Cache-Control: no-store
+X-Payout-Wallet: 0x1111111111111111111111111111111111111111
+
+request to https://banks.data.fdic.gov/api/Institutions?filters=NAME%3AJPMorgan%2A&fields=NAME%2CCERT%2CCITY%2CSTNAME%2CACTIVE&format=json&limit=5000&sort_by=NAME&sort_order=ASC failed: <urlopen error [Errno 111] Connection refused>; no report

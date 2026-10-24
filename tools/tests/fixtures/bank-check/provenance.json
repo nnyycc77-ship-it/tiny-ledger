@@ -1,0 +1,46 @@
+{
+  "source": "FDIC BankFind Institutions API, keyless, captured live by H8 on issue #320 with the tool's own fetch",
+  "note": "Each .headers file is the status line then the response headers in the order returned; each .body is the complete raw response body, verbatim.",
+  "jpmorgan-chase.headers": {
+    "sha256": "25aa2df5c08ba768dd733151a41f32aeb95875014342cef3f4cf5e633b3bc067",
+    "url": "https://banks.data.fdic.gov/api/Institutions?filters=NAME%3AJPMorgan%2A&fields=NAME%2CCERT%2CCITY%2CSTNAME%2CACTIVE&format=json&limit=5000&sort_by=NAME&sort_order=ASC",
+    "typed_name": "JPMorgan Chase Bank",
+    "retrieved": "2026-10-24T12:16:20Z",
+    "status": 200
+  },
+  "jpmorgan-chase.body": {
+    "sha256": "41d71cc5a3b1d4eab29ccae4251ed825e618b29d282038ce883980ca2523ea4c",
+    "url": "https://banks.data.fdic.gov/api/Institutions?filters=NAME%3AJPMorgan%2A&fields=NAME%2CCERT%2CCITY%2CSTNAME%2CACTIVE&format=json&limit=5000&sort_by=NAME&sort_order=ASC",
+    "typed_name": "JPMorgan Chase Bank",
+    "retrieved": "2026-10-24T12:16:20Z",
+    "status": 200
+  },
+  "wells-fargo.headers": {
+    "sha256": "8865eef412d56d392cd72d8b7069fb79f89a2da13bee08293c61cbbf8ddcf7fa",
+    "url": "https://banks.data.fdic.gov/api/Institutions?filters=NAME%3AWells%2A&fields=NAME%2CCERT%2CCITY%2CSTNAME%2CACTIVE&format=json&limit=5000&sort_by=NAME&sort_order=ASC",
+    "typed_name": "Wells Fargo Bank",
+    "retrieved": "2026-10-24T12:16:22Z",
+    "status": 200
+  },
+  "wells-fargo.body": {
+    "sha256": "584edd0a69f49554ca4b623d14bbd3af172cddaa98f16a7b281f2003892abbc3",
+    "url": "https://banks.data.fdic.gov/api/Institutions?filters=NAME%3AWells%2A&fields=NAME%2CCERT%2CCITY%2CSTNAME%2CACTIVE&format=json&limit=5000&sort_by=NAME&sort_order=ASC",
+    "typed_name": "Wells Fargo Bank",
+    "retrieved": "2026-10-24T12:16:22Z",
+    "status": 200
+  },
+  "zebra-none.headers": {
+    "sha256": "e9b0436668b97baf59c293f1f5fb9d9ccd4d6e5b03d72775db48a1609e25753e",
+    "url": "https://banks.data.fdic.gov/api/Institutions?filters=NAME%3AZebra%2A&fields=NAME%2CCERT%2CCITY%2CSTNAME%2CACTIVE&format=json&limit=5000&sort_by=NAME&sort_order=ASC",
+    "typed_name": "Zebra National Bank",
+    "retrieved": "2026-10-24T12:16:24Z",
+    "status": 200
+  },
+  "zebra-none.body": {
+    "sha256": "1fb74ad62c8465e741d0b5df580c468288aa1bf7dde7307ef9f7daca5946aea3",
+    "url": "https://banks.data.fdic.gov/api/Institutions?filters=NAME%3AZebra%2A&fields=NAME%2CCERT%2CCITY%2CSTNAME%2CACTIVE&format=json&limit=5000&sort_by=NAME&sort_order=ASC",
+    "typed_name": "Zebra National Bank",
+    "retrieved": "2026-10-24T12:16:24Z",
+    "status": 200
+  }
+}
