@@ -34,6 +34,7 @@ nothing else to the fetchers' output.
     /drug        tools/fda_drug_check.py       name
     /faa         tools/faa_lookup.py           n_number
     /weather     tools/weather_alert_check.py  lat, lon
+    /npi         tools/npi_check.py            query (NPI number or provider name)
 
 Each endpoint takes the fetcher's own command line inputs as query
 parameters under the same names (hyphens become underscores), validates
@@ -93,6 +94,7 @@ from tools import safety_file as sf  # noqa: E402
 from tools import usaspending_awards as ua  # noqa: E402
 from tools import vin_decode as vd  # noqa: E402
 from tools import weather_alert_check as wa  # noqa: E402
+from tools import npi_check as npi  # noqa: E402
 
 SERVICE_NAME = "Hojo Research Agent"
 
@@ -710,6 +712,26 @@ def weather(query, env=None):
 
 
 # ----------------------------------------------------------------------
+# /npi
+# ----------------------------------------------------------------------
+
+def npi_lookup(query, env=None):
+    """CMS NPI Registry check for an NPI number or a provider name via tools/npi_check.py."""
+    raw = _single(query, "query")
+    try:
+        if raw is None:
+            raise ValueError("give an NPI number (10 digits) or a provider name")
+        npi.check_query(raw)
+    except ValueError as err:
+        raise BadRequest(str(err))
+    try:
+        lines = npi.report(raw, fetcher=npi.fetch)
+    except npi.FetchError as err:
+        raise FetchFailed(str(err))
+    return _fetcher_text(lines)
+
+
+# ----------------------------------------------------------------------
 # /safety
 # ----------------------------------------------------------------------
 
@@ -920,6 +942,7 @@ ROUTES = {
     "/drug": drug,
     "/faa": faa_lookup,
     "/weather": weather,
+    "/npi": npi_lookup,
 }
 
 DESCRIPTIONS = {
@@ -957,6 +980,12 @@ DESCRIPTIONS = {
         "params": ["lat and lon (decimal degrees)"],
         "sources": [wa.ALERTS_URL],
         "note": "Keyless. US and territories coverage; an empty features array proves no active alerts at the retrieval time, never that conditions are safe.",
+    },
+    "/npi": {
+        "tool": "tools/npi_check.py",
+        "params": ["query (an NPI number, 10 digits, or a provider name)"],
+        "sources": [npi.API_URL],
+        "note": "Keyless. A name is read as an individual and as an organization; result_count is paged, never read as a total.",
     },
     "/github": {
         "tool": "tools/github_repo_check.py",

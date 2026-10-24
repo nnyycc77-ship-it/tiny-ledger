@@ -1,0 +1,21 @@
+HTTP/1.1 200 
+Content-Type: application/json
+Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
+X-Content-Type-Options: nosniff
+Date: Sat, 24 Oct 2026 12:26:33 GMT
+Expires: Thu, 01 Jan 1970 00:00:00 GMT
+Cache-Control: no-cache, no-store, must-revalidate
+Pragma: no-cache
+X-Cache: Miss from cloudfront
+Via: 1.1 a686c1130dbf0db1810a7edb8c080266.cloudfront.net (CloudFront)
+X-Amz-Cf-Pop: SFO53-P12
+Alt-Svc: h3=":443"; ma=86400
+X-Amz-Cf-Id: r8BvkgVoOg9DtqsrjWZDajAZbD6PlYPiJjibLlPZxsFCVWZ2_O9cVQ==
+X-XSS-Protection: 1; mode=block
+X-Frame-Options: SAMEORIGIN
+Referrer-Policy: same-origin
+Content-Security-Policy: default-src 'self' data:; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:;
+Connection: close
+Content-Length: 31
+
+{"result_count":0,"results":[]}

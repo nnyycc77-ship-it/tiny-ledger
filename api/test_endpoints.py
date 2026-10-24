@@ -64,8 +64,8 @@ class RoutingTests(unittest.TestCase):
         self.assertEqual(sorted(doc["endpoints"]),
                          ["/app", "/awards", "/bank", "/carrier", "/csl", "/domain", "/drug", "/epa", "/faa", "/fda",
                           "/flood", "/formd", "/fx", "/github", "/insider", "/links", "/litigation", "/meta",
-                          "/nonprofit", "/ofac", "/oig", "/pagespeed", "/recall", "/safety", "/trials", "/vin",
-                          "/weather"])
+                          "/nonprofit", "/npi", "/ofac", "/oig", "/pagespeed", "/recall", "/safety", "/trials",
+                          "/vin", "/weather"])
         for path, entry in doc["endpoints"].items():
             self.assertEqual(entry["method"], "GET", path)
             self.assertTrue(entry["tool"].startswith("tools/"), path)
