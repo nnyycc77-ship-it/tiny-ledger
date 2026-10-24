@@ -17,26 +17,39 @@ research before it goes into any listing or delivery.
   and a failed fetch never shows as "nothing found" (`AGENT-BRIEF.md`,
   hard rule 3; `PLAYBOOK.md`, lessons 3 and 4). Buyers can check that
   mechanically, which most agent sellers can't offer.
-- **There is a lot of capacity.** 41 fetchers in `tools/`, about 10 HTTP
-  endpoints in `api/` (`api/README.md`), an MCP server (`mcp_server/`),
-  AgentTab with 26 passing Foundry tests (`README.md`), and seven
-  prebuilt NEAR agents (`agents/`).
-- **The revenue is real but tiny.** Seven paid Synmerco jobs brought in
-  68.26 USDC (`AGENT-BRIEF.md`, hard rule 4), about 9.75 USDC per job.
+- **There is a lot of capacity.** 41 Python files in `tools/` at the
+  read this proposal was written from, about 30 of them source fetchers
+  and the rest support tools: pregate (`pregate.py`), smoke
+  (`api_smoke.py`, on live main), acceptance (`acceptance_all.py`,
+  `acceptance_common.py`), packager (`delivery_packager.py`), dataset
+  (`build_cpsc_dataset.py`, `validate_cpsc_dataset.py`) and probe
+  (`hosted_mcp_probe.py`) tools. Live main had moved to 42 Python files
+  in `tools/` at the 2026-10-24 correction read. The API serves 23
+  routes in total: 22 endpoints beyond `/recall` in the `api/README.md`
+  table, plus `/recall` itself. There is also an MCP server
+  (`mcp_server/`) and seven prebuilt NEAR agents (`agents/`).
+- **The revenue is real but tiny.** The figure in `AGENT-BRIEF.md`,
+  hard rule 4, of seven paid jobs and 68.26 USDC is superseded by the
+  delivery record of nine paid jobs and 78.0579 USDC as of 2026-10-24,
+  about 8.67 USDC per job.
 
 ### Constraints
 
 1. **Capacity is far ahead of demand.** Only one tool is sold for
-   per-call payment: `recall_check` at 0.05 USDC (`mcpize.yaml`). The
-   other endpoints earn nothing unless someone hires a 10 USD job.
+   per-call payment today: `recall_check` at 0.05 USDC (`mcpize.yaml`).
+   The ruled shelf price of 0.25 USDC per call under issue 147 is not
+   live until a redeploy carries it. The other endpoints earn nothing
+   unless someone hires a 10 USD job.
 2. **The prebuilds are speculative.** call-for-me, catering-finder,
    local-quotes, field-service-planner, media-generator, video-clipping
    and video-dubbing were each built for a NEAR job with a bid pending at
-   250 to 400 USDC (each `agents/*/README.md`). None is recorded as
-   awarded.
-3. **Process overhead is eating build time.** 30 of the 84 non-merge
-   commits in the history are census, pin or drift refreshes
-   (`git log --no-merges`), which add no new capability.
+   125 to 450 USDC per bid, totalling 1,775 USDC across the seven
+   prebuilds (each `agents/*/README.md`). None is recorded as awarded.
+3. **Process overhead is eating build time.** At the 2026-10-24 read,
+   about 32 of 178 non-merge commits in the history are census, pin,
+   drift or refresh commits (`git log --no-merges`; counted by commit
+   subjects naming a census, pin, drift or refresh, with false
+   positives removed), which add no new capability.
 4. **There are too many revision rounds.** One carrier-vetting delivery
    has five versions (the original plus rev1 to rev4) and demand-map has
    four (`deliveries/`). Revisions delay payment and cost margin.
@@ -48,12 +61,20 @@ research before it goes into any listing or delivery.
 
 ## 2. Scaling up the current business
 
-1. **Put every endpoint behind per-call payment.** Add `/carrier`,
-   `/litigation`, `/awards`, `/nonprofit`, `/formd`, `/pagespeed`,
-   `/domain`, `/app` and `/vin` to `mcpize.yaml` beside `recall_check`.
-   The code exists; it just isn't for sale. Price each tool by what it
-   saves the buyer, not one flat rate (estimate: 0.05 USDC for a single
-   lookup, 0.25 to 1 USDC for a multi-source screen).
+1. **Put the tools and endpoints behind per-call payment, as two
+   separate tracks.**
+   - **MCP tool pricing.** This is the shelf pricing already in flight
+     under issue 147: the MCP tools join the shelf at the ruled
+     0.25 USDC per call. That ruling supersedes the single lookup
+     estimate that was here before; it is a ruled price, not an
+     estimate.
+   - **HTTP API gate extension.** This is separate work. The x402
+     payment gate in `api/payment_gate.py` wraps `GET /recall` only
+     today (`api/README.md`). Extending the gate to the other API
+     routes, such as `/carrier`, `/litigation`, `/awards`,
+     `/nonprofit`, `/formd`, `/pagespeed`, `/domain`, `/app` and
+     `/vin`, is its own task, with its own acceptance bar, and is not
+     done by listing the MCP tools.
 2. **Sell bundles instead of single checks.** Combine existing fetchers
    into higher-value products:
    - **Vendor/KYB pack:** company registry, OFAC (`ofac_sdn_check.py`),
@@ -96,7 +117,6 @@ test through workstream E2, not findings.
 | Government contracting intel | `usaspending_awards.py` + `weekly_brief.py` | Small contractors and BD consultants; subscription |
 | Deal sourcing feed | `edgar_formd.py` + awards | VCs, real estate syndicators, M&A scouts |
 | Grantmaker diligence | `propublica_nonprofits.py`, `nonprofit_pack.py` | Foundations, donor-advised funds, CSR teams |
-| AgentTab as payment infrastructure | `contracts/AgentTab.sol` | Other agent sellers needing payment held until delivery; a separate optional-fee version after the grant (the v2 contract has no fee by design) |
 | Bilingual EN/ZH research | `templates/service-09-bilingual-research-brief.md` | Cross-border sourcing and diligence buyers; less competition |
 | Public dataset builds | `templates/service-08-public-dataset-build.md`, `datasets/` | AI and data teams wanting sourced, licence-clean CSVs |
 | Read-only Solidity reviews | `templates/service-10-solidity-read-only-review.md` | Small Web3 projects before launch |
@@ -108,9 +128,9 @@ want.
 
 ## 4. Suggested order
 
-1. **This week:** put all endpoints behind per-call payment, and finish
-   the AgentTab mainnet deployment and grant submission (deadline
-   Nov 1, 2026).
+1. **This week:** carry the two per-call tracks in section 2, item 1:
+   the MCP shelf at the ruled price, and the separate HTTP API gate
+   extension.
 2. **Next two weeks:** run the E3 price scan, launch the KYB and
    carrier-onboarding packs, and automate the census refreshes.
 3. **Within a month:** launch one monitoring subscription (carrier or
